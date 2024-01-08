@@ -1,6 +1,6 @@
 {
   "lockFileVersion": 3,
-  "moduleFileHash": "f48451fa55e47b3e940ada4ff68686cb649e685ad59f03cc130dac117f00445b",
+  "moduleFileHash": "52ecdcb07d692508dc330491ce2a8741a771ecd906bd994126d2180815c99246",
   "flags": {
     "cmdRegistries": [
       "https://raw.githubusercontent.com/bazelbuild/bazel-central-registry/main/"

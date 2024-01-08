@@ -28,12 +28,12 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use std::path::PathBuf;
+use maliput_sdk::sdk_libraries;
 
-/// Returns a map of libraries here vendored and the directories to search for the binaries
-pub fn sdk_libraries() -> Vec<(String, PathBuf)> {
-    vec![
-        ("maliput".to_string(), PathBuf::from(env!("MALIPUT_BIN_PATH"))),
-        ("maliput_malidrive".to_string(), PathBuf::from(env!("MALIPUT_MALIDRIVE_BIN_PATH"))),
-    ]
+pub fn main () {
+    // Get maliput_malidrive
+    let libs = sdk_libraries();
+    let maliput_malidrive = libs.get(1).unwrap();
+    let maliput_malidrive_plugin_path = maliput_malidrive.1.join("maliput_plugins").join("libmaliput_malidrive_road_network.so.runfiles").join("_main").join("maliput_plugins");
+    println!("{}", maliput_malidrive_plugin_path.display());
 }

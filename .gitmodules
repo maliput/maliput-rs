@@ -1,0 +1,4 @@
+[submodule "maliput-sdk/maliput_malidrive"]
+	path = maliput-sdk/maliput_malidrive
+	url = https://github.com/francocipollone/maliput_malidrive.git
+	branch = francocipollone/rust_bazel_plugin_lib

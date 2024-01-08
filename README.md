@@ -25,12 +25,25 @@ cargo build
 
 TODO
 
+## Executables
+
+### maliput-sdk
+
+ - Print libraries being vendored
+   ```sh
+   cargo run --bin maliput-sdk
+   ```
+
+ - Get location of maliput_malidrive's plugin library:
+   ```sh
+   cargo run --bin maliput_malidrive_plugin_path
+   ```
+
 ## Examples
 
 ### maliput-sys
+
  - Load `maliput::api::RoadNetwork` and perform some basic queries
     ```
-    cargo run --examples create_rn
+    cargo run --example create_rn
     ```
-
-    _Note: RoadNetworks are loaded via [maliput plugin architecture](https://maliput.readthedocs.io/en/latest/html/deps/maliput/html/maliput_plugin_architecture.html), therefore a valid `MALIPUT_PLUGIN_PATH` env var must be set. It will be handleded automatically in the future when maliput_malidrive's binaries are also brought._
