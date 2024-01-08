@@ -3,4 +3,5 @@ resolver = "2"
 
 members = [
     "maliput-sdk",
+    "maliput-sys",
 ]
