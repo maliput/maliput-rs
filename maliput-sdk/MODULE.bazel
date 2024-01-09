@@ -1,0 +1,12 @@
+"""
+Welcome to Maliput Malidrive!
+"""
+
+module(
+    name = "maliput_sdk",
+    compatibility_level = 1,
+    version = "0.1.0",
+)
+
+bazel_dep(name = "rules_cc", version = "0.0.9")
+bazel_dep(name = "maliput", version = "1.2.0")

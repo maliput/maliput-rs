@@ -1,0 +1,26 @@
+###############################################################################
+# Loaders
+###############################################################################
+
+
+###############################################################################
+# Libraries
+###############################################################################
+
+# Dummy binary to force maliput to be downloaded from BCR.
+cc_binary(
+    name = "maliput_sdk",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@maliput//:api",
+        "@maliput//:base",
+        "@maliput//:common",
+        "@maliput//:drake",
+        "@maliput//:math",
+        "@maliput//:geometry_base",
+        "@maliput//:plugin",
+        "@maliput//:utility",
+    ],
+    linkshared = True,
+    linkstatic = False
+)
