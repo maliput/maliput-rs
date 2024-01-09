@@ -55,7 +55,20 @@ fn main() -> Result<(), Box<dyn Error>> {
     let bazel_bin_dir = bazel_output_base_dir.join("bazel-bin");
 
 
-    // ************* Maliput Files ************* //
+    // TODO(francocipollone): Remove this custom build once maliput_malidrive is within BCR.
+    env::set_current_dir("maliput_malidrive")
+    .unwrap_or_else(|_| panic!("Unable to change directory to {}", "maliput_malidrive"));
+    let build_malidrive = std::process::Command::new("bazel")
+        .arg("build")
+        .arg("//...")
+        .status()
+        .expect("Failed to generate build script");
+    if build_malidrive.code() != Some(0) {
+        panic!("Failed to generate build script");
+    }
+    let maliput_malidrive_bin_path = PathBuf::from(env::current_dir().unwrap()).join("bazel-bin");
+
+    // ************* maliput header files ************* //
 
     // TODO(francocipollone): Get version from MODULE.bazel configuration.
     let maliput_version = "1.2.0";
@@ -77,13 +90,27 @@ fn main() -> Result<(), Box<dyn Error>> {
         println!("cargo:CXXBRIDGE_DIR{}={}", i, path.display());
     }
 
+    // ************* maliput_malidrive header files ************* //
+    // TODO(francocipollone): For consistency we should also add include paths for maliput_malidrive.
+
+    // ************* crate output env vars ************* //
+
     // Environment variable to pass down to this crate:
     println!("cargo:rustc-env=MALIPUT_BIN_PATH={}", maliput_bin_path.display());
+    println!("cargo:rustc-env=MALIPUT_MALIDRIVE_BIN_PATH={}", maliput_malidrive_bin_path.display());
 
     // Environment variable to pass down to dependent crates:
     // See: https://doc.rust-lang.org/cargo/reference/build-scripts.html#the-links-manifest-key
     println!("cargo:root={}", out_dir.display()); //> Accessed as MALIPUT_SDK_ROOT
     println!("cargo:maliput_bin_path={}", maliput_bin_path.display()); //> Accessed as MALIPUT_SDK_MALIPUT_BIN_PATH
+    println!("cargo:maliput_malidrive_bin_path={}", maliput_malidrive_bin_path.display()); //> Accessed as MALIPUT_SDK_MALIPUT_MALIDRIVE_BIN_PATH
+    println!("cargo:maliput_malidrive_plugin_path={}",
+        maliput_malidrive_bin_path
+        .join("maliput_plugins")
+        .join("libmaliput_malidrive_road_network.so.runfiles")
+        .join("_main")
+        .join("maliput_plugins")
+        .display()); //> Accessed as MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH
 
     Ok(())
 
