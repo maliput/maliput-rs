@@ -28,6 +28,52 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-pub mod api;
-pub mod math;
-pub mod plugin;
+#pragma once
+
+#include <memory>
+
+#include "maliput/math/vector.h"
+
+#include <rust/cxx.h>
+
+namespace maliput {
+namespace math {
+
+/// Creates a new maliput::math::Vector3.
+/// Forwads to maliput::math::Vector3(double x, double y, double z) constructor.
+std::unique_ptr<Vector3> Vector3_new(rust::f64 x, rust::f64 y, rust::f64 z) {
+  return std::make_unique<Vector3>(x, y, z);
+}
+
+/// Returns the norm of the vector.
+/// Forwards to maliput::math::Vector3::norm() method.
+double Vector3_norm(const Vector3& self) {
+  return self.norm();
+}
+
+/// Returns the dot product of two vectors.
+/// Forwards to maliput::math::Vector3::dot(const Vector3& other) method.
+double Vector3_dot(const Vector3& self, const Vector3& other) {
+  return self.dot(other);
+}
+
+/// Returns the cross product of two vectors.
+/// Forwards to maliput::math::Vector3::cross(const Vector3& other) method.
+std::unique_ptr<Vector3> Vector3_cross(const Vector3& self, const Vector3& other) {
+  return std::make_unique<Vector3>(self.cross(other));
+}
+
+/// Returns true if the two vectors are equal.
+/// Forwards to maliput::math::Vector3::operator==(const Vector3& other) method.
+bool Vector3_equals(const Vector3& self, const Vector3& other) {
+  return self == other;
+}
+
+/// Returns the string representation of the vector.
+/// Forwards to maliput::math::Vector3::to_str() method.
+rust::string Vector3_to_str(const Vector3& self) {
+  return self.to_str();
+}
+
+} // namespace math
+}  // namespace maliput

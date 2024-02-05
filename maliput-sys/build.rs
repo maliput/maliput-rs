@@ -36,6 +36,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed=src/lib.rs");
     println!("cargo:rerun-if-changed=src/create_road_network_wrapper.h");
+    println!("cargo:rerun-if-changed=src/math/math.h");
+    println!("cargo:rerun-if-changed=src/math/mod.rs");
 
     let maliput_bin_path = PathBuf::from(env::var("DEP_MALIPUT_SDK_MALIPUT_BIN_PATH").expect("DEP_MALIPUT_SDK_MALIPUT_BIN_PATH not set"));
 
@@ -43,16 +45,16 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Link to all the libraries in the bazel-bin folder.
     // The order of these is important! Otherwise, we get undefined reference errors.
+    println!("cargo:rustc-link-lib=math");
+    println!("cargo:rustc-link-lib=common");
     println!("cargo:rustc-link-lib=drake");
     println!("cargo:rustc-link-lib=geometry_base");
     println!("cargo:rustc-link-lib=plugin");
-    println!("cargo:rustc-link-lib=common");
     println!("cargo:rustc-link-lib=utility");
-    println!("cargo:rustc-link-lib=math");
     println!("cargo:rustc-link-lib=base");
     println!("cargo:rustc-link-lib=api");
 
-    cxx_build::bridges(["src/api.rs", "src/plugin.rs"])
+    cxx_build::bridges(["src/api.rs", "src/math/mod.rs", "src/plugin.rs"])
         .flag_if_supported("-std=c++17")
         .include("src")
         .compile("maliput-sys");

@@ -28,6 +28,24 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-pub mod api;
-pub mod math;
-pub mod plugin;
+#[cxx::bridge(namespace = "maliput::math")]
+pub mod ffi {
+    unsafe extern "C++" {
+        include!("maliput/math/vector.h");
+        include!("math/math.h");
+
+        #[namespace = "maliput::math"]
+        type Vector3;
+        fn Vector3_new(x: f64, y: f64, z: f64) -> UniquePtr<Vector3>;
+        fn x(self: &Vector3) -> f64;
+        fn y(self: &Vector3) -> f64;
+        fn z(self: &Vector3) -> f64;
+
+        fn Vector3_norm(v: &Vector3) -> f64;
+        fn Vector3_dot(v: &Vector3, w: &Vector3) -> f64;
+        fn Vector3_cross(v: &Vector3, w: &Vector3) -> UniquePtr<Vector3>;
+
+        fn Vector3_equals(v: &Vector3, w: &Vector3) -> bool;
+        fn Vector3_to_str(v: &Vector3) -> String;
+    }
+}
