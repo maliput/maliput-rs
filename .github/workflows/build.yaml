@@ -20,7 +20,7 @@ jobs:
     name: Rust project
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/maliput-rs-rust-ci:latest
+      image: ghcr.io/${{ github.repository }}-rust-ci:latest
     steps:
       - uses: actions/checkout@v4
       # Set the Rust toolchain to the version specified in the env
