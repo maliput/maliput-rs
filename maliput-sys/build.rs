@@ -39,7 +39,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rerun-if-changed=src/math/math.h");
     println!("cargo:rerun-if-changed=src/math/mod.rs");
 
-    let maliput_bin_path = PathBuf::from(env::var("DEP_MALIPUT_SDK_MALIPUT_BIN_PATH").expect("DEP_MALIPUT_SDK_MALIPUT_BIN_PATH not set"));
+    let maliput_bin_path =
+        PathBuf::from(env::var("DEP_MALIPUT_SDK_MALIPUT_BIN_PATH").expect("DEP_MALIPUT_SDK_MALIPUT_BIN_PATH not set"));
 
     println!("cargo:rustc-link-search=native={}", maliput_bin_path.display());
 
@@ -59,11 +60,16 @@ fn main() -> Result<(), Box<dyn Error>> {
         .include("src")
         .compile("maliput-sys");
 
-
-    let maliput_malidrive_plugin_path = PathBuf::from(env::var("DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH").expect("DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH not set"));
+    let maliput_malidrive_plugin_path = PathBuf::from(
+        env::var("DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH")
+            .expect("DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH not set"),
+    );
 
     // Environment variables are available from within binaries and tests in the crate.
-    println!("cargo:rustc-env=MALIPUT_PLUGIN_PATH={}", maliput_malidrive_plugin_path.display());
+    println!(
+        "cargo:rustc-env=MALIPUT_PLUGIN_PATH={}",
+        maliput_malidrive_plugin_path.display()
+    );
 
     Ok(())
 }

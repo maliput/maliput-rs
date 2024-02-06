@@ -30,10 +30,15 @@
 
 use maliput_sdk::sdk_libraries;
 
-pub fn main () {
+pub fn main() {
     // Get maliput_malidrive
     let libs = sdk_libraries();
     let maliput_malidrive = libs.get(1).unwrap();
-    let maliput_malidrive_plugin_path = maliput_malidrive.1.join("maliput_plugins").join("libmaliput_malidrive_road_network.so.runfiles").join("_main").join("maliput_plugins");
+    let maliput_malidrive_plugin_path = maliput_malidrive
+        .1
+        .join("maliput_plugins")
+        .join("libmaliput_malidrive_road_network.so.runfiles")
+        .join("_main")
+        .join("maliput_plugins");
     println!("{}", maliput_malidrive_plugin_path.display());
 }

@@ -36,16 +36,14 @@
 /// ```rust, no_run
 /// use maliput::math::Vector3;
 ///
-/// fn main() {
-///     let v = Vector3::new(1.0, 2.0, 3.0);
-///     println!("v = {}", v);
-///     assert_eq!(v.x(), 1.0);
-///     assert_eq!(v.y(), 2.0);
-///     assert_eq!(v.z(), 3.0);
-///     assert_eq!(v.norm(), (1.0_f64.powi(2) + 2.0_f64.powi(2) + 3.0_f64.powi(2)).sqrt());
-///     assert_eq!(v.dot(&v), 1.0_f64.powi(2) + 2.0_f64.powi(2) + 3.0_f64.powi(2));
-///     assert_eq!(v.cross(&v), Vector3::new(0.0, 0.0, 0.0));
-/// }
+/// let v = Vector3::new(1.0, 2.0, 3.0);
+/// println!("v = {}", v);
+/// assert_eq!(v.x(), 1.0);
+/// assert_eq!(v.y(), 2.0);
+/// assert_eq!(v.z(), 3.0);
+/// assert_eq!(v.norm(), (1.0_f64.powi(2) + 2.0_f64.powi(2) + 3.0_f64.powi(2)).sqrt());
+/// assert_eq!(v.dot(&v), 1.0_f64.powi(2) + 2.0_f64.powi(2) + 3.0_f64.powi(2));
+/// assert_eq!(v.cross(&v), Vector3::new(0.0, 0.0, 0.0));
 /// ```
 pub struct Vector3 {
     v: cxx::UniquePtr<maliput_sys::math::ffi::Vector3>,
@@ -55,7 +53,7 @@ impl Vector3 {
     /// Create a new `Vector3` with the given `x`, `y`, and `z` components.
     pub fn new(x: f64, y: f64, z: f64) -> Vector3 {
         Vector3 {
-            v: maliput_sys::math::ffi::Vector3_new(x, y, z)
+            v: maliput_sys::math::ffi::Vector3_new(x, y, z),
         }
     }
     /// Get the `x` component of the `Vector3`.
@@ -81,7 +79,7 @@ impl Vector3 {
     /// Get the cross product of the `Vector3` with another `Vector3`.
     pub fn cross(&self, w: &Vector3) -> Vector3 {
         Vector3 {
-            v: maliput_sys::math::ffi::Vector3_cross(&self.v, &w.v)
+            v: maliput_sys::math::ffi::Vector3_cross(&self.v, &w.v),
         }
     }
 }
@@ -90,7 +88,6 @@ impl PartialEq for Vector3 {
     fn eq(&self, other: &Self) -> bool {
         maliput_sys::math::ffi::Vector3_equals(&self.v, &other.v)
     }
-
 }
 
 impl Eq for Vector3 {}
@@ -132,14 +129,14 @@ mod tests {
     #[test]
     fn vector3_norm() {
         let v = super::Vector3::new(1.0, 2.0, 3.0);
-        assert_eq!(v.norm(), (v.x()*v.x() + v.y()*v.y() + v.z()*v.z()).sqrt());
+        assert_eq!(v.norm(), (v.x() * v.x() + v.y() * v.y() + v.z() * v.z()).sqrt());
     }
 
     #[test]
     fn vector3_dot() {
         let v = super::Vector3::new(1.0, 2.0, 3.0);
         let w = super::Vector3::new(4.0, 5.0, 6.0);
-        assert_eq!(v.dot(&w), v.x()*w.x() + v.y()*w.y() + v.z()*w.z());
+        assert_eq!(v.dot(&w), v.x() * w.x() + v.y() * w.y() + v.z() * w.z());
     }
 
     #[test]
@@ -147,8 +144,8 @@ mod tests {
         let v = super::Vector3::new(1.0, 2.0, 3.0);
         let w = super::Vector3::new(4.0, 5.0, 6.0);
         let cross = v.cross(&w);
-        assert_eq!(cross.x(), v.y()*w.z() - v.z()*w.y());
-        assert_eq!(cross.y(), v.z()*w.x() - v.x()*w.z());
-        assert_eq!(cross.z(), v.x()*w.y() - v.y()*w.x());
+        assert_eq!(cross.x(), v.y() * w.z() - v.z() * w.y());
+        assert_eq!(cross.y(), v.z() * w.x() - v.x() * w.z());
+        assert_eq!(cross.z(), v.x() * w.y() - v.y() * w.x());
     }
 }

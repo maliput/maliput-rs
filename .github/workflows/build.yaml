@@ -1,4 +1,4 @@
-name: Build
+name: CI
 
 on:
   push:
@@ -13,6 +13,18 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/${{ github.repository }}-rust-ci:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Indicate safe directory
+        ## See https://github.com/actions/checkout/issues/363
+        run: git config --global --add safe.directory $(realpath .)
+      - run: pre-commit run --all-files --verbose --show-diff-on-failure
+
   build_and_test:
     name: Build & Test
     runs-on: ubuntu-latest
