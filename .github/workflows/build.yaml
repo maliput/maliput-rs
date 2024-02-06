@@ -7,9 +7,6 @@ on:
   pull_request:
   workflow_dispatch:
 
-env:
-  rust_version: 1.75.0
-
 # Cancel previously running PR jobs
 concurrency:
   group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
@@ -23,10 +20,6 @@ jobs:
       image: ghcr.io/${{ github.repository }}-rust-ci:latest
     steps:
       - uses: actions/checkout@v4
-      # Set the Rust toolchain to the version specified in the env
-      # We already have a Docker image with the correct Rust version installed (mainly used for devcontainer)
-      # but using this action allow us to use the same workflow for different Rust versions.
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: ${{ env.rust_version }}
+      - run: cargo check --workspace --all-targets
       - run: cargo build --workspace --all-targets
+      - run: cargo test --workspace --all-targets
