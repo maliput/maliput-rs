@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   build_and_test:
-    name: Rust project
+    name: Build & Test
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/${{ github.repository }}-rust-ci:latest
