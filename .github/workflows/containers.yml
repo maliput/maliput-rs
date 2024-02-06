@@ -10,11 +10,10 @@ env:
 
 on:
   push:
-    # TODO: Uncomment the following line to restrict the action to the main branch
-    # paths:
-    #   - .devcontainer/rust-zen/Dockerfile
-    # branches:
-      # - main # Uncomment!
+    paths:
+      - .devcontainer/rust-zen/Dockerfile
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
