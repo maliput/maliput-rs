@@ -81,6 +81,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "maliput"
+version = "0.1.0"
+dependencies = [
+ "cxx",
+ "maliput-sys",
+]
+
+[[package]]
 name = "maliput-sdk"
 version = "0.1.0"
 

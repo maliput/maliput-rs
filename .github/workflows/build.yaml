@@ -7,13 +7,19 @@ on:
   pull_request:
   workflow_dispatch:
 
+# Cancel previously running PR jobs
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
 jobs:
   build_and_test:
-    name: Rust project
+    name: Build & Test
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/${{ github.repository }}-rust-ci:latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - run: cargo build --release --all-features
+      - uses: actions/checkout@v4
+      - run: cargo check --workspace --all-targets
+      - run: cargo build --workspace --all-targets
+      - run: cargo test --workspace --all-targets
