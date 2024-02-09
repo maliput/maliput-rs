@@ -28,6 +28,15 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-pub mod api;
-pub mod math;
-pub mod plugin;
+use maliput::math::Vector3;
+
+fn main() {
+    let v = Vector3::new(1.0, 2.0, 3.0);
+    println!("v = {}", v);
+    assert_eq!(v.x(), 1.0);
+    assert_eq!(v.y(), 2.0);
+    assert_eq!(v.z(), 3.0);
+    assert_eq!(v.norm(), (1.0_f64.powi(2) + 2.0_f64.powi(2) + 3.0_f64.powi(2)).sqrt());
+    assert_eq!(v.dot(&v), 1.0_f64.powi(2) + 2.0_f64.powi(2) + 3.0_f64.powi(2));
+    assert_eq!(v.cross(&v), Vector3::new(0.0, 0.0, 0.0));
+}
