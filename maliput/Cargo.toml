@@ -1,0 +1,10 @@
+[package]
+name = "maliput"
+version = "0.1.0"
+edition = "2021"
+authors = ["Franco Cipollone <franco.c@ekumenlabs.com>"]
+description = "Rust API for maliput"
+
+[dependencies]
+cxx = "1.0.78"
+maliput-sys = { path = "../maliput-sys" }
