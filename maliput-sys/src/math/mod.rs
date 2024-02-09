@@ -31,7 +31,6 @@
 #[cxx::bridge(namespace = "maliput::math")]
 pub mod ffi {
     unsafe extern "C++" {
-        include!("maliput/math/vector.h");
         include!("math/math.h");
 
         #[namespace = "maliput::math"]

@@ -32,12 +32,29 @@
 
 #include <memory>
 
-#include "maliput/math/vector.h"
+#include <maliput/math/vector.h>
 
 #include <rust/cxx.h>
 
 namespace maliput {
 namespace math {
+
+// Note
+// Primitives types are aliased at rust/cxx header file.
+// See https://github.com/dtolnay/cxx/blob/131fbc4a14c154a998eb9fc83b9dbb82a521fb1c/include/cxx.h#L455-L465
+// @{
+// using u8 = std::uint8_t;
+// using u16 = std::uint16_t;
+// using u32 = std::uint32_t;
+// using u64 = std::uint64_t;
+// using usize = std::size_t;
+// using i8 = std::int8_t;
+// using i16 = std::int16_t;
+// using i32 = std::int32_t;
+// using i64 = std::int64_t;
+// using f32 = float;
+// using f64 = double;
+// }@
 
 /// Creates a new maliput::math::Vector3.
 /// Forwads to maliput::math::Vector3(double x, double y, double z) constructor.
@@ -47,13 +64,13 @@ std::unique_ptr<Vector3> Vector3_new(rust::f64 x, rust::f64 y, rust::f64 z) {
 
 /// Returns the norm of the vector.
 /// Forwards to maliput::math::Vector3::norm() method.
-double Vector3_norm(const Vector3& self) {
+rust::f64 Vector3_norm(const Vector3& self) {
   return self.norm();
 }
 
 /// Returns the dot product of two vectors.
 /// Forwards to maliput::math::Vector3::dot(const Vector3& other) method.
-double Vector3_dot(const Vector3& self, const Vector3& other) {
+rust::f64 Vector3_dot(const Vector3& self, const Vector3& other) {
   return self.dot(other);
 }
 
@@ -71,8 +88,8 @@ bool Vector3_equals(const Vector3& self, const Vector3& other) {
 
 /// Returns the string representation of the vector.
 /// Forwards to maliput::math::Vector3::to_str() method.
-rust::string Vector3_to_str(const Vector3& self) {
-  return self.to_str();
+rust::String Vector3_to_str(const Vector3& self) {
+  return {self.to_str()};
 }
 
 } // namespace math
