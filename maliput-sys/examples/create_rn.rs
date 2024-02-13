@@ -32,11 +32,11 @@ use maliput_sys::plugin::ffi::CreateRoadNetwork;
 
 fn main() {
     println!("\nExecuting create_rn.rs example: ");
-
+    let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
     let road_network_loader_id = "maliput_malidrive".to_string();
     let properties = vec![
         "road_geometry_id:my_rg_from_rust".to_string(),
-        "opendrive_file:/opt/ros/foxy/share/maliput_malidrive/resources/odr/TShapeRoad.xodr".to_string(),
+        "opendrive_file:".to_string() + &package_location + "/examples/resources/TShapeRoad.xodr",
     ];
 
     let road_network = CreateRoadNetwork(&road_network_loader_id, &properties);
