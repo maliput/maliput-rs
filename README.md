@@ -57,3 +57,6 @@ TODO
     pre-commit run --all-files
     ```
     _Note: For installing `pre-commit` tool: `pip3 install pre-commit`_
+
+3. A hook will automatically added to run `pre-commit` every time a `git commit` call is made.
+  In order to skip this behavior you can `PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit`.
