@@ -58,8 +58,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     cxx_build::bridges(
         [
-            "src/api/mod.rs",
             "src/math/mod.rs",
+            "src/api/mod.rs",
             "src/plugin/mod.rs"
         ])
         .flag_if_supported("-std=c++17")

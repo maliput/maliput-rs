@@ -28,35 +28,45 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#[cxx::bridge(namespace = "maliput::api")]
-pub mod ffi {
-    unsafe extern "C++" {
-        include!("api/api.h");
+#[cfg(test)]
+mod api_test {
+    // use maliput_sys::api::ffi::LanePosition;
+    use maliput_sys::api::ffi::LanePosition_new;
+    use maliput_sys::api::ffi::LanePosition_srh;
+    // use maliput_sys::api::ffi::LanePosition_set_srh;
 
-        #[namespace = "maliput::math"]
-        type Vector3 = crate::math::ffi::Vector3;
+    // use maliput_sys::math::ffi::Vector3;
+    use maliput_sys::math::ffi::Vector3_new;
+    use maliput_sys::math::ffi::Vector3_norm;
 
-        #[namespace = "maliput::api"]
-        type RoadNetwork;
-        type RoadGeometry;
-        // RoadNetwork bindings definitions.
-        fn road_geometry(self: &RoadNetwork) -> *const RoadGeometry;
-        // RoadGeometry bindings definitions.
-        fn num_junctions(self: &RoadGeometry) -> i32;
-        fn linear_tolerance(self: &RoadGeometry) -> f64;
-        fn angular_tolerance(self: &RoadGeometry) -> f64;
-        fn num_branch_points(self: &RoadGeometry) -> i32;
-
-        // LanePosition bindings definitions.
-        type LanePosition;
-        fn LanePosition_new(s: f64, y: f64, z: f64) -> UniquePtr<LanePosition>;
-        fn s(self: &LanePosition) -> f64;
-        fn r(self: &LanePosition) -> f64;
-        fn h(self: &LanePosition) -> f64;
-        fn set_srh(self: Pin<&mut LanePosition>, srh: &Vector3);
-        fn LanePosition_srh(lane_pos: &LanePosition) -> UniquePtr<Vector3>;
-        fn LanePosition_set_srh(lane_pos: Pin<&mut LanePosition>, srh: &Vector3);
+    #[test]
+    fn laneposition_new() {
+        let lane_pos = LanePosition_new(1.0, 2.0, 3.0);
+        assert_eq!(lane_pos.s(), 1.0);
+        assert_eq!(lane_pos.r(), 2.0);
+        assert_eq!(lane_pos.h(), 3.0);
     }
-    impl UniquePtr<RoadNetwork> {}
-    impl UniquePtr<LanePosition> {}
+
+    #[test]
+    fn laneposition_srh() {
+        let lane_pos = LanePosition_new(1.0, 2.0, 3.0);
+        assert_eq!(Vector3_norm(&LanePosition_srh(&lane_pos)), 3.7416573867739413);
+    }
+
+    #[test]
+    fn laneposition_set_srh() {
+        let lane_pos = LanePosition_new(1.0, 2.0, 3.0);
+        let vector = Vector3_new(4.0, 5.0, 6.0);
+        //LanePosition_set_srh(lane_pos, &vector);
+    }   
+
+    #[test]
+    fn set_srh() {
+        let mut lane_pos = LanePosition_new(1.0, 2.0, 3.0);
+        let vector = Vector3_new(4.0, 5.0, 6.0);
+        lane_pos.set_srh(&vector);
+    }
+
+
+
 }
