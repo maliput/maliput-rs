@@ -15,7 +15,8 @@
                 "ms-vscode.cpptools-extension-pack",
                 "pbkit.vscode-pbkit",
                 "streetsidesoftware.code-spell-checker",
-                "yzhang.markdown-all-in-one"
+                "yzhang.markdown-all-in-one",
+                "tamasfe.even-better-toml"
             ]
         }
     }
