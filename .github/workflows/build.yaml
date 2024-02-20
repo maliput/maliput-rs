@@ -20,6 +20,8 @@ jobs:
       image: ghcr.io/${{ github.repository }}-rust-ci:latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - name: Indicate safe directory
         ## See https://github.com/actions/checkout/issues/363
         run: git config --global --add safe.directory $(realpath .)
@@ -32,6 +34,8 @@ jobs:
       image: ghcr.io/${{ github.repository }}-rust-ci:latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - run: cargo check --workspace --all-targets
       - run: cargo build --workspace --all-targets
       - run: cargo test --workspace --all-targets
