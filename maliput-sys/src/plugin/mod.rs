@@ -31,7 +31,7 @@
 #[cxx::bridge(namespace = "maliput::plugin")]
 pub mod ffi {
     unsafe extern "C++" {
-        include!("create_road_network_wrapper.h");
+        include!("plugin/plugin.h");
 
         #[namespace = "maliput::api"]
         type RoadNetwork = crate::api::ffi::RoadNetwork;
