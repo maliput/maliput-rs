@@ -55,7 +55,6 @@ pub mod ffi {
         fn h(self: &LanePosition) -> f64;
         fn set_srh(self: Pin<&mut LanePosition>, srh: &Vector3);
         fn LanePosition_srh(lane_pos: &LanePosition) -> UniquePtr<Vector3>;
-        fn LanePosition_set_srh(lane_pos: Pin<&mut LanePosition>, srh: &Vector3);
     }
     impl UniquePtr<RoadNetwork> {}
     impl UniquePtr<LanePosition> {}

@@ -33,7 +33,6 @@ mod api_test {
     // use maliput_sys::api::ffi::LanePosition;
     use maliput_sys::api::ffi::LanePosition_new;
     use maliput_sys::api::ffi::LanePosition_srh;
-    // use maliput_sys::api::ffi::LanePosition_set_srh;
 
     // use maliput_sys::math::ffi::Vector3;
     use maliput_sys::math::ffi::Vector3_new;
@@ -54,19 +53,9 @@ mod api_test {
     }
 
     #[test]
-    fn laneposition_set_srh() {
-        let lane_pos = LanePosition_new(1.0, 2.0, 3.0);
-        let vector = Vector3_new(4.0, 5.0, 6.0);
-        //LanePosition_set_srh(lane_pos, &vector);
-    }   
-
-    #[test]
     fn set_srh() {
         let mut lane_pos = LanePosition_new(1.0, 2.0, 3.0);
         let vector = Vector3_new(4.0, 5.0, 6.0);
-        lane_pos.set_srh(&vector);
+        lane_pos.as_mut().expect("").set_srh(&vector);
     }
-
-
-
 }
