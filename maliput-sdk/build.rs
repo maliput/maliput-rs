@@ -59,9 +59,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // TODO(francocipollone): Get version from MODULE.bazel configuration.
     let maliput_version = "1.2.0";
-    let maliput_bin_path = bazel_bin_dir.join("external").join(format!("maliput~{}", maliput_version));
+    let maliput_bin_path = bazel_bin_dir
+        .join("external")
+        .join(format!("maliput~{}", maliput_version));
     let maliput_malidrive_version: &str = "0.2.1";
-    let maliput_malidrive_bin_path = bazel_bin_dir.join("external").join(format!("maliput_malidrive~{}", maliput_malidrive_version));
+    let maliput_malidrive_bin_path = bazel_bin_dir
+        .join("external")
+        .join(format!("maliput_malidrive~{}", maliput_malidrive_version));
 
     // ************* maliput header files ************* //
 
@@ -103,9 +107,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     ); //> Accessed as MALIPUT_SDK_MALIPUT_MALIDRIVE_BIN_PATH
     println!(
         "cargo:maliput_malidrive_plugin_path={}",
-        maliput_malidrive_bin_path
-        .join("maliput_plugins")
-        .display()); //> Accessed as MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH
+        maliput_malidrive_bin_path.join("maliput_plugins").display()
+    ); //> Accessed as MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH
 
     Ok(())
 }
