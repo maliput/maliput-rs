@@ -1,4 +1,0 @@
-[submodule "maliput-sdk/maliput_malidrive"]
-	path = maliput-sdk/maliput_malidrive
-	url = https://github.com/maliput/maliput_malidrive.git
-	branch = main
