@@ -25,7 +25,7 @@
 Locally:
 
 * [Install VSCode](https://code.visualstudio.com/docs/setup/linux#_debian-and-ubuntu-based-distributions)
-* Install [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) 
+* Install [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
 * Open the project in VSCode
 * CTRL-SHIFT-P &rarr; Reopen in Container
 * Open a terminal in the container and run
@@ -45,4 +45,3 @@ CodeSpaces:
 ```
 @<github-username> ➜ /workspaces/maliput-rs (main) $ cargo build
 ```
-

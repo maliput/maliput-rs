@@ -6,7 +6,7 @@ Provides a Rust API for maliput.
 
 * [`maliput-sdk`](./maliput-sdk/): Brings binaries of maliput ecosystem to cargo workspace.
 * [`maliput-sys`](./maliput-sys/): Provides ffi Rust bindings for the [`maliput`](https://github.com/maliput/maliput) API.
-* [`maliput-rs`]: Provides a rustacean API for maliput on top of `maliput-sys`. (Not implemented yet.)
+* [`maliput`]: Provides a Rustacean API for maliput on top of `maliput-sys`.
 
 ## Prerequisites
 
@@ -47,3 +47,16 @@ TODO
     ```
     cargo run --example create_rn
     ```
+
+## Developer Guidelines
+
+1. A `devcontainer` is provided to easy setup the workspace. Refer to [.devcontainer](.devcontainer/README.md)
+
+2. `pre-commit` is configured at this repository. Execute pre-commit locally before creating a pull request.
+    ```
+    pre-commit run --all-files
+    ```
+    _Note: For installing `pre-commit` tool: `pip3 install pre-commit`_
+
+3. A hook will automatically added to run `pre-commit` every time a `git commit` call is made.
+  In order to skip this behavior you can `PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit`.

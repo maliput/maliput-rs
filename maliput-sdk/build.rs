@@ -45,7 +45,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     let code = std::process::Command::new("bazel")
         .arg(format!("--output_base={}", bazel_output_base_dir.display()))
         .arg("build")
-        .arg(format!("--symlink_prefix={}", bazel_output_base_dir.join("bazel-").display()))
+        .arg(format!(
+            "--symlink_prefix={}",
+            bazel_output_base_dir.join("bazel-").display()
+        ))
         .arg("//...")
         .status()
         .expect("Failed to generate build script");
@@ -56,9 +59,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // TODO(francocipollone): Get version from MODULE.bazel configuration.
     let maliput_version = "1.2.0";
-    let maliput_bin_path = bazel_bin_dir.join("external").join(format!("maliput~{}", maliput_version));
+    let maliput_bin_path = bazel_bin_dir
+        .join("external")
+        .join(format!("maliput~{}", maliput_version));
     let maliput_malidrive_version: &str = "0.2.1";
-    let maliput_malidrive_bin_path = bazel_bin_dir.join("external").join(format!("maliput_malidrive~{}", maliput_malidrive_version));
+    let maliput_malidrive_bin_path = bazel_bin_dir
+        .join("external")
+        .join(format!("maliput_malidrive~{}", maliput_malidrive_version));
 
     // ************* maliput header files ************* //
 
@@ -85,18 +92,23 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Environment variable to pass down to this crate:
     println!("cargo:rustc-env=MALIPUT_BIN_PATH={}", maliput_bin_path.display());
-    println!("cargo:rustc-env=MALIPUT_MALIDRIVE_BIN_PATH={}", maliput_malidrive_bin_path.display());
+    println!(
+        "cargo:rustc-env=MALIPUT_MALIDRIVE_BIN_PATH={}",
+        maliput_malidrive_bin_path.display()
+    );
 
     // Environment variable to pass down to dependent crates:
     // See: https://doc.rust-lang.org/cargo/reference/build-scripts.html#the-links-manifest-key
     println!("cargo:root={}", out_dir.display()); //> Accessed as MALIPUT_SDK_ROOT
     println!("cargo:maliput_bin_path={}", maliput_bin_path.display()); //> Accessed as MALIPUT_SDK_MALIPUT_BIN_PATH
-    println!("cargo:maliput_malidrive_bin_path={}", maliput_malidrive_bin_path.display()); //> Accessed as MALIPUT_SDK_MALIPUT_MALIDRIVE_BIN_PATH
-    println!("cargo:maliput_malidrive_plugin_path={}",
-        maliput_malidrive_bin_path
-        .join("maliput_plugins")
-        .display()); //> Accessed as MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH
+    println!(
+        "cargo:maliput_malidrive_bin_path={}",
+        maliput_malidrive_bin_path.display()
+    ); //> Accessed as MALIPUT_SDK_MALIPUT_MALIDRIVE_BIN_PATH
+    println!(
+        "cargo:maliput_malidrive_plugin_path={}",
+        maliput_malidrive_bin_path.join("maliput_plugins").display()
+    ); //> Accessed as MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH
 
     Ok(())
-
 }
