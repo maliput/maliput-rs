@@ -34,8 +34,8 @@ mod math_test {
 
     use maliput_sys::math::ffi::Vector3_cross;
     use maliput_sys::math::ffi::Vector3_dot;
-    use maliput_sys::math::ffi::Vector3_norm;
     use maliput_sys::math::ffi::Vector3_equals;
+    use maliput_sys::math::ffi::Vector3_norm;
 
     #[test]
     fn vector3_new() {
@@ -48,14 +48,14 @@ mod math_test {
     #[test]
     fn vector3_norm() {
         let v = Vector3_new(1.0, 2.0, 3.0);
-        assert_eq!(Vector3_norm(&v), (v.x()*v.x() + v.y()*v.y() + v.z()*v.z()).sqrt());
+        assert_eq!(Vector3_norm(&v), (v.x() * v.x() + v.y() * v.y() + v.z() * v.z()).sqrt());
     }
 
     #[test]
     fn vector3_dot() {
         let v = Vector3_new(1.0, 2.0, 3.0);
         let w = Vector3_new(4.0, 5.0, 6.0);
-        assert_eq!(Vector3_dot(&v, &w), v.x()*w.x() + v.y()*w.y() + v.z()*w.z());
+        assert_eq!(Vector3_dot(&v, &w), v.x() * w.x() + v.y() * w.y() + v.z() * w.z());
     }
 
     #[test]
@@ -63,9 +63,9 @@ mod math_test {
         let v = Vector3_new(1.0, 2.0, 3.0);
         let w = Vector3_new(4.0, 5.0, 6.0);
         let cross = Vector3_cross(&v, &w);
-        assert_eq!(cross.x(), v.y()*w.z() - v.z()*w.y());
-        assert_eq!(cross.y(), v.z()*w.x() - v.x()*w.z());
-        assert_eq!(cross.z(), v.x()*w.y() - v.y()*w.x());
+        assert_eq!(cross.x(), v.y() * w.z() - v.z() * w.y());
+        assert_eq!(cross.y(), v.z() * w.x() - v.x() * w.z());
+        assert_eq!(cross.z(), v.x() * w.y() - v.y() * w.x());
     }
 
     #[test]
@@ -74,5 +74,4 @@ mod math_test {
         let w = Vector3_new(1.0, 2.0, 3.0);
         assert!(Vector3_equals(&v, &w));
     }
-
 }

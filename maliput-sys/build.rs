@@ -41,7 +41,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rerun-if-changed=src/plugin/mod.rs");
     println!("cargo:rerun-if-changed=src/plugin/plugin.h");
 
-    let maliput_bin_path = PathBuf::from(env::var("DEP_MALIPUT_SDK_MALIPUT_BIN_PATH").expect("DEP_MALIPUT_SDK_MALIPUT_BIN_PATH not set"));
+    let maliput_bin_path =
+        PathBuf::from(env::var("DEP_MALIPUT_SDK_MALIPUT_BIN_PATH").expect("DEP_MALIPUT_SDK_MALIPUT_BIN_PATH not set"));
 
     println!("cargo:rustc-link-search=native={}", maliput_bin_path.display());
 
@@ -56,21 +57,21 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rustc-link-lib=base");
     println!("cargo:rustc-link-lib=api");
 
-    cxx_build::bridges(
-        [
-            "src/math/mod.rs",
-            "src/api/mod.rs",
-            "src/plugin/mod.rs"
-        ])
+    cxx_build::bridges(["src/math/mod.rs", "src/api/mod.rs", "src/plugin/mod.rs"])
         .flag_if_supported("-std=c++17")
         .include("src")
         .compile("maliput-sys");
 
-
-    let maliput_malidrive_plugin_path = PathBuf::from(env::var("DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH").expect("DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH not set"));
+    let maliput_malidrive_plugin_path = PathBuf::from(
+        env::var("DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH")
+            .expect("DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH not set"),
+    );
 
     // Environment variables are available from within binaries and tests in the crate.
-    println!("cargo:rustc-env=MALIPUT_PLUGIN_PATH={}", maliput_malidrive_plugin_path.display());
+    println!(
+        "cargo:rustc-env=MALIPUT_PLUGIN_PATH={}",
+        maliput_malidrive_plugin_path.display()
+    );
 
     Ok(())
 }

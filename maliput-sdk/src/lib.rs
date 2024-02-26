@@ -34,6 +34,9 @@ use std::path::PathBuf;
 pub fn sdk_libraries() -> Vec<(String, PathBuf)> {
     vec![
         ("maliput".to_string(), PathBuf::from(env!("MALIPUT_BIN_PATH"))),
-        ("maliput_malidrive".to_string(), PathBuf::from(env!("MALIPUT_MALIDRIVE_BIN_PATH"))),
+        (
+            "maliput_malidrive".to_string(),
+            PathBuf::from(env!("MALIPUT_MALIDRIVE_BIN_PATH")),
+        ),
     ]
 }

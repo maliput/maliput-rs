@@ -20,6 +20,7 @@ cc_binary(
         "@maliput//:geometry_base",
         "@maliput//:plugin",
         "@maliput//:utility",
+        "@maliput_malidrive//:maliput_plugins/libmaliput_malidrive_road_network.so",
     ],
     linkshared = True,
     linkstatic = False

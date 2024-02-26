@@ -30,7 +30,7 @@
 
 use maliput_sdk::sdk_libraries;
 
-pub fn main () {
+pub fn main() {
     println!("Listing libraries vendored by maliput-sdk:");
     let libs = sdk_libraries();
     for (name, path) in libs {
