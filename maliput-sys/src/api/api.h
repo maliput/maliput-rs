@@ -31,6 +31,7 @@
 #pragma once
 
 #include <memory>
+#include <sstream>
 
 #include <maliput/api/lane_data.h>
 #include <maliput/api/road_network.h>
@@ -47,12 +48,10 @@ std::unique_ptr<LanePosition> LanePosition_new(rust::f64 s, rust::f64 r, rust::f
   return std::make_unique<LanePosition>(s, r, h);
 }
 
-std::unique_ptr<maliput::math::Vector3> LanePosition_srh(const LanePosition& lane_pos) {
-  return std::make_unique<math::Vector3>(lane_pos.srh());
-}
-
-void LanePosition_set_srh(LanePosition& lane_pos, const maliput::math::Vector3& srh) {
-  lane_pos.set_srh(srh);
+rust::String LanePosition_to_str(const LanePosition& lane_pos) {
+  std::stringstream ss;
+  ss << lane_pos;
+  return {ss.str()};
 }
 
 } // namespace api

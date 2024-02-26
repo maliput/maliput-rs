@@ -32,7 +32,7 @@
 mod api_test {
     // use maliput_sys::api::ffi::LanePosition;
     use maliput_sys::api::ffi::LanePosition_new;
-    use maliput_sys::api::ffi::LanePosition_srh;
+    use maliput_sys::api::ffi::LanePosition_to_str;
 
     // use maliput_sys::math::ffi::Vector3;
     use maliput_sys::math::ffi::Vector3_new;
@@ -47,9 +47,30 @@ mod api_test {
     }
 
     #[test]
-    fn laneposition_srh() {
+    fn srh() {
         let lane_pos = LanePosition_new(1.0, 2.0, 3.0);
-        assert_eq!(Vector3_norm(&LanePosition_srh(&lane_pos)), 3.7416573867739413);
+        assert_eq!(Vector3_norm(lane_pos.srh()), 3.7416573867739413);
+    }
+
+    #[test]
+    fn set_s() {
+        let mut lane_pos = LanePosition_new(1.0, 2.0, 3.0);
+        lane_pos.as_mut().expect("").set_s(4.0);
+        assert_eq!(lane_pos.s(), 4.0);
+    }
+
+    #[test]
+    fn set_r() {
+        let mut lane_pos = LanePosition_new(1.0, 2.0, 3.0);
+        lane_pos.as_mut().expect("").set_r(4.0);
+        assert_eq!(lane_pos.r(), 4.0);
+    }
+
+    #[test]
+    fn set_h() {
+        let mut lane_pos = LanePosition_new(1.0, 2.0, 3.0);
+        lane_pos.as_mut().expect("").set_h(4.0);
+        assert_eq!(lane_pos.h(), 4.0);
     }
 
     #[test]
@@ -57,5 +78,14 @@ mod api_test {
         let mut lane_pos = LanePosition_new(1.0, 2.0, 3.0);
         let vector = Vector3_new(4.0, 5.0, 6.0);
         lane_pos.as_mut().expect("").set_srh(&vector);
+        assert_eq!(lane_pos.s(), 4.0);
+        assert_eq!(lane_pos.r(), 5.0);
+        assert_eq!(lane_pos.h(), 6.0);
+    }
+
+    #[test]
+    fn lane_position_to_str() {
+        let lane_pos = LanePosition_new(1.0, 2.0, 3.0);
+        assert_eq!(LanePosition_to_str(&lane_pos), "(s = 1, r = 2, h = 3)");
     }
 }

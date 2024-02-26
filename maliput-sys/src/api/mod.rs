@@ -49,12 +49,16 @@ pub mod ffi {
 
         // LanePosition bindings definitions.
         type LanePosition;
-        fn LanePosition_new(s: f64, y: f64, z: f64) -> UniquePtr<LanePosition>;
+        fn LanePosition_new(s: f64, r: f64, h: f64) -> UniquePtr<LanePosition>;
         fn s(self: &LanePosition) -> f64;
         fn r(self: &LanePosition) -> f64;
         fn h(self: &LanePosition) -> f64;
+        fn set_s(self: Pin<&mut LanePosition>, s: f64);
+        fn set_r(self: Pin<&mut LanePosition>, r: f64);
+        fn set_h(self: Pin<&mut LanePosition>, h: f64);
+        fn srh(self: &LanePosition) -> &Vector3;
         fn set_srh(self: Pin<&mut LanePosition>, srh: &Vector3);
-        fn LanePosition_srh(lane_pos: &LanePosition) -> UniquePtr<Vector3>;
+        fn LanePosition_to_str(lane_pos: &LanePosition) -> String;
     }
     impl UniquePtr<RoadNetwork> {}
     impl UniquePtr<LanePosition> {}
