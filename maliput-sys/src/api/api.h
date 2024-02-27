@@ -48,11 +48,42 @@ std::unique_ptr<LanePosition> LanePosition_new(rust::f64 s, rust::f64 r, rust::f
   return std::make_unique<LanePosition>(s, r, h);
 }
 
+/// Creates a new maliput::api::LanePosition.
+/// Forwads to maliput::api::LanePosition(double s, double r, double h) constructor.
 rust::String LanePosition_to_str(const LanePosition& lane_pos) {
   std::stringstream ss;
   ss << lane_pos;
   return {ss.str()};
 }
+
+/// Creates a new maliput::api::InertialPosition.
+/// Forwads to maliput::api::InertialPosition(double x, double y, double z) constructor.
+std::unique_ptr<InertialPosition> InertialPosition_new(rust::f64 x, rust::f64 y, rust::f64 z) {
+  return std::make_unique<InertialPosition>(x, y, z);
+}
+
+rust::String InertialPosition_to_str(const InertialPosition& inertial_pos) {
+  std::stringstream ss;
+  ss << inertial_pos;
+  return {ss.str()};
+}
+
+std::unique_ptr<InertialPosition> InertialPosition_operator_sum(const InertialPosition& lhs, const InertialPosition& rhs) {
+  return std::make_unique<InertialPosition>(lhs + rhs);
+}
+
+std::unique_ptr<InertialPosition> InertialPosition_operator_sub(const InertialPosition& lhs, const InertialPosition& rhs) {
+  return std::make_unique<InertialPosition>(lhs - rhs);
+}
+
+std::unique_ptr<InertialPosition> InertialPosition_operator_mul_scalar(const InertialPosition& lhs, rust::f64 scalar) {
+  return std::make_unique<InertialPosition>(lhs * scalar);
+}
+
+bool InertialPosition_operator_eq(const InertialPosition& lhs, const InertialPosition& rhs) {
+  return lhs == rhs;
+}
+
 
 } // namespace api
 } // namespace maliput
