@@ -59,6 +59,28 @@ pub mod ffi {
         fn srh(self: &LanePosition) -> &Vector3;
         fn set_srh(self: Pin<&mut LanePosition>, srh: &Vector3);
         fn LanePosition_to_str(lane_pos: &LanePosition) -> String;
+
+        // InertialPosition bindings definitions
+        type InertialPosition;
+        fn InertialPosition_new(x: f64, y: f64, z: f64) -> UniquePtr<InertialPosition>;
+        fn x(self: &InertialPosition) -> f64;
+        fn y(self: &InertialPosition) -> f64;
+        fn z(self: &InertialPosition) -> f64;
+        fn set_x(self: Pin<&mut InertialPosition>, x: f64);
+        fn set_y(self: Pin<&mut InertialPosition>, y: f64);
+        fn set_z(self: Pin<&mut InertialPosition>, z: f64);
+        fn xyz(self: &InertialPosition) -> &Vector3;
+        fn set_xyz(self: Pin<&mut InertialPosition>, xyz: &Vector3);
+        fn length(self: &InertialPosition) -> f64;
+        fn Distance(self: &InertialPosition, other: &InertialPosition) -> f64;
+        fn InertialPosition_to_str(inertial_pos: &InertialPosition) -> String;
+        fn InertialPosition_operator_eq(lhs: &InertialPosition, rhs: &InertialPosition) -> bool;
+        fn InertialPosition_operator_sum(lhs: &InertialPosition, rhs: &InertialPosition)
+            -> UniquePtr<InertialPosition>;
+        fn InertialPosition_operator_sub(lhs: &InertialPosition, rhs: &InertialPosition)
+            -> UniquePtr<InertialPosition>;
+        fn InertialPosition_operator_mul_scalar(lhs: &InertialPosition, scalar: f64) -> UniquePtr<InertialPosition>;
+
     }
     impl UniquePtr<RoadNetwork> {}
     impl UniquePtr<LanePosition> {}
