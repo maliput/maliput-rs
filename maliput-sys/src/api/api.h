@@ -28,38 +28,31 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#[cxx::bridge(namespace = "maliput::api")]
-pub mod ffi {
-    unsafe extern "C++" {
-        include!("api/api.h");
+#pragma once
 
-        #[namespace = "maliput::math"]
-        type Vector3 = crate::math::ffi::Vector3;
+#include <memory>
+#include <sstream>
 
-        #[namespace = "maliput::api"]
-        type RoadNetwork;
-        type RoadGeometry;
-        // RoadNetwork bindings definitions.
-        fn road_geometry(self: &RoadNetwork) -> *const RoadGeometry;
-        // RoadGeometry bindings definitions.
-        fn num_junctions(self: &RoadGeometry) -> i32;
-        fn linear_tolerance(self: &RoadGeometry) -> f64;
-        fn angular_tolerance(self: &RoadGeometry) -> f64;
-        fn num_branch_points(self: &RoadGeometry) -> i32;
+#include <maliput/api/lane_data.h>
+#include <maliput/api/road_network.h>
+#include <maliput/api/road_geometry.h>
 
-        // LanePosition bindings definitions.
-        type LanePosition;
-        fn LanePosition_new(s: f64, r: f64, h: f64) -> UniquePtr<LanePosition>;
-        fn s(self: &LanePosition) -> f64;
-        fn r(self: &LanePosition) -> f64;
-        fn h(self: &LanePosition) -> f64;
-        fn set_s(self: Pin<&mut LanePosition>, s: f64);
-        fn set_r(self: Pin<&mut LanePosition>, r: f64);
-        fn set_h(self: Pin<&mut LanePosition>, h: f64);
-        fn srh(self: &LanePosition) -> &Vector3;
-        fn set_srh(self: Pin<&mut LanePosition>, srh: &Vector3);
-        fn LanePosition_to_str(lane_pos: &LanePosition) -> String;
-    }
-    impl UniquePtr<RoadNetwork> {}
-    impl UniquePtr<LanePosition> {}
+#include <rust/cxx.h>
+
+namespace maliput {
+namespace api {
+
+/// Creates a new maliput::api::LanePosition.
+/// Forwads to maliput::api::LanePosition(double s, double r, double h) constructor.
+std::unique_ptr<LanePosition> LanePosition_new(rust::f64 s, rust::f64 r, rust::f64 h) {
+  return std::make_unique<LanePosition>(s, r, h);
 }
+
+rust::String LanePosition_to_str(const LanePosition& lane_pos) {
+  std::stringstream ss;
+  ss << lane_pos;
+  return {ss.str()};
+}
+
+} // namespace api
+} // namespace maliput

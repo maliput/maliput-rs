@@ -57,7 +57,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rustc-link-lib=base");
     println!("cargo:rustc-link-lib=api");
 
-    cxx_build::bridges(["src/api/mod.rs", "src/math/mod.rs", "src/plugin/mod.rs"])
+    cxx_build::bridges(["src/math/mod.rs", "src/api/mod.rs", "src/plugin/mod.rs"])
         .flag_if_supported("-std=c++17")
         .include("src")
         .compile("maliput-sys");
