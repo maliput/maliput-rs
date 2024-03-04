@@ -85,6 +85,7 @@ name = "maliput"
 version = "0.1.0"
 dependencies = [
  "cxx",
+ "maliput-sdk",
  "maliput-sys",
 ]
 

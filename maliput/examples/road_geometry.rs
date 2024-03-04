@@ -28,20 +28,26 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use std::path::PathBuf;
+use maliput::api::RoadNetwork;
+use std::collections::HashMap;
+fn main() {
+    // Set MALIPUT_PLUGIN_PATH
+    let maliput_malidrive_plugin_path = maliput_sdk::get_maliput_malidrive_plugin_path();
+    std::env::set_var("MALIPUT_PLUGIN_PATH", maliput_malidrive_plugin_path);
 
-/// Returns a map of libraries here vendored and the directories to search for the binaries.
-pub fn sdk_libraries() -> Vec<(String, PathBuf)> {
-    vec![
-        ("maliput".to_string(), PathBuf::from(env!("MALIPUT_BIN_PATH"))),
-        (
-            "maliput_malidrive".to_string(),
-            PathBuf::from(env!("MALIPUT_MALIDRIVE_BIN_PATH")),
-        ),
-    ]
-}
+    // Get location of odr resources
+    let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
+    let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
 
-/// Returns the path to the maliput_malidrive plugin.
-pub fn get_maliput_malidrive_plugin_path() -> PathBuf {
-    PathBuf::from(env!("MALIPUT_MALIDRIVE_PLUGIN_PATH"))
+    let mut properties = HashMap::new();
+    properties.insert("road_geometry_id", "my_rg_from_rust");
+    properties.insert("opendrive_file", xodr_path.as_str());
+
+    let road_network = RoadNetwork::new("maliput_malidrive", &properties);
+    let road_geometry = road_network.road_geometry();
+
+    // Excercise the RoadGeometry API.
+    println!("linear_tolerance: {}", road_geometry.linear_tolerance());
+    println!("angular_tolerance: {}", road_geometry.angular_tolerance());
+    println!("num_junctions: {}", road_geometry.num_junctions());
 }
