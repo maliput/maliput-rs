@@ -28,9 +28,10 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use maliput::api::RoadNetwork;
-use std::collections::HashMap;
 fn main() {
+    use maliput::api::RoadNetwork;
+    use std::collections::HashMap;
+
     // Set MALIPUT_PLUGIN_PATH
     let maliput_malidrive_plugin_path = maliput_sdk::get_maliput_malidrive_plugin_path();
     std::env::set_var("MALIPUT_PLUGIN_PATH", maliput_malidrive_plugin_path);
@@ -39,11 +40,12 @@ fn main() {
     let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
     let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
 
-    let mut properties = HashMap::new();
-    properties.insert("road_geometry_id", "my_rg_from_rust");
-    properties.insert("opendrive_file", xodr_path.as_str());
+    let road_network_properties = HashMap::from([
+        ("road_geometry_id", "my_rg_from_rust"),
+        ("opendrive_file", xodr_path.as_str()),
+    ]);
 
-    let road_network = RoadNetwork::new("maliput_malidrive", &properties);
+    let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties);
     let road_geometry = road_network.road_geometry();
 
     // Excercise the RoadGeometry API.

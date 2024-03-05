@@ -63,10 +63,8 @@ impl<'a> RoadGeometry<'a> {
 /// std::env::set_var("MALIPUT_PLUGIN_PATH", maliput_malidrive_plugin_path);
 /// let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
 /// let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
-/// let mut properties = HashMap::new();
-/// properties.insert("road_geometry_id", "my_rg_from_rust");
-/// properties.insert("opendrive_file", xodr_path.as_str());
-/// let road_network = RoadNetwork::new("maliput_malidrive", &properties);
+/// let road_network_properties = HashMap::from([("road_geometry_id", "my_rg_from_rust"), ("opendrive_file", xodr_path.as_str())]);
+/// let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties);
 /// let road_geometry = road_network.road_geometry();
 /// println!("num_junctions: {}", road_geometry.num_junctions());
 /// ```
