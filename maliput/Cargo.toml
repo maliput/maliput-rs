@@ -7,4 +7,5 @@ description = "Rust API for maliput"
 
 [dependencies]
 cxx = "1.0.78"
+maliput-sdk = { path = "../maliput-sdk" }
 maliput-sys = { path = "../maliput-sys" }

@@ -96,6 +96,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         "cargo:rustc-env=MALIPUT_MALIDRIVE_BIN_PATH={}",
         maliput_malidrive_bin_path.display()
     );
+    println!(
+        "cargo:rustc-env=MALIPUT_MALIDRIVE_PLUGIN_PATH={}",
+        maliput_malidrive_bin_path.join("maliput_plugins").display()
+    );
 
     // Environment variable to pass down to dependent crates:
     // See: https://doc.rust-lang.org/cargo/reference/build-scripts.html#the-links-manifest-key

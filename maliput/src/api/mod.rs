@@ -28,6 +28,85 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+/// A RoadGeometry.
+/// Wrapper around C++ implementation `maliput::api::RoadGeometry`.
+/// See RoadNetwork for an example of how to get a RoadGeometry.
+pub struct RoadGeometry<'a> {
+    rg: &'a maliput_sys::api::ffi::RoadGeometry,
+}
+
+impl<'a> RoadGeometry<'a> {
+    pub fn num_junctions(&self) -> i32 {
+        self.rg.num_junctions()
+    }
+    pub fn linear_tolerance(&self) -> f64 {
+        self.rg.linear_tolerance()
+    }
+    pub fn angular_tolerance(&self) -> f64 {
+        self.rg.angular_tolerance()
+    }
+    pub fn num_branch_points(&self) -> i32 {
+        self.rg.num_branch_points()
+    }
+}
+
+/// A RoadNetwork.
+/// Wrapper around C++ implementation `maliput::api::RoadNetwork`.
+///
+/// ## Example
+///
+/// ```rust, no_run
+/// use maliput::api::RoadNetwork;
+/// use std::collections::HashMap;
+///
+/// let maliput_malidrive_plugin_path = maliput_sdk::get_maliput_malidrive_plugin_path();
+/// std::env::set_var("MALIPUT_PLUGIN_PATH", maliput_malidrive_plugin_path);
+/// let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
+/// let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
+/// let road_network_properties = HashMap::from([("road_geometry_id", "my_rg_from_rust"), ("opendrive_file", xodr_path.as_str())]);
+/// let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties);
+/// let road_geometry = road_network.road_geometry();
+/// println!("num_junctions: {}", road_geometry.num_junctions());
+/// ```
+pub struct RoadNetwork {
+    rn: cxx::UniquePtr<maliput_sys::api::ffi::RoadNetwork>,
+}
+
+impl RoadNetwork {
+    /// Create a new `RoadNetwork` with the given `road_network_loader_id` and `properties`.
+    ///
+    /// # Requisites
+    /// The environment variable `MALIPUT_PLUGIN_PATH` must be set so maliput discovers the plugins.
+    ///
+    /// # Arguments
+    ///
+    /// * `road_network_loader_id` - The id of the road network loader.
+    /// * `properties` - The properties of the road network.
+    ///
+    /// # Details
+    /// It relies on `maliput_sys::plugin::ffi::CreateRoadNetwork` to create a new `RoadNetwork`.
+    pub fn new(road_network_loader_id: &str, properties: &std::collections::HashMap<&str, &str>) -> RoadNetwork {
+        // Translate the properties to ffi types
+        let mut properties_vec = Vec::new();
+        for (key, value) in properties.iter() {
+            properties_vec.push(format!("{}:{}", key, value));
+        }
+
+        RoadNetwork {
+            rn: maliput_sys::plugin::ffi::CreateRoadNetwork(&road_network_loader_id.to_string(), &properties_vec),
+        }
+    }
+
+    /// Get the `RoadGeometry` of the `RoadNetwork`.
+    pub fn road_geometry(&self) -> RoadGeometry {
+        unsafe {
+            RoadGeometry {
+                rg: self.rn.road_geometry().as_ref().expect(""),
+            }
+        }
+    }
+}
+
 /// A Lane Position.
 /// Wrapper around C++ implementation `maliput::api::LanePosition`.
 ///
