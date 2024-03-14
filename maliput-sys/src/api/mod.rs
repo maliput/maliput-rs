@@ -81,6 +81,27 @@ pub mod ffi {
             -> UniquePtr<InertialPosition>;
         fn InertialPosition_operator_mul_scalar(lhs: &InertialPosition, scalar: f64) -> UniquePtr<InertialPosition>;
 
+        // Lane bindings definitions
+        type Lane;
+        fn to_left(self: &Lane) -> *const Lane;
+        fn to_right(self: &Lane) -> *const Lane;
+        fn length(self: &Lane) -> f64;
+        fn Lane_id(lane: &Lane) -> String;
+
+        // RoadPosition bindings definitions
+        type RoadPosition;
+        /// # Safety
+        /// This function is unsafe because it dereferences `lane` pointers.
+        unsafe fn RoadPosition_new(lane: *const Lane, lane_pos: &LanePosition) -> UniquePtr<RoadPosition>;
+        fn RoadPosition_ToInertialPosition(road_position: &RoadPosition) -> UniquePtr<InertialPosition>;
+        fn RoadPosition_lane(road_position: &RoadPosition) -> *const Lane;
+        fn RoadPosition_pos(road_position: &RoadPosition) -> UniquePtr<LanePosition>;
+
+        // RoadPositionResult bindings definitions
+        type RoadPositionResult;
+        fn RoadPositionResult_road_position(result: &RoadPositionResult) -> UniquePtr<RoadPosition>;
+        fn RoadPositionResult_nearest_position(result: &RoadPositionResult) -> UniquePtr<InertialPosition>;
+        fn RoadPositionResult_distance(result: &RoadPositionResult) -> f64;
     }
     impl UniquePtr<RoadNetwork> {}
     impl UniquePtr<LanePosition> {}

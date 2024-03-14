@@ -33,6 +33,7 @@
 #include <memory>
 #include <sstream>
 
+#include <maliput/api/lane.h>
 #include <maliput/api/lane_data.h>
 #include <maliput/api/road_network.h>
 #include <maliput/api/road_geometry.h>
@@ -84,6 +85,37 @@ bool InertialPosition_operator_eq(const InertialPosition& lhs, const InertialPos
   return lhs == rhs;
 }
 
+rust::String Lane_id(const Lane& lane) {
+  return lane.id().string();
+}
+
+std::unique_ptr<RoadPosition> RoadPosition_new(const Lane* lane, const LanePosition& pos) {
+  return std::make_unique<RoadPosition>(lane, pos);
+}
+
+std::unique_ptr<InertialPosition> RoadPosition_ToInertialPosition(const RoadPosition& road_pos) {
+  return std::make_unique<InertialPosition>(road_pos.ToInertialPosition());
+}
+
+const Lane* RoadPosition_lane(const RoadPosition& road_pos) {
+  return road_pos.lane;
+}
+
+std::unique_ptr<LanePosition> RoadPosition_pos(const RoadPosition& road_pos) {
+  return std::make_unique<LanePosition>(road_pos.pos);
+}
+
+std::unique_ptr<RoadPosition> RoadPositionResult_road_position(const RoadPositionResult& road_pos_res) {
+  return std::make_unique<RoadPosition>(road_pos_res.road_position);
+}
+
+std::unique_ptr<InertialPosition> RoadPositionResult_nearest_position (const RoadPositionResult& road_pos_res) {
+  return std::make_unique<InertialPosition>(road_pos_res.nearest_position);
+}
+
+double RoadPositionResult_distance(const RoadPositionResult& road_pos_res) {
+  return road_pos_res.distance;
+}
 
 } // namespace api
 } // namespace maliput
