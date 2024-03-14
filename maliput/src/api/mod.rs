@@ -48,6 +48,18 @@ impl<'a> RoadGeometry<'a> {
     pub fn num_branch_points(&self) -> i32 {
         self.rg.num_branch_points()
     }
+    pub fn to_road_position(&self, inertial_position: &InertialPosition) -> RoadPositionResult {
+        let rpr = maliput_sys::api::ffi::RoadGeometry_ToRoadPosition(self.rg, &inertial_position.ip);
+        RoadPositionResult {
+            road_position: RoadPosition {
+                rp: maliput_sys::api::ffi::RoadPositionResult_road_position(&rpr),
+            },
+            nearest_position: InertialPosition {
+                ip: maliput_sys::api::ffi::RoadPositionResult_nearest_position(&rpr),
+            },
+            distance: maliput_sys::api::ffi::RoadPositionResult_distance(&rpr),
+        }
+    }
 }
 
 /// A RoadNetwork.

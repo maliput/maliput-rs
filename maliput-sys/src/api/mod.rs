@@ -46,7 +46,10 @@ pub mod ffi {
         fn linear_tolerance(self: &RoadGeometry) -> f64;
         fn angular_tolerance(self: &RoadGeometry) -> f64;
         fn num_branch_points(self: &RoadGeometry) -> i32;
-
+        fn RoadGeometry_ToRoadPosition(
+            rg: &RoadGeometry,
+            inertial_position: &InertialPosition,
+        ) -> UniquePtr<RoadPositionResult>;
         // LanePosition bindings definitions.
         type LanePosition;
         fn LanePosition_new(s: f64, r: f64, h: f64) -> UniquePtr<LanePosition>;

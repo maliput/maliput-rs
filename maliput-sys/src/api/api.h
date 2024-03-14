@@ -117,5 +117,9 @@ double RoadPositionResult_distance(const RoadPositionResult& road_pos_res) {
   return road_pos_res.distance;
 }
 
+std::unique_ptr<RoadPositionResult> RoadGeometry_ToRoadPosition(const RoadGeometry& road_geometry, const InertialPosition& inertial_pos) {
+  return std::make_unique<RoadPositionResult>(road_geometry.ToRoadPosition(inertial_pos));
+}
+
 } // namespace api
 } // namespace maliput
