@@ -9,3 +9,10 @@ description = "Rust API for maliput"
 cxx = "1.0.78"
 maliput-sdk = { path = "../maliput-sdk" }
 maliput-sys = { path = "../maliput-sys" }
+
+[dev-dependencies]
+criterion = { version = "0.4", features = ["html_reports"] }
+
+[[bench]]
+name = "to_road_position"
+harness = false
