@@ -335,6 +335,104 @@ impl std::ops::Mul<f64> for InertialPosition {
     }
 }
 
+/// A maliput::api::Lane
+/// Wrapper around C++ implementation `maliput::api::Lane`.
+pub struct Lane<'a> {
+    lane: &'a maliput_sys::api::ffi::Lane,
+}
+
+impl<'a> Lane<'a> {
+    /// Get the left lane of the `Lane`.
+    pub fn to_left(&self) -> Option<Lane> {
+        let lane = self.lane.to_left();
+        if lane.is_null() {
+            None
+        } else {
+            unsafe {
+                Some(Lane {
+                    lane: lane.as_ref().expect(""),
+                })
+            }
+        }
+    }
+    /// Get the right lane of the `Lane`.
+    pub fn to_right(&self) -> Option<Lane> {
+        let lane = self.lane.to_right();
+        if lane.is_null() {
+            None
+        } else {
+            unsafe {
+                Some(Lane {
+                    lane: lane.as_ref().expect(""),
+                })
+            }
+        }
+    }
+    /// Get the length of the `Lane`.
+    pub fn length(&self) -> f64 {
+        self.lane.length()
+    }
+    /// Get the id of the `Lane` as a string.
+    pub fn id(&self) -> String {
+        maliput_sys::api::ffi::Lane_id(self.lane)
+    }
+}
+
+/// A maliput::api::RoadPosition
+/// Wrapper around C++ implementation `maliput::api::RoadPosition`.
+pub struct RoadPosition {
+    rp: cxx::UniquePtr<maliput_sys::api::ffi::RoadPosition>,
+}
+
+impl RoadPosition {
+    /// Create a new `RoadPosition` with the given `lane` and `lane_pos`.
+    pub fn new(lane: &Lane, lane_pos: &LanePosition) -> RoadPosition {
+        unsafe {
+            RoadPosition {
+                rp: maliput_sys::api::ffi::RoadPosition_new(lane.lane, &lane_pos.lp),
+            }
+        }
+    }
+    /// Get the inertial position of the `RoadPosition` via doing a Lane::ToInertialPosition query call.
+    pub fn to_inertial_position(&self) -> InertialPosition {
+        InertialPosition {
+            ip: maliput_sys::api::ffi::RoadPosition_ToInertialPosition(&self.rp),
+        }
+    }
+    /// Get the lane of the `RoadPosition`.
+    pub fn lane(&self) -> Lane {
+        unsafe {
+            Lane {
+                lane: maliput_sys::api::ffi::RoadPosition_lane(&self.rp).as_ref().expect(""),
+            }
+        }
+    }
+    /// Get the lane position of the `RoadPosition`.
+    pub fn pos(&self) -> LanePosition {
+        LanePosition {
+            lp: maliput_sys::api::ffi::RoadPosition_pos(&self.rp),
+        }
+    }
+}
+
+/// Represents the result of a RoadPosition query.
+pub struct RoadPositionResult {
+    pub road_position: RoadPosition,
+    pub nearest_position: InertialPosition,
+    pub distance: f64,
+}
+
+impl RoadPositionResult {
+    /// Create a new `RoadPositionResult` with the given `road_position`, `nearest_position`, and `distance`.
+    pub fn new(road_position: RoadPosition, nearest_position: InertialPosition, distance: f64) -> RoadPositionResult {
+        RoadPositionResult {
+            road_position,
+            nearest_position,
+            distance,
+        }
+    }
+}
+
 mod tests {
     mod lane_position {
         #[test]
