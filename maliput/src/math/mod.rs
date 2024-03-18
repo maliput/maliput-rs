@@ -303,6 +303,119 @@ impl std::fmt::Debug for Matrix3 {
     }
 }
 
+/// A quaternion.
+/// Wrapper around C++ implementation `maliput::math::Quaternion`.
+pub struct Quaternion {
+    q: cxx::UniquePtr<maliput_sys::math::ffi::Quaternion>,
+}
+
+impl Quaternion {
+    /// Create a new `Quaternion` with the given `w`, `x`, `y`, and `z` components.
+    /// The `w` component is the real part of the quaternion.
+    /// The `x`, `y`, and `z` components are the imaginary parts of the quaternion.
+    pub fn new(w: f64, x: f64, y: f64, z: f64) -> Quaternion {
+        Quaternion {
+            q: maliput_sys::math::ffi::Quaternion_new(w, x, y, z),
+        }
+    }
+
+    /// Get the `w` component of the `Quaternion`.
+    pub fn w(&self) -> f64 {
+        self.q.w()
+    }
+
+    /// Get the `x` component of the `Quaternion`.
+    pub fn x(&self) -> f64 {
+        self.q.x()
+    }
+    /// Get the `y` component of the `Quaternion`.
+    pub fn y(&self) -> f64 {
+        self.q.y()
+    }
+    /// Get the `z` component of the `Quaternion`.
+    pub fn z(&self) -> f64 {
+        self.q.z()
+    }
+    /// Returns this quaternion Vector.
+    pub fn vec(&self) -> Vector3 {
+        Vector3 {
+            v: maliput_sys::math::ffi::Quaternion_vec(&self.q),
+        }
+    }
+    /// Returns this quaternion coefficients.
+    pub fn coeffs(&self) -> Vector4 {
+        Vector4 {
+            v: maliput_sys::math::ffi::Quaternion_coeffs(&self.q),
+        }
+    }
+    /// Get the dot product of the `Quaternion` with another `Quaternion`.
+    pub fn dot(&self, other: &Quaternion) -> f64 {
+        self.q.dot(&other.q)
+    }
+    /// Get the angular distance between the `Quaternion` and another `Quaternion`.
+    pub fn angular_distance(&self, other: &Quaternion) -> f64 {
+        self.q.AngularDistance(&other.q)
+    }
+    /// Get the norm of the `Quaternion`.
+    pub fn norm(&self) -> f64 {
+        self.q.norm()
+    }
+    /// Normalize the `Quaternion`.
+    pub fn normalize(&mut self) {
+        self.q.as_mut().expect("Unexpected error").normalize();
+    }
+    /// Get the squared norm of the `Quaternion`.
+    pub fn squared_norm(&self) -> f64 {
+        self.q.squared_norm()
+    }
+    /// Get the inverse of the `Quaternion`.
+    pub fn inverse(&self) -> Quaternion {
+        Quaternion {
+            q: maliput_sys::math::ffi::Quaternion_Inverse(&self.q),
+        }
+    }
+    /// Get the conjugate of the `Quaternion`.
+    pub fn conjugate(&self) -> Quaternion {
+        Quaternion {
+            q: maliput_sys::math::ffi::Quaternion_conjugate(&self.q),
+        }
+    }
+    /// Get the rotation matrix representation of the `Quaternion`.
+    pub fn to_rotation_matrix(&self) -> Matrix3 {
+        let q = maliput_sys::math::ffi::Quaternion_ToRotationMatrix(&self.q);
+        Matrix3 { m: q }
+    }
+    /// Apply the `Quaternion` to a `Vector3`.
+    pub fn transform_vector(&self, v: &Vector3) -> Vector3 {
+        let q = maliput_sys::math::ffi::Quaternion_TransformVector(&self.q, &v.v);
+        Vector3 { v: q }
+    }
+}
+
+impl PartialEq for Quaternion {
+    fn eq(&self, other: &Self) -> bool {
+        maliput_sys::math::ffi::Quaternion_equals(&self.q, &other.q)
+    }
+}
+
+impl Eq for Quaternion {}
+
+impl std::fmt::Display for Quaternion {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", maliput_sys::math::ffi::Quaternion_to_str(&self.q))
+    }
+}
+impl std::fmt::Debug for Quaternion {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.debug_struct("Quaternion")
+            .field("w", &self.w())
+            .field("x", &self.x())
+            .field("y", &self.y())
+            .field("z", &self.z())
+            .finish()
+    }
+}
+
 mod tests {
     #[test]
     fn vector3_new() {
@@ -407,6 +520,16 @@ mod tests {
         let _m = super::Matrix3::new(row_1, row_2, row_3);
         assert_eq!(_m.row(0).x(), 1.0);
         assert_eq!(_m.col(2).z(), 9.0);
+        // TODO(francocipollone): Add tests for the rest of the API.
+    }
+
+    #[test]
+    fn quaternion_tests() {
+        let q = super::Quaternion::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(q.w(), 1.0);
+        assert_eq!(q.x(), 2.0);
+        assert_eq!(q.y(), 3.0);
+        assert_eq!(q.z(), 4.0);
         // TODO(francocipollone): Add tests for the rest of the API.
     }
 }
