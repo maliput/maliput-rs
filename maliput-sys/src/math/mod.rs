@@ -86,5 +86,26 @@ pub mod ffi {
         fn Matrix3_operator_sub(m: &Matrix3, other: &Matrix3) -> UniquePtr<Matrix3>;
         fn Matrix3_operator_divide_by_scalar(m: &Matrix3, scalar: f64) -> UniquePtr<Matrix3>;
         fn Matrix3_to_str(m: &Matrix3) -> String;
+
+        type Quaternion;
+        fn Quaternion_new(w: f64, x: f64, y: f64, z: f64) -> UniquePtr<Quaternion>;
+        fn w(self: &Quaternion) -> f64;
+        fn x(self: &Quaternion) -> f64;
+        fn y(self: &Quaternion) -> f64;
+        fn z(self: &Quaternion) -> f64;
+        fn dot(self: &Quaternion, other: &Quaternion) -> f64;
+        fn AngularDistance(self: &Quaternion, other: &Quaternion) -> f64;
+        fn norm(self: &Quaternion) -> f64;
+        fn normalize(self: Pin<&mut Quaternion>);
+        fn squared_norm(self: &Quaternion) -> f64;
+        fn Quaternion_vec(q: &Quaternion) -> UniquePtr<Vector3>;
+        fn Quaternion_coeffs(q: &Quaternion) -> UniquePtr<Vector4>;
+        fn Quaternion_Inverse(q: &Quaternion) -> UniquePtr<Quaternion>;
+        fn Quaternion_conjugate(q: &Quaternion) -> UniquePtr<Quaternion>;
+        fn Quaternion_ToRotationMatrix(q: &Quaternion) -> UniquePtr<Matrix3>;
+        fn Quaternion_TransformVector(q: &Quaternion, v: &Vector3) -> UniquePtr<Vector3>;
+        fn Quaternion_IsApprox(q: &Quaternion, other: &Quaternion, precision: f64) -> bool;
+        fn Quaternion_equals(q: &Quaternion, other: &Quaternion) -> bool;
+        fn Quaternion_to_str(q: &Quaternion) -> String;
     }
 }

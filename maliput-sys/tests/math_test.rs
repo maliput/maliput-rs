@@ -53,6 +53,17 @@ mod math_test {
     use maliput_sys::math::ffi::Matrix3_to_str;
     use maliput_sys::math::ffi::Matrix3_transpose;
 
+    use maliput_sys::math::ffi::Quaternion_Inverse;
+    use maliput_sys::math::ffi::Quaternion_IsApprox;
+    use maliput_sys::math::ffi::Quaternion_ToRotationMatrix;
+    use maliput_sys::math::ffi::Quaternion_TransformVector;
+    use maliput_sys::math::ffi::Quaternion_coeffs;
+    use maliput_sys::math::ffi::Quaternion_conjugate;
+    use maliput_sys::math::ffi::Quaternion_equals;
+    use maliput_sys::math::ffi::Quaternion_new;
+    use maliput_sys::math::ffi::Quaternion_to_str;
+    use maliput_sys::math::ffi::Quaternion_vec;
+
     #[test]
     fn vector3_new() {
         let v = Vector3_new(1.0, 2.0, 3.0);
@@ -289,5 +300,130 @@ mod math_test {
     fn matrix3_to_str() {
         let m = Matrix3_new(1., 2., 3., 4., 5., 6., 7., 8., 9.);
         assert_eq!(Matrix3_to_str(&m), "{{1, 2, 3},\n{4, 5, 6},\n{7, 8, 9}}");
+    }
+
+    #[test]
+    fn quaternion_new() {
+        let q = Quaternion_new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(q.w(), 1.0);
+        assert_eq!(q.x(), 2.0);
+        assert_eq!(q.y(), 3.0);
+        assert_eq!(q.z(), 4.0);
+    }
+
+    #[test]
+    fn quaternion_dot() {
+        let q = Quaternion_new(1.0, 2.0, 3.0, 4.0);
+        let r = Quaternion_new(5.0, 6.0, 7.0, 8.0);
+        assert_eq!(q.dot(&r), q.w() * r.w() + q.x() * r.x() + q.y() * r.y() + q.z() * r.z());
+    }
+
+    #[test]
+    fn quaternion_angular_distance() {
+        let q = Quaternion_new(1.0, 2.0, 3.0, 4.0);
+        let r = Quaternion_new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(q.AngularDistance(&r), 0.);
+    }
+
+    #[test]
+    fn quaternion_norm() {
+        let q = Quaternion_new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(
+            q.norm(),
+            (q.w() * q.w() + q.x() * q.x() + q.y() * q.y() + q.z() * q.z()).sqrt()
+        );
+    }
+
+    #[test]
+    fn quaternion_normalize() {
+        let mut q = Quaternion_new(1.0, 2.0, 3.0, 4.0);
+        let norm = q.norm();
+        q.as_mut().expect("").normalize();
+        assert_eq!(q.w(), 1.0 / norm);
+        assert_eq!(q.x(), 2.0 / norm);
+        assert_eq!(q.y(), 3.0 / norm);
+        assert_eq!(q.z(), 4.0 / norm);
+    }
+
+    #[test]
+    fn quaternion_squared_norm() {
+        let q = Quaternion_new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(
+            q.squared_norm(),
+            q.w() * q.w() + q.x() * q.x() + q.y() * q.y() + q.z() * q.z()
+        );
+    }
+
+    #[test]
+    fn quaternion_vec() {
+        let q = Quaternion_new(1.0, 2.0, 3.0, 4.0);
+        let v = Quaternion_vec(&q);
+        assert_eq!(v.x(), q.x());
+        assert_eq!(v.y(), q.y());
+        assert_eq!(v.z(), q.z());
+    }
+
+    #[test]
+    fn quaternion_coeffs() {
+        let q = Quaternion_new(1.0, 2.0, 3.0, 4.0);
+        let v = Quaternion_coeffs(&q);
+        assert_eq!(v.x(), q.w());
+        assert_eq!(v.y(), q.x());
+        assert_eq!(v.z(), q.y());
+        assert_eq!(v.w(), q.z());
+    }
+
+    #[test]
+    fn quaternion_inverse() {
+        let q = Quaternion_new(1.0, 0.0, 0.0, 0.0);
+        let inv = Quaternion_Inverse(&q);
+        assert!(Quaternion_equals(&inv, &Quaternion_Inverse(&q)));
+    }
+
+    #[test]
+    fn quaternion_equals() {
+        let q = Quaternion_new(1.0, 2.0, 3.0, 4.0);
+        let r = Quaternion_new(1.0, 2.0, 3.0, 4.0);
+        assert!(Quaternion_equals(&q, &r));
+    }
+
+    #[test]
+    fn quaternion_conjugate() {
+        let q = Quaternion_new(1.0, 2.0, 3.0, 4.0);
+        let conj = Quaternion_conjugate(&q);
+        assert_eq!(conj.w(), q.w());
+        assert_eq!(conj.x(), -q.x());
+        assert_eq!(conj.y(), -q.y());
+        assert_eq!(conj.z(), -q.z());
+    }
+
+    #[test]
+    fn quaternion_to_rotation_matrix() {
+        let q = Quaternion_new(1.0, 0.0, 0.0, 0.0);
+        let r = Quaternion_ToRotationMatrix(&q);
+        assert_eq!(Matrix3_row(&r, 0).x(), 1.0);
+        assert_eq!(Matrix3_row(&r, 1).y(), 1.0);
+        assert_eq!(Matrix3_row(&r, 2).z(), 1.0);
+    }
+
+    #[test]
+    fn quaternion_transform_vector() {
+        let q = Quaternion_new(1.0, 0.0, 0.0, 0.0);
+        let v = Vector3_new(1.0, 2.0, 3.0);
+        let w = Quaternion_TransformVector(&q, &v);
+        assert!(Vector3_equals(&w, &v));
+    }
+
+    #[test]
+    fn quaternion_is_approx() {
+        let q = Quaternion_new(1.0, 2.0, 3.0, 4.0);
+        let r = Quaternion_new(1.0, 2.0, 3.0, 4.0);
+        assert!(Quaternion_IsApprox(&q, &r, 1e-10));
+    }
+
+    #[test]
+    fn quaternion_to_str() {
+        let q = Quaternion_new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(Quaternion_to_str(&q), "(w: 1, x: 2, y: 3, z: 4)");
     }
 }

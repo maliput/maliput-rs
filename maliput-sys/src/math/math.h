@@ -31,9 +31,11 @@
 #pragma once
 
 #include <memory>
+#include <sstream>
 
 #include <maliput/math/vector.h>
 #include <maliput/math/matrix.h>
+#include <maliput/math/quaternion.h>
 
 #include <rust/cxx.h>
 
@@ -157,6 +159,48 @@ std::unique_ptr<Matrix3> Matrix3_operator_divide_by_scalar(const Matrix3& self, 
 
 rust::String Matrix3_to_str(const Matrix3& self) {
   return {self.to_str()};
+}
+
+std::unique_ptr<Quaternion> Quaternion_new(rust::f64 w, rust::f64 x, rust::f64 y, rust::f64 z) {
+  return std::make_unique<Quaternion>(w, x, y, z);
+}
+
+std::unique_ptr<Vector3> Quaternion_vec(const Quaternion& self) {
+  return std::make_unique<Vector3>(self.vec());
+}
+
+std::unique_ptr<Vector4> Quaternion_coeffs(const Quaternion& self) {
+  return std::make_unique<Vector4>(self.coeffs());
+}
+
+std::unique_ptr<Quaternion> Quaternion_Inverse(const Quaternion& self) {
+  return std::make_unique<Quaternion>(self.Inverse());
+}
+
+std::unique_ptr<Quaternion> Quaternion_conjugate(const Quaternion& self) {
+  return std::make_unique<Quaternion>(self.conjugate());
+}
+
+std::unique_ptr<Matrix3> Quaternion_ToRotationMatrix(const Quaternion& self) {
+  return std::make_unique<Matrix3>(self.ToRotationMatrix());
+}
+
+std::unique_ptr<Vector3> Quaternion_TransformVector(const Quaternion& self, const Vector3& vec) {
+  return std::make_unique<Vector3>(self.TransformVector(vec));
+}
+
+bool Quaternion_IsApprox(const Quaternion& self, const Quaternion& other, rust::f64 precision) {
+  return self.IsApprox(other, precision);
+}
+
+bool Quaternion_equals(const Quaternion& self, const Quaternion& other) {
+  return self == other;
+}
+
+rust::String Quaternion_to_str(const Quaternion& self) {
+  std::stringstream ss;
+  ss << self;
+  return {ss.str()};
 }
 
 } // namespace math
