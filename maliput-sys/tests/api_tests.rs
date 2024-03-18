@@ -35,7 +35,6 @@ mod api_test {
         use maliput_sys::api::ffi::LanePosition_to_str;
 
         use maliput_sys::math::ffi::Vector3_new;
-        use maliput_sys::math::ffi::Vector3_norm;
 
         #[test]
         fn laneposition_new() {
@@ -48,7 +47,7 @@ mod api_test {
         #[test]
         fn srh() {
             let lane_pos = LanePosition_new(1.0, 2.0, 3.0);
-            assert_eq!(Vector3_norm(lane_pos.srh()), 3.7416573867739413);
+            assert_eq!(lane_pos.srh().norm(), 3.7416573867739413);
         }
 
         #[test]

@@ -39,12 +39,23 @@ pub mod ffi {
         fn x(self: &Vector3) -> f64;
         fn y(self: &Vector3) -> f64;
         fn z(self: &Vector3) -> f64;
-
-        fn Vector3_norm(v: &Vector3) -> f64;
+        fn norm(self: &Vector3) -> f64;
+        fn normalize(self: Pin<&mut Vector3>);
         fn Vector3_dot(v: &Vector3, w: &Vector3) -> f64;
         fn Vector3_cross(v: &Vector3, w: &Vector3) -> UniquePtr<Vector3>;
-
         fn Vector3_equals(v: &Vector3, w: &Vector3) -> bool;
         fn Vector3_to_str(v: &Vector3) -> String;
+
+        type Vector4;
+        fn Vector4_new(x: f64, y: f64, z: f64, w: f64) -> UniquePtr<Vector4>;
+        fn x(self: &Vector4) -> f64;
+        fn y(self: &Vector4) -> f64;
+        fn z(self: &Vector4) -> f64;
+        fn w(self: &Vector4) -> f64;
+        fn norm(self: &Vector4) -> f64;
+        fn normalize(self: Pin<&mut Vector4>);
+        fn Vector4_dot(v: &Vector4, w: &Vector4) -> f64;
+        fn Vector4_equals(v: &Vector4, w: &Vector4) -> bool;
+        fn Vector4_to_str(v: &Vector4) -> String;
     }
 }

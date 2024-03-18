@@ -30,12 +30,14 @@
 
 #[cfg(test)]
 mod math_test {
-    use maliput_sys::math::ffi::Vector3_new;
-
     use maliput_sys::math::ffi::Vector3_cross;
     use maliput_sys::math::ffi::Vector3_dot;
     use maliput_sys::math::ffi::Vector3_equals;
-    use maliput_sys::math::ffi::Vector3_norm;
+    use maliput_sys::math::ffi::Vector3_new;
+
+    use maliput_sys::math::ffi::Vector4_dot;
+    use maliput_sys::math::ffi::Vector4_equals;
+    use maliput_sys::math::ffi::Vector4_new;
 
     #[test]
     fn vector3_new() {
@@ -48,7 +50,17 @@ mod math_test {
     #[test]
     fn vector3_norm() {
         let v = Vector3_new(1.0, 2.0, 3.0);
-        assert_eq!(Vector3_norm(&v), (v.x() * v.x() + v.y() * v.y() + v.z() * v.z()).sqrt());
+        assert_eq!(v.norm(), (v.x() * v.x() + v.y() * v.y() + v.z() * v.z()).sqrt());
+    }
+
+    #[test]
+    fn vector3_normalize() {
+        let mut v = Vector3_new(1.0, 2.0, 3.0);
+        let norm = v.norm();
+        v.as_mut().expect("").normalize();
+        assert_eq!(v.x(), 1.0 / norm);
+        assert_eq!(v.y(), 2.0 / norm);
+        assert_eq!(v.z(), 3.0 / norm);
     }
 
     #[test]
@@ -73,5 +85,51 @@ mod math_test {
         let v = Vector3_new(1.0, 2.0, 3.0);
         let w = Vector3_new(1.0, 2.0, 3.0);
         assert!(Vector3_equals(&v, &w));
+    }
+
+    #[test]
+    fn vector4_new() {
+        let v = Vector4_new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(v.x(), 1.0);
+        assert_eq!(v.y(), 2.0);
+        assert_eq!(v.z(), 3.0);
+        assert_eq!(v.w(), 4.0);
+    }
+
+    #[test]
+    fn vector4_norm() {
+        let v = Vector4_new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(
+            v.norm(),
+            (v.x() * v.x() + v.y() * v.y() + v.z() * v.z() + v.w() * v.w()).sqrt()
+        );
+    }
+
+    #[test]
+    fn vector4_normalize() {
+        let mut v = Vector4_new(1.0, 2.0, 3.0, 4.0);
+        let norm = v.norm();
+        v.as_mut().expect("").normalize();
+        assert_eq!(v.x(), 1.0 / norm);
+        assert_eq!(v.y(), 2.0 / norm);
+        assert_eq!(v.z(), 3.0 / norm);
+        assert_eq!(v.w(), 4.0 / norm);
+    }
+
+    #[test]
+    fn vector4_dot() {
+        let v = Vector4_new(1.0, 2.0, 3.0, 4.0);
+        let w = Vector4_new(5.0, 6.0, 7.0, 8.0);
+        assert_eq!(
+            Vector4_dot(&v, &w),
+            v.x() * w.x() + v.y() * w.y() + v.z() * w.z() + v.w() * w.w()
+        );
+    }
+
+    #[test]
+    fn vector4_equals() {
+        let v = Vector4_new(1.0, 2.0, 3.0, 4.0);
+        let w = Vector4_new(1.0, 2.0, 3.0, 4.0);
+        assert!(Vector4_equals(&v, &w));
     }
 }

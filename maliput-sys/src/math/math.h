@@ -62,12 +62,6 @@ std::unique_ptr<Vector3> Vector3_new(rust::f64 x, rust::f64 y, rust::f64 z) {
   return std::make_unique<Vector3>(x, y, z);
 }
 
-/// Returns the norm of the vector.
-/// Forwards to maliput::math::Vector3::norm() method.
-rust::f64 Vector3_norm(const Vector3& self) {
-  return self.norm();
-}
-
 /// Returns the dot product of two vectors.
 /// Forwards to maliput::math::Vector3::dot(const Vector3& other) method.
 rust::f64 Vector3_dot(const Vector3& self, const Vector3& other) {
@@ -89,6 +83,24 @@ bool Vector3_equals(const Vector3& self, const Vector3& other) {
 /// Returns the string representation of the vector.
 /// Forwards to maliput::math::Vector3::to_str() method.
 rust::String Vector3_to_str(const Vector3& self) {
+  return {self.to_str()};
+}
+
+/// Creates a new maliput::math::Vector4.
+/// Forwads to maliput::math::Vector4(double x, double y, double z, double w) constructor.
+std::unique_ptr<Vector4> Vector4_new(rust::f64 x, rust::f64 y, rust::f64 z, rust::f64 w) {
+  return std::make_unique<Vector4>(x, y, z, w);
+}
+
+rust::f64 Vector4_dot(const Vector4& self, const Vector4& other) {
+  return self.dot(other);
+}
+
+bool Vector4_equals(const Vector4& self, const Vector4& other) {
+  return self == other;
+}
+
+rust::String Vector4_to_str(const Vector4& self) {
   return {self.to_str()};
 }
 
