@@ -33,6 +33,7 @@
 #include <memory>
 
 #include <maliput/math/vector.h>
+#include <maliput/math/matrix.h>
 
 #include <rust/cxx.h>
 
@@ -101,6 +102,60 @@ bool Vector4_equals(const Vector4& self, const Vector4& other) {
 }
 
 rust::String Vector4_to_str(const Vector4& self) {
+  return {self.to_str()};
+}
+
+std::unique_ptr<Matrix3> Matrix3_new(double m00, double m01, double m02,
+                                     double m10, double m11, double m12,
+                                     double m20, double m21, double m22) {
+  return std::make_unique<Matrix3>(std::initializer_list<double>{m00, m01, m02, m10, m11, m12, m20, m21, m22});
+}
+
+std::unique_ptr<Vector3> Matrix3_row(const Matrix3& self, rust::usize index) {
+  return std::make_unique<Vector3>(self.row(index));
+}
+
+std::unique_ptr<Vector3> Matrix3_col(const Matrix3& self, rust::usize index) {
+  return std::make_unique<Vector3>(self.col(index));
+}
+
+std::unique_ptr<Matrix3> Matrix3_cofactor_matrix(const Matrix3& self) {
+  return std::make_unique<Matrix3>(self.cofactor());
+}
+
+std::unique_ptr<Matrix3> Matrix3_transpose(const Matrix3& self) {
+  return std::make_unique<Matrix3>(self.transpose());
+}
+
+std::unique_ptr<Matrix3> Matrix3_adjoint(const Matrix3& self) {
+  return std::make_unique<Matrix3>(self.adjoint());
+}
+
+std::unique_ptr<Matrix3> Matrix3_inverse(const Matrix3& self) {
+  return std::make_unique<Matrix3>(self.inverse());
+}
+
+bool Matrix3_equals(const Matrix3& self, const Matrix3& other) {
+  return self == other;
+}
+
+std::unique_ptr<Matrix3> Matrix3_operator_mul(const Matrix3& self, const Matrix3& other) {
+  return std::make_unique<Matrix3>(self * other);
+}
+
+std::unique_ptr<Matrix3> Matrix3_operator_sum(const Matrix3& self, const Matrix3& other) {
+  return std::make_unique<Matrix3>(self + other);
+}
+
+std::unique_ptr<Matrix3> Matrix3_operator_sub(const Matrix3& self, const Matrix3& other) {
+  return std::make_unique<Matrix3>(self - other);
+}
+
+std::unique_ptr<Matrix3> Matrix3_operator_divide_by_scalar(const Matrix3& self, rust::f64 scalar) {
+  return std::make_unique<Matrix3>(self / scalar);
+}
+
+rust::String Matrix3_to_str(const Matrix3& self) {
   return {self.to_str()};
 }
 
