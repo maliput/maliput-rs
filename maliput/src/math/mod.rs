@@ -194,6 +194,115 @@ impl std::fmt::Debug for Vector4 {
     }
 }
 
+/// A 3x3 matrix.
+/// Wrapper around C++ implementation `maliput::math::Matrix3`.
+///
+/// ## Example
+///
+/// ```rust, no_run
+/// use maliput::math::Matrix3;
+/// use maliput::math::Vector3;
+///
+/// let row_1 = Vector3::new(1.0, 2.0, 3.0);
+/// let row_2 = Vector3::new(4.0, 5.0, 6.0);
+/// let row_3 = Vector3::new(7.0, 8.0, 9.0);
+/// let m = Matrix3::new(row_1, row_2, row_3);
+/// ```
+pub struct Matrix3 {
+    m: cxx::UniquePtr<maliput_sys::math::ffi::Matrix3>,
+}
+
+impl Matrix3 {
+    /// Create a new `Matrix3` with the given `row1`, `row2`, and `row3`.
+    pub fn new(row1: Vector3, row2: Vector3, row3: Vector3) -> Matrix3 {
+        Matrix3 {
+            m: maliput_sys::math::ffi::Matrix3_new(
+                row1.x(),
+                row1.y(),
+                row1.z(),
+                row2.x(),
+                row2.y(),
+                row2.z(),
+                row3.x(),
+                row3.y(),
+                row3.z(),
+            ),
+        }
+    }
+    /// Get the cofactor of the `Matrix3` at the given `row` and `col`.
+    pub fn cofactor(&self, row: u64, col: u64) -> f64 {
+        self.m.cofactor(row, col)
+    }
+    /// Get the cofactor matrix of the `Matrix3`.
+    pub fn cofactor_matrix(&self) -> Matrix3 {
+        Matrix3 {
+            m: maliput_sys::math::ffi::Matrix3_cofactor_matrix(&self.m),
+        }
+    }
+    /// Get the determinant of the `Matrix3`.
+    pub fn determinant(&self) -> f64 {
+        self.m.determinant()
+    }
+    /// Check if the `Matrix3` is singular.
+    pub fn is_singular(&self) -> bool {
+        self.m.is_singular()
+    }
+    /// Get the row at the given `index`.
+    pub fn row(&self, index: u64) -> Vector3 {
+        Vector3 {
+            v: maliput_sys::math::ffi::Matrix3_row(&self.m, index),
+        }
+    }
+    /// Get the column at the given `index`.
+    pub fn col(&self, index: u64) -> Vector3 {
+        Vector3 {
+            v: maliput_sys::math::ffi::Matrix3_col(&self.m, index),
+        }
+    }
+    /// Get the transpose of the `Matrix3`.
+    pub fn transpose(&self) -> Matrix3 {
+        Matrix3 {
+            m: maliput_sys::math::ffi::Matrix3_transpose(&self.m),
+        }
+    }
+    /// Get the adjoint of the `Matrix3`.
+    pub fn adjoint(&self) -> Matrix3 {
+        Matrix3 {
+            m: maliput_sys::math::ffi::Matrix3_adjoint(&self.m),
+        }
+    }
+    /// Get the inverse of the `Matrix3`.
+    pub fn inverse(&self) -> Matrix3 {
+        Matrix3 {
+            m: maliput_sys::math::ffi::Matrix3_inverse(&self.m),
+        }
+    }
+}
+
+impl PartialEq for Matrix3 {
+    fn eq(&self, other: &Self) -> bool {
+        maliput_sys::math::ffi::Matrix3_equals(&self.m, &other.m)
+    }
+}
+
+impl Eq for Matrix3 {}
+
+impl std::fmt::Display for Matrix3 {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", maliput_sys::math::ffi::Matrix3_to_str(&self.m))
+    }
+}
+
+impl std::fmt::Debug for Matrix3 {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.debug_struct("Matrix3")
+            .field("row1", &self.row(0))
+            .field("row2", &self.row(1))
+            .field("row3", &self.row(2))
+            .finish()
+    }
+}
+
 mod tests {
     #[test]
     fn vector3_new() {
@@ -288,5 +397,16 @@ mod tests {
         assert_eq!(v.y(), 2.0 / norm);
         assert_eq!(v.z(), 3.0 / norm);
         assert_eq!(v.w(), 4.0 / norm);
+    }
+
+    #[test]
+    fn matrix4_tests() {
+        let row_1 = super::Vector3::new(1.0, 2.0, 3.0);
+        let row_2 = super::Vector3::new(4.0, 5.0, 6.0);
+        let row_3 = super::Vector3::new(7.0, 8.0, 9.0);
+        let _m = super::Matrix3::new(row_1, row_2, row_3);
+        assert_eq!(_m.row(0).x(), 1.0);
+        assert_eq!(_m.col(2).z(), 9.0);
+        // TODO(francocipollone): Add tests for the rest of the API.
     }
 }
