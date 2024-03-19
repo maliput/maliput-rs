@@ -185,4 +185,112 @@ mod api_test {
             assert_eq!(InertialPosition_to_str(&inertial_pos), "(x = 1, y = 2, z = 3)");
         }
     }
+    mod rotation_test {
+        use std::f64::consts::PI;
+
+        use maliput_sys::api::ffi::InertialPosition_new;
+        use maliput_sys::api::ffi::Rotation;
+        use maliput_sys::api::ffi::Rotation_Apply;
+        use maliput_sys::api::ffi::Rotation_Reverse;
+        use maliput_sys::api::ffi::Rotation_from_quat;
+        use maliput_sys::api::ffi::Rotation_from_rpy;
+        use maliput_sys::api::ffi::Rotation_matrix;
+        use maliput_sys::api::ffi::Rotation_new;
+        use maliput_sys::api::ffi::Rotation_set_quat;
+
+        use maliput_sys::math::ffi::Matrix3;
+        use maliput_sys::math::ffi::Matrix3_new;
+        use maliput_sys::math::ffi::Matrix3_row;
+        use maliput_sys::math::ffi::Quaternion_new;
+        use maliput_sys::math::ffi::RollPitchYaw_new;
+        use maliput_sys::math::ffi::Vector3_equals;
+
+        #[allow(clippy::too_many_arguments)]
+        fn check_all_rotation_accessors(
+            rotation: &Rotation,
+            roll: f64,
+            pitch: f64,
+            yaw: f64,
+            w: f64,
+            x: f64,
+            y: f64,
+            z: f64,
+            matrix: &Matrix3,
+        ) {
+            assert_eq!(rotation.roll(), roll);
+            assert_eq!(rotation.pitch(), pitch);
+            assert_eq!(rotation.yaw(), yaw);
+            assert_eq!(rotation.quat().w(), w);
+            assert_eq!(rotation.quat().x(), x);
+            assert_eq!(rotation.quat().y(), y);
+            assert_eq!(rotation.quat().z(), z);
+            let rot_matrix = Rotation_matrix(rotation);
+            assert!(Vector3_equals(&Matrix3_row(&rot_matrix, 0), &Matrix3_row(matrix, 0)));
+        }
+
+        #[test]
+        fn rotation_constructors() {
+            let rotation = Rotation_new();
+            check_all_rotation_accessors(
+                &rotation,
+                0.,
+                0.,
+                0.,
+                1.,
+                0.,
+                0.,
+                0.,
+                &Matrix3_new(1., 0., 0., 0., 1., 0., 0., 0., 1.),
+            );
+            let rpy = RollPitchYaw_new(1.0, 0.0, 0.0);
+            let rotation_from_rpy = Rotation_from_rpy(&rpy);
+            assert_eq!(rotation_from_rpy.roll(), 1.);
+            let quat = Quaternion_new(1.0, 0.0, 0.0, 0.0);
+            let rotation_from_quat = Rotation_from_quat(&quat);
+            assert_eq!(rotation_from_quat.roll(), 0.);
+        }
+
+        #[test]
+        fn rotation_set_quat() {
+            let mut rotation = Rotation_new();
+            let quat = Quaternion_new(1.0, 0.0, 0.0, 0.0);
+            Rotation_set_quat(rotation.pin_mut(), &quat);
+            check_all_rotation_accessors(
+                &rotation,
+                0.,
+                0.,
+                0.,
+                1.,
+                0.,
+                0.,
+                0.,
+                &Matrix3_new(1., 0., 0., 0., 1., 0., 0., 0., 1.),
+            );
+        }
+
+        #[test]
+        fn rotation_distance() {
+            let rotation1 = Rotation_new();
+            let rotation2 = Rotation_new();
+            assert_eq!(rotation1.Distance(&rotation2), 0.);
+        }
+
+        #[test]
+        fn rotation_apply() {
+            let rotation = Rotation_new();
+            let inertial_pos = InertialPosition_new(1., 0., 0.);
+            let rotated_vector = Rotation_Apply(&rotation, &inertial_pos);
+            assert_eq!(rotated_vector.x(), 1.);
+            assert_eq!(rotated_vector.y(), 0.);
+            assert_eq!(rotated_vector.z(), 0.);
+        }
+
+        #[test]
+        fn rotation_reverse() {
+            let tol = 1e-10;
+            let rotation = Rotation_new();
+            let reversed_rotation = Rotation_Reverse(&rotation);
+            assert!((reversed_rotation.yaw() - PI).abs() < tol);
+        }
+    }
 }
