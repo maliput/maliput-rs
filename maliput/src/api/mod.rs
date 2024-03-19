@@ -391,6 +391,12 @@ impl<'a> Lane<'a> {
     pub fn id(&self) -> String {
         maliput_sys::api::ffi::Lane_id(self.lane)
     }
+    /// Get the orientation of the `Lane` at the given `LanePosition`.
+    pub fn get_orientation(&self, lane_position: &LanePosition) -> Rotation {
+        Rotation {
+            r: maliput_sys::api::ffi::Lane_GetOrientation(self.lane, lane_position.lp.as_ref().expect("")),
+        }
+    }
 }
 
 /// A maliput::api::RoadPosition

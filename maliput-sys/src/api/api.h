@@ -89,6 +89,10 @@ rust::String Lane_id(const Lane& lane) {
   return lane.id().string();
 }
 
+std::unique_ptr<Rotation> Lane_GetOrientation(const Lane& lane, const LanePosition& lane_position) {
+  return std::make_unique<Rotation>(lane.GetOrientation(lane_position));
+}
+
 std::unique_ptr<RoadPosition> RoadPosition_new(const Lane* lane, const LanePosition& pos) {
   return std::make_unique<RoadPosition>(lane, pos);
 }

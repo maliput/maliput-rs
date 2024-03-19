@@ -39,6 +39,10 @@ fn to_left_right() {
     let road_position_result = road_geometry.to_road_position(&inertial_pos);
     assert_eq!(road_position_result.road_position.lane().id(), expected_lane_id);
     let lane = road_position_result.road_position.lane();
+    let orientation = lane.get_orientation(&road_position_result.road_position.pos());
+    assert_eq!(orientation.roll(), 0.0);
+    assert_eq!(orientation.pitch(), 0.0);
+    assert_eq!(orientation.yaw(), 0.0);
     let left_lane = lane.to_left();
     let right_lane = lane.to_right();
     // In TShapeRoad map there is no left lane from current lane.

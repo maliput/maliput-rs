@@ -96,6 +96,7 @@ pub mod ffi {
         fn to_right(self: &Lane) -> *const Lane;
         fn length(self: &Lane) -> f64;
         fn Lane_id(lane: &Lane) -> String;
+        fn Lane_GetOrientation(lane: &Lane, lane_position: &LanePosition) -> UniquePtr<Rotation>;
 
         // RoadPosition bindings definitions
         type RoadPosition;
