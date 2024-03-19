@@ -397,6 +397,12 @@ impl<'a> Lane<'a> {
             r: maliput_sys::api::ffi::Lane_GetOrientation(self.lane, lane_position.lp.as_ref().expect("")),
         }
     }
+    /// Get the inertial position of the `Lane` at the given `LanePosition`.
+    pub fn to_inertial_position(&self, lane_position: &LanePosition) -> InertialPosition {
+        InertialPosition {
+            ip: maliput_sys::api::ffi::Lane_ToInertialPosition(self.lane, lane_position.lp.as_ref().expect("")),
+        }
+    }
 }
 
 /// A maliput::api::RoadPosition

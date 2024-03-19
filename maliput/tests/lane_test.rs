@@ -30,7 +30,8 @@
 mod common;
 
 #[test]
-fn to_left_right() {
+fn lane_api() {
+    let tolerance = 1e-10;
     let inertial_pos = maliput::api::InertialPosition::new(5.0, 1.75, 0.0);
     let expected_lane_id = String::from("0_0_1");
     let road_network = common::create_t_shape_road_network();
@@ -43,6 +44,10 @@ fn to_left_right() {
     assert_eq!(orientation.roll(), 0.0);
     assert_eq!(orientation.pitch(), 0.0);
     assert_eq!(orientation.yaw(), 0.0);
+    let ret_inertial_position = lane.to_inertial_position(&road_position_result.road_position.pos());
+    assert!((ret_inertial_position.x() - inertial_pos.x()).abs() < tolerance);
+    assert!((ret_inertial_position.y() - inertial_pos.y()).abs() < tolerance);
+    assert!((ret_inertial_position.z() - inertial_pos.z()).abs() < tolerance);
     let left_lane = lane.to_left();
     let right_lane = lane.to_right();
     // In TShapeRoad map there is no left lane from current lane.

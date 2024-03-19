@@ -93,6 +93,10 @@ std::unique_ptr<Rotation> Lane_GetOrientation(const Lane& lane, const LanePositi
   return std::make_unique<Rotation>(lane.GetOrientation(lane_position));
 }
 
+std::unique_ptr<InertialPosition> Lane_ToInertialPosition(const Lane& lane, const LanePosition& lane_position) {
+  return std::make_unique<InertialPosition>(lane.ToInertialPosition(lane_position));
+}
+
 std::unique_ptr<RoadPosition> RoadPosition_new(const Lane* lane, const LanePosition& pos) {
   return std::make_unique<RoadPosition>(lane, pos);
 }
