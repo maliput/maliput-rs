@@ -30,6 +30,12 @@
 
 #[cxx::bridge(namespace = "maliput::api")]
 pub mod ffi {
+    /// Shared struct for `Lane` pointers.
+    /// This is needed because `*const Lane` can't be used directly in the CxxVector collection.
+    struct ConstLanePtr {
+        pub lane: *const Lane,
+    }
+
     unsafe extern "C++" {
         include!("api/api.h");
 
@@ -50,6 +56,8 @@ pub mod ffi {
             rg: &RoadGeometry,
             inertial_position: &InertialPosition,
         ) -> UniquePtr<RoadPositionResult>;
+        fn RoadGeometry_GetLane(rg: &RoadGeometry, lane_id: &String) -> *const Lane;
+        fn RoadGeometry_GetLanes(rg: &RoadGeometry) -> &CxxVector<ConstLanePtr>;
         // LanePosition bindings definitions.
         type LanePosition;
         fn LanePosition_new(s: f64, r: f64, h: f64) -> UniquePtr<LanePosition>;

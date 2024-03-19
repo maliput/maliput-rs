@@ -32,6 +32,7 @@
 
 #include <memory>
 #include <sstream>
+#include <vector>
 
 #include <maliput/api/lane.h>
 #include <maliput/api/lane_data.h>
@@ -40,8 +41,12 @@
 
 #include <rust/cxx.h>
 
+#include "maliput-sys/src/api/mod.rs.h"
+
 namespace maliput {
 namespace api {
+
+struct ConstLanePtr;
 
 /// Creates a new maliput::api::LanePosition.
 /// Forwads to maliput::api::LanePosition(double s, double r, double h) constructor.
@@ -119,6 +124,22 @@ double RoadPositionResult_distance(const RoadPositionResult& road_pos_res) {
 
 std::unique_ptr<RoadPositionResult> RoadGeometry_ToRoadPosition(const RoadGeometry& road_geometry, const InertialPosition& inertial_pos) {
   return std::make_unique<RoadPositionResult>(road_geometry.ToRoadPosition(inertial_pos));
+}
+
+const Lane* RoadGeometry_GetLane(const RoadGeometry& road_geometry, const rust::String& lane_id) {
+  return road_geometry.ById().GetLane(LaneId{std::string(lane_id)});
+}
+
+const std::vector<ConstLanePtr>& RoadGeometry_GetLanes(const RoadGeometry& road_geometry) {
+  static std::vector<ConstLanePtr> lanes;
+  const auto lanes_cpp = road_geometry.ById().GetLanes();
+  if (lanes.size() == lanes_cpp.size()) {
+    return lanes;
+  }
+  for (const auto& lane : road_geometry.ById().GetLanes()) {
+    lanes.push_back(ConstLanePtr{lane.second});
+  }
+  return lanes;
 }
 
 } // namespace api
