@@ -107,5 +107,17 @@ pub mod ffi {
         fn Quaternion_IsApprox(q: &Quaternion, other: &Quaternion, precision: f64) -> bool;
         fn Quaternion_equals(q: &Quaternion, other: &Quaternion) -> bool;
         fn Quaternion_to_str(q: &Quaternion) -> String;
+
+        type RollPitchYaw;
+        fn RollPitchYaw_new(roll: f64, pitch: f64, yaw: f64) -> UniquePtr<RollPitchYaw>;
+        fn roll_angle(self: &RollPitchYaw) -> f64;
+        fn pitch_angle(self: &RollPitchYaw) -> f64;
+        fn yaw_angle(self: &RollPitchYaw) -> f64;
+        fn vector(self: &RollPitchYaw) -> &Vector3;
+        fn RollPitchYaw_set(rpy: Pin<&mut RollPitchYaw>, roll: f64, pitch: f64, yaw: f64);
+        fn RollPitchYaw_SetFromQuaternion(rpy: Pin<&mut RollPitchYaw>, q: &Quaternion);
+        fn RollPitchYaw_ToQuaternion(rpy: &RollPitchYaw) -> UniquePtr<Quaternion>;
+        fn RollPitchYaw_ToMatrix(rpy: &RollPitchYaw) -> UniquePtr<Matrix3>;
+        fn RollPitchYaw_CalcRotationMatrixDt(rpy: &RollPitchYaw, rpyDt: &Vector3) -> UniquePtr<Matrix3>;
     }
 }
