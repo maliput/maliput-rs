@@ -104,6 +104,7 @@ impl<'a> RoadGeometry<'a> {
         unsafe {
             Lane {
                 lane: maliput_sys::api::ffi::RoadGeometry_GetLane(self.rg, lane_id)
+                    .lane
                     .as_ref()
                     .expect(""),
             }
@@ -130,15 +131,12 @@ impl<'a> RoadGeometry<'a> {
     /// ```
     pub fn get_lanes(&self) -> Vec<Lane> {
         let lanes = maliput_sys::api::ffi::RoadGeometry_GetLanes(self.rg);
-        let mut lanes_vec = Vec::new();
-        for lane in lanes {
-            unsafe {
-                lanes_vec.push(Lane {
-                    lane: lane.lane.as_ref().expect(""),
-                });
-            }
-        }
-        lanes_vec
+        lanes
+            .into_iter()
+            .map(|l| Lane {
+                lane: unsafe { l.lane.as_ref().expect("") },
+            })
+            .collect::<Vec<Lane>>()
     }
 }
 

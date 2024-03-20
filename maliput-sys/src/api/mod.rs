@@ -56,7 +56,7 @@ pub mod ffi {
             rg: &RoadGeometry,
             inertial_position: &InertialPosition,
         ) -> UniquePtr<RoadPositionResult>;
-        fn RoadGeometry_GetLane(rg: &RoadGeometry, lane_id: &String) -> *const Lane;
+        fn RoadGeometry_GetLane(rg: &RoadGeometry, lane_id: &String) -> ConstLanePtr;
         fn RoadGeometry_GetLanes(rg: &RoadGeometry) -> &CxxVector<ConstLanePtr>;
         // LanePosition bindings definitions.
         type LanePosition;
