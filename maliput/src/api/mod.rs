@@ -36,18 +36,57 @@ pub struct RoadGeometry<'a> {
 }
 
 impl<'a> RoadGeometry<'a> {
+    /// Returns the number of Junctions in the RoadGeometry.
+    ///
+    /// Return value is non-negative.
     pub fn num_junctions(&self) -> i32 {
         self.rg.num_junctions()
     }
+    /// Returns the tolerance guaranteed for linear measurements (positions).
     pub fn linear_tolerance(&self) -> f64 {
         self.rg.linear_tolerance()
     }
+    /// Returns the tolerance guaranteed for angular measurements (orientations).
     pub fn angular_tolerance(&self) -> f64 {
         self.rg.angular_tolerance()
     }
+    /// Returns the number of BranchPoints in the RoadGeometry.
+    ///
+    /// Return value is non-negative.
     pub fn num_branch_points(&self) -> i32 {
         self.rg.num_branch_points()
     }
+    /// Determines the RoadPosition corresponding to InertialPosition `inertial_position`.
+    ///
+    /// Returns a RoadPositionResult. Its RoadPosition is the point in the
+    /// RoadGeometry's manifold which is, in the `Inertial`-frame, closest to
+    /// `inertial_position`. Its InertialPosition is the `Inertial`-frame equivalent of the
+    /// RoadPosition and its distance is the Cartesian distance from
+    /// `inertial_position` to the nearest point.
+    ///
+    /// This method guarantees that its result satisfies the condition that
+    /// `result.lane.to_lane_position(result.pos)` is within `linear_tolerance()`
+    /// of the returned InertialPosition.
+    ///
+    /// The map from RoadGeometry to the `Inertial`-frame is not onto (as a bounded
+    /// RoadGeometry cannot completely cover the unbounded Cartesian universe).
+    /// If `inertial_position` does represent a point contained within the volume
+    /// of the RoadGeometry, then result distance is guaranteed to be less
+    /// than or equal to `linear_tolerance()`.
+    ///
+    /// The map from RoadGeometry to `Inertial`-frame is not necessarily one-to-one.
+    /// Different `(s,r,h)` coordinates from different Lanes, potentially from
+    /// different Segments, may map to the same `(x,y,z)` `Inertial`-frame location.
+    ///
+    /// If `inertial_position` is contained within the volumes of multiple Segments,
+    /// then ToRoadPosition() will choose a Segment which yields the minimum
+    /// height `h` value in the result.  If the chosen Segment has multiple
+    /// Lanes, then ToRoadPosition() will choose a Lane which contains
+    /// `inertial_position` within its `lane_bounds()` if possible, and if that is
+    /// still ambiguous, it will further select a Lane which minimizes the
+    /// absolute value of the lateral `r` coordinate in the result.
+    ///
+    /// Wrapper around C++ implementation `maliput::api::RoadGeometry::ToRoadPosition`.
     pub fn to_road_position(&self, inertial_position: &InertialPosition) -> RoadPositionResult {
         let rpr = maliput_sys::api::ffi::RoadGeometry_ToRoadPosition(self.rg, &inertial_position.ip);
         RoadPositionResult {
@@ -59,6 +98,45 @@ impl<'a> RoadGeometry<'a> {
             },
             distance: maliput_sys::api::ffi::RoadPositionResult_distance(&rpr),
         }
+    }
+    /// Get the lane matching given `lane_id`.
+    pub fn get_lane(&self, lane_id: &String) -> Lane {
+        unsafe {
+            Lane {
+                lane: maliput_sys::api::ffi::RoadGeometry_GetLane(self.rg, lane_id)
+                    .lane
+                    .as_ref()
+                    .expect(""),
+            }
+        }
+    }
+    /// Get all lanes of the `RoadGeometry`.
+    /// Returns a vector of `Lane`.
+    /// # Example
+    /// ```rust, no_run
+    /// use maliput::api::RoadNetwork;
+    /// use std::collections::HashMap;
+    ///
+    /// let maliput_malidrive_plugin_path = maliput_sdk::get_maliput_malidrive_plugin_path();
+    /// std::env::set_var("MALIPUT_PLUGIN_PATH", maliput_malidrive_plugin_path);
+    /// let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
+    /// let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
+    /// let road_network_properties = HashMap::from([("road_geometry_id", "my_rg_from_rust"), ("opendrive_file", xodr_path.as_str())]);
+    /// let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties);
+    /// let road_geometry = road_network.road_geometry();
+    /// let lanes = road_geometry.get_lanes();
+    /// for lane in lanes {
+    ///    println!("lane_id: {}", lane.id());
+    /// }
+    /// ```
+    pub fn get_lanes(&self) -> Vec<Lane> {
+        let lanes = maliput_sys::api::ffi::RoadGeometry_GetLanes(self.rg);
+        lanes
+            .into_iter()
+            .map(|l| Lane {
+                lane: unsafe { l.lane.as_ref().expect("") },
+            })
+            .collect::<Vec<Lane>>()
     }
 }
 
