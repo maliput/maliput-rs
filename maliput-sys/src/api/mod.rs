@@ -104,6 +104,9 @@ pub mod ffi {
         fn to_right(self: &Lane) -> *const Lane;
         fn length(self: &Lane) -> f64;
         fn Lane_id(lane: &Lane) -> String;
+        fn Lane_lane_bounds(lane: &Lane, s: f64) -> UniquePtr<RBounds>;
+        fn Lane_segment_bounds(lane: &Lane, s: f64) -> UniquePtr<RBounds>;
+        fn Lane_elevation_bounds(lane: &Lane, s: f64, r: f64) -> UniquePtr<HBounds>;
         fn Lane_GetOrientation(lane: &Lane, lane_position: &LanePosition) -> UniquePtr<Rotation>;
         fn Lane_ToInertialPosition(lane: &Lane, lane_position: &LanePosition) -> UniquePtr<InertialPosition>;
 
@@ -138,6 +141,15 @@ pub mod ffi {
         fn Rotation_Apply(r: &Rotation, ip: &InertialPosition) -> UniquePtr<InertialPosition>;
         fn Rotation_Reverse(r: &Rotation) -> UniquePtr<Rotation>;
 
+        // RBounds bindings definitions
+        type RBounds;
+        fn min(self: &RBounds) -> f64;
+        fn max(self: &RBounds) -> f64;
+
+        // HBounds bindings definitions
+        type HBounds;
+        fn min(self: &HBounds) -> f64;
+        fn max(self: &HBounds) -> f64;
     }
     impl UniquePtr<RoadNetwork> {}
     impl UniquePtr<LanePosition> {}

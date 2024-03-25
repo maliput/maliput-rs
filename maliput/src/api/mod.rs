@@ -428,6 +428,59 @@ impl std::ops::Mul<f64> for InertialPosition {
     }
 }
 
+/// Bounds in the lateral dimension (r component) of a `Lane`-frame, consisting
+/// of a pair of minimum and maximum r value.  The bounds must straddle r = 0,
+/// i.e., the minimum must be <= 0 and the maximum must be >= 0.
+pub struct RBounds {
+    min: f64,
+    max: f64,
+}
+
+impl RBounds {
+    pub fn new(min: f64, max: f64) -> RBounds {
+        RBounds { min, max }
+    }
+    pub fn min(&self) -> f64 {
+        self.min
+    }
+    pub fn max(&self) -> f64 {
+        self.max
+    }
+    pub fn set_min(&mut self, min: f64) {
+        self.min = min;
+    }
+    pub fn set_max(&mut self, max: f64) {
+        self.max = max;
+    }
+}
+
+/// Bounds in the elevation dimension (`h` component) of a `Lane`-frame,
+/// consisting of a pair of minimum and maximum `h` value.  The bounds
+/// must straddle `h = 0`, i.e., the minimum must be `<= 0` and the
+/// maximum must be `>= 0`.
+pub struct HBounds {
+    min: f64,
+    max: f64,
+}
+
+impl HBounds {
+    pub fn new(min: f64, max: f64) -> HBounds {
+        HBounds { min, max }
+    }
+    pub fn min(&self) -> f64 {
+        self.min
+    }
+    pub fn max(&self) -> f64 {
+        self.max
+    }
+    pub fn set_min(&mut self, min: f64) {
+        self.min = min;
+    }
+    pub fn set_max(&mut self, max: f64) {
+        self.max = max;
+    }
+}
+
 /// A maliput::api::Lane
 /// Wrapper around C++ implementation `maliput::api::Lane`.
 pub struct Lane<'a> {
@@ -480,6 +533,21 @@ impl<'a> Lane<'a> {
         InertialPosition {
             ip: maliput_sys::api::ffi::Lane_ToInertialPosition(self.lane, lane_position.lp.as_ref().expect("")),
         }
+    }
+    /// Get the lane bounds of the `Lane` at the given `s`.
+    pub fn lane_bounds(&self, s: f64) -> RBounds {
+        let bounds = maliput_sys::api::ffi::Lane_lane_bounds(self.lane, s);
+        RBounds::new(bounds.min(), bounds.max())
+    }
+    /// Get the segment bounds of the `Lane` at the given `s`.
+    pub fn segment_bounds(&self, s: f64) -> RBounds {
+        let bounds = maliput_sys::api::ffi::Lane_segment_bounds(self.lane, s);
+        RBounds::new(bounds.min(), bounds.max())
+    }
+    /// Get the elevation bounds of the `Lane` at the given `s` and `r`.
+    pub fn elevation_bounds(&self, s: f64, r: f64) -> HBounds {
+        let bounds = maliput_sys::api::ffi::Lane_elevation_bounds(self.lane, s, r);
+        HBounds::new(bounds.min(), bounds.max())
     }
 }
 

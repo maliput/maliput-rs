@@ -40,6 +40,15 @@ fn lane_api() {
     let road_position_result = road_geometry.to_road_position(&inertial_pos);
     assert_eq!(road_position_result.road_position.lane().id(), expected_lane_id);
     let lane = road_position_result.road_position.lane();
+    let lane_bounds = lane.lane_bounds(0.0);
+    assert_eq!(lane_bounds.min(), -1.75);
+    assert_eq!(lane_bounds.max(), 1.75);
+    let segment_bounds = lane.segment_bounds(0.0);
+    assert_eq!(segment_bounds.min(), -5.25);
+    assert_eq!(segment_bounds.max(), 1.75);
+    let elevation_bounds = lane.elevation_bounds(0.0, 0.0);
+    assert_eq!(elevation_bounds.min(), 0.0);
+    assert_eq!(elevation_bounds.max(), 5.0);
     let orientation = lane.get_orientation(&road_position_result.road_position.pos());
     assert_eq!(orientation.roll(), 0.0);
     assert_eq!(orientation.pitch(), 0.0);

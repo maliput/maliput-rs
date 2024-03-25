@@ -102,6 +102,18 @@ std::unique_ptr<InertialPosition> Lane_ToInertialPosition(const Lane& lane, cons
   return std::make_unique<InertialPosition>(lane.ToInertialPosition(lane_position));
 }
 
+std::unique_ptr<RBounds>Lane_lane_bounds(const Lane& lane, rust::f64 s) {
+  return std::make_unique<RBounds>(lane.lane_bounds(s));
+}
+
+std::unique_ptr<RBounds>Lane_segment_bounds(const Lane& lane, rust::f64 s) {
+  return std::make_unique<RBounds>(lane.segment_bounds(s));
+}
+
+std::unique_ptr<HBounds>Lane_elevation_bounds(const Lane& lane, rust::f64 s, rust::f64 r) {
+  return std::make_unique<HBounds>(lane.elevation_bounds(s, r));
+}
+
 std::unique_ptr<RoadPosition> RoadPosition_new(const Lane* lane, const LanePosition& pos) {
   return std::make_unique<RoadPosition>(lane, pos);
 }
