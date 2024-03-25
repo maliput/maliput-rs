@@ -34,6 +34,7 @@ use std::path::PathBuf;
 
 fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rerun-if-changed=build.rs");
+    println!("cargo:rerun-if-changed=src/api/api.h");
     println!("cargo:rerun-if-changed=src/api/mod.rs");
     println!("cargo:rerun-if-changed=src/lib.rs");
     println!("cargo:rerun-if-changed=src/math/math.h");
