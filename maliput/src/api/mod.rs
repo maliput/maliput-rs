@@ -549,6 +549,10 @@ impl<'a> Lane<'a> {
         let bounds = maliput_sys::api::ffi::Lane_elevation_bounds(self.lane, s, r);
         HBounds::new(bounds.min(), bounds.max())
     }
+    /// Check if the `Lane` contains the given `LanePosition`.
+    pub fn contains(&self, lane_position: &LanePosition) -> bool {
+        self.lane.Contains(lane_position.lp.as_ref().expect(""))
+    }
 }
 
 /// A maliput::api::RoadPosition

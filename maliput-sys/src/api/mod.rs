@@ -103,6 +103,7 @@ pub mod ffi {
         fn to_left(self: &Lane) -> *const Lane;
         fn to_right(self: &Lane) -> *const Lane;
         fn length(self: &Lane) -> f64;
+        fn Contains(self: &Lane, lane_position: &LanePosition) -> bool;
         fn Lane_id(lane: &Lane) -> String;
         fn Lane_lane_bounds(lane: &Lane, s: f64) -> UniquePtr<RBounds>;
         fn Lane_segment_bounds(lane: &Lane, s: f64) -> UniquePtr<RBounds>;
