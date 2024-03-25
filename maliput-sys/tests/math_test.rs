@@ -236,7 +236,8 @@ mod math_test {
     fn matrix3_transpose() {
         let m = Matrix3_new(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
         let t = Matrix3_transpose(&m);
-        assert_eq!(Matrix3_row(&m, 1).z(), Matrix3_row(&t, 2).y());
+        let n = Matrix3_new(1.0, 4.0, 7.0, 2.0, 5.0, 8.0, 3.0, 6.0, 9.0);
+        assert!(Matrix3_equals(&t, &n));
     }
 
     #[test]
