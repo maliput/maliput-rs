@@ -121,5 +121,37 @@ std::unique_ptr<RoadPositionResult> RoadGeometry_ToRoadPosition(const RoadGeomet
   return std::make_unique<RoadPositionResult>(road_geometry.ToRoadPosition(inertial_pos));
 }
 
+std::unique_ptr<Rotation> Rotation_new() {
+  return std::make_unique<Rotation>();
+}
+
+std::unique_ptr<Rotation> Rotation_from_quat(const maliput::math::Quaternion& q) {
+  return std::make_unique<Rotation>(Rotation::FromQuat(q));
+}
+
+std::unique_ptr<Rotation> Rotation_from_rpy(const maliput::math::RollPitchYaw& rpy) {
+  return std::make_unique<Rotation>(Rotation::FromRpy(rpy.vector()));
+}
+
+void Rotation_set_quat(Rotation& rotation, const maliput::math::Quaternion& q) {
+  rotation.set_quat(q);
+}
+
+std::unique_ptr<maliput::math::RollPitchYaw> Rotation_rpy(const Rotation& rotation) {
+  return std::make_unique<maliput::math::RollPitchYaw>(rotation.rpy());
+}
+
+std::unique_ptr<maliput::math::Matrix3> Rotation_matrix(const Rotation& rotation) {
+  return std::make_unique<maliput::math::Matrix3>(rotation.matrix());
+}
+
+std::unique_ptr<InertialPosition> Rotation_Apply(const Rotation& rotation, const InertialPosition& inertial_pos) {
+  return std::make_unique<InertialPosition>(rotation.Apply(inertial_pos));
+}
+
+std::unique_ptr<Rotation> Rotation_Reverse(const Rotation& rotation) {
+  return std::make_unique<Rotation>(rotation.Reverse());
+}
+
 } // namespace api
 } // namespace maliput

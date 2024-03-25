@@ -36,6 +36,7 @@
 #include <maliput/math/vector.h>
 #include <maliput/math/matrix.h>
 #include <maliput/math/quaternion.h>
+#include <maliput/math/roll_pitch_yaw.h>
 
 #include <rust/cxx.h>
 
@@ -201,6 +202,30 @@ rust::String Quaternion_to_str(const Quaternion& self) {
   std::stringstream ss;
   ss << self;
   return {ss.str()};
+}
+
+std::unique_ptr<RollPitchYaw> RollPitchYaw_new(rust::f64 roll, rust::f64 pitch, rust::f64 yaw) {
+  return std::make_unique<RollPitchYaw>(roll, pitch, yaw);
+}
+
+void RollPitchYaw_set(RollPitchYaw& self, rust::f64 roll, rust::f64 pitch, rust::f64 yaw) {
+  self.set(roll, pitch, yaw);
+}
+
+void RollPitchYaw_SetFromQuaternion(RollPitchYaw& self, const Quaternion& q) {
+  self.SetFromQuaternion(q);
+}
+
+std::unique_ptr<Quaternion> RollPitchYaw_ToQuaternion(const RollPitchYaw& self) {
+  return std::make_unique<Quaternion>(self.ToQuaternion());
+}
+
+std::unique_ptr<Matrix3> RollPitchYaw_ToMatrix(const RollPitchYaw& self) {
+  return std::make_unique<Matrix3>(self.ToMatrix());
+}
+
+std::unique_ptr<Matrix3> RollPitchYaw_CalcRotationMatrixDt(const RollPitchYaw& self, const Vector3& w) {
+  return std::make_unique<Matrix3>(self.CalcRotationMatrixDt(w));
 }
 
 } // namespace math

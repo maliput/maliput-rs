@@ -28,6 +28,11 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+use crate::math::Matrix3;
+use crate::math::Quaternion;
+use crate::math::RollPitchYaw;
+use crate::math::Vector3;
+
 /// A RoadGeometry.
 /// Wrapper around C++ implementation `maliput::api::RoadGeometry`.
 /// See RoadNetwork for an example of how to get a RoadGeometry.
@@ -136,8 +141,6 @@ impl RoadNetwork {
 pub struct LanePosition {
     lp: cxx::UniquePtr<maliput_sys::api::ffi::LanePosition>,
 }
-
-use crate::math::Vector3;
 
 impl LanePosition {
     /// Create a new `LanePosition` with the given `s`, `r`, and `h` components.
@@ -445,6 +448,97 @@ impl RoadPositionResult {
     }
 }
 
+/// A maliput::api::Rotation
+/// A wrapper around C++ implementation `maliput::api::Rotation`.
+pub struct Rotation {
+    r: cxx::UniquePtr<maliput_sys::api::ffi::Rotation>,
+}
+
+impl Default for Rotation {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl Rotation {
+    /// Create a new `Rotation`.
+    pub fn new() -> Rotation {
+        Rotation {
+            r: maliput_sys::api::ffi::Rotation_new(),
+        }
+    }
+    /// Create a new `Rotation` from a `Quaternion`.
+    pub fn from_quat(q: &Quaternion) -> Rotation {
+        let q_ffi = maliput_sys::math::ffi::Quaternion_new(q.w(), q.x(), q.y(), q.z());
+        Rotation {
+            r: maliput_sys::api::ffi::Rotation_from_quat(&q_ffi),
+        }
+    }
+    /// Create a new `Rotation` from a `RollPitchYaw`.
+    pub fn from_rpy(rpy: &RollPitchYaw) -> Rotation {
+        let rpy_ffi = maliput_sys::math::ffi::RollPitchYaw_new(rpy.roll_angle(), rpy.pitch_angle(), rpy.yaw_angle());
+        Rotation {
+            r: maliput_sys::api::ffi::Rotation_from_rpy(&rpy_ffi),
+        }
+    }
+    /// Get the roll of the `Rotation`.
+    pub fn roll(&self) -> f64 {
+        self.r.roll()
+    }
+    /// Get the pitch of the `Rotation`.
+    pub fn pitch(&self) -> f64 {
+        self.r.pitch()
+    }
+    /// Get the yaw of the `Rotation`.
+    pub fn yaw(&self) -> f64 {
+        self.r.yaw()
+    }
+    /// Get a quaternion representation of the `Rotation`.
+    pub fn quat(&self) -> Quaternion {
+        let q_ffi = self.r.quat();
+        Quaternion::new(q_ffi.w(), q_ffi.x(), q_ffi.y(), q_ffi.z())
+    }
+    /// Get a roll-pitch-yaw representation of the `Rotation`.
+    pub fn rpy(&self) -> RollPitchYaw {
+        let rpy_ffi = maliput_sys::api::ffi::Rotation_rpy(&self.r);
+        RollPitchYaw::new(rpy_ffi.roll_angle(), rpy_ffi.pitch_angle(), rpy_ffi.yaw_angle())
+    }
+    /// Set the `Rotation` from a `Quaternion`.
+    pub fn set_quat(&mut self, q: &Quaternion) {
+        let q_ffi = maliput_sys::math::ffi::Quaternion_new(q.w(), q.x(), q.y(), q.z());
+        maliput_sys::api::ffi::Rotation_set_quat(self.r.pin_mut(), &q_ffi);
+    }
+    /// Get the matrix representation of the `Rotation`.
+    pub fn matrix(&self) -> Matrix3 {
+        let matrix_ffi: cxx::UniquePtr<maliput_sys::math::ffi::Matrix3> =
+            maliput_sys::api::ffi::Rotation_matrix(&self.r);
+        let row_0 = maliput_sys::math::ffi::Matrix3_row(matrix_ffi.as_ref().expect(""), 0);
+        let row_1 = maliput_sys::math::ffi::Matrix3_row(matrix_ffi.as_ref().expect(""), 1);
+        let row_2 = maliput_sys::math::ffi::Matrix3_row(matrix_ffi.as_ref().expect(""), 2);
+        Matrix3::new(
+            Vector3::new(row_0.x(), row_0.y(), row_0.z()),
+            Vector3::new(row_1.x(), row_1.y(), row_1.z()),
+            Vector3::new(row_2.x(), row_2.y(), row_2.z()),
+        )
+    }
+    /// Get the distance between two `Rotation`.
+    pub fn distance(&self, other: &Rotation) -> f64 {
+        self.r.Distance(&other.r)
+    }
+    /// Apply the `Rotation` to an `InertialPosition`.
+    pub fn apply(&self, v: &InertialPosition) -> InertialPosition {
+        InertialPosition {
+            ip: maliput_sys::api::ffi::Rotation_Apply(&self.r, &v.ip),
+        }
+    }
+    /// Get the reverse of the `Rotation`.
+    pub fn reverse(&self) -> Rotation {
+        Rotation {
+            r: maliput_sys::api::ffi::Rotation_Reverse(&self.r),
+        }
+    }
+}
+
 mod tests {
     mod lane_position {
         #[test]
@@ -600,6 +694,52 @@ mod tests {
             assert_eq!(inertial_pos2.x(), 2.0);
             assert_eq!(inertial_pos2.y(), 4.0);
             assert_eq!(inertial_pos2.z(), 6.0);
+        }
+    }
+    mod rotation {
+        #[test]
+        fn rotation_new() {
+            let rotation = crate::api::Rotation::new();
+            assert_eq!(rotation.roll(), 0.0);
+            assert_eq!(rotation.pitch(), 0.0);
+            assert_eq!(rotation.yaw(), 0.0);
+        }
+
+        #[test]
+        fn from_quat() {
+            let quat = crate::math::Quaternion::new(1.0, 0.0, 0.0, 0.0);
+            let rotation = crate::api::Rotation::from_quat(&quat);
+            assert_eq!(rotation.roll(), 0.0);
+            assert_eq!(rotation.pitch(), 0.0);
+            assert_eq!(rotation.yaw(), 0.0);
+        }
+
+        #[test]
+        fn from_rpy() {
+            let rpy = crate::math::RollPitchYaw::new(0.0, 0.0, 0.0);
+            let rotation = crate::api::Rotation::from_rpy(&rpy);
+            assert_eq!(rotation.roll(), 0.0);
+            assert_eq!(rotation.pitch(), 0.0);
+            assert_eq!(rotation.yaw(), 0.0);
+        }
+
+        #[test]
+        fn set_quat() {
+            let mut rotation = crate::api::Rotation::new();
+            let quat = crate::math::Quaternion::new(1.0, 0.0, 0.0, 0.0);
+            rotation.set_quat(&quat);
+            assert_eq!(rotation.roll(), 0.0);
+            assert_eq!(rotation.pitch(), 0.0);
+            assert_eq!(rotation.yaw(), 0.0);
+        }
+
+        #[test]
+        fn matrix() {
+            let rotation = crate::api::Rotation::new();
+            let matrix = rotation.matrix();
+            assert_eq!(matrix.row(0), crate::math::Vector3::new(1.0, 0.0, 0.0));
+            assert_eq!(matrix.row(1), crate::math::Vector3::new(0.0, 1.0, 0.0));
+            assert_eq!(matrix.row(2), crate::math::Vector3::new(0.0, 0.0, 1.0));
         }
     }
 }

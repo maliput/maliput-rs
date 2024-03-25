@@ -416,6 +416,91 @@ impl std::fmt::Debug for Quaternion {
     }
 }
 
+/// This class represents the orientation between two arbitrary frames A and D
+/// associated with a Space-fixed (extrinsic) X-Y-Z rotation by "roll-pitch-yaw"
+/// angles `[r, p, y]`, which is equivalent to a Body-fixed (intrinsic) Z-Y-X
+/// rotation by "yaw-pitch-roll" angles `[y, p, r]`.  The rotation matrix `R_AD`
+/// associated with this roll-pitch-yaw `[r, p, y]` rotation sequence is equal
+/// to the matrix multiplication shown below.
+/// ```md, no_run
+///        ⎡cos(y) -sin(y)  0⎤   ⎡ cos(p)  0  sin(p)⎤   ⎡1      0        0 ⎤
+/// R_AD = ⎢sin(y)  cos(y)  0⎥ * ⎢     0   1      0 ⎥ * ⎢0  cos(r)  -sin(r)⎥
+///        ⎣    0       0   1⎦   ⎣-sin(p)  0  cos(p)⎦   ⎣0  sin(r)   cos(r)⎦
+///      =       R_AB          *        R_BC          *        R_CD
+/// ```
+///
+/// Wrapper of C++ implementation `maliput::math::RollPitchYaw`.
+pub struct RollPitchYaw {
+    rpy: cxx::UniquePtr<maliput_sys::math::ffi::RollPitchYaw>,
+}
+
+impl RollPitchYaw {
+    /// Create a new `RollPitchYaw` with the given `roll`, `pitch`, and `yaw` angles.
+    pub fn new(roll: f64, pitch: f64, yaw: f64) -> RollPitchYaw {
+        RollPitchYaw {
+            rpy: maliput_sys::math::ffi::RollPitchYaw_new(roll, pitch, yaw),
+        }
+    }
+    /// Get the roll angle of the `RollPitchYaw`.
+    pub fn roll_angle(&self) -> f64 {
+        self.rpy.roll_angle()
+    }
+    /// Get the pitch angle of the `RollPitchYaw`.
+    pub fn pitch_angle(&self) -> f64 {
+        self.rpy.pitch_angle()
+    }
+    /// Get the yaw angle of the `RollPitchYaw`.
+    pub fn yaw_angle(&self) -> f64 {
+        self.rpy.yaw_angle()
+    }
+    /// Get the vector of the `RollPitchYaw`.
+    pub fn vector(&self) -> Vector3 {
+        Vector3::new(self.rpy.vector().x(), self.rpy.vector().y(), self.rpy.vector().z())
+    }
+    /// Set the `RollPitchYaw` with the given `roll`, `pitch`, and `yaw` angles.
+    pub fn set(&mut self, roll: f64, pitch: f64, yaw: f64) {
+        maliput_sys::math::ffi::RollPitchYaw_set(self.rpy.as_mut().expect("Unexpected Error"), roll, pitch, yaw);
+    }
+    /// Set the `RollPitchYaw` from the given `Quaternion`.
+    pub fn set_from_quaternion(&mut self, q: &Quaternion) {
+        maliput_sys::math::ffi::RollPitchYaw_SetFromQuaternion(self.rpy.as_mut().expect("Unexpected Error"), &q.q);
+    }
+    /// Get the `Quaternion` representation of the `RollPitchYaw`.
+    pub fn to_quaternion(&self) -> Quaternion {
+        Quaternion {
+            q: maliput_sys::math::ffi::RollPitchYaw_ToQuaternion(&self.rpy),
+        }
+    }
+    /// Get the rotation matrix representation of the `RollPitchYaw`.
+    pub fn to_matrix(&self) -> Matrix3 {
+        Matrix3 {
+            m: maliput_sys::math::ffi::RollPitchYaw_ToMatrix(&self.rpy),
+        }
+    }
+    /// Get the rotation matrix representation of the `RollPitchYaw` with the given `rpy_dt`.
+    /// ## Description
+    /// Forms Ṙ, the ordinary derivative of the RotationMatrix `R` with respect
+    /// to an independent variable `t` (`t` usually denotes time) and `R` is the
+    /// RotationMatrix formed by `this` `RollPitchYaw`.  The roll-pitch-yaw angles
+    /// r, p, y are regarded as functions of `t` [i.e., r(t), p(t), y(t)].
+    /// The param `rpy_dt` Ordinary derivative of rpy with respect to an independent
+    /// variable `t` (`t` usually denotes time, but not necessarily).
+    /// Returns `Ṙ``, the ordinary derivative of `R` with respect to `t`, calculated
+    /// as `Ṙ = ∂R/∂r * ṙ + ∂R/∂p * ṗ + ∂R/∂y * ẏ`.  In other words, the returned
+    /// (i, j) element is `∂Rij/∂r * ṙ + ∂Rij/∂p * ṗ + ∂Rij/∂y * ẏ``.
+    ///
+    /// Note: Docs are taken from the C++ implementation.
+    /// ## Args
+    /// - `rpy_dt` Ordinary derivative of rpy with respect to an independent variable `t`.
+    /// ## Returns
+    /// Ordinary derivative of the RotationMatrix `R` with respect to an independent variable `t`.
+    pub fn calc_rotation_matrix_dt(&self, rpy_dt: &Vector3) -> Matrix3 {
+        Matrix3 {
+            m: maliput_sys::math::ffi::RollPitchYaw_CalcRotationMatrixDt(&self.rpy, &rpy_dt.v),
+        }
+    }
+}
+
 mod tests {
     #[test]
     fn vector3_new() {
@@ -530,6 +615,15 @@ mod tests {
         assert_eq!(q.x(), 2.0);
         assert_eq!(q.y(), 3.0);
         assert_eq!(q.z(), 4.0);
+        // TODO(francocipollone): Add tests for the rest of the API.
+    }
+
+    #[test]
+    fn roll_pitch_yaw_tests() {
+        let rpy = super::RollPitchYaw::new(1.0, 2.0, 3.0);
+        assert_eq!(rpy.roll_angle(), 1.0);
+        assert_eq!(rpy.pitch_angle(), 2.0);
+        assert_eq!(rpy.yaw_angle(), 3.0);
         // TODO(francocipollone): Add tests for the rest of the API.
     }
 }

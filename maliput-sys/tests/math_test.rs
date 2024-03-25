@@ -53,6 +53,13 @@ mod math_test {
     use maliput_sys::math::ffi::Matrix3_to_str;
     use maliput_sys::math::ffi::Matrix3_transpose;
 
+    use maliput_sys::math::ffi::RollPitchYaw_CalcRotationMatrixDt;
+    use maliput_sys::math::ffi::RollPitchYaw_SetFromQuaternion;
+    use maliput_sys::math::ffi::RollPitchYaw_ToMatrix;
+    use maliput_sys::math::ffi::RollPitchYaw_ToQuaternion;
+    use maliput_sys::math::ffi::RollPitchYaw_new;
+    use maliput_sys::math::ffi::RollPitchYaw_set;
+
     use maliput_sys::math::ffi::Quaternion_Inverse;
     use maliput_sys::math::ffi::Quaternion_IsApprox;
     use maliput_sys::math::ffi::Quaternion_ToRotationMatrix;
@@ -425,5 +432,70 @@ mod math_test {
     fn quaternion_to_str() {
         let q = Quaternion_new(1.0, 2.0, 3.0, 4.0);
         assert_eq!(Quaternion_to_str(&q), "(w: 1, x: 2, y: 3, z: 4)");
+    }
+
+    #[test]
+    fn roll_pitch_yaw_new() {
+        let rpy = RollPitchYaw_new(1.0, 2.0, 3.0);
+        assert_eq!(rpy.roll_angle(), 1.0);
+        assert_eq!(rpy.pitch_angle(), 2.0);
+        assert_eq!(rpy.yaw_angle(), 3.0);
+    }
+
+    #[test]
+    fn roll_pitch_yaw_vector() {
+        let rpy = RollPitchYaw_new(1.0, 2.0, 3.0);
+        let v = rpy.vector();
+        assert_eq!(v.x(), 1.0);
+        assert_eq!(v.y(), 2.0);
+        assert_eq!(v.z(), 3.0);
+    }
+
+    #[test]
+    fn roll_pitch_yaw_set() {
+        let mut rpy = RollPitchYaw_new(1.0, 2.0, 3.0);
+        RollPitchYaw_set(rpy.as_mut().expect(""), 4.0, 5.0, 6.0);
+        assert_eq!(rpy.roll_angle(), 4.0);
+        assert_eq!(rpy.pitch_angle(), 5.0);
+        assert_eq!(rpy.yaw_angle(), 6.0);
+    }
+
+    #[test]
+    fn roll_pitch_yaw_set_from_quaternion() {
+        let q = Quaternion_new(1.0, 0.0, 0.0, 0.0);
+        let mut rpy = RollPitchYaw_new(1.0, 2.0, 3.0);
+        RollPitchYaw_SetFromQuaternion(rpy.as_mut().expect(""), &q);
+        assert_eq!(rpy.roll_angle(), 0.0);
+        assert_eq!(rpy.pitch_angle(), 0.0);
+        assert_eq!(rpy.yaw_angle(), 0.0);
+    }
+
+    #[test]
+    fn roll_pitch_yaw_to_quaternion() {
+        let rpy = RollPitchYaw_new(0.0, 0.0, 0.0);
+        let q = RollPitchYaw_ToQuaternion(&rpy);
+        assert_eq!(q.w(), 1.);
+        assert_eq!(q.x(), 0.);
+        assert_eq!(q.y(), 0.);
+        assert_eq!(q.z(), 0.);
+    }
+
+    #[test]
+    fn roll_pitch_yaw_to_matrix() {
+        let rpy = RollPitchYaw_new(0.0, 0.0, 0.0);
+        let m = RollPitchYaw_ToMatrix(&rpy);
+        assert_eq!(Matrix3_row(&m, 0).x(), 1.0);
+        assert_eq!(Matrix3_row(&m, 1).y(), 1.0);
+        assert_eq!(Matrix3_row(&m, 2).z(), 1.0);
+    }
+
+    #[test]
+    fn roll_pitch_yaw_calc_rotation_matrix_dt() {
+        let rpy = RollPitchYaw_new(0.0, 0.0, 0.0);
+        let v = Vector3_new(1.0, 1.0, 1.0);
+        let m = RollPitchYaw_CalcRotationMatrixDt(&rpy, &v);
+        assert_eq!(Matrix3_row(&m, 0).x(), 0.0);
+        assert_eq!(Matrix3_row(&m, 1).y(), 0.0);
+        assert_eq!(Matrix3_row(&m, 2).z(), 0.0);
     }
 }
