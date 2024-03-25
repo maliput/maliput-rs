@@ -41,6 +41,12 @@ pub mod ffi {
 
         #[namespace = "maliput::math"]
         type Vector3 = crate::math::ffi::Vector3;
+        #[namespace = "maliput::math"]
+        type Quaternion = crate::math::ffi::Quaternion;
+        #[namespace = "maliput::math"]
+        type Matrix3 = crate::math::ffi::Matrix3;
+        #[namespace = "maliput::math"]
+        type RollPitchYaw = crate::math::ffi::RollPitchYaw;
 
         #[namespace = "maliput::api"]
         type RoadNetwork;
@@ -113,6 +119,23 @@ pub mod ffi {
         fn RoadPositionResult_road_position(result: &RoadPositionResult) -> UniquePtr<RoadPosition>;
         fn RoadPositionResult_nearest_position(result: &RoadPositionResult) -> UniquePtr<InertialPosition>;
         fn RoadPositionResult_distance(result: &RoadPositionResult) -> f64;
+
+        // Rotation bindings definitions
+        type Rotation;
+        fn Rotation_new() -> UniquePtr<Rotation>;
+        fn Rotation_from_quat(q: &Quaternion) -> UniquePtr<Rotation>;
+        fn Rotation_from_rpy(rpy: &RollPitchYaw) -> UniquePtr<Rotation>;
+        fn roll(self: &Rotation) -> f64;
+        fn pitch(self: &Rotation) -> f64;
+        fn yaw(self: &Rotation) -> f64;
+        fn quat(self: &Rotation) -> &Quaternion;
+        fn Distance(self: &Rotation, other: &Rotation) -> f64;
+        fn Rotation_set_quat(r: Pin<&mut Rotation>, q: &Quaternion);
+        fn Rotation_rpy(r: &Rotation) -> UniquePtr<RollPitchYaw>;
+        fn Rotation_matrix(r: &Rotation) -> UniquePtr<Matrix3>;
+        fn Rotation_Apply(r: &Rotation, ip: &InertialPosition) -> UniquePtr<InertialPosition>;
+        fn Rotation_Reverse(r: &Rotation) -> UniquePtr<Rotation>;
+
     }
     impl UniquePtr<RoadNetwork> {}
     impl UniquePtr<LanePosition> {}
