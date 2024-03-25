@@ -488,6 +488,10 @@ pub struct Lane<'a> {
 }
 
 impl<'a> Lane<'a> {
+    /// Returns the index of this Lane within the Segment which owns it.    
+    pub fn index(&self) -> i32 {
+        self.lane.index()
+    }
     /// Get the left lane of the `Lane`.
     pub fn to_left(&self) -> Option<Lane> {
         let lane = self.lane.to_left();

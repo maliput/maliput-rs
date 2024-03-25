@@ -102,6 +102,7 @@ pub mod ffi {
         type Lane;
         fn to_left(self: &Lane) -> *const Lane;
         fn to_right(self: &Lane) -> *const Lane;
+        fn index(self: &Lane) -> i32;
         fn length(self: &Lane) -> f64;
         fn Contains(self: &Lane, lane_position: &LanePosition) -> bool;
         fn Lane_id(lane: &Lane) -> String;
