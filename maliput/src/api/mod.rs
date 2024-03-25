@@ -488,7 +488,7 @@ pub struct Lane<'a> {
 }
 
 impl<'a> Lane<'a> {
-    /// Returns the index of this Lane within the Segment which owns it.    
+    /// Returns the index of this Lane within the Segment which owns it.
     pub fn index(&self) -> i32 {
         self.lane.index()
     }
@@ -536,6 +536,44 @@ impl<'a> Lane<'a> {
     pub fn to_inertial_position(&self, lane_position: &LanePosition) -> InertialPosition {
         InertialPosition {
             ip: maliput_sys::api::ffi::Lane_ToInertialPosition(self.lane, lane_position.lp.as_ref().expect("")),
+        }
+    }
+    /// Determines the LanePosition corresponding to InertialPosition `inertial_position`.
+    /// The LanePosition is expected to be contained within the lane's boundaries.
+    /// See [Lane::to_segment_position] method.
+    ///
+    /// This method guarantees that its result satisfies the condition that
+    /// `to_inertial_position(result.lane_position)` is within `linear_tolerance()`
+    ///  of `result.nearest_position`.
+    pub fn to_lane_position(&self, inertial_position: &InertialPosition) -> LanePositionResult {
+        let lpr = maliput_sys::api::ffi::Lane_ToLanePosition(self.lane, inertial_position.ip.as_ref().expect(""));
+        LanePositionResult {
+            lane_position: LanePosition {
+                lp: maliput_sys::api::ffi::LanePositionResult_road_position(&lpr),
+            },
+            nearest_position: InertialPosition {
+                ip: maliput_sys::api::ffi::LanePositionResult_nearest_position(&lpr),
+            },
+            distance: maliput_sys::api::ffi::LanePositionResult_distance(&lpr),
+        }
+    }
+    /// Determines the LanePosition corresponding to InertialPosition `inertial_position`.
+    /// The LanePosition is expected to be contained within the segment's boundaries.
+    /// See [Lane::to_lane_position] method.
+    ///
+    /// This method guarantees that its result satisfies the condition that
+    /// `to_inertial_position(result.lane_position)` is within `linear_tolerance()`
+    ///  of `result.nearest_position`.
+    pub fn to_segment_position(&self, inertial_position: &InertialPosition) -> LanePositionResult {
+        let spr = maliput_sys::api::ffi::Lane_ToSegmentPosition(self.lane, inertial_position.ip.as_ref().expect(""));
+        LanePositionResult {
+            lane_position: LanePosition {
+                lp: maliput_sys::api::ffi::LanePositionResult_road_position(&spr),
+            },
+            nearest_position: InertialPosition {
+                ip: maliput_sys::api::ffi::LanePositionResult_nearest_position(&spr),
+            },
+            distance: maliput_sys::api::ffi::LanePositionResult_distance(&spr),
         }
     }
     /// Get the lane bounds of the `Lane` at the given `s`.
@@ -608,6 +646,24 @@ impl RoadPositionResult {
     pub fn new(road_position: RoadPosition, nearest_position: InertialPosition, distance: f64) -> RoadPositionResult {
         RoadPositionResult {
             road_position,
+            nearest_position,
+            distance,
+        }
+    }
+}
+
+/// Represents the result of a LanePosition query.
+pub struct LanePositionResult {
+    pub lane_position: LanePosition,
+    pub nearest_position: InertialPosition,
+    pub distance: f64,
+}
+
+impl LanePositionResult {
+    /// Create a new `LanePositionResult` with the given `lane_position`, `nearest_position`, and `distance`.
+    pub fn new(lane_position: LanePosition, nearest_position: InertialPosition, distance: f64) -> LanePositionResult {
+        LanePositionResult {
+            lane_position,
             nearest_position,
             distance,
         }

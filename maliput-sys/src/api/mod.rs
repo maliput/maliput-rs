@@ -111,6 +111,8 @@ pub mod ffi {
         fn Lane_elevation_bounds(lane: &Lane, s: f64, r: f64) -> UniquePtr<HBounds>;
         fn Lane_GetOrientation(lane: &Lane, lane_position: &LanePosition) -> UniquePtr<Rotation>;
         fn Lane_ToInertialPosition(lane: &Lane, lane_position: &LanePosition) -> UniquePtr<InertialPosition>;
+        fn Lane_ToLanePosition(lane: &Lane, inertial_position: &InertialPosition) -> UniquePtr<LanePositionResult>;
+        fn Lane_ToSegmentPosition(lane: &Lane, inertial_position: &InertialPosition) -> UniquePtr<LanePositionResult>;
 
         // RoadPosition bindings definitions
         type RoadPosition;
@@ -126,6 +128,12 @@ pub mod ffi {
         fn RoadPositionResult_road_position(result: &RoadPositionResult) -> UniquePtr<RoadPosition>;
         fn RoadPositionResult_nearest_position(result: &RoadPositionResult) -> UniquePtr<InertialPosition>;
         fn RoadPositionResult_distance(result: &RoadPositionResult) -> f64;
+
+        // LanePositionResult bindings definitions
+        type LanePositionResult;
+        fn LanePositionResult_road_position(result: &LanePositionResult) -> UniquePtr<LanePosition>;
+        fn LanePositionResult_nearest_position(result: &LanePositionResult) -> UniquePtr<InertialPosition>;
+        fn LanePositionResult_distance(result: &LanePositionResult) -> f64;
 
         // Rotation bindings definitions
         type Rotation;

@@ -61,6 +61,10 @@ fn lane_api() {
     assert!((ret_inertial_position.x() - inertial_pos.x()).abs() < tolerance);
     assert!((ret_inertial_position.y() - inertial_pos.y()).abs() < tolerance);
     assert!((ret_inertial_position.z() - inertial_pos.z()).abs() < tolerance);
+    let ret_lane_position = lane.to_lane_position(&ret_inertial_position);
+    assert_eq!(ret_lane_position.distance, road_position_result.distance);
+    let ret_segment_position = lane.to_segment_position(&inertial_pos);
+    assert_eq!(ret_segment_position.distance, road_position_result.distance);
     let left_lane = lane.to_left();
     let right_lane = lane.to_right();
     // In TShapeRoad map there is no left lane from current lane.
