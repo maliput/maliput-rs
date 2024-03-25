@@ -52,4 +52,11 @@ fn main() {
     println!("linear_tolerance: {}", road_geometry.linear_tolerance());
     println!("angular_tolerance: {}", road_geometry.angular_tolerance());
     println!("num_junctions: {}", road_geometry.num_junctions());
+
+    let lanes = road_geometry.get_lanes();
+    println!("num_lanes: {}", lanes.len());
+    println!("lanes: ");
+    for lane in lanes {
+        println!("\tlane id: {}", lane.id());
+    }
 }

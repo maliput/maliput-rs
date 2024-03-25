@@ -57,3 +57,19 @@ fn to_road_position() {
         road_geometry.linear_tolerance(),
     );
 }
+
+#[test]
+fn by_index() {
+    let road_network = common::create_t_shape_road_network();
+    let road_geometry = road_network.road_geometry();
+    let lane_id = String::from("0_0_1");
+    let lane = road_geometry.get_lane(&lane_id);
+    assert_eq!(lane.id(), "0_0_1");
+
+    let lanes = road_geometry.get_lanes();
+    assert_eq!(lanes.len(), 12);
+    let lanes = road_geometry.get_lanes();
+    assert_eq!(lanes.len(), 12);
+    let lanes = road_geometry.get_lanes();
+    assert_eq!(lanes.len(), 12);
+}
