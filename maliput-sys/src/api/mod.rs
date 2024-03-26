@@ -64,6 +64,7 @@ pub mod ffi {
         ) -> UniquePtr<RoadPositionResult>;
         fn RoadGeometry_GetLane(rg: &RoadGeometry, lane_id: &String) -> ConstLanePtr;
         fn RoadGeometry_GetLanes(rg: &RoadGeometry) -> &CxxVector<ConstLanePtr>;
+        fn RoadGeometry_GetSegment(rg: &RoadGeometry, segment_id: &String) -> *const Segment;
         // LanePosition bindings definitions.
         type LanePosition;
         fn LanePosition_new(s: f64, r: f64, h: f64) -> UniquePtr<LanePosition>;
@@ -113,6 +114,12 @@ pub mod ffi {
         fn Lane_ToInertialPosition(lane: &Lane, lane_position: &LanePosition) -> UniquePtr<InertialPosition>;
         fn Lane_ToLanePosition(lane: &Lane, inertial_position: &InertialPosition) -> UniquePtr<LanePositionResult>;
         fn Lane_ToSegmentPosition(lane: &Lane, inertial_position: &InertialPosition) -> UniquePtr<LanePositionResult>;
+
+        // Segment bindings definitions
+        type Segment;
+        fn num_lanes(self: &Segment) -> i32;
+        fn lane(self: &Segment, index: i32) -> *const Lane;
+        fn Segment_id(segment: &Segment) -> String;
 
         // RoadPosition bindings definitions
         type RoadPosition;
