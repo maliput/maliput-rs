@@ -1,14 +1,22 @@
 [package]
 name = "maliput-sys"
 version = "0.1.0"
-edition = "2021"
 authors = ["Franco Cipollone <franco.c@ekumenlabs.com>"]
+categories = ["external-ffi-bindings", "simulation"]
 description = "FFI Rust bindings for maliput"
+documentation = "https://maliput.readthedocs.io/"
+
+edition.workspace = true
+keywords.workspace = true
+license-file.workspace = true
+readme.workspace = true
+repository.workspace = true
+
 build = "build.rs"
 
 [dependencies]
 cxx = "1.0.78"
-maliput-sdk = { path = "../maliput-sdk" }
+maliput-sdk = { version = "0.1.0",  path = "../maliput-sdk" }
 
 [build-dependencies]
 cxx-build = "1.0.78"

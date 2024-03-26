@@ -1,8 +1,14 @@
 [workspace]
 resolver = "2"
-
 members = [
     "maliput",
     "maliput-sdk",
     "maliput-sys",
 ]
+
+[workspace.package]
+edition = "2021"
+keywords = ["maliput"]
+license-file = "LICENSE"
+readme = "README.md"
+repository = "https://github.com/maliput/maliput-rs"

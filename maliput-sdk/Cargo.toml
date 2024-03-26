@@ -1,11 +1,18 @@
 [package]
 name = "maliput-sdk"
 version = "0.1.0"
-edition = "2021"
 authors = ["Franco Cipollone <franco.c@ekumenlabs.com>"]
+categories = ["external-ffi-bindings", "simulation"]
 description = "Vendor for maliput libraries."
-build = "build.rs"
+documentation = "https://maliput.readthedocs.io/"
 
+edition.workspace = true
+keywords.workspace = true
+license-file.workspace = true
+readme.workspace = true
+repository.workspace = true
+
+build = "build.rs"
 # Dummy `links` value so that we can pass DEP_* environment variables to our
 # dependents.
 # See: https://github.com/rust-lang/cargo/issues/7846
