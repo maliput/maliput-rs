@@ -1,14 +1,21 @@
 [package]
 name = "maliput"
 version = "0.1.0"
-edition = "2021"
 authors = ["Franco Cipollone <franco.c@ekumenlabs.com>"]
+categories = ["simulation"]
 description = "Rust API for maliput"
+documentation = "https://maliput.readthedocs.io/"
+
+edition.workspace = true
+keywords.workspace = true
+license-file.workspace = true
+readme.workspace = true
+repository.workspace = true
 
 [dependencies]
 cxx = "1.0.78"
-maliput-sdk = { path = "../maliput-sdk" }
-maliput-sys = { path = "../maliput-sys" }
+maliput-sdk = { version = "0.1.0", path = "../maliput-sdk" }
+maliput-sys = { version = "0.1.0", path = "../maliput-sys" }
 
 [dev-dependencies]
 criterion = { version = "0.4", features = ["html_reports"] }
