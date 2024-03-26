@@ -53,6 +53,7 @@ pub mod ffi {
         type RoadGeometry;
         // RoadNetwork bindings definitions.
         fn road_geometry(self: &RoadNetwork) -> *const RoadGeometry;
+        fn RoadGeometry_id(road_geometry: &RoadGeometry) -> String;
         // RoadGeometry bindings definitions.
         fn num_junctions(self: &RoadGeometry) -> i32;
         fn linear_tolerance(self: &RoadGeometry) -> f64;
@@ -65,6 +66,7 @@ pub mod ffi {
         fn RoadGeometry_GetLane(rg: &RoadGeometry, lane_id: &String) -> ConstLanePtr;
         fn RoadGeometry_GetLanes(rg: &RoadGeometry) -> &CxxVector<ConstLanePtr>;
         fn RoadGeometry_GetSegment(rg: &RoadGeometry, segment_id: &String) -> *const Segment;
+        fn RoadGeometry_GetJunction(rg: &RoadGeometry, junction_id: &String) -> *const Junction;
         // LanePosition bindings definitions.
         type LanePosition;
         fn LanePosition_new(s: f64, r: f64, h: f64) -> UniquePtr<LanePosition>;
@@ -111,8 +113,16 @@ pub mod ffi {
         // Segment bindings definitions
         type Segment;
         fn num_lanes(self: &Segment) -> i32;
+        fn junction(self: &Segment) -> *const Junction;
         fn lane(self: &Segment, index: i32) -> *const Lane;
         fn Segment_id(segment: &Segment) -> String;
+
+        // Junction bindings definitions
+        type Junction;
+        fn road_geometry(self: &Junction) -> *const RoadGeometry;
+        fn num_segments(self: &Junction) -> i32;
+        fn segment(self: &Junction, index: i32) -> *const Segment;
+        fn Junction_id(junction: &Junction) -> String;
 
         // RoadPosition bindings definitions
         type RoadPosition;

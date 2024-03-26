@@ -30,17 +30,15 @@
 mod common;
 
 #[test]
-fn segment_api() {
+fn junction_api() {
     let road_network = common::create_t_shape_road_network();
     let road_geometry = road_network.road_geometry();
-
-    let segment_id = String::from("0_0");
-    let segment = road_geometry.get_segment(&segment_id);
-    assert_eq!(segment.id(), segment_id);
-    let junction = segment.junction();
-    assert_eq!(junction.id(), String::from("0_0"));
-    let num_lanes = segment.num_lanes();
-    assert_eq!(num_lanes, 2);
-    let lane = segment.lane(0);
-    assert_eq!(lane.id(), String::from("0_0_-1"));
+    let junction_id = String::from("0_0");
+    let junction = road_geometry.get_junction(&junction_id);
+    assert_eq!(junction.road_geometry().id(), road_geometry.id());
+    assert_eq!(junction.id(), junction_id);
+    let num_segments = junction.num_segments();
+    assert_eq!(num_segments, 1);
+    let segment = junction.segment(0);
+    assert_eq!(segment.id(), String::from("0_0"));
 }

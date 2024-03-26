@@ -34,10 +34,12 @@
 #include <sstream>
 #include <vector>
 
+#include <maliput/api/junction.h>
 #include <maliput/api/lane.h>
 #include <maliput/api/lane_data.h>
 #include <maliput/api/road_network.h>
 #include <maliput/api/road_geometry.h>
+#include <maliput/api/segment.h>
 
 #include <rust/cxx.h>
 
@@ -94,6 +96,10 @@ rust::String Segment_id(const Segment& segment) {
   return segment.id().string();
 }
 
+rust::String Junction_id(const Junction& junction) {
+  return junction.id().string();
+}
+
 rust::String Lane_id(const Lane& lane) {
   return lane.id().string();
 }
@@ -134,6 +140,10 @@ double RoadPositionResult_distance(const RoadPositionResult& road_pos_res) {
   return road_pos_res.distance;
 }
 
+rust::String RoadGeometry_id(const RoadGeometry& road_geometry) {
+  return road_geometry.id().string();
+}
+
 std::unique_ptr<RoadPositionResult> RoadGeometry_ToRoadPosition(const RoadGeometry& road_geometry, const InertialPosition& inertial_pos) {
   return std::make_unique<RoadPositionResult>(road_geometry.ToRoadPosition(inertial_pos));
 }
@@ -157,6 +167,10 @@ const std::vector<ConstLanePtr>& RoadGeometry_GetLanes(const RoadGeometry& road_
 
 const Segment* RoadGeometry_GetSegment(const RoadGeometry& road_geometry, const rust::String& segment_id) {
   return road_geometry.ById().GetSegment(SegmentId{std::string(segment_id)});
+}
+
+const Junction* RoadGeometry_GetJunction(const RoadGeometry& road_geometry, const rust::String& junction_id) {
+  return road_geometry.ById().GetJunction(JunctionId{std::string(junction_id)});
 }
 
 std::unique_ptr<Rotation> Rotation_new() {
