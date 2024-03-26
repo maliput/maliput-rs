@@ -40,6 +40,19 @@ fn lane_api() {
     let road_position_result = road_geometry.to_road_position(&inertial_pos);
     assert_eq!(road_position_result.road_position.lane().id(), expected_lane_id);
     let lane = road_position_result.road_position.lane();
+    let index = lane.index();
+    assert_eq!(index, 1);
+    let contains = lane.contains(&road_position_result.road_position.pos());
+    assert!(contains);
+    let lane_bounds = lane.lane_bounds(0.0);
+    assert_eq!(lane_bounds.min(), -1.75);
+    assert_eq!(lane_bounds.max(), 1.75);
+    let segment_bounds = lane.segment_bounds(0.0);
+    assert_eq!(segment_bounds.min(), -5.25);
+    assert_eq!(segment_bounds.max(), 1.75);
+    let elevation_bounds = lane.elevation_bounds(0.0, 0.0);
+    assert_eq!(elevation_bounds.min(), 0.0);
+    assert_eq!(elevation_bounds.max(), 5.0);
     let orientation = lane.get_orientation(&road_position_result.road_position.pos());
     assert_eq!(orientation.roll(), 0.0);
     assert_eq!(orientation.pitch(), 0.0);
@@ -48,6 +61,10 @@ fn lane_api() {
     assert!((ret_inertial_position.x() - inertial_pos.x()).abs() < tolerance);
     assert!((ret_inertial_position.y() - inertial_pos.y()).abs() < tolerance);
     assert!((ret_inertial_position.z() - inertial_pos.z()).abs() < tolerance);
+    let ret_lane_position = lane.to_lane_position(&ret_inertial_position);
+    assert_eq!(ret_lane_position.distance, road_position_result.distance);
+    let ret_segment_position = lane.to_segment_position(&inertial_pos);
+    assert_eq!(ret_segment_position.distance, road_position_result.distance);
     let left_lane = lane.to_left();
     let right_lane = lane.to_right();
     // In TShapeRoad map there is no left lane from current lane.

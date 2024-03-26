@@ -105,10 +105,17 @@ pub mod ffi {
         type Lane;
         fn to_left(self: &Lane) -> *const Lane;
         fn to_right(self: &Lane) -> *const Lane;
+        fn index(self: &Lane) -> i32;
         fn length(self: &Lane) -> f64;
+        fn Contains(self: &Lane, lane_position: &LanePosition) -> bool;
         fn Lane_id(lane: &Lane) -> String;
+        fn Lane_lane_bounds(lane: &Lane, s: f64) -> UniquePtr<RBounds>;
+        fn Lane_segment_bounds(lane: &Lane, s: f64) -> UniquePtr<RBounds>;
+        fn Lane_elevation_bounds(lane: &Lane, s: f64, r: f64) -> UniquePtr<HBounds>;
         fn Lane_GetOrientation(lane: &Lane, lane_position: &LanePosition) -> UniquePtr<Rotation>;
         fn Lane_ToInertialPosition(lane: &Lane, lane_position: &LanePosition) -> UniquePtr<InertialPosition>;
+        fn Lane_ToLanePosition(lane: &Lane, inertial_position: &InertialPosition) -> UniquePtr<LanePositionResult>;
+        fn Lane_ToSegmentPosition(lane: &Lane, inertial_position: &InertialPosition) -> UniquePtr<LanePositionResult>;
 
         // Segment bindings definitions
         type Segment;
@@ -139,6 +146,12 @@ pub mod ffi {
         fn RoadPositionResult_nearest_position(result: &RoadPositionResult) -> UniquePtr<InertialPosition>;
         fn RoadPositionResult_distance(result: &RoadPositionResult) -> f64;
 
+        // LanePositionResult bindings definitions
+        type LanePositionResult;
+        fn LanePositionResult_road_position(result: &LanePositionResult) -> UniquePtr<LanePosition>;
+        fn LanePositionResult_nearest_position(result: &LanePositionResult) -> UniquePtr<InertialPosition>;
+        fn LanePositionResult_distance(result: &LanePositionResult) -> f64;
+
         // Rotation bindings definitions
         type Rotation;
         fn Rotation_new() -> UniquePtr<Rotation>;
@@ -155,6 +168,15 @@ pub mod ffi {
         fn Rotation_Apply(r: &Rotation, ip: &InertialPosition) -> UniquePtr<InertialPosition>;
         fn Rotation_Reverse(r: &Rotation) -> UniquePtr<Rotation>;
 
+        // RBounds bindings definitions
+        type RBounds;
+        fn min(self: &RBounds) -> f64;
+        fn max(self: &RBounds) -> f64;
+
+        // HBounds bindings definitions
+        type HBounds;
+        fn min(self: &HBounds) -> f64;
+        fn max(self: &HBounds) -> f64;
     }
     impl UniquePtr<RoadNetwork> {}
     impl UniquePtr<LanePosition> {}

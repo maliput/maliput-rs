@@ -112,6 +112,26 @@ std::unique_ptr<InertialPosition> Lane_ToInertialPosition(const Lane& lane, cons
   return std::make_unique<InertialPosition>(lane.ToInertialPosition(lane_position));
 }
 
+std::unique_ptr<RBounds>Lane_lane_bounds(const Lane& lane, rust::f64 s) {
+  return std::make_unique<RBounds>(lane.lane_bounds(s));
+}
+
+std::unique_ptr<RBounds>Lane_segment_bounds(const Lane& lane, rust::f64 s) {
+  return std::make_unique<RBounds>(lane.segment_bounds(s));
+}
+
+std::unique_ptr<HBounds>Lane_elevation_bounds(const Lane& lane, rust::f64 s, rust::f64 r) {
+  return std::make_unique<HBounds>(lane.elevation_bounds(s, r));
+}
+
+std::unique_ptr<LanePositionResult> Lane_ToLanePosition(const Lane& lane, const InertialPosition& inertial_pos) {
+  return std::make_unique<LanePositionResult>(lane.ToLanePosition(inertial_pos));
+}
+
+std::unique_ptr<LanePositionResult> Lane_ToSegmentPosition(const Lane& lane, const InertialPosition& inertial_pos) {
+  return std::make_unique<LanePositionResult>(lane.ToSegmentPosition(inertial_pos));
+}
+
 std::unique_ptr<RoadPosition> RoadPosition_new(const Lane* lane, const LanePosition& pos) {
   return std::make_unique<RoadPosition>(lane, pos);
 }
@@ -138,6 +158,18 @@ std::unique_ptr<InertialPosition> RoadPositionResult_nearest_position (const Roa
 
 double RoadPositionResult_distance(const RoadPositionResult& road_pos_res) {
   return road_pos_res.distance;
+}
+
+std::unique_ptr<LanePosition> LanePositionResult_road_position(const LanePositionResult& lane_pos_res) {
+  return std::make_unique<LanePosition>(lane_pos_res.lane_position);
+}
+
+std::unique_ptr<InertialPosition> LanePositionResult_nearest_position (const LanePositionResult& lane_pos_res) {
+  return std::make_unique<InertialPosition>(lane_pos_res.nearest_position);
+}
+
+double LanePositionResult_distance(const LanePositionResult& lane_pos_res) {
+  return lane_pos_res.distance;
 }
 
 rust::String RoadGeometry_id(const RoadGeometry& road_geometry) {
