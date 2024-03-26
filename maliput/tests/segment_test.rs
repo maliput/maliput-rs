@@ -30,50 +30,16 @@
 mod common;
 
 #[test]
-fn linear_tolerance() {
+fn lane_api() {
     let road_network = common::create_t_shape_road_network();
     let road_geometry = road_network.road_geometry();
-    assert_eq!(road_geometry.linear_tolerance(), 0.01);
-}
-
-#[test]
-fn to_road_position() {
-    let expected_nearest_position = maliput::api::InertialPosition::new(5.0, 1.75, 0.0);
-    let expected_lane_position = maliput::api::LanePosition::new(5.0, 0.0, 0.0);
-    let expected_lane_id = String::from("0_0_1");
-    let road_network = common::create_t_shape_road_network();
-    let road_geometry = road_network.road_geometry();
-
-    let road_position_result = road_geometry.to_road_position(&expected_nearest_position);
-    assert_eq!(road_position_result.road_position.lane().id(), expected_lane_id);
-    common::assert_lane_position_equality(
-        &road_position_result.road_position.pos(),
-        &expected_lane_position,
-        road_geometry.linear_tolerance(),
-    );
-    common::assert_inertial_position_equality(
-        &road_position_result.nearest_position,
-        &expected_nearest_position,
-        road_geometry.linear_tolerance(),
-    );
-}
-
-#[test]
-fn by_index() {
-    let road_network = common::create_t_shape_road_network();
-    let road_geometry = road_network.road_geometry();
-    let lane_id = String::from("0_0_1");
-    let lane = road_geometry.get_lane(&lane_id);
-    assert_eq!(lane.id(), "0_0_1");
-
-    let lanes = road_geometry.get_lanes();
-    assert_eq!(lanes.len(), 12);
-    let lanes = road_geometry.get_lanes();
-    assert_eq!(lanes.len(), 12);
-    let lanes = road_geometry.get_lanes();
-    assert_eq!(lanes.len(), 12);
 
     let segment_id = String::from("0_0");
     let segment = road_geometry.get_segment(&segment_id);
-    assert_eq!(segment.id(), "0_0");
+    assert_eq!(segment.id(), segment_id);
+
+    let num_lanes = segment.num_lanes();
+    assert_eq!(num_lanes, 2);
+    let lane = segment.lane(0);
+    assert_eq!(lane.id(), String::from("0_0_-1"));
 }

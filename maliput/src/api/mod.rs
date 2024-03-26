@@ -143,6 +143,16 @@ impl<'a> RoadGeometry<'a> {
             })
             .collect::<Vec<Lane>>()
     }
+    /// Get the segment matching given `segment_id`.
+    pub fn get_segment(&self, segment_id: &String) -> Segment {
+        unsafe {
+            Segment {
+                segment: maliput_sys::api::ffi::RoadGeometry_GetSegment(self.rg, segment_id)
+                    .as_ref()
+                    .expect(""),
+            }
+        }
+    }
 }
 
 /// A RoadNetwork.
@@ -479,6 +489,38 @@ impl<'a> Lane<'a> {
     pub fn to_inertial_position(&self, lane_position: &LanePosition) -> InertialPosition {
         InertialPosition {
             ip: maliput_sys::api::ffi::Lane_ToInertialPosition(self.lane, lane_position.lp.as_ref().expect("")),
+        }
+    }
+}
+
+/// A Segment represents a bundle of adjacent Lanes which share a
+/// continuously traversable road surface. Every [LanePosition] on a
+/// given [Lane] of a Segment has a corresponding [LanePosition] on each
+/// other [Lane], all with the same height-above-surface h, that all
+/// map to the same GeoPoint in 3-space.
+///
+/// Segments are grouped by [Junction].
+///
+/// Wrapper around C++ implementation `maliput::api::Segment`.
+pub struct Segment<'a> {
+    segment: &'a maliput_sys::api::ffi::Segment,
+}
+
+impl<'a> Segment<'a> {
+    /// Get the id of the `Segment` as a string.
+    pub fn id(&self) -> String {
+        maliput_sys::api::ffi::Segment_id(self.segment)
+    }
+    /// Get the number of lanes in the `Segment`.
+    pub fn num_lanes(&self) -> i32 {
+        self.segment.num_lanes()
+    }
+    /// Get the lane at the given `index`.
+    pub fn lane(&self, index: i32) -> Lane {
+        unsafe {
+            Lane {
+                lane: self.segment.lane(index).as_ref().expect(""),
+            }
         }
     }
 }

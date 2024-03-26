@@ -90,6 +90,10 @@ bool InertialPosition_operator_eq(const InertialPosition& lhs, const InertialPos
   return lhs == rhs;
 }
 
+rust::String Segment_id(const Segment& segment) {
+  return segment.id().string();
+}
+
 rust::String Lane_id(const Lane& lane) {
   return lane.id().string();
 }
@@ -149,6 +153,10 @@ const std::vector<ConstLanePtr>& RoadGeometry_GetLanes(const RoadGeometry& road_
     lanes.push_back(ConstLanePtr{lane.second});
   }
   return lanes;
+}
+
+const Segment* RoadGeometry_GetSegment(const RoadGeometry& road_geometry, const rust::String& segment_id) {
+  return road_geometry.ById().GetSegment(SegmentId{std::string(segment_id)});
 }
 
 std::unique_ptr<Rotation> Rotation_new() {
