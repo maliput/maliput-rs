@@ -41,6 +41,10 @@ pub struct RoadGeometry<'a> {
 }
 
 impl<'a> RoadGeometry<'a> {
+    /// Returns the id of the RoadGeometry.
+    pub fn id(&self) -> String {
+        maliput_sys::api::ffi::RoadGeometry_id(self.rg)
+    }
     /// Returns the number of Junctions in the RoadGeometry.
     ///
     /// Return value is non-negative.
@@ -148,6 +152,16 @@ impl<'a> RoadGeometry<'a> {
         unsafe {
             Segment {
                 segment: maliput_sys::api::ffi::RoadGeometry_GetSegment(self.rg, segment_id)
+                    .as_ref()
+                    .expect(""),
+            }
+        }
+    }
+    /// Get the junction matching given `junction_id`.
+    pub fn get_junction(&self, junction_id: &String) -> Junction {
+        unsafe {
+            Junction {
+                junction: maliput_sys::api::ffi::RoadGeometry_GetJunction(self.rg, junction_id)
                     .as_ref()
                     .expect(""),
             }
@@ -625,6 +639,14 @@ impl<'a> Segment<'a> {
     pub fn id(&self) -> String {
         maliput_sys::api::ffi::Segment_id(self.segment)
     }
+    /// Returns the [Junction] to which this Segment belongs.
+    pub fn junction(&self) -> Junction {
+        unsafe {
+            Junction {
+                junction: self.segment.junction().as_ref().expect(""),
+            }
+        }
+    }
     /// Get the number of lanes in the `Segment`.
     pub fn num_lanes(&self) -> i32 {
         self.segment.num_lanes()
@@ -634,6 +656,46 @@ impl<'a> Segment<'a> {
         unsafe {
             Lane {
                 lane: self.segment.lane(index).as_ref().expect(""),
+            }
+        }
+    }
+}
+
+/// A Junction is a closed set of [Segment]s which have physically
+/// coplanar road surfaces, in the sense that [RoadPosition]s with the
+/// same h value (height above surface) in the domains of two [Segment]s
+/// map to the same [InertialPosition].  The [Segment]s need not be directly
+/// connected to one another in the network topology.
+///
+/// Junctions are grouped by [RoadGeometry].
+///
+/// Wrapper around C++ implementation `maliput::api::Segment`.
+pub struct Junction<'a> {
+    junction: &'a maliput_sys::api::ffi::Junction,
+}
+
+impl<'a> Junction<'a> {
+    /// Get the id of the `Junction` as a string.
+    pub fn id(&self) -> String {
+        maliput_sys::api::ffi::Junction_id(self.junction)
+    }
+    /// Get the road geometry of the `Junction`.
+    pub fn road_geometry(&self) -> RoadGeometry {
+        unsafe {
+            RoadGeometry {
+                rg: self.junction.road_geometry().as_ref().expect(""),
+            }
+        }
+    }
+    /// Get the number of segments in the `Junction`.
+    pub fn num_segments(&self) -> i32 {
+        self.junction.num_segments()
+    }
+    /// Get the segment at the given `index`.
+    pub fn segment(&self, index: i32) -> Segment {
+        unsafe {
+            Segment {
+                segment: self.junction.segment(index).as_ref().expect(""),
             }
         }
     }

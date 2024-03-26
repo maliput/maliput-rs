@@ -30,10 +30,18 @@
 mod common;
 
 #[test]
-fn linear_tolerance() {
+fn id() {
+    let road_network = common::create_t_shape_road_network();
+    let road_geometry = road_network.road_geometry();
+    assert_eq!(road_geometry.id(), "my_rg_from_rust");
+}
+
+#[test]
+fn tolerances() {
     let road_network = common::create_t_shape_road_network();
     let road_geometry = road_network.road_geometry();
     assert_eq!(road_geometry.linear_tolerance(), 0.01);
+    assert_eq!(road_geometry.angular_tolerance(), 0.01);
 }
 
 #[test]
@@ -76,4 +84,8 @@ fn by_index() {
     let segment_id = String::from("0_0");
     let segment = road_geometry.get_segment(&segment_id);
     assert_eq!(segment.id(), "0_0");
+
+    let junction_id = String::from("0_0");
+    let junction = road_geometry.get_junction(&junction_id);
+    assert_eq!(junction.id(), "0_0");
 }
