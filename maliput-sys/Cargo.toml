@@ -16,7 +16,7 @@ build = "build.rs"
 
 [dependencies]
 cxx = "1.0.78"
-maliput-sdk = { version = "0.1.1",  path = "../maliput-sdk" }
+maliput-sdk = { version = "0.1.2",  path = "../maliput-sdk" }
 
 [build-dependencies]
 cxx-build = "1.0.78"
