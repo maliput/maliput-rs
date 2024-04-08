@@ -5,11 +5,11 @@ authors = ["Franco Cipollone <franco.c@ekumenlabs.com>"]
 categories = ["external-ffi-bindings", "simulation"]
 description = "FFI Rust bindings for maliput"
 documentation = "https://maliput.readthedocs.io/"
+readme = "README.md"
 
 edition.workspace = true
 keywords.workspace = true
 license.workspace = true
-readme.workspace = true
 repository.workspace = true
 
 build = "build.rs"
