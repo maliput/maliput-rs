@@ -10,5 +10,4 @@ members = [
 edition = "2021"
 keywords = ["maliput"]
 license = "BSD-3-Clause"
-readme = "README.md"
 repository = "https://github.com/maliput/maliput-rs"

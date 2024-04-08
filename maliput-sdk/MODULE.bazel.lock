@@ -18,7 +18,7 @@
   "moduleDepGraph": {
     "<root>": {
       "name": "maliput_sdk",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "key": "<root>",
       "repoName": "maliput_sdk",
       "executionPlatformsToRegister": [],

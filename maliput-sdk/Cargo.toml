@@ -1,15 +1,15 @@
 [package]
 name = "maliput-sdk"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Franco Cipollone <franco.c@ekumenlabs.com>"]
 categories = ["external-ffi-bindings", "simulation"]
 description = "Vendor for maliput libraries."
 documentation = "https://maliput.readthedocs.io/"
+readme = "README.md"
 
 edition.workspace = true
 keywords.workspace = true
 license.workspace = true
-readme.workspace = true
 repository.workspace = true
 
 build = "build.rs"

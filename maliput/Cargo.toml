@@ -5,16 +5,16 @@ authors = ["Franco Cipollone <franco.c@ekumenlabs.com>"]
 categories = ["simulation"]
 description = "Rust API for maliput"
 documentation = "https://docs.rs/crate/maliput"
+readme = "README.md"
 
 edition.workspace = true
 keywords.workspace = true
 license.workspace = true
-readme.workspace = true
 repository.workspace = true
 
 [dependencies]
 cxx = "1.0.78"
-maliput-sdk = { version = "0.1.1", path = "../maliput-sdk" }
+maliput-sdk = { version = "0.1.2", path = "../maliput-sdk" }
 maliput-sys = { version = "0.1.0", path = "../maliput-sys" }
 
 [dev-dependencies]
