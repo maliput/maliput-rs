@@ -14,7 +14,7 @@ repository.workspace = true
 
 [dependencies]
 cxx = "1.0.78"
-maliput-sdk = { version = "0.1.0", path = "../maliput-sdk" }
+maliput-sdk = { version = "0.1.1", path = "../maliput-sdk" }
 maliput-sys = { version = "0.1.0", path = "../maliput-sys" }
 
 [dev-dependencies]
