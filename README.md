@@ -6,7 +6,7 @@ Provides a Rust API for maliput.
 
 * [`maliput-sdk`](./maliput-sdk/): Brings binaries of maliput ecosystem to cargo workspace.
 * [`maliput-sys`](./maliput-sys/): Provides ffi Rust bindings for the [`maliput`](https://github.com/maliput/maliput) API.
-* [`maliput`]: Provides a Rustacean API for maliput on top of `maliput-sys`.
+* [`maliput`](./maliput/): Provides a Rustacean API for maliput on top of `maliput-sys`.
 
 ## Prerequisites
 
