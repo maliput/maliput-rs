@@ -32,10 +32,6 @@ use maliput::api::RoadNetwork;
 use std::collections::HashMap;
 
 pub fn create_t_shape_road_network() -> RoadNetwork {
-    // Set MALIPUT_PLUGIN_PATH
-    let maliput_malidrive_plugin_path = maliput_sdk::get_maliput_malidrive_plugin_path();
-    std::env::set_var("MALIPUT_PLUGIN_PATH", maliput_malidrive_plugin_path);
-
     // Get location of odr resources
     let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
     let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
