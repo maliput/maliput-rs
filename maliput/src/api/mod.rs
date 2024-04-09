@@ -126,8 +126,6 @@ impl<'a> RoadGeometry<'a> {
     /// use maliput::api::RoadNetwork;
     /// use std::collections::HashMap;
     ///
-    /// let maliput_malidrive_plugin_path = maliput_sdk::get_maliput_malidrive_plugin_path();
-    /// std::env::set_var("MALIPUT_PLUGIN_PATH", maliput_malidrive_plugin_path);
     /// let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
     /// let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
     /// let road_network_properties = HashMap::from([("road_geometry_id", "my_rg_from_rust"), ("opendrive_file", xodr_path.as_str())]);
@@ -178,8 +176,6 @@ impl<'a> RoadGeometry<'a> {
 /// use maliput::api::RoadNetwork;
 /// use std::collections::HashMap;
 ///
-/// let maliput_malidrive_plugin_path = maliput_sdk::get_maliput_malidrive_plugin_path();
-/// std::env::set_var("MALIPUT_PLUGIN_PATH", maliput_malidrive_plugin_path);
 /// let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
 /// let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
 /// let road_network_properties = HashMap::from([("road_geometry_id", "my_rg_from_rust"), ("opendrive_file", xodr_path.as_str())]);
@@ -194,9 +190,6 @@ pub struct RoadNetwork {
 impl RoadNetwork {
     /// Create a new `RoadNetwork` with the given `road_network_loader_id` and `properties`.
     ///
-    /// # Requisites
-    /// The environment variable `MALIPUT_PLUGIN_PATH` must be set so maliput discovers the plugins.
-    ///
     /// # Arguments
     ///
     /// * `road_network_loader_id` - The id of the road network loader.
@@ -210,7 +203,7 @@ impl RoadNetwork {
         for (key, value) in properties.iter() {
             properties_vec.push(format!("{}:{}", key, value));
         }
-
+        std::env::set_var("MALIPUT_PLUGIN_PATH", maliput_sdk::get_maliput_malidrive_plugin_path());
         RoadNetwork {
             rn: maliput_sys::plugin::ffi::CreateRoadNetwork(&road_network_loader_id.to_string(), &properties_vec),
         }
