@@ -543,6 +543,14 @@ impl<'a> Lane<'a> {
     pub fn id(&self) -> String {
         maliput_sys::api::ffi::Lane_id(self.lane)
     }
+    /// Returns the Segment to which this Lane belongs.
+    pub fn segment(&self) -> Segment<'a> {
+        unsafe {
+            Segment {
+                segment: self.lane.segment().as_ref().expect(""),
+            }
+        }
+    }
     /// Get the orientation of the `Lane` at the given `LanePosition`.
     pub fn get_orientation(&self, lane_position: &LanePosition) -> Rotation {
         Rotation {
