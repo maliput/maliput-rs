@@ -72,4 +72,7 @@ fn lane_api() {
     // In TShapeRoad map there is a right lane from current lane.
     assert!(right_lane.is_some());
     assert_eq!(right_lane.unwrap().id(), "0_0_-1");
+    let segment = lane.segment();
+    let expected_segment_id = String::from("0_0");
+    assert_eq!(segment.id(), expected_segment_id);
 }
