@@ -922,6 +922,57 @@ impl SRange {
     }
 }
 
+/// Directed longitudinal range of a specific Lane, identified by a LaneId.
+/// Wrapper around C++ implementation `maliput::api::LaneSRange`.
+pub struct LaneSRange {
+    lane_s_range: cxx::UniquePtr<maliput_sys::api::ffi::LaneSRange>,
+}
+
+impl LaneSRange {
+    /// Create a new `LaneSRange` with the given `lane_id` and `s_range`.
+    pub fn new(lane_id: &String, s_range: &SRange) -> LaneSRange {
+        LaneSRange {
+            lane_s_range: maliput_sys::api::ffi::LaneSRange_new(lane_id, &s_range.s_range),
+        }
+    }
+    /// Get the lane id of the `LaneSRange`.
+    pub fn lane_id(&self) -> String {
+        maliput_sys::api::ffi::LaneSRange_lane_id(&self.lane_s_range)
+    }
+    /// Get the s range of the `LaneSRange`.
+    pub fn s_range(&self) -> SRange {
+        SRange {
+            s_range: maliput_sys::api::ffi::LaneSRange_s_range(&self.lane_s_range),
+        }
+    }
+    /// Get the length of the `LaneSRange`.
+    pub fn length(&self) -> f64 {
+        self.lane_s_range.length()
+    }
+    /// Determines whether this LaneSRange intersects with `lane_s_range`.
+    pub fn intersects(&self, lane_s_range: &LaneSRange, tolerance: f64) -> bool {
+        self.lane_s_range.Intersects(&lane_s_range.lane_s_range, tolerance)
+    }
+    /// Determines whether this LaneSRange contains `lane_s_range`.
+    pub fn contains(&self, lane_s_range: &LaneSRange, tolerance: f64) -> bool {
+        self.lane_s_range.Contains(&lane_s_range.lane_s_range, tolerance)
+    }
+    /// Get the intersection of this LaneSRange with `lane_s_range`.
+    pub fn get_intersection(&self, lane_s_range: &LaneSRange, tolerance: f64) -> Option<LaneSRange> {
+        let intersection = maliput_sys::api::ffi::LaneSRange_GetIntersection(
+            &self.lane_s_range,
+            &lane_s_range.lane_s_range,
+            tolerance,
+        );
+        match intersection.is_null() {
+            true => None,
+            false => Some(LaneSRange {
+                lane_s_range: intersection,
+            }),
+        }
+    }
+}
+
 mod tests {
     mod lane_position {
         #[test]
@@ -1165,6 +1216,49 @@ mod tests {
             let s_range_1 = crate::api::SRange::new(1.0, 2.0);
             let s_range_2 = crate::api::SRange::new(3.0, 4.0);
             let intersection = s_range_1.get_intersection(&s_range_2, 0.0);
+            assert!(intersection.is_none());
+        }
+    }
+
+    mod lane_s_range {
+        #[test]
+        fn lane_s_range_new() {
+            let lane_s_range =
+                crate::api::LaneSRange::new(&String::from("lane_test"), &crate::api::SRange::new(1.0, 2.0));
+            assert_eq!(lane_s_range.lane_id(), "lane_test");
+            assert_eq!(lane_s_range.s_range().s0(), 1.0);
+            assert_eq!(lane_s_range.s_range().s1(), 2.0);
+            assert_eq!(lane_s_range.length(), 1.0);
+        }
+        #[test]
+        fn lane_s_range_api() {
+            let lane_s_range_1 =
+                crate::api::LaneSRange::new(&String::from("lane_test"), &crate::api::SRange::new(1.0, 2.0));
+            let lane_s_range_2 =
+                crate::api::LaneSRange::new(&String::from("lane_test"), &crate::api::SRange::new(2.0, 3.0));
+            assert!(lane_s_range_1.intersects(&lane_s_range_2, 0.0));
+            assert!(!lane_s_range_1.contains(&lane_s_range_2, 0.0));
+        }
+        #[test]
+        fn lane_s_range_get_intersection_with_intersection() {
+            let lane_s_range_1 =
+                crate::api::LaneSRange::new(&String::from("lane_test"), &crate::api::SRange::new(1.0, 3.0));
+            let lane_s_range_2 =
+                crate::api::LaneSRange::new(&String::from("lane_test"), &crate::api::SRange::new(2.0, 4.0));
+            let intersection = lane_s_range_1.get_intersection(&lane_s_range_2, 0.0);
+            assert!(intersection.is_some());
+            let intersection = intersection.unwrap();
+            assert_eq!(intersection.lane_id(), "lane_test");
+            assert_eq!(intersection.s_range().s0(), 2.0);
+            assert_eq!(intersection.s_range().s1(), 3.0);
+        }
+        #[test]
+        fn lane_s_range_get_intersection_with_no_intersection() {
+            let lane_s_range_1 =
+                crate::api::LaneSRange::new(&String::from("lane test_1"), &crate::api::SRange::new(1.0, 3.0));
+            let lane_s_range_2 =
+                crate::api::LaneSRange::new(&String::from("lane_test_2"), &crate::api::SRange::new(2.0, 4.0));
+            let intersection = lane_s_range_1.get_intersection(&lane_s_range_2, 0.0);
             assert!(intersection.is_none());
         }
     }

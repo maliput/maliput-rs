@@ -325,4 +325,32 @@ mod api_test {
             assert!(intersection.is_null());
         }
     }
+
+    mod lane_s_range_test {
+        use maliput_sys::api::ffi::LaneSRange_GetIntersection;
+        use maliput_sys::api::ffi::LaneSRange_lane_id;
+        use maliput_sys::api::ffi::LaneSRange_new;
+        use maliput_sys::api::ffi::LaneSRange_s_range;
+        use maliput_sys::api::ffi::SRange_new;
+
+        #[test]
+        fn lane_s_range_api() {
+            let expected_s_range = SRange_new(1.0, 2.0);
+            let expected_lane_id = String::from("0_0_1");
+            let lane_s_range = LaneSRange_new(&expected_lane_id, &expected_s_range);
+            assert_eq!(LaneSRange_lane_id(&lane_s_range), expected_lane_id);
+            assert_eq!(lane_s_range.length(), 1.0);
+            let s_range = LaneSRange_s_range(&lane_s_range);
+            assert_eq!(s_range.s0(), expected_s_range.s0());
+            assert_eq!(s_range.s1(), expected_s_range.s1());
+            let lane_s_range_2 = LaneSRange_new(&expected_lane_id, &SRange_new(1.5, 2.5));
+            assert!(lane_s_range.Intersects(&lane_s_range_2, 1e-3));
+            assert!(!lane_s_range.Contains(&lane_s_range_2, 1e-3));
+            let intersection = LaneSRange_GetIntersection(&lane_s_range, &lane_s_range_2, 1e-3);
+            assert!(!intersection.is_null());
+            let s_range = LaneSRange_s_range(&intersection);
+            assert_eq!(s_range.s0(), 1.5);
+            assert_eq!(s_range.s1(), 2.0);
+        }
+    }
 }

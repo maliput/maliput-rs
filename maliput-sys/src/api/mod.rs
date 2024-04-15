@@ -191,6 +191,20 @@ pub mod ffi {
         fn Intersects(self: &SRange, other: &SRange, tolerance: f64) -> bool;
         fn Contains(self: &SRange, s_range: &SRange, tolerance: f64) -> bool;
         fn SRange_GetIntersection(s_range: &SRange, other: &SRange, tolerance: f64) -> UniquePtr<SRange>;
+
+        // LaneSRange bindings definitions
+        type LaneSRange;
+        fn LaneSRange_new(lane_id: &String, s_range: &SRange) -> UniquePtr<LaneSRange>;
+        fn length(self: &LaneSRange) -> f64;
+        fn Intersects(self: &LaneSRange, other: &LaneSRange, tolerance: f64) -> bool;
+        fn Contains(self: &LaneSRange, lane_s_range: &LaneSRange, tolerance: f64) -> bool;
+        fn LaneSRange_lane_id(lane_s_range: &LaneSRange) -> String;
+        fn LaneSRange_s_range(lane_s_range: &LaneSRange) -> UniquePtr<SRange>;
+        fn LaneSRange_GetIntersection(
+            lane_s_range: &LaneSRange,
+            other: &LaneSRange,
+            tolerance: f64,
+        ) -> UniquePtr<LaneSRange>;
     }
     impl UniquePtr<RoadNetwork> {}
     impl UniquePtr<LanePosition> {}

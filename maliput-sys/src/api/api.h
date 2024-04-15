@@ -39,6 +39,7 @@
 #include <maliput/api/lane_data.h>
 #include <maliput/api/road_network.h>
 #include <maliput/api/road_geometry.h>
+#include <maliput/api/regions.h>
 #include <maliput/api/segment.h>
 
 #include <rust/cxx.h>
@@ -245,6 +246,26 @@ std::unique_ptr<SRange> SRange_GetIntersection(const SRange& s_range, const SRan
   const auto intersection = s_range.GetIntersection(other_s_range, tolerance);
   if (intersection) {
     return std::make_unique<SRange>(*intersection);
+  }
+  return nullptr;
+}
+
+std::unique_ptr<LaneSRange> LaneSRange_new(const rust::String& lane_id, const SRange& s_range) {
+  return std::make_unique<LaneSRange>(LaneId{lane_id.data()}, s_range);
+}
+
+rust::String LaneSRange_lane_id(const LaneSRange& lane_s_range) {
+  return lane_s_range.lane_id().string();
+}
+
+std::unique_ptr<SRange> LaneSRange_s_range(const LaneSRange& lane_s_range) {
+  return std::make_unique<SRange>(lane_s_range.s_range());
+}
+
+std::unique_ptr<LaneSRange> LaneSRange_GetIntersection(const LaneSRange& lane_s_range, const LaneSRange& other_lane_s_range, rust::f64 tolerance) {
+  const auto intersection = lane_s_range.GetIntersection(other_lane_s_range, tolerance);
+  if (intersection) {
+    return std::make_unique<LaneSRange>(*intersection);
   }
   return nullptr;
 }
