@@ -293,4 +293,36 @@ mod api_test {
             assert!((reversed_rotation.yaw() - PI).abs() < tol);
         }
     }
+
+    mod s_range_test {
+        use maliput_sys::api::ffi::SRange_GetIntersection;
+        use maliput_sys::api::ffi::SRange_new;
+
+        #[test]
+        fn s_range_api() {
+            let mut s_range = SRange_new(1.0, 11.0);
+            assert_eq!(s_range.s0(), 1.0);
+            assert_eq!(s_range.s1(), 11.0);
+            assert_eq!(s_range.size(), 10.0);
+            s_range.as_mut().expect("").set_s0(2.0);
+            s_range.as_mut().expect("").set_s1(12.0);
+            assert_eq!(s_range.s0(), 2.0);
+            assert_eq!(s_range.s1(), 12.0);
+            assert!(s_range.WithS());
+
+            let s_range_2 = SRange_new(5.0, 20.0);
+            assert!(s_range.Intersects(&s_range_2, 1e-3));
+            assert!(!s_range.Contains(&s_range_2, 1e-3));
+
+            let intersection = SRange_GetIntersection(&s_range, &s_range_2, 1e-3);
+            assert!(!intersection.is_null());
+            assert_eq!(intersection.s0(), 5.0);
+            assert_eq!(intersection.s1(), 12.0);
+
+            let non_intersected_s_range = SRange_new(150.0, 200.0);
+            assert!(!s_range.Intersects(&non_intersected_s_range, 1e-3));
+            let intersection = SRange_GetIntersection(&s_range, &non_intersected_s_range, 1e-3);
+            assert!(intersection.is_null());
+        }
+    }
 }

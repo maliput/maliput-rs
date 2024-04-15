@@ -237,5 +237,17 @@ std::unique_ptr<Rotation> Rotation_Reverse(const Rotation& rotation) {
   return std::make_unique<Rotation>(rotation.Reverse());
 }
 
+std::unique_ptr<SRange> SRange_new(rust::f64 start, rust::f64 end) {
+  return std::make_unique<SRange>(start, end);
+}
+
+std::unique_ptr<SRange> SRange_GetIntersection(const SRange& s_range, const SRange& other_s_range, rust::f64 tolerance) {
+  const auto intersection = s_range.GetIntersection(other_s_range, tolerance);
+  if (intersection) {
+    return std::make_unique<SRange>(*intersection);
+  }
+  return nullptr;
+}
+
 } // namespace api
 } // namespace maliput

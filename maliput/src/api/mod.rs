@@ -866,6 +866,62 @@ impl Rotation {
     }
 }
 
+/// Directed, inclusive longitudinal (s value) range from s0 to s1.
+/// Wrapper around C++ implementation `maliput::api::SRange`.
+pub struct SRange {
+    s_range: cxx::UniquePtr<maliput_sys::api::ffi::SRange>,
+}
+
+impl SRange {
+    /// Create a new `SRange` with the given `s0` and `s1`.
+    pub fn new(s0: f64, s1: f64) -> SRange {
+        SRange {
+            s_range: maliput_sys::api::ffi::SRange_new(s0, s1),
+        }
+    }
+    /// Get the s0 of the `SRange`.
+    pub fn s0(&self) -> f64 {
+        self.s_range.s0()
+    }
+    /// Get the s1 of the `SRange`.
+    pub fn s1(&self) -> f64 {
+        self.s_range.s1()
+    }
+    /// Set the s0 of the `SRange`.
+    pub fn set_s0(&mut self, s0: f64) {
+        self.s_range.as_mut().expect("Underlying SRange is null").set_s0(s0);
+    }
+    /// Set the s1 of the `SRange`.
+    pub fn set_s1(&mut self, s1: f64) {
+        self.s_range.as_mut().expect("Underlying SRange is null").set_s1(s1);
+    }
+    /// Get the size of the `SRange`.
+    pub fn size(&self) -> f64 {
+        self.s_range.size()
+    }
+    /// Returns true When this SRange is in the direction of +s.
+    pub fn with_s(&self) -> bool {
+        self.s_range.WithS()
+    }
+    /// Determines whether this SRange intersects with `s_range`.
+    pub fn intersects(&self, s_range: &SRange, tolerance: f64) -> bool {
+        self.s_range.Intersects(&s_range.s_range, tolerance)
+    }
+    /// Determines whether this SRange contains `s_range`.
+    pub fn contains(&self, s_range: &SRange, tolerance: f64) -> bool {
+        self.s_range.Contains(&s_range.s_range, tolerance)
+    }
+    /// Get the intersection of this SRange with `s_range`.
+    /// Returns None if the intersection is empty.
+    pub fn get_intersection(&self, s_range: &SRange, tolerance: f64) -> Option<SRange> {
+        let intersection = maliput_sys::api::ffi::SRange_GetIntersection(&self.s_range, &s_range.s_range, tolerance);
+        match intersection.is_null() {
+            true => None,
+            false => Some(SRange { s_range: intersection }),
+        }
+    }
+}
+
 mod tests {
     mod lane_position {
         #[test]
@@ -1067,6 +1123,49 @@ mod tests {
             assert_eq!(matrix.row(0), crate::math::Vector3::new(1.0, 0.0, 0.0));
             assert_eq!(matrix.row(1), crate::math::Vector3::new(0.0, 1.0, 0.0));
             assert_eq!(matrix.row(2), crate::math::Vector3::new(0.0, 0.0, 1.0));
+        }
+    }
+
+    mod s_range {
+        #[test]
+        fn s_range_new() {
+            let s_range = crate::api::SRange::new(1.0, 2.0);
+            assert_eq!(s_range.s0(), 1.0);
+            assert_eq!(s_range.s1(), 2.0);
+        }
+        #[test]
+        fn s_range_api() {
+            let s_range_1 = crate::api::SRange::new(1.0, 3.0);
+            let s_range_2 = crate::api::SRange::new(2.0, 4.0);
+            assert_eq!(s_range_1.size(), 2.0);
+            assert!(s_range_1.with_s());
+            assert!(s_range_1.intersects(&s_range_2, 0.0));
+            assert!(!s_range_1.contains(&s_range_2, 0.0));
+        }
+        #[test]
+        fn s_range_setters() {
+            let mut s_range = crate::api::SRange::new(0.0, 4.0);
+            s_range.set_s0(1.0);
+            s_range.set_s1(3.0);
+            assert_eq!(s_range.s0(), 1.0);
+            assert_eq!(s_range.s1(), 3.0);
+        }
+        #[test]
+        fn s_range_get_intersection_with_intersection() {
+            let s_range_1 = crate::api::SRange::new(1.0, 3.0);
+            let s_range_2 = crate::api::SRange::new(2.0, 4.0);
+            let intersection = s_range_1.get_intersection(&s_range_2, 0.0);
+            assert!(intersection.is_some());
+            let intersection = intersection.unwrap();
+            assert_eq!(intersection.s0(), 2.0);
+            assert_eq!(intersection.s1(), 3.0);
+        }
+        #[test]
+        fn s_range_get_intersection_with_no_intersection() {
+            let s_range_1 = crate::api::SRange::new(1.0, 2.0);
+            let s_range_2 = crate::api::SRange::new(3.0, 4.0);
+            let intersection = s_range_1.get_intersection(&s_range_2, 0.0);
+            assert!(intersection.is_none());
         }
     }
 }
