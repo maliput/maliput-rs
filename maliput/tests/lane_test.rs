@@ -83,15 +83,20 @@ fn lane_end_test() {
     let road_geometry = road_network.road_geometry();
 
     let lane_id = String::from("0_0_1");
-    let lane = road_geometry.get_lane(&lane_id);
-    let lane_end_start = maliput::api::LaneEnd::Start(&lane);
+    let lane_end_start = maliput::api::LaneEnd::Start(road_geometry.get_lane(&lane_id));
     match lane_end_start {
         maliput::api::LaneEnd::Start(lane) => assert_eq!(lane.id(), lane_id),
         maliput::api::LaneEnd::Finish(_) => panic!("Expected Start, got Finish"),
     }
-    let lane_end_end = maliput::api::LaneEnd::Finish(&lane);
+    let lane_end_end = maliput::api::LaneEnd::Finish(road_geometry.get_lane(&lane_id));
     match lane_end_end {
         maliput::api::LaneEnd::Start(_) => panic!("Expected Finish, got Start"),
         maliput::api::LaneEnd::Finish(lane) => assert_eq!(lane.id(), lane_id),
     }
+}
+
+#[test]
+fn lane_end_set_test() {
+    // TODO: Implement this test once BranchPoint is implemented as
+    //       the latter provides methods to get LaneEndSet.
 }

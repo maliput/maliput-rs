@@ -977,9 +977,37 @@ impl LaneSRange {
 /// This is analogous to the C++ maliput::api::LaneEnd implementation.
 pub enum LaneEnd<'a> {
     /// The start of the Lane. ("s == 0")
-    Start(&'a Lane<'a>),
+    Start(Lane<'a>),
     /// The end of the Lane. ("s == length")
-    Finish(&'a Lane<'a>),
+    Finish(Lane<'a>),
+}
+
+/// A set of LaneEnds.
+pub struct LaneEndSet<'a> {
+    lane_end_set: &'a maliput_sys::api::ffi::LaneEndSet,
+}
+
+impl<'a> LaneEndSet<'a> {
+    /// Obtain the size of the LaneEndSet.
+    pub fn size(&self) -> i32 {
+        self.lane_end_set.size()
+    }
+    /// Get the LaneEnd at the given index.
+    pub fn get(&self, index: i32) -> LaneEnd {
+        let lane_end = self.lane_end_set.get(index);
+        // Obtain end type and lane reference.
+        let is_start = maliput_sys::api::ffi::LaneEnd_is_start(lane_end);
+        let lane_ref = unsafe {
+            maliput_sys::api::ffi::LaneEnd_lane(lane_end)
+                .as_ref()
+                .expect("Underlying LaneEnd is null")
+        };
+        // Create a LaneEnd enum variant.
+        match is_start {
+            true => LaneEnd::Start(Lane { lane: lane_ref }),
+            false => LaneEnd::Finish(Lane { lane: lane_ref }),
+        }
+    }
 }
 
 mod tests {
