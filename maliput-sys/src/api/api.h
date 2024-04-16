@@ -270,5 +270,9 @@ std::unique_ptr<LaneSRange> LaneSRange_GetIntersection(const LaneSRange& lane_s_
   return nullptr;
 }
 
+std::unique_ptr<LaneEnd> LaneEnd_new(const Lane* lane, bool start) {
+  return std::make_unique<LaneEnd>(lane, start ? LaneEnd::kStart : LaneEnd::kFinish);
+}
+
 } // namespace api
 } // namespace maliput

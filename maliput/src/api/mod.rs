@@ -973,6 +973,15 @@ impl LaneSRange {
     }
 }
 
+/// A specific endpoint of a specific Lane.
+/// This is analogous to the C++ maliput::api::LaneEnd implementation.
+pub enum LaneEnd<'a> {
+    /// The start of the Lane. ("s == 0")
+    Start(&'a Lane<'a>),
+    /// The end of the Lane. ("s == length")
+    Finish(&'a Lane<'a>),
+}
+
 mod tests {
     mod lane_position {
         #[test]
