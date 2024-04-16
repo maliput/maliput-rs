@@ -251,7 +251,7 @@ std::unique_ptr<SRange> SRange_GetIntersection(const SRange& s_range, const SRan
 }
 
 std::unique_ptr<LaneSRange> LaneSRange_new(const rust::String& lane_id, const SRange& s_range) {
-  return std::make_unique<LaneSRange>(LaneId{lane_id.data()}, s_range);
+  return std::make_unique<LaneSRange>(LaneId{std::string(lane_id)}, s_range);
 }
 
 rust::String LaneSRange_lane_id(const LaneSRange& lane_s_range) {
