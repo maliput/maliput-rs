@@ -34,6 +34,7 @@
 #include <sstream>
 #include <vector>
 
+#include <maliput/api/branch_point.h>
 #include <maliput/api/junction.h>
 #include <maliput/api/lane.h>
 #include <maliput/api/lane_data.h>
@@ -272,6 +273,14 @@ std::unique_ptr<LaneSRange> LaneSRange_GetIntersection(const LaneSRange& lane_s_
 
 std::unique_ptr<LaneEnd> LaneEnd_new(const Lane* lane, bool start) {
   return std::make_unique<LaneEnd>(lane, start ? LaneEnd::kStart : LaneEnd::kFinish);
+}
+
+const Lane* LaneEnd_lane(const LaneEnd& lane_end) {
+  return lane_end.lane;
+}
+
+bool LaneEnd_is_start(const LaneEnd& lane_end) {
+  return lane_end.end == LaneEnd::kStart;
 }
 
 } // namespace api

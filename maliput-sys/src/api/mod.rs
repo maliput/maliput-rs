@@ -214,7 +214,13 @@ pub mod ffi {
         /// # Safety
         /// This function is unsafe because it dereferences `lane` pointer.
         unsafe fn LaneEnd_new(lane: *const Lane, start: bool) -> UniquePtr<LaneEnd>;
+        fn LaneEnd_lane(lane_end: &LaneEnd) -> *const Lane;
+        fn LaneEnd_is_start(lane_end: &LaneEnd) -> bool;
 
+        // LaneEndSet bindings definitions
+        type LaneEndSet;
+        fn size(self: &LaneEndSet) -> i32;
+        fn get(self: &LaneEndSet, index: i32) -> &LaneEnd;
     }
     impl UniquePtr<RoadNetwork> {}
     impl UniquePtr<LanePosition> {}
