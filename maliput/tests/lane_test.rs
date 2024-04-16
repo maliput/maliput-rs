@@ -76,3 +76,22 @@ fn lane_api() {
     let expected_segment_id = String::from("0_0");
     assert_eq!(segment.id(), expected_segment_id);
 }
+
+#[test]
+fn lane_end_test() {
+    let road_network = common::create_t_shape_road_network();
+    let road_geometry = road_network.road_geometry();
+
+    let lane_id = String::from("0_0_1");
+    let lane = road_geometry.get_lane(&lane_id);
+    let lane_end_start = maliput::api::LaneEnd::Start(&lane);
+    match lane_end_start {
+        maliput::api::LaneEnd::Start(lane) => assert_eq!(lane.id(), lane_id),
+        maliput::api::LaneEnd::Finish(_) => panic!("Expected Start, got Finish"),
+    }
+    let lane_end_end = maliput::api::LaneEnd::Finish(&lane);
+    match lane_end_end {
+        maliput::api::LaneEnd::Start(_) => panic!("Expected Finish, got Start"),
+        maliput::api::LaneEnd::Finish(lane) => assert_eq!(lane.id(), lane_id),
+    }
+}

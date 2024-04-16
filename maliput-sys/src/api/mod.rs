@@ -205,6 +205,16 @@ pub mod ffi {
             other: &LaneSRange,
             tolerance: f64,
         ) -> UniquePtr<LaneSRange>;
+
+        // LaneEnd bindings definitions
+        type LaneEnd;
+        // maliput::api Rust will have its own LaneEnd enum.
+        // However, this LaneEnd_new is expected to be used on methods that return a Cpp LaneEnd
+        // and a conversion to Rust LaneEnd is needed.
+        /// # Safety
+        /// This function is unsafe because it dereferences `lane` pointer.
+        unsafe fn LaneEnd_new(lane: *const Lane, start: bool) -> UniquePtr<LaneEnd>;
+
     }
     impl UniquePtr<RoadNetwork> {}
     impl UniquePtr<LanePosition> {}
