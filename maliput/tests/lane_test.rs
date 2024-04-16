@@ -94,9 +94,3 @@ fn lane_end_test() {
         maliput::api::LaneEnd::Finish(lane) => assert_eq!(lane.id(), lane_id),
     }
 }
-
-#[test]
-fn lane_end_set_test() {
-    // TODO: Implement this test once BranchPoint is implemented as
-    //       the latter provides methods to get LaneEndSet.
-}
