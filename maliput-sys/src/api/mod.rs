@@ -118,6 +118,10 @@ pub mod ffi {
         fn Lane_ToInertialPosition(lane: &Lane, lane_position: &LanePosition) -> UniquePtr<InertialPosition>;
         fn Lane_ToLanePosition(lane: &Lane, inertial_position: &InertialPosition) -> UniquePtr<LanePositionResult>;
         fn Lane_ToSegmentPosition(lane: &Lane, inertial_position: &InertialPosition) -> UniquePtr<LanePositionResult>;
+        fn Lane_GetBranchPoint(lane: &Lane, start: bool) -> *const BranchPoint;
+        fn Lane_GetConfluentBranches(lane: &Lane, start: bool) -> *const LaneEndSet;
+        fn Lane_GetOngoingBranches(lane: &Lane, start: bool) -> *const LaneEndSet;
+        fn Lane_GetDefaultBranch(lane: &Lane, start: bool) -> UniquePtr<LaneEnd>;
 
         // Segment bindings definitions
         type Segment;

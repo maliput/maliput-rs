@@ -134,6 +134,23 @@ std::unique_ptr<LanePositionResult> Lane_ToSegmentPosition(const Lane& lane, con
   return std::make_unique<LanePositionResult>(lane.ToSegmentPosition(inertial_pos));
 }
 
+const BranchPoint* Lane_GetBranchPoint(const Lane& lane, bool start) {
+  return lane.GetBranchPoint(start ? LaneEnd::kStart : LaneEnd::kFinish);
+}
+
+const LaneEndSet* Lane_GetConfluentBranches(const Lane& lane, bool start) {
+  return lane.GetConfluentBranches(start ? LaneEnd::kStart : LaneEnd::kFinish);
+}
+
+const LaneEndSet* Lane_GetOngoingBranches(const Lane& lane, bool start) {
+  return lane.GetOngoingBranches(start ? LaneEnd::kStart : LaneEnd::kFinish);
+}
+
+std::unique_ptr<LaneEnd> Lane_GetDefaultBranch(const Lane& lane, bool start) {
+  const auto default_branch = lane.GetDefaultBranch(start ? LaneEnd::kStart : LaneEnd::kFinish);
+  return default_branch ? std::make_unique<LaneEnd>(*default_branch) : nullptr;
+}
+
 std::unique_ptr<RoadPosition> RoadPosition_new(const Lane* lane, const LanePosition& pos) {
   return std::make_unique<RoadPosition>(lane, pos);
 }
