@@ -199,6 +199,10 @@ const std::vector<ConstLanePtr>& RoadGeometry_GetLanes(const RoadGeometry& road_
   return lanes;
 }
 
+const BranchPoint* RoadGeometry_GetBranchPoint(const RoadGeometry& road_geometry, const rust::String& branch_point_id) {
+  return road_geometry.ById().GetBranchPoint(BranchPointId{std::string(branch_point_id)});
+}
+
 const Segment* RoadGeometry_GetSegment(const RoadGeometry& road_geometry, const rust::String& segment_id) {
   return road_geometry.ById().GetSegment(SegmentId{std::string(segment_id)});
 }
@@ -281,6 +285,15 @@ const Lane* LaneEnd_lane(const LaneEnd& lane_end) {
 
 bool LaneEnd_is_start(const LaneEnd& lane_end) {
   return lane_end.end == LaneEnd::kStart;
+}
+
+rust::String BranchPoint_id(const BranchPoint& branch_point) {
+  return branch_point.id().string();
+}
+
+std::unique_ptr<LaneEnd> BranchPoint_GetDefaultBranch(const BranchPoint& branch_point, const LaneEnd& end) {
+  const auto default_branch = branch_point.GetDefaultBranch(end);
+  return default_branch ? std::make_unique<LaneEnd>(*default_branch) : nullptr;
 }
 
 } // namespace api
