@@ -67,6 +67,7 @@ pub mod ffi {
         fn RoadGeometry_GetLanes(rg: &RoadGeometry) -> &CxxVector<ConstLanePtr>;
         fn RoadGeometry_GetSegment(rg: &RoadGeometry, segment_id: &String) -> *const Segment;
         fn RoadGeometry_GetJunction(rg: &RoadGeometry, junction_id: &String) -> *const Junction;
+        fn RoadGeometry_GetBranchPoint(rg: &RoadGeometry, branch_point_id: &String) -> *const BranchPoint;
         // LanePosition bindings definitions.
         type LanePosition;
         fn LanePosition_new(s: f64, r: f64, h: f64) -> UniquePtr<LanePosition>;
@@ -221,6 +222,16 @@ pub mod ffi {
         type LaneEndSet;
         fn size(self: &LaneEndSet) -> i32;
         fn get(self: &LaneEndSet, index: i32) -> &LaneEnd;
+
+        // BranchPoint bindings definitions
+        type BranchPoint;
+        fn BranchPoint_id(branch_point: &BranchPoint) -> String;
+        fn road_geometry(self: &BranchPoint) -> *const RoadGeometry;
+        fn GetConfluentBranches(self: &BranchPoint, end: &LaneEnd) -> *const LaneEndSet;
+        fn GetOngoingBranches(self: &BranchPoint, end: &LaneEnd) -> *const LaneEndSet;
+        fn GetASide(self: &BranchPoint) -> *const LaneEndSet;
+        fn GetBSide(self: &BranchPoint) -> *const LaneEndSet;
+        fn BranchPoint_GetDefaultBranch(branch_point: &BranchPoint, end: &LaneEnd) -> UniquePtr<LaneEnd>;
     }
     impl UniquePtr<RoadNetwork> {}
     impl UniquePtr<LanePosition> {}

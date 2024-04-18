@@ -28,6 +28,8 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+use maliput_sys::api::ffi::BranchPoint_GetDefaultBranch;
+
 use crate::math::Matrix3;
 use crate::math::Quaternion;
 use crate::math::RollPitchYaw;
@@ -162,6 +164,16 @@ impl<'a> RoadGeometry<'a> {
                 junction: maliput_sys::api::ffi::RoadGeometry_GetJunction(self.rg, junction_id)
                     .as_ref()
                     .expect(""),
+            }
+        }
+    }
+    /// Get the branch point matching given `branch_point_id`.
+    pub fn get_branch_point(&self, branch_point_id: &String) -> BranchPoint {
+        unsafe {
+            BranchPoint {
+                branch_point: maliput_sys::api::ffi::RoadGeometry_GetBranchPoint(self.rg, branch_point_id)
+                    .as_ref()
+                    .expect("Underlying BranchPoint is null"),
             }
         }
     }
@@ -1006,6 +1018,110 @@ impl<'a> LaneEndSet<'a> {
         match is_start {
             true => LaneEnd::Start(Lane { lane: lane_ref }),
             false => LaneEnd::Finish(Lane { lane: lane_ref }),
+        }
+    }
+}
+
+/// A BranchPoint is a node in the network of a RoadGeometry at which
+/// Lanes connect to one another.  A BranchPoint is a collection of LaneEnds
+/// specifying the Lanes (and, in particular, which ends of the Lanes) are
+/// connected at the BranchPoint.
+///
+/// LaneEnds participating in a BranchPoint are grouped into two sets,
+/// arbitrarily named "A-side" and "B-side". LaneEnds on the same "side"
+/// have coincident into-the-lane tangent vectors, which are anti-parallel
+/// to those of LaneEnds on the other side.
+pub struct BranchPoint<'a> {
+    branch_point: &'a maliput_sys::api::ffi::BranchPoint,
+}
+
+impl<'a> BranchPoint<'a> {
+    /// Get the id of the `BranchPoint` as a string.
+    pub fn id(&self) -> String {
+        maliput_sys::api::ffi::BranchPoint_id(self.branch_point)
+    }
+    pub fn road_geometry(&self) -> RoadGeometry {
+        unsafe {
+            RoadGeometry {
+                rg: self.branch_point.road_geometry().as_ref().expect(""),
+            }
+        }
+    }
+    /// Returns the set of LaneEnds on the same side as the given LaneEnd.
+    /// E.g: For a T-junction, this would return the set of LaneEnds on the merging side.
+    pub fn get_confluent_branches(&self, end: &LaneEnd) -> LaneEndSet {
+        let lane_end_set_ptr = self.branch_point.GetConfluentBranches(
+            BranchPoint::from_lane_end_to_ffi(end)
+                .as_ref()
+                .expect("Underlying LaneEnd is null"),
+        );
+        LaneEndSet {
+            lane_end_set: unsafe { lane_end_set_ptr.as_ref().expect("Underlying LaneEndSet is null") },
+        }
+    }
+    /// Returns the set of LaneEnds on the opposite side as the given LaneEnd.
+    /// E.g: For a T-junction, this would return the LaneEnds which end flows into the junction.
+    pub fn get_ongoing_branches(&self, end: &LaneEnd) -> LaneEndSet {
+        let lane_end_set_ptr = self.branch_point.GetOngoingBranches(
+            BranchPoint::from_lane_end_to_ffi(end)
+                .as_ref()
+                .expect("Underlying LaneEnd is null"),
+        );
+        LaneEndSet {
+            lane_end_set: unsafe { lane_end_set_ptr.as_ref().expect("Underlying LaneEndSet is null") },
+        }
+    }
+    /// Returns the default ongoing branch (if any) for the given `end`.
+    /// This typically represents what would be considered "continuing
+    /// through-traffic" from `end` (e.g., as opposed to a branch executing
+    /// a turn).
+    ///
+    /// If `end` has no default-branch at this BranchPoint, the return
+    /// value will be None.
+    pub fn get_default_branch(&self, end: &LaneEnd) -> Option<LaneEnd> {
+        let lane_end = BranchPoint_GetDefaultBranch(
+            self.branch_point,
+            BranchPoint::from_lane_end_to_ffi(end)
+                .as_ref()
+                .expect("Underlying LaneEnd is null"),
+        );
+        match lane_end.is_null() {
+            true => None,
+            false => {
+                let lane_end_ref: &maliput_sys::api::ffi::LaneEnd =
+                    lane_end.as_ref().expect("Underlying LaneEnd is null");
+                let is_start = maliput_sys::api::ffi::LaneEnd_is_start(lane_end_ref);
+                let lane_ref = unsafe {
+                    maliput_sys::api::ffi::LaneEnd_lane(lane_end_ref)
+                        .as_ref()
+                        .expect("Underlying LaneEnd is null")
+                };
+                match is_start {
+                    true => Some(LaneEnd::Start(Lane { lane: lane_ref })),
+                    false => Some(LaneEnd::Finish(Lane { lane: lane_ref })),
+                }
+            }
+        }
+    }
+    /// Returns the set of LaneEnds grouped together on the "A-side".
+    pub fn get_a_side(&self) -> LaneEndSet {
+        let lane_end_set_ptr = self.branch_point.GetASide();
+        LaneEndSet {
+            lane_end_set: unsafe { lane_end_set_ptr.as_ref().expect("Underlying LaneEndSet is null") },
+        }
+    }
+    /// Returns the set of LaneEnds grouped together on the "B-side".
+    pub fn get_b_side(&self) -> LaneEndSet {
+        let lane_end_set_ptr = self.branch_point.GetBSide();
+        LaneEndSet {
+            lane_end_set: unsafe { lane_end_set_ptr.as_ref().expect("Underlying LaneEndSet is null") },
+        }
+    }
+    /// Convert LaneEnd enum to LaneEnd ffi.
+    fn from_lane_end_to_ffi(end: &LaneEnd) -> cxx::UniquePtr<maliput_sys::api::ffi::LaneEnd> {
+        match end {
+            LaneEnd::Start(lane) => unsafe { maliput_sys::api::ffi::LaneEnd_new(lane.lane, true) },
+            LaneEnd::Finish(lane) => unsafe { maliput_sys::api::ffi::LaneEnd_new(lane.lane, false) },
         }
     }
 }
