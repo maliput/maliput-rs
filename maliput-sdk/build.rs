@@ -88,6 +88,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     // ************* maliput_malidrive header files ************* //
     // TODO(francocipollone): For consistency we should also add include paths for maliput_malidrive.
 
+    // ************* maliput_malidrive resource files ************* //
+    let maliput_malidrive_resource_path = bazel_bin_dir
+        .join("libmaliput_sdk.so.runfiles")
+        .join(String::from("maliput_malidrive~") + maliput_malidrive_version)
+        .join("resources");
+
     // ************* crate output env vars ************* //
 
     // Environment variable to pass down to this crate:
@@ -99,6 +105,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!(
         "cargo:rustc-env=MALIPUT_MALIDRIVE_PLUGIN_PATH={}",
         maliput_malidrive_bin_path.join("maliput_plugins").display()
+    );
+    println!(
+        "cargo:rustc-env=MALIPUT_MALIDRIVE_RESOURCE_PATH={}",
+        maliput_malidrive_resource_path.display()
     );
 
     // Environment variable to pass down to dependent crates:
