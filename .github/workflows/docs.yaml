@@ -18,15 +18,16 @@ jobs:
       image: ghcr.io/${{ github.repository }}-rust-ci:latest
     steps:
       - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly
+      - name: Build docs
+        run: cargo doc --no-deps
+        env:
+          RUSTDOCFLAGS: "--enable-index-page -Zunstable-options"
       - name: Setup pages
         id: pages
         uses: actions/configure-pages@v4
-      - name: Clean docs folder
-        run: cargo clean --doc
-      - name: Build docs
-        run: cargo doc --no-deps
-      - name: Remove lock file
-        run: rm target/doc/.lock
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
