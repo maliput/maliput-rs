@@ -28,28 +28,35 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use std::path::PathBuf;
+fn main() {
+    use maliput::api::RoadNetwork;
+    use std::collections::HashMap;
 
-/// Returns a map of libraries here vendored and the directories to search for the binaries.
-pub fn sdk_libraries() -> Vec<(String, PathBuf)> {
-    vec![
-        ("maliput".to_string(), PathBuf::from(env!("MALIPUT_BIN_PATH"))),
-        (
-            "maliput_malidrive".to_string(),
-            PathBuf::from(env!("MALIPUT_MALIDRIVE_BIN_PATH")),
-        ),
-    ]
-}
+    // The ResourceManager is a convenient method for getting the path to the resources of the backends.
+    // In this case, we are getting the path to the Town01.xodr file from the maliput_malidrive backend.
+    // And then using it to create a RoadNetwork.
+    let rm = maliput::ResourceManager::new();
+    let town_xodr_path = rm
+        .get_resource_path_by_name("maliput_malidrive", "Town01.xodr")
+        .unwrap();
 
-/// Returns a map of resources here vendored and the directories to search for the resources.
-pub fn sdk_resources() -> Vec<(String, PathBuf)> {
-    vec![(
-        "maliput_malidrive".to_string(),
-        PathBuf::from(env!("MALIPUT_MALIDRIVE_RESOURCE_PATH")),
-    )]
-}
+    let road_network_properties = HashMap::from([
+        ("road_geometry_id", "my_rg_from_rust"),
+        ("opendrive_file", town_xodr_path.to_str().unwrap()),
+    ]);
 
-/// Returns the path to the maliput_malidrive plugin.
-pub fn get_maliput_malidrive_plugin_path() -> PathBuf {
-    PathBuf::from(env!("MALIPUT_MALIDRIVE_PLUGIN_PATH"))
+    let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties);
+    let road_geometry = road_network.road_geometry();
+
+    // Exercise the RoadGeometry API.
+    println!("linear_tolerance: {}", road_geometry.linear_tolerance());
+    println!("angular_tolerance: {}", road_geometry.angular_tolerance());
+    println!("num_junctions: {}", road_geometry.num_junctions());
+
+    let lanes = road_geometry.get_lanes();
+    println!("num_lanes: {}", lanes.len());
+    println!("lanes: ");
+    for lane in lanes {
+        println!("\tlane id: {}", lane.id());
+    }
 }
