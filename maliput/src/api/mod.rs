@@ -628,9 +628,92 @@ impl<'a> Lane<'a> {
         let bounds = maliput_sys::api::ffi::Lane_elevation_bounds(self.lane, s, r);
         HBounds::new(bounds.min(), bounds.max())
     }
+    /// Returns the lane's BranchPoint for the specified end.
+    pub fn get_branch_point(&self, end: &LaneEnd) -> BranchPoint {
+        assert! {
+            end == &LaneEnd::Start(self.clone()) || end == &LaneEnd::Finish(self.clone()),
+            "LaneEnd must be an end of this lane {:?}",
+            end
+        }
+        BranchPoint {
+            branch_point: unsafe {
+                maliput_sys::api::ffi::Lane_GetBranchPoint(self.lane, end == &LaneEnd::Start(self.clone()))
+                    .as_ref()
+                    .expect("Underlying BranchPoint is null")
+            },
+        }
+    }
+    /// Returns the set of LaneEnd's which connect with this lane on the
+    /// same side of the BranchPoint at `end`. At a minimum,
+    /// this set will include this Lane.
+    pub fn get_confluent_branches(&self, end: &LaneEnd) -> LaneEndSet {
+        assert! {
+            end == &LaneEnd::Start(self.clone()) || end == &LaneEnd::Finish(self.clone()),
+            "LaneEnd must be an end of this lane {:?}",
+            end
+        }
+        LaneEndSet {
+            lane_end_set: unsafe {
+                maliput_sys::api::ffi::Lane_GetConfluentBranches(self.lane, end == &LaneEnd::Start(self.clone()))
+                    .as_ref()
+                    .expect("Underlying LaneEndSet is null")
+            },
+        }
+    }
+    /// Returns the set of LaneEnd's which continue onward from this lane at the
+    /// BranchPoint at `end`.
+    pub fn get_ongoing_branches(&self, end: &LaneEnd) -> LaneEndSet {
+        assert! {
+            end == &LaneEnd::Start(self.clone()) || end == &LaneEnd::Finish(self.clone()),
+            "LaneEnd must be an end of this lane {:?}",
+            end
+        }
+        LaneEndSet {
+            lane_end_set: unsafe {
+                maliput_sys::api::ffi::Lane_GetOngoingBranches(self.lane, end == &LaneEnd::Start(self.clone()))
+                    .as_ref()
+                    .expect("Underlying LaneEndSet is null")
+            },
+        }
+    }
+    /// Returns the default ongoing LaneEnd connected at `end`,
+    /// or None if no default branch has been established.
+    pub fn get_default_branch(&self, end: &LaneEnd) -> Option<LaneEnd> {
+        assert! {
+            end == &LaneEnd::Start(self.clone()) || end == &LaneEnd::Finish(self.clone()),
+            "LaneEnd must be an end of this lane {:?}",
+            end
+        }
+        let lane_end = maliput_sys::api::ffi::Lane_GetDefaultBranch(self.lane, end == &LaneEnd::Start(self.clone()));
+        match lane_end.is_null() {
+            true => None,
+            false => {
+                let lane_end_ref: &maliput_sys::api::ffi::LaneEnd =
+                    lane_end.as_ref().expect("Underlying LaneEnd is null");
+                let is_start = maliput_sys::api::ffi::LaneEnd_is_start(lane_end_ref);
+                let lane_ref = unsafe {
+                    maliput_sys::api::ffi::LaneEnd_lane(lane_end_ref)
+                        .as_ref()
+                        .expect("Underlying LaneEnd is null")
+                };
+                match is_start {
+                    true => Some(LaneEnd::Start(Lane { lane: lane_ref })),
+                    false => Some(LaneEnd::Finish(Lane { lane: lane_ref })),
+                }
+            }
+        }
+    }
     /// Check if the `Lane` contains the given `LanePosition`.
     pub fn contains(&self, lane_position: &LanePosition) -> bool {
         self.lane.Contains(lane_position.lp.as_ref().expect(""))
+    }
+}
+
+/// Copy trait for Lane.
+/// A reference to the Lane is copied.
+impl Clone for Lane<'_> {
+    fn clone(&self) -> Self {
+        Lane { lane: self.lane }
     }
 }
 
@@ -992,6 +1075,51 @@ pub enum LaneEnd<'a> {
     Start(Lane<'a>),
     /// The end of the Lane. ("s == length")
     Finish(Lane<'a>),
+}
+
+impl LaneEnd<'_> {
+    /// Get the Lane of the `LaneEnd`.
+    pub fn lane(&self) -> &Lane {
+        match self {
+            LaneEnd::Start(lane) => lane,
+            LaneEnd::Finish(lane) => lane,
+        }
+    }
+}
+
+impl PartialEq for LaneEnd<'_> {
+    fn eq(&self, other: &Self) -> bool {
+        match self {
+            LaneEnd::Start(lane) => match other {
+                LaneEnd::Start(other_lane) => lane.id() == other_lane.id(),
+                _ => false,
+            },
+            LaneEnd::Finish(lane) => match other {
+                LaneEnd::Finish(other_lane) => lane.id() == other_lane.id(),
+                _ => false,
+            },
+        }
+    }
+}
+
+impl Eq for LaneEnd<'_> {}
+
+impl std::fmt::Display for LaneEnd<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            LaneEnd::Start(lane) => write!(f, "LaneEnd::Start({})", lane.id()),
+            LaneEnd::Finish(lane) => write!(f, "LaneEnd::Finish({})", lane.id()),
+        }
+    }
+}
+
+impl std::fmt::Debug for LaneEnd<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            LaneEnd::Start(lane) => write!(f, "LaneEnd::Start({})", lane.id()),
+            LaneEnd::Finish(lane) => write!(f, "LaneEnd::Finish({})", lane.id()),
+        }
+    }
 }
 
 /// A set of LaneEnds.

@@ -75,20 +75,37 @@ fn lane_api() {
     let segment = lane.segment();
     let expected_segment_id = String::from("0_0");
     assert_eq!(segment.id(), expected_segment_id);
+    let cloned_lane = lane.clone();
+    assert_eq!(lane.id(), cloned_lane.id());
+
+    let lane_end = maliput::api::LaneEnd::Start(lane.clone());
+    let branch_point = lane.get_branch_point(&lane_end);
+    assert_eq!(branch_point.id(), "3");
+    let confluent_branches = lane.get_confluent_branches(&lane_end);
+    assert_eq!(confluent_branches.size(), 1);
+    let ongoing_branches = lane.get_ongoing_branches(&lane_end);
+    assert_eq!(ongoing_branches.size(), 0);
+    let default_branch = lane.get_default_branch(&lane_end);
+    assert_eq!(
+        default_branch.is_none(),
+        branch_point.get_default_branch(&lane_end).is_none()
+    );
 }
 
 #[test]
-fn lane_end_test() {
+fn lane_end_api_test() {
     let road_network = common::create_t_shape_road_network();
     let road_geometry = road_network.road_geometry();
 
     let lane_id = String::from("0_0_1");
     let lane_end_start = maliput::api::LaneEnd::Start(road_geometry.get_lane(&lane_id));
+    let lane_end_end = maliput::api::LaneEnd::Finish(road_geometry.get_lane(&lane_id));
+    assert_eq!(&lane_end_start, &lane_end_start);
+    assert_ne!(&lane_end_start, &lane_end_end);
     match lane_end_start {
         maliput::api::LaneEnd::Start(lane) => assert_eq!(lane.id(), lane_id),
         maliput::api::LaneEnd::Finish(_) => panic!("Expected Start, got Finish"),
     }
-    let lane_end_end = maliput::api::LaneEnd::Finish(road_geometry.get_lane(&lane_id));
     match lane_end_end {
         maliput::api::LaneEnd::Start(_) => panic!("Expected Finish, got Start"),
         maliput::api::LaneEnd::Finish(lane) => assert_eq!(lane.id(), lane_id),
