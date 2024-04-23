@@ -90,6 +90,11 @@ fn lane_api() {
         default_branch.is_none(),
         branch_point.get_default_branch(&lane_end).is_none()
     );
+
+    let velocity = maliput::api::IsoLaneVelocity::new(1., 0., 0.);
+    let expected_derivatives = maliput::api::LanePosition::new(1., 0., 0.);
+    let lane_frame_derivatives = lane.eval_motion_derivatives(&maliput::api::LanePosition::new(0., 0., 0.), &velocity);
+    assert_eq!(expected_derivatives, lane_frame_derivatives);
 }
 
 #[test]

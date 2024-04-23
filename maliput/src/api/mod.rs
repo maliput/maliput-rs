@@ -510,6 +510,28 @@ impl HBounds {
     }
 }
 
+/// Isometric velocity vector in a `Lane`-frame.
+///
+/// sigma_v, rho_v, and eta_v are the components of velocity in a
+/// (sigma, rho, eta) coordinate system.  (sigma, rho, eta) have the same
+/// orientation as the (s, r, h) at any given point in space, however they
+/// form an isometric system with a Cartesian distance metric.  Hence,
+/// IsoLaneVelocity represents a "real" physical velocity vector (albeit
+/// with an orientation relative to the road surface).
+#[derive(Default, Copy, Clone, Debug, PartialEq)]
+pub struct IsoLaneVelocity {
+    pub sigma_v: f64,
+    pub rho_v: f64,
+    pub eta_v: f64,
+}
+
+impl IsoLaneVelocity {
+    /// Create a new `IsoLaneVelocity` with the given `sigma_v`, `rho_v`, and `eta_v` components.
+    pub fn new(sigma_v: f64, rho_v: f64, eta_v: f64) -> IsoLaneVelocity {
+        IsoLaneVelocity { sigma_v, rho_v, eta_v }
+    }
+}
+
 /// A maliput::api::Lane
 /// Wrapper around C++ implementation `maliput::api::Lane`.
 pub struct Lane<'a> {
@@ -627,6 +649,22 @@ impl<'a> Lane<'a> {
     pub fn elevation_bounds(&self, s: f64, r: f64) -> HBounds {
         let bounds = maliput_sys::api::ffi::Lane_elevation_bounds(self.lane, s, r);
         HBounds::new(bounds.min(), bounds.max())
+    }
+    /// Computes derivatives of [LanePosition] given a velocity vector `velocity`.
+    /// `velocity` is a isometric velocity vector oriented in the `Lane`-frame
+    /// at `position`.
+    ///
+    /// Returns `Lane`-frame derivatives packed into a [LanePosition] struct.
+    pub fn eval_motion_derivatives(&self, lane_position: &LanePosition, velocity: &IsoLaneVelocity) -> LanePosition {
+        LanePosition {
+            lp: maliput_sys::api::ffi::Lane_EvalMotionDerivatives(
+                self.lane,
+                lane_position.lp.as_ref().expect(""),
+                velocity.sigma_v,
+                velocity.rho_v,
+                velocity.eta_v,
+            ),
+        }
     }
     /// Returns the lane's BranchPoint for the specified end.
     pub fn get_branch_point(&self, end: &LaneEnd) -> BranchPoint {
