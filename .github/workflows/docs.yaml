@@ -24,6 +24,9 @@ jobs:
       - name: Build docs
         run: cargo doc --no-deps
         env:
+          # We are building a workspace and we want to provide online docs for all the packages.
+          # We rely on an experimental option for this:
+          # See: https://github.com/rust-lang/cargo/issues/8229
           RUSTDOCFLAGS: "--enable-index-page -Zunstable-options"
       - name: Setup pages
         id: pages
