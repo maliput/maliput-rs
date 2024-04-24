@@ -151,6 +151,10 @@ std::unique_ptr<LaneEnd> Lane_GetDefaultBranch(const Lane& lane, bool start) {
   return default_branch ? std::make_unique<LaneEnd>(*default_branch) : nullptr;
 }
 
+std::unique_ptr<LanePosition> Lane_EvalMotionDerivatives(const Lane& lane, const LanePosition& lane_position, rust::f64 sigma_v, rust::f64 rho_v, rust::f64 eta_v) {
+  return std::make_unique<LanePosition>(lane.EvalMotionDerivatives(lane_position, IsoLaneVelocity{sigma_v, rho_v, eta_v}));
+}
+
 std::unique_ptr<RoadPosition> RoadPosition_new(const Lane* lane, const LanePosition& pos) {
   return std::make_unique<RoadPosition>(lane, pos);
 }

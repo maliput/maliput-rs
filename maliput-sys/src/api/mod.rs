@@ -122,6 +122,13 @@ pub mod ffi {
         fn Lane_GetConfluentBranches(lane: &Lane, start: bool) -> *const LaneEndSet;
         fn Lane_GetOngoingBranches(lane: &Lane, start: bool) -> *const LaneEndSet;
         fn Lane_GetDefaultBranch(lane: &Lane, start: bool) -> UniquePtr<LaneEnd>;
+        fn Lane_EvalMotionDerivatives(
+            lane: &Lane,
+            lane_position: &LanePosition,
+            sigma_v: f64,
+            rho_v: f64,
+            eta_v: f64,
+        ) -> UniquePtr<LanePosition>;
 
         // Segment bindings definitions
         type Segment;
