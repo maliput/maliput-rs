@@ -42,11 +42,6 @@ This package brings maliput-ecosystem and provides the path to where the install
    cargo run --bin maliput-sdk
    ```
 
- - Get location of maliput_malidrive's plugin library:
-   ```sh
-   cargo run --bin maliput_malidrive_plugin_path
-   ```
-
 ## License
 
 Licensed under [BSD 3-Clause](https://github.com/maliput/maliput-rs/blob/main/LICENSE).

@@ -22,7 +22,3 @@ links = "maliput-sdk"
 [dependencies]
 
 [build-dependencies]
-
-[[bin]]
-name = "maliput_malidrive_plugin_path"
-path = "src/maliput_malidrive_plugin_path.rs"
