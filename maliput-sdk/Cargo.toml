@@ -4,7 +4,7 @@ version = "0.1.2"
 authors = ["Franco Cipollone <franco.c@ekumenlabs.com>"]
 categories = ["external-ffi-bindings", "simulation"]
 description = "Vendor for maliput libraries."
-documentation = "https://maliput.readthedocs.io/"
+documentation = "https://maliput.github.io/maliput-rs/maliput_sdk"
 readme = "README.md"
 
 edition.workspace = true

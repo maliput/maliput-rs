@@ -4,7 +4,7 @@ version = "0.1.1"
 authors = ["Franco Cipollone <franco.c@ekumenlabs.com>"]
 categories = ["simulation"]
 description = "Rust API for maliput"
-documentation = "https://docs.rs/crate/maliput"
+documentation = "https://maliput.github.io/maliput-rs/maliput"
 readme = "README.md"
 
 edition.workspace = true
