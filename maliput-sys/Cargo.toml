@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["Franco Cipollone <franco.c@ekumenlabs.com>"]
 categories = ["external-ffi-bindings", "simulation"]
 description = "FFI Rust bindings for maliput"
-documentation = "https://maliput.readthedocs.io/"
+documentation = "https://maliput.github.io/maliput-rs/maliput_sys"
 readme = "README.md"
 
 edition.workspace = true
