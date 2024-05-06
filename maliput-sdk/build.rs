@@ -33,6 +33,49 @@ use std::error::Error;
 use std::fs;
 use std::path::PathBuf;
 
+/// Gets the bazel library version.
+///
+/// Executes "bazel mod explain" and looks for a line with `library_name` to retrieve its version.
+/// This function will fail when either:
+/// - The bazel execution fails.
+/// - The library cannot be found.
+/// - The version cannot be retrieved.
+///
+/// ```rust
+/// let maliput_library_name: str = "maliput";
+/// println!("Maliput library version is: {}", get_bazel_library_version(maliput_library_name));
+/// ```
+/// ### Arguments
+///
+/// * `library_name` - The name of the bazel module.
+///
+/// ### Returns
+/// A String containing the bazel library version.
+fn get_bazel_library_version(library_name: &str) -> String {
+    // "bazel mod explain" simply lists the packages and their versions imported as bazel modules.
+    let output: std::process::Output = std::process::Command::new("bazel")
+        .arg("mod")
+        .arg("explain")
+        .output()
+        .expect("Failed to execute 'bazel mod explain'");
+    // Read from the stdout the output and look for the matching library name.
+    let process_output: String = String::from_utf8_lossy(&output.stdout).to_string();
+    let library_token: String = library_name.to_owned() + "@";
+    let mut process_output_lines: std::str::Lines = process_output.lines();
+    let line_index: usize = process_output_lines
+        .position(|line| line.contains(&library_token))
+        .expect("Couldn't find the library");
+    let library_version: &str = process_output
+        .lines()
+        .nth(line_index)
+        .expect("Failed to retrieve the line from the process output.")
+        .split("@")
+        .last()
+        .expect("Failed to retrieve library version.")
+        .trim(); // Remove trailing spaces.
+    return String::from(library_version);
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rerun-if-changed=src/lib.rs");
     println!("cargo:rerun-if-changed=BUILD.bazel");
@@ -57,12 +100,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     let bazel_bin_dir = bazel_output_base_dir.join("bazel-bin");
 
-    // TODO(francocipollone): Get version from MODULE.bazel configuration.
-    let maliput_version = "1.2.0";
+    let maliput_version = get_bazel_library_version("maliput");
+    print!("Detected maliput version: <{}>", maliput_version);
     let maliput_bin_path = bazel_bin_dir
         .join("external")
         .join(format!("maliput~{}", maliput_version));
-    let maliput_malidrive_version: &str = "0.2.1";
+    let maliput_malidrive_version = get_bazel_library_version("maliput_malidrive");
+    print!("Detected maliput_malidrive version: <{}>", maliput_malidrive_version);
     let maliput_malidrive_bin_path = bazel_bin_dir
         .join("external")
         .join(format!("maliput_malidrive~{}", maliput_malidrive_version));
@@ -91,7 +135,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // ************* maliput_malidrive resource files ************* //
     let maliput_malidrive_resource_path = bazel_bin_dir
         .join("libmaliput_sdk.so.runfiles")
-        .join(String::from("maliput_malidrive~") + maliput_malidrive_version)
+        .join(String::from("maliput_malidrive~") + &maliput_malidrive_version)
         .join("resources");
 
     // ************* crate output env vars ************* //
