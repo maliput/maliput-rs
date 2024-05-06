@@ -69,11 +69,11 @@ fn get_bazel_library_version(library_name: &str) -> String {
         .lines()
         .nth(line_index)
         .expect("Failed to retrieve the line from the process output.")
-        .split("@")
+        .split('@')
         .last()
         .expect("Failed to retrieve library version.")
         .trim(); // Remove trailing spaces.
-    return String::from(library_version);
+    String::from(library_version)
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -101,12 +101,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     let bazel_bin_dir = bazel_output_base_dir.join("bazel-bin");
 
     let maliput_version = get_bazel_library_version("maliput");
-    print!("Detected maliput version: <{}>", maliput_version);
+    println!("Detected maliput version: <{}>", maliput_version);
     let maliput_bin_path = bazel_bin_dir
         .join("external")
         .join(format!("maliput~{}", maliput_version));
     let maliput_malidrive_version = get_bazel_library_version("maliput_malidrive");
-    print!("Detected maliput_malidrive version: <{}>", maliput_malidrive_version);
+    println!("Detected maliput_malidrive version: <{}>", maliput_malidrive_version);
     let maliput_malidrive_bin_path = bazel_bin_dir
         .join("external")
         .join(format!("maliput_malidrive~{}", maliput_malidrive_version));
