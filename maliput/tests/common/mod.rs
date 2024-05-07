@@ -28,9 +28,10 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use maliput::api::RoadNetwork;
+use maliput::{api::RoadNetwork, ResourceManager};
 use std::collections::HashMap;
 
+#[allow(dead_code)]
 pub fn create_t_shape_road_network() -> RoadNetwork {
     // Get location of odr resources
     let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
@@ -39,6 +40,28 @@ pub fn create_t_shape_road_network() -> RoadNetwork {
     let road_network_properties = HashMap::from([
         ("road_geometry_id", "my_rg_from_rust"),
         ("opendrive_file", xodr_path.as_str()),
+        ("linear_tolerance", "0.01"),
+    ]);
+    RoadNetwork::new("maliput_malidrive", &road_network_properties)
+}
+
+#[allow(dead_code)]
+pub fn create_t_shape_road_network_with_books() -> RoadNetwork {
+    let rm = ResourceManager::new();
+    let t_shape_xodr_path = rm
+        .get_resource_path_by_name("maliput_malidrive", "TShapeRoad.xodr")
+        .unwrap();
+    let t_shape_books_path = rm
+        .get_resource_path_by_name("maliput_malidrive", "TShapeRoad.yaml")
+        .unwrap();
+
+    let road_network_properties = HashMap::from([
+        ("road_geometry_id", "my_rg_from_rust"),
+        ("opendrive_file", t_shape_xodr_path.to_str().unwrap()),
+        ("road_rule_book", t_shape_books_path.to_str().unwrap()),
+        ("traffic_light_book", t_shape_books_path.to_str().unwrap()),
+        ("phase_ring_book", t_shape_books_path.to_str().unwrap()),
+        ("intersection_book", t_shape_books_path.to_str().unwrap()),
         ("linear_tolerance", "0.01"),
     ]);
     RoadNetwork::new("maliput_malidrive", &road_network_properties)

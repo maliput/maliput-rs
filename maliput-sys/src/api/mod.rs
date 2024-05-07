@@ -35,6 +35,11 @@ pub mod ffi {
     struct ConstLanePtr {
         pub lane: *const Lane,
     }
+    /// Shared struct for `Intersection` pointers.
+    /// This is needed because `*mut Intersection` can't be used directly in the CxxVector collection.
+    struct MutIntersectionPtr {
+        pub intersection: *mut Intersection,
+    }
 
     unsafe extern "C++" {
         include!("api/api.h");
@@ -49,12 +54,14 @@ pub mod ffi {
         type RollPitchYaw = crate::math::ffi::RollPitchYaw;
 
         #[namespace = "maliput::api"]
-        type RoadNetwork;
-        type RoadGeometry;
         // RoadNetwork bindings definitions.
+        type RoadNetwork;
         fn road_geometry(self: &RoadNetwork) -> *const RoadGeometry;
-        fn RoadGeometry_id(road_geometry: &RoadGeometry) -> String;
+        fn intersection_book(self: Pin<&mut RoadNetwork>) -> *mut IntersectionBook;
+
         // RoadGeometry bindings definitions.
+        type RoadGeometry;
+        fn RoadGeometry_id(road_geometry: &RoadGeometry) -> String;
         fn num_junctions(self: &RoadGeometry) -> i32;
         fn linear_tolerance(self: &RoadGeometry) -> f64;
         fn angular_tolerance(self: &RoadGeometry) -> f64;
@@ -243,6 +250,18 @@ pub mod ffi {
         fn GetASide(self: &BranchPoint) -> *const LaneEndSet;
         fn GetBSide(self: &BranchPoint) -> *const LaneEndSet;
         fn BranchPoint_GetDefaultBranch(branch_point: &BranchPoint, end: &LaneEnd) -> UniquePtr<LaneEnd>;
+
+        // Intersection bindings definitions
+        type Intersection;
+        fn Intersection_id(intersection: &Intersection) -> String;
+
+        // IntersectionBook bindings definitions
+        type IntersectionBook;
+        fn IntersectionBook_GetIntersection(book: Pin<&mut IntersectionBook>, id: &String) -> MutIntersectionPtr;
+        fn IntersectionBook_GetIntersections(
+            book: Pin<&mut IntersectionBook>,
+        ) -> Pin<&mut CxxVector<MutIntersectionPtr>>;
+
     }
     impl UniquePtr<RoadNetwork> {}
     impl UniquePtr<LanePosition> {}
