@@ -16,7 +16,6 @@ FROM mcr.microsoft.com/devcontainers/base:${BASE_IMAGE}
 
 ARG BAZEL_VERSION=6.4.0
 ARG RUST_VERSION=1.75.0
-ARG NAME=rust-zen
 
 ################################################################################
 # User 'zen'
@@ -35,18 +34,16 @@ RUN useradd -o --uid 1000 -s "/bin/bash" -m ${USERNAME} && \
     echo "${USERNAME} ALL=NOPASSWD: ALL" > /etc/sudoers.d/${USERNAME} && \
     chmod 0440 /etc/sudoers.d/${USERNAME}
 
-RUN echo "export PS1='\[\033[01;36m\](docker)\[\033[00m\] \[\033[01;32m\]\u@${NAME}\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '" >> /home/${USERNAME}/.bashrc && \
-    echo "alias ll='ls --color=auto -alFNh'" >> /home/${USERNAME}/.bashrc && \
-    echo "alias ls='ls --color=auto -Nh'" >> /home/${USERNAME}/.bashrc
+COPY rust-zen/zen.bashrc /home/${USERNAME}/.bashrc.d/zen.bashrc
+RUN echo "source /home/${USERNAME}/.bashrc.d/zen.bashrc" >> /home/${USERNAME}/.bashrc
 
 RUN mkdir -p /home/${USERNAME}/.local/share/bash-completion/completions/ && \
     chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.local
 
 # Debugging with root.
 
-RUN echo "export PS1='\[\033[01;36m\](docker)\[\033[00m\] \[\033[01;32m\]\u@${NAME}\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '" >> ${HOME}/.bashrc && \
-    echo "alias ll='ls --color=auto -alFNh'" >> ${HOME}/.bashrc && \
-    echo "alias ls='ls --color=auto -Nh'" >> ${HOME}/.bashrc
+COPY rust-zen/zen.bashrc ${HOME}/.bashrc.d/zen.bashrc
+RUN echo "source ${HOME}/.bashrc.d/zen.bashrc" >> ${HOME}/.bashrc
 
 ################################################################################
 # Unset gcr configured ubuntu user
