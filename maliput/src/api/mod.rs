@@ -109,15 +109,19 @@ impl<'a> RoadGeometry<'a> {
         }
     }
     /// Get the lane matching given `lane_id`.
-    pub fn get_lane(&self, lane_id: &String) -> Lane {
-        unsafe {
-            Lane {
-                lane: maliput_sys::api::ffi::RoadGeometry_GetLane(self.rg, lane_id)
-                    .lane
-                    .as_ref()
-                    .expect(""),
-            }
+    /// ### Arguments
+    /// * `lane_id` - The id of the lane.
+    /// ### Return
+    /// The lane with the given id.
+    /// If no lane is found with the given id, return None.
+    pub fn get_lane(&self, lane_id: &String) -> Option<Lane> {
+        let lane = maliput_sys::api::ffi::RoadGeometry_GetLane(self.rg, lane_id);
+        if lane.lane.is_null() {
+            return None;
         }
+        Some(Lane {
+            lane: unsafe { lane.lane.as_ref().expect("") },
+        })
     }
     /// Get all lanes of the `RoadGeometry`.
     /// Returns a vector of `Lane`.

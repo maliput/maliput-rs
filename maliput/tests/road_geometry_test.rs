@@ -72,7 +72,8 @@ fn by_index() {
     let road_geometry = road_network.road_geometry();
     let lane_id = String::from("0_0_1");
     let lane = road_geometry.get_lane(&lane_id);
-    assert_eq!(lane.id(), "0_0_1");
+    assert!(lane.is_some());
+    assert_eq!(lane.unwrap().id(), "0_0_1");
 
     let lanes = road_geometry.get_lanes();
     assert_eq!(lanes.len(), 12);
