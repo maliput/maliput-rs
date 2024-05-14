@@ -33,6 +33,8 @@ use crate::math::Quaternion;
 use crate::math::RollPitchYaw;
 use crate::math::Vector3;
 
+pub mod rules;
+
 /// A RoadGeometry.
 /// Wrapper around C++ implementation `maliput::api::RoadGeometry`.
 /// See RoadNetwork for an example of how to get a RoadGeometry.
@@ -243,6 +245,17 @@ impl RoadNetwork {
                 intersection_book_ffi
                     .as_mut()
                     .expect("Underlying IntersectionBook is null")
+            },
+        }
+    }
+    /// Get the `TrafficLightBook` of the `RoadNetwork`.
+    pub fn traffic_light_book(&self) -> rules::TrafficLightBook {
+        let traffic_light_book_ffi = self.rn.traffic_light_book();
+        rules::TrafficLightBook {
+            traffic_light_book: unsafe {
+                traffic_light_book_ffi
+                    .as_ref()
+                    .expect("Underlying TrafficLightBook is null")
             },
         }
     }
@@ -1353,7 +1366,7 @@ impl<'a> IntersectionBook<'a> {
     ///   * `id` - The id of the Intersection to get.
     ///
     /// ## Returns
-    ///   * An Option<Intersection>
+    ///   * An `Option<Intersection>`
     ///     * Some(Intersection) - The Intersection with the specified id.
     ///     * None - If the Intersection with the specified id does not exist.
     pub fn get_intersection(&mut self, id: &str) -> Option<Intersection> {

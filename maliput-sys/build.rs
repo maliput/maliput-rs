@@ -36,6 +36,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed=src/api/api.h");
     println!("cargo:rerun-if-changed=src/api/mod.rs");
+    println!("cargo:rerun-if-changed=src/api/rules/rules.h");
+    println!("cargo:rerun-if-changed=src/api/rules/mod.rs");
     println!("cargo:rerun-if-changed=src/lib.rs");
     println!("cargo:rerun-if-changed=src/math/math.h");
     println!("cargo:rerun-if-changed=src/math/mod.rs");
@@ -58,10 +60,15 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rustc-link-lib=base");
     println!("cargo:rustc-link-lib=api");
 
-    cxx_build::bridges(["src/math/mod.rs", "src/api/mod.rs", "src/plugin/mod.rs"])
-        .flag_if_supported("-std=c++17")
-        .include("src")
-        .compile("maliput-sys");
+    cxx_build::bridges([
+        "src/math/mod.rs",
+        "src/api/rules/mod.rs",
+        "src/api/mod.rs",
+        "src/plugin/mod.rs",
+    ])
+    .flag_if_supported("-std=c++17")
+    .include("src")
+    .compile("maliput-sys");
 
     let maliput_malidrive_plugin_path = PathBuf::from(
         env::var("DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH")

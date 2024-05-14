@@ -28,6 +28,8 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+pub mod rules;
+
 #[cxx::bridge(namespace = "maliput::api")]
 pub mod ffi {
     /// Shared struct for `Lane` pointers.
@@ -52,12 +54,15 @@ pub mod ffi {
         type Matrix3 = crate::math::ffi::Matrix3;
         #[namespace = "maliput::math"]
         type RollPitchYaw = crate::math::ffi::RollPitchYaw;
+        #[namespace = "maliput::api::rules"]
+        type TrafficLightBook = crate::api::rules::ffi::TrafficLightBook;
 
         #[namespace = "maliput::api"]
         // RoadNetwork bindings definitions.
         type RoadNetwork;
         fn road_geometry(self: &RoadNetwork) -> *const RoadGeometry;
         fn intersection_book(self: Pin<&mut RoadNetwork>) -> *mut IntersectionBook;
+        fn traffic_light_book(self: &RoadNetwork) -> *const TrafficLightBook;
 
         // RoadGeometry bindings definitions.
         type RoadGeometry;

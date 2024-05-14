@@ -16,7 +16,8 @@
                 "pbkit.vscode-pbkit",
                 "streetsidesoftware.code-spell-checker",
                 "yzhang.markdown-all-in-one",
-                "tamasfe.even-better-toml"
+                "tamasfe.even-better-toml",
+                "ritwickdey.LiveServer"
             ]
         }
     }
