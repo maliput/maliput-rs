@@ -103,8 +103,8 @@ fn lane_end_api_test() {
     let road_geometry = road_network.road_geometry();
 
     let lane_id = String::from("0_0_1");
-    let lane_end_start = maliput::api::LaneEnd::Start(road_geometry.get_lane(&lane_id));
-    let lane_end_end = maliput::api::LaneEnd::Finish(road_geometry.get_lane(&lane_id));
+    let lane_end_start = maliput::api::LaneEnd::Start(road_geometry.get_lane(&lane_id).unwrap());
+    let lane_end_end = maliput::api::LaneEnd::Finish(road_geometry.get_lane(&lane_id).unwrap());
     assert_eq!(&lane_end_start, &lane_end_start);
     assert_ne!(&lane_end_start, &lane_end_end);
     match lane_end_start {
