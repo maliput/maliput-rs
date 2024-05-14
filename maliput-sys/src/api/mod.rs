@@ -260,7 +260,7 @@ pub mod ffi {
         fn IntersectionBook_GetIntersection(book: Pin<&mut IntersectionBook>, id: &String) -> MutIntersectionPtr;
         fn IntersectionBook_GetIntersections(
             book: Pin<&mut IntersectionBook>,
-        ) -> Pin<&mut CxxVector<MutIntersectionPtr>>;
+        ) -> UniquePtr<CxxVector<MutIntersectionPtr>>;
 
     }
     impl UniquePtr<RoadNetwork> {}

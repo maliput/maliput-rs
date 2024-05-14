@@ -1333,9 +1333,8 @@ impl<'a> IntersectionBook<'a> {
         unsafe {
             intersections_cpp
                 .into_iter()
-                .map(|mut intersection| Intersection {
+                .map(|intersection| Intersection {
                     intersection: intersection
-                        .as_mut()
                         .intersection
                         .as_mut()
                         .expect("Underlying Intersection is null"),

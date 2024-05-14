@@ -329,17 +329,14 @@ MutIntersectionPtr IntersectionBook_GetIntersection( IntersectionBook& intersect
 }
 
 // IntersectionBook_GetIntersections
-std::vector<MutIntersectionPtr>& IntersectionBook_GetIntersections(IntersectionBook& intersection_book) {
-  static std::vector<MutIntersectionPtr> intersections;
+std::unique_ptr<std::vector<MutIntersectionPtr>> IntersectionBook_GetIntersections(IntersectionBook& intersection_book) {
   const auto intersections_cpp = intersection_book.GetIntersections();
-  if (intersections.size() == intersections_cpp.size()) {
-    return intersections;
-  }
+  std::vector<MutIntersectionPtr> intersections;
   intersections.reserve(intersections_cpp.size());
   for (const auto& intersection : intersections_cpp) {
     intersections.push_back(MutIntersectionPtr{intersection});
   }
-  return intersections;
+  return std::make_unique<std::vector<MutIntersectionPtr>>(std::move(intersections));
 }
 
 } // namespace api
