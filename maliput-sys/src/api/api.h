@@ -207,17 +207,14 @@ ConstLanePtr RoadGeometry_GetLane(const RoadGeometry& road_geometry, const rust:
   return {road_geometry.ById().GetLane(LaneId{std::string(lane_id)})};
 }
 
-const std::vector<ConstLanePtr>& RoadGeometry_GetLanes(const RoadGeometry& road_geometry) {
-  static std::vector<ConstLanePtr> lanes;
+std::unique_ptr<std::vector<ConstLanePtr>> RoadGeometry_GetLanes(const RoadGeometry& road_geometry) {
+  std::vector<ConstLanePtr> lanes;
   const auto lanes_cpp = road_geometry.ById().GetLanes();
-  if (lanes.size() == lanes_cpp.size()) {
-    return lanes;
-  }
   lanes.reserve(lanes_cpp.size());
   for (const auto& lane : road_geometry.ById().GetLanes()) {
     lanes.push_back(ConstLanePtr{lane.second});
   }
-  return lanes;
+  return std::make_unique<std::vector<ConstLanePtr>>(std::move(lanes));
 }
 
 const BranchPoint* RoadGeometry_GetBranchPoint(const RoadGeometry& road_geometry, const rust::String& branch_point_id) {

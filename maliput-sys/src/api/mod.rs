@@ -64,7 +64,7 @@ pub mod ffi {
             inertial_position: &InertialPosition,
         ) -> UniquePtr<RoadPositionResult>;
         fn RoadGeometry_GetLane(rg: &RoadGeometry, lane_id: &String) -> ConstLanePtr;
-        fn RoadGeometry_GetLanes(rg: &RoadGeometry) -> &CxxVector<ConstLanePtr>;
+        fn RoadGeometry_GetLanes(rg: &RoadGeometry) -> UniquePtr<CxxVector<ConstLanePtr>>;
         fn RoadGeometry_GetSegment(rg: &RoadGeometry, segment_id: &String) -> *const Segment;
         fn RoadGeometry_GetJunction(rg: &RoadGeometry, junction_id: &String) -> *const Junction;
         fn RoadGeometry_GetBranchPoint(rg: &RoadGeometry, branch_point_id: &String) -> *const BranchPoint;
