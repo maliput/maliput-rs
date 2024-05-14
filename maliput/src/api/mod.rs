@@ -28,8 +28,6 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use maliput_sys::api::ffi::BranchPoint_GetDefaultBranch;
-
 use crate::math::Matrix3;
 use crate::math::Quaternion;
 use crate::math::RollPitchYaw;
@@ -227,6 +225,21 @@ impl RoadNetwork {
             RoadGeometry {
                 rg: self.rn.road_geometry().as_ref().expect(""),
             }
+        }
+    }
+    /// Get the `IntersectionBook` of the `RoadNetwork`.
+    pub fn intersection_book(&mut self) -> IntersectionBook {
+        let intersection_book_ffi = self
+            .rn
+            .as_mut()
+            .expect("Underlying RoadNetwork is null")
+            .intersection_book();
+        IntersectionBook {
+            intersection_book: unsafe {
+                intersection_book_ffi
+                    .as_mut()
+                    .expect("Underlying IntersectionBook is null")
+            },
         }
     }
 }
@@ -1245,7 +1258,7 @@ impl<'a> BranchPoint<'a> {
     /// If `end` has no default-branch at this BranchPoint, the return
     /// value will be None.
     pub fn get_default_branch(&self, end: &LaneEnd) -> Option<LaneEnd> {
-        let lane_end = BranchPoint_GetDefaultBranch(
+        let lane_end = maliput_sys::api::ffi::BranchPoint_GetDefaultBranch(
             self.branch_point,
             BranchPoint::from_lane_end_to_ffi(end)
                 .as_ref()
@@ -1288,6 +1301,69 @@ impl<'a> BranchPoint<'a> {
         match end {
             LaneEnd::Start(lane) => unsafe { maliput_sys::api::ffi::LaneEnd_new(lane.lane, true) },
             LaneEnd::Finish(lane) => unsafe { maliput_sys::api::ffi::LaneEnd_new(lane.lane, false) },
+        }
+    }
+}
+
+/// An abstract convenience class that aggregates information pertaining to an
+/// intersection. Its primary purpose is to serve as a single source of this
+/// information and to remove the need for users to query numerous disparate
+/// data structures and state providers.
+pub struct Intersection<'a> {
+    intersection: &'a mut maliput_sys::api::ffi::Intersection,
+}
+
+impl<'a> Intersection<'a> {
+    /// Get the id of the `Intersection` as a string.
+    pub fn id(&self) -> String {
+        maliput_sys::api::ffi::Intersection_id(self.intersection)
+    }
+}
+
+/// A book of Intersections.
+pub struct IntersectionBook<'a> {
+    intersection_book: &'a mut maliput_sys::api::ffi::IntersectionBook,
+}
+
+impl<'a> IntersectionBook<'a> {
+    /// Gets a list of all Intersections within this book.
+    pub fn get_intersections(&mut self) -> Vec<Intersection> {
+        let book_pin = unsafe { std::pin::Pin::new_unchecked(&mut *self.intersection_book) };
+        let intersections_cpp = maliput_sys::api::ffi::IntersectionBook_GetIntersections(book_pin);
+        unsafe {
+            intersections_cpp
+                .into_iter()
+                .map(|intersection| Intersection {
+                    intersection: intersection
+                        .intersection
+                        .as_mut()
+                        .expect("Underlying Intersection is null"),
+                })
+                .collect::<Vec<Intersection>>()
+        }
+    }
+
+    /// Gets the specified Intersection.
+    ///
+    /// ## Arguments
+    ///   * `id` - The id of the Intersection to get.
+    ///
+    /// ## Returns
+    ///   * An Option<Intersection>
+    ///     * Some(Intersection) - The Intersection with the specified id.
+    ///     * None - If the Intersection with the specified id does not exist.
+    pub fn get_intersection(&mut self, id: &str) -> Option<Intersection> {
+        let book_pin = unsafe { std::pin::Pin::new_unchecked(&mut *self.intersection_book) };
+        let intersection_option = unsafe {
+            maliput_sys::api::ffi::IntersectionBook_GetIntersection(book_pin, &String::from(id))
+                .intersection
+                .as_mut()
+        };
+        match &intersection_option {
+            None => None,
+            Some(_) => Some(Intersection {
+                intersection: intersection_option.expect("Underlying Intersection is null"),
+            }),
         }
     }
 }

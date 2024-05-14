@@ -35,6 +35,8 @@
 #include <vector>
 
 #include <maliput/api/branch_point.h>
+#include <maliput/api/intersection.h>
+#include <maliput/api/intersection_book.h>
 #include <maliput/api/junction.h>
 #include <maliput/api/lane.h>
 #include <maliput/api/lane_data.h>
@@ -51,6 +53,7 @@ namespace maliput {
 namespace api {
 
 struct ConstLanePtr;
+struct MutIntersectionPtr;
 
 /// Creates a new maliput::api::LanePosition.
 /// Forwads to maliput::api::LanePosition(double s, double r, double h) constructor.
@@ -315,6 +318,25 @@ rust::String BranchPoint_id(const BranchPoint& branch_point) {
 std::unique_ptr<LaneEnd> BranchPoint_GetDefaultBranch(const BranchPoint& branch_point, const LaneEnd& end) {
   const auto default_branch = branch_point.GetDefaultBranch(end);
   return default_branch ? std::make_unique<LaneEnd>(*default_branch) : nullptr;
+}
+
+rust::String Intersection_id(const Intersection& intersection) {
+  return intersection.id().string();
+}
+
+MutIntersectionPtr IntersectionBook_GetIntersection( IntersectionBook& intersection_book, const rust::String& intersection_id) {
+  return {intersection_book.GetIntersection(Intersection::Id{std::string(intersection_id)})};
+}
+
+// IntersectionBook_GetIntersections
+std::unique_ptr<std::vector<MutIntersectionPtr>> IntersectionBook_GetIntersections(IntersectionBook& intersection_book) {
+  const auto intersections_cpp = intersection_book.GetIntersections();
+  std::vector<MutIntersectionPtr> intersections;
+  intersections.reserve(intersections_cpp.size());
+  for (const auto& intersection : intersections_cpp) {
+    intersections.push_back(MutIntersectionPtr{intersection});
+  }
+  return std::make_unique<std::vector<MutIntersectionPtr>>(std::move(intersections));
 }
 
 } // namespace api
