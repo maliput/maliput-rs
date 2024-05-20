@@ -34,6 +34,7 @@
 
 #include <maliput/api/rules/traffic_lights.h>
 #include <maliput/api/rules/traffic_light_book.h>
+#include <maliput/math/vector.h>
 
 #include <rust/cxx.h>
 
@@ -67,6 +68,45 @@ std::unique_ptr<maliput::api::InertialPosition> TrafficLight_position_road_netwo
 
 std::unique_ptr<maliput::api::Rotation> TrafficLight_orientation_road_network(const TrafficLight& traffic_light) {
   return std::make_unique<maliput::api::Rotation>(traffic_light.orientation_road_network());
+}
+
+rust::String Bulb_id(const Bulb& bulb) {
+  return bulb.id().string();
+}
+
+std::unique_ptr<maliput::api::InertialPosition> Bulb_position_bulb_group(const Bulb& bulb) {
+  return std::make_unique<maliput::api::InertialPosition>(bulb.position_bulb_group());
+}
+
+std::unique_ptr<maliput::api::Rotation> Bulb_orientation_bulb_group(const Bulb& bulb) {
+  return std::make_unique<maliput::api::Rotation>(bulb.orientation_bulb_group());
+}
+
+const BulbType& Bulb_type(const Bulb& bulb) {
+  return bulb.type();
+}
+
+std::unique_ptr<FloatWrapper> Bulb_arrow_orientation_rad(const Bulb& bulb) {
+  const auto orientation = bulb.arrow_orientation_rad();
+  return orientation.has_value() ? std::make_unique<FloatWrapper>(FloatWrapper{orientation.value()}) : nullptr;
+}
+
+std::unique_ptr<std::vector<ConstBulbStateRef>> Bulb_states(const Bulb& bulb) {
+  const auto states_cpp = bulb.states();
+  std::vector<ConstBulbStateRef> states;
+  states.reserve(states_cpp.size());
+  for (const auto state : states_cpp) {
+    states.push_back({state});
+  }
+  return std::make_unique<std::vector<ConstBulbStateRef>>(std::move(states));
+}
+
+std::unique_ptr<maliput::math::Vector3> Bulb_bounding_box_min(const Bulb& bulb) {
+  return std::make_unique<maliput::math::Vector3>(bulb.bounding_box().p_BMin);
+}
+
+std::unique_ptr<maliput::math::Vector3> Bulb_bounding_box_max(const Bulb& bulb) {
+  return std::make_unique<maliput::math::Vector3>(bulb.bounding_box().p_BMax);
 }
 
 }  // namespace rules
