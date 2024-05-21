@@ -109,3 +109,166 @@ impl<'a> TrafficLight<'a> {
         crate::api::Rotation { r: rotation }
     }
 }
+
+/// Forward declaration of the [BulbGroup] struct.
+pub struct BulbGroup;
+
+/// Defines the possible bulb colors.
+pub enum BulbColor {
+    Red,
+    Yellow,
+    Green,
+}
+
+/// Defines the possible bulb types.
+pub enum BulbType {
+    Round,
+    Arrow,
+}
+
+/// Defines the possible bulb types.
+pub enum BulbState {
+    Off,
+    On,
+    Blinking,
+}
+
+/// Models a bulb within a bulb group.
+pub struct Bulb<'a> {
+    pub bulb: &'a maliput_sys::api::rules::ffi::Bulb,
+}
+
+impl Bulb<'_> {
+    /// Returns this Bulb instance's unique identifier.
+    pub fn unique_id(&self) -> String {
+        unimplemented!()
+    }
+
+    /// Get the id of the [Bulb].
+    /// ## Return
+    /// The id of the [Bulb].
+    pub fn id(&self) -> String {
+        maliput_sys::api::rules::ffi::Bulb_id(self.bulb)
+    }
+
+    /// Get the color of the [Bulb].
+    /// ## Return
+    /// The [BulbColor].
+    pub fn color(&self) -> BulbColor {
+        let color = self.bulb.color();
+        match *color {
+            maliput_sys::api::rules::ffi::BulbColor::kRed => BulbColor::Red,
+            maliput_sys::api::rules::ffi::BulbColor::kYellow => BulbColor::Yellow,
+            maliput_sys::api::rules::ffi::BulbColor::kGreen => BulbColor::Green,
+            _ => panic!("Invalid bulb color"),
+        }
+    }
+
+    /// Get the type of the [Bulb].
+    /// ## Return
+    /// The [BulbType].
+    pub fn bulb_type(&self) -> BulbType {
+        let bulb_type = maliput_sys::api::rules::ffi::Bulb_type(self.bulb);
+        match *bulb_type {
+            maliput_sys::api::rules::ffi::BulbType::kRound => BulbType::Round,
+            maliput_sys::api::rules::ffi::BulbType::kArrow => BulbType::Arrow,
+            _ => panic!("Invalid bulb type"),
+        }
+    }
+
+    /// Get the position of the [Bulb] in the bulb group.
+    /// ## Return
+    /// An [crate::api::InertialPosition] representing the position of the [Bulb] in the bulb group.
+    pub fn position_bulb_group(&self) -> crate::api::InertialPosition {
+        let inertial_position = maliput_sys::api::rules::ffi::Bulb_position_bulb_group(self.bulb);
+        crate::api::InertialPosition { ip: inertial_position }
+    }
+
+    /// Get the orientation of the [Bulb] in the bulb group.
+    /// ## Return
+    /// An [crate::api::Rotation] representing the orientation of the [Bulb] in the bulb group.
+    pub fn orientation_bulb_group(&self) -> crate::api::Rotation {
+        let rotation = maliput_sys::api::rules::ffi::Bulb_orientation_bulb_group(self.bulb);
+        crate::api::Rotation { r: rotation }
+    }
+
+    /// Returns the arrow's orientation. Only applicable if [Bulb::bulb_type] returns
+    /// [BulbType::Arrow].
+    pub fn arrow_orientation_rad(&self) -> Option<f64> {
+        let arrow_orientation = maliput_sys::api::rules::ffi::Bulb_arrow_orientation_rad(self.bulb);
+        if arrow_orientation.is_null() {
+            return None;
+        }
+        Some(arrow_orientation.value)
+    }
+
+    /// Get the possible states of the [Bulb].
+    pub fn states(&self) -> Vec<BulbState> {
+        let states_cpp = maliput_sys::api::rules::ffi::Bulb_states(self.bulb);
+        states_cpp
+            .into_iter()
+            .map(|state| Bulb::_from_cpp_state_to_rust_state(state.bulb_state))
+            .collect::<Vec<BulbState>>()
+    }
+
+    /// Get the default state of the [Bulb].
+    pub fn get_default_state(&self) -> BulbState {
+        let default_state = self.bulb.GetDefaultState();
+        Bulb::_from_cpp_state_to_rust_state(&default_state)
+    }
+
+    /// Check if the given state is possible valid for the [Bulb].
+    pub fn is_valid_state(&self, state: &BulbState) -> bool {
+        self.bulb.IsValidState(&Bulb::_from_rust_state_to_cpp_state(state))
+    }
+
+    /// Returns the bounding box of the bulb.
+    /// ## Return
+    /// A tuple containing the minimum and maximum points of the bounding box.
+    pub fn bounding_box(&self) -> (crate::math::Vector3, crate::math::Vector3) {
+        let min = maliput_sys::api::rules::ffi::Bulb_bounding_box_min(self.bulb);
+        let max = maliput_sys::api::rules::ffi::Bulb_bounding_box_max(self.bulb);
+        (crate::math::Vector3 { v: min }, crate::math::Vector3 { v: max })
+    }
+
+    /// Returns the parent [BulbGroup] of the bulb.
+    /// ## Return
+    /// The parent [BulbGroup] of the bulb.
+    /// If the bulb is not part of any group, return None.
+    pub fn bulb_group(&self) -> Option<BulbGroup> {
+        unimplemented!()
+    }
+
+    /// Convert from the C++ BulbState to the Rust BulbState
+    /// It is expected to be used only internally.
+    ///
+    /// ## Arguments
+    /// * `cpp_bulb_state` - The C++ BulbState
+    /// ## Return
+    /// The Rust BulbState
+    /// ## Panics
+    /// If the C++ BulbState is invalid.
+    fn _from_cpp_state_to_rust_state(cpp_bulb_state: &maliput_sys::api::rules::ffi::BulbState) -> BulbState {
+        match *cpp_bulb_state {
+            maliput_sys::api::rules::ffi::BulbState::kOff => BulbState::Off,
+            maliput_sys::api::rules::ffi::BulbState::kOn => BulbState::On,
+            maliput_sys::api::rules::ffi::BulbState::kBlinking => BulbState::Blinking,
+            _ => panic!("Invalid bulb state"),
+        }
+    }
+
+    /// Convert from the Rust BulbState to the C++ BulbState
+    /// It is expected to be used only internally.
+    ///
+    /// ## Arguments
+    /// * `rust_bulb_state` - The Rust BulbState
+    /// ## Return
+    /// The C++ BulbState
+    fn _from_rust_state_to_cpp_state(rust_bulb_state: &BulbState) -> maliput_sys::api::rules::ffi::BulbState {
+        match rust_bulb_state {
+            BulbState::Off => maliput_sys::api::rules::ffi::BulbState::kOff,
+            BulbState::On => maliput_sys::api::rules::ffi::BulbState::kOn,
+            BulbState::Blinking => maliput_sys::api::rules::ffi::BulbState::kBlinking,
+        }
+    }
+}

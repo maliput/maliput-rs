@@ -46,7 +46,7 @@
 /// assert_eq!(v.cross(&v), Vector3::new(0.0, 0.0, 0.0));
 /// ```
 pub struct Vector3 {
-    v: cxx::UniquePtr<maliput_sys::math::ffi::Vector3>,
+    pub(crate) v: cxx::UniquePtr<maliput_sys::math::ffi::Vector3>,
 }
 
 impl Vector3 {
