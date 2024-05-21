@@ -108,11 +108,44 @@ impl<'a> TrafficLight<'a> {
         let rotation = maliput_sys::api::rules::ffi::TrafficLight_orientation_road_network(self.traffic_light);
         crate::api::Rotation { r: rotation }
     }
+
+    /// Get the bulb groups of the [TrafficLight].
+    /// ## Return
+    /// A vector of [BulbGroup]s in the [TrafficLight].
+    /// If the [TrafficLight] has no bulb groups, return an empty vector.
+    pub fn bulb_groups(&self) -> Vec<BulbGroup> {
+        let bulb_groups_cpp = maliput_sys::api::rules::ffi::TrafficLight_bulb_groups(self.traffic_light);
+        bulb_groups_cpp
+            .into_iter()
+            .map(|bg| BulbGroup {
+                bulb_group: unsafe { bg.bulb_group.as_ref().expect("") },
+            })
+            .collect::<Vec<BulbGroup>>()
+    }
+
+    /// Get a [BulbGroup] by its id.
+    /// ## Arguments
+    /// * `id` - The id of the [BulbGroup].
+    ///
+    /// ## Return
+    /// The [BulbGroup] with the given id.
+    /// If no [BulbGroup] is found with the given id, return None.
+    pub fn get_bulb_group(&self, id: &String) -> Option<BulbGroup> {
+        let bulb_group = maliput_sys::api::rules::ffi::TrafficLight_GetBulbGroup(self.traffic_light, id);
+        if bulb_group.is_null() {
+            return None;
+        }
+        Some(BulbGroup {
+            bulb_group: unsafe {
+                bulb_group
+                    .as_ref()
+                    .expect("Unable to get underlying bulb group pointer")
+            },
+        })
+    }
 }
 
-/// Forward declaration of the [BulbGroup] struct.
-pub struct BulbGroup;
-
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 /// Defines the possible bulb colors.
 pub enum BulbColor {
     Red,
@@ -120,12 +153,14 @@ pub enum BulbColor {
     Green,
 }
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 /// Defines the possible bulb types.
 pub enum BulbType {
     Round,
     Arrow,
 }
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 /// Defines the possible bulb types.
 pub enum BulbState {
     Off,
@@ -207,7 +242,7 @@ impl Bulb<'_> {
         let states_cpp = maliput_sys::api::rules::ffi::Bulb_states(self.bulb);
         states_cpp
             .into_iter()
-            .map(|state| Bulb::_from_cpp_state_to_rust_state(state.bulb_state))
+            .map(Bulb::_from_cpp_state_to_rust_state)
             .collect::<Vec<BulbState>>()
     }
 
@@ -235,8 +270,14 @@ impl Bulb<'_> {
     /// ## Return
     /// The parent [BulbGroup] of the bulb.
     /// If the bulb is not part of any group, return None.
-    pub fn bulb_group(&self) -> Option<BulbGroup> {
-        unimplemented!()
+    pub fn bulb_group(&self) -> BulbGroup {
+        BulbGroup {
+            bulb_group: unsafe {
+                maliput_sys::api::rules::ffi::Bulb_bulb_group(self.bulb)
+                    .as_ref()
+                    .expect("Unable to get underlying bulb group pointer. The Bulb might not be part of any BulbGroup.")
+            },
+        }
     }
 
     /// Convert from the C++ BulbState to the Rust BulbState
@@ -269,6 +310,96 @@ impl Bulb<'_> {
             BulbState::Off => maliput_sys::api::rules::ffi::BulbState::kOff,
             BulbState::On => maliput_sys::api::rules::ffi::BulbState::kOn,
             BulbState::Blinking => maliput_sys::api::rules::ffi::BulbState::kBlinking,
+        }
+    }
+}
+
+/// Models a group of bulbs within a traffic light. All of the bulbs within a
+/// group should share the same approximate orientation. However, this is not
+/// programmatically enforced.
+/// About the bulb group pose:
+/// - The position of the bulb group is defined as the linear offset of this bulb group's frame
+///   relative to the frame of the traffic light that contains it. The origin of
+///   this bulb group's frame should approximate the bulb group's CoM.
+/// - The orientation of the bulb group is defined as the rotational offset of this bulb
+///   group's frame relative to the frame of the traffic light that contains it.
+///   The +Z axis should align with the bulb group's "up" direction, and the +X
+///   axis should point in the direction that the bulb group is facing.
+///   Following a right-handed coordinate frame, the +Y axis should point left
+///   when facing the +X direction.
+pub struct BulbGroup<'a> {
+    pub bulb_group: &'a maliput_sys::api::rules::ffi::BulbGroup,
+}
+
+impl BulbGroup<'_> {
+    /// Returns this BulbGroup instance's unique identifier.
+    pub fn unique_id(&self) -> String {
+        unimplemented!()
+    }
+
+    /// Get the id of the [BulbGroup].
+    /// ## Return
+    /// The id of the [BulbGroup].
+    pub fn id(&self) -> String {
+        maliput_sys::api::rules::ffi::BulbGroup_id(self.bulb_group)
+    }
+
+    /// Get the position of the [BulbGroup] in the traffic light.
+    /// ## Return
+    /// An [crate::api::InertialPosition] representing the position of the [BulbGroup] in the traffic light.
+    pub fn position_traffic_light(&self) -> crate::api::InertialPosition {
+        let inertial_position = maliput_sys::api::rules::ffi::BulbGroup_position_traffic_light(self.bulb_group);
+        crate::api::InertialPosition { ip: inertial_position }
+    }
+
+    /// Get the orientation of the [BulbGroup] in the traffic light.
+    /// ## Return
+    /// An [crate::api::Rotation] representing the orientation of the [BulbGroup] in the traffic light.
+    pub fn orientation_traffic_light(&self) -> crate::api::Rotation {
+        let rotation = maliput_sys::api::rules::ffi::BulbGroup_orientation_traffic_light(self.bulb_group);
+        crate::api::Rotation { r: rotation }
+    }
+
+    /// Returns the bulbs in the bulb group.
+    /// ## Return
+    /// A vector of [Bulb]s in the bulb group.
+    pub fn bulbs(&self) -> Vec<Bulb> {
+        let bulbs_cpp = maliput_sys::api::rules::ffi::BulbGroup_bulbs(self.bulb_group);
+        bulbs_cpp
+            .into_iter()
+            .map(|b| Bulb {
+                bulb: unsafe { b.bulb.as_ref().expect("") },
+            })
+            .collect::<Vec<Bulb>>()
+    }
+
+    /// Get a [Bulb] by its id
+    /// ## Arguments
+    /// * `id` - The id of the [Bulb].
+    ///
+    /// ## Return
+    /// The [Bulb] with the given id.
+    /// If no [Bulb] is found with the given id, return None.
+    pub fn get_bulb(&self, id: &String) -> Option<Bulb> {
+        let bulb = maliput_sys::api::rules::ffi::BulbGroup_GetBulb(self.bulb_group, id);
+        if bulb.is_null() {
+            return None;
+        }
+        Some(Bulb {
+            bulb: unsafe { bulb.as_ref().expect("Unable to get underlying bulb pointer") },
+        })
+    }
+
+    /// Returns the parent [TrafficLight] of the bulb group.
+    /// ## Return
+    /// The parent [TrafficLight] of the bulb group.
+    pub fn traffic_light(&self) -> TrafficLight {
+        TrafficLight {
+            traffic_light: unsafe {
+                maliput_sys::api::rules::ffi::BulbGroup_traffic_light(self.bulb_group)
+                    .as_ref()
+                    .expect("Unable to get underlying traffic light pointer. The BulbGroup might not be registered to a TrafficLight.")
+            },
         }
     }
 }
