@@ -38,6 +38,12 @@ pub mod ffi {
     unsafe extern "C++" {
         include!("api/rules/rules.h");
 
+        // Forward declarations
+        #[namespace = "maliput::api"]
+        type InertialPosition = crate::api::ffi::InertialPosition;
+        #[namespace = "maliput::api"]
+        type Rotation = crate::api::ffi::Rotation;
+
         // TrafficLightBook bindings definitions.
         type TrafficLightBook;
         fn TrafficLightBook_TrafficLights(book: &TrafficLightBook) -> UniquePtr<CxxVector<ConstTrafficLightPtr>>;
@@ -46,5 +52,7 @@ pub mod ffi {
         // TrafficLight bindings definitions.
         type TrafficLight;
         fn TrafficLight_id(traffic_light: &TrafficLight) -> String;
+        fn TrafficLight_position_road_network(traffic_light: &TrafficLight) -> UniquePtr<InertialPosition>;
+        fn TrafficLight_orientation_road_network(traffic_light: &TrafficLight) -> UniquePtr<Rotation>;
     }
 }

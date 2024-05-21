@@ -92,4 +92,20 @@ impl<'a> TrafficLight<'a> {
     pub fn id(&self) -> String {
         maliput_sys::api::rules::ffi::TrafficLight_id(self.traffic_light)
     }
+
+    /// Get the position of the [TrafficLight] in the road network.
+    /// ## Return
+    /// An [crate::api::InertialPosition] representing the position of the [TrafficLight] in the road network.
+    pub fn position_road_network(&self) -> crate::api::InertialPosition {
+        let inertial_position = maliput_sys::api::rules::ffi::TrafficLight_position_road_network(self.traffic_light);
+        crate::api::InertialPosition { ip: inertial_position }
+    }
+
+    /// Get the orientation of the [TrafficLight] in the road network.
+    /// ## Return
+    /// An [crate::api::Rotation] representing the orientation of the [TrafficLight] in the road network.
+    pub fn orientation_road_network(&self) -> crate::api::Rotation {
+        let rotation = maliput_sys::api::rules::ffi::TrafficLight_orientation_road_network(self.traffic_light);
+        crate::api::Rotation { r: rotation }
+    }
 }

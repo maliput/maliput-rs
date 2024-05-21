@@ -43,11 +43,22 @@ fn traffic_light_test_api() {
     let only_traffic_light = traffic_lights.first().expect("No traffic lights found");
     assert_eq!(only_traffic_light.id(), expected_traffic_light_id);
 
+    let traffic_light = book.get_traffic_light(&String::from("wrong_traffic_light_id"));
+    assert!(traffic_light.is_none());
+
     let traffic_light = book.get_traffic_light(&expected_traffic_light_id);
     assert!(traffic_light.is_some());
     let traffic_light = traffic_light.unwrap();
     assert_eq!(traffic_light.id(), expected_traffic_light_id);
 
-    let traffic_light = book.get_traffic_light(&String::from("wrong_traffic_light_id"));
-    assert!(traffic_light.is_none());
+    let position = traffic_light.position_road_network();
+    assert_eq!(position.x(), 46.0);
+    assert_eq!(position.y(), -5.0);
+    assert_eq!(position.z(), 2.0);
+
+    let orientation = traffic_light.orientation_road_network();
+    use std::f64::consts::PI;
+    assert_eq!(orientation.roll(), -PI);
+    assert_eq!(orientation.pitch(), 0.0);
+    assert_eq!(orientation.yaw(), PI);
 }

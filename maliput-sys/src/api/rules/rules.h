@@ -61,6 +61,14 @@ rust::String TrafficLight_id(const TrafficLight& traffic_light) {
   return traffic_light.id().string();
 }
 
+std::unique_ptr<maliput::api::InertialPosition> TrafficLight_position_road_network(const TrafficLight& traffic_light) {
+  return std::make_unique<maliput::api::InertialPosition>(traffic_light.position_road_network());
+}
+
+std::unique_ptr<maliput::api::Rotation> TrafficLight_orientation_road_network(const TrafficLight& traffic_light) {
+  return std::make_unique<maliput::api::Rotation>(traffic_light.orientation_road_network());
+}
+
 }  // namespace rules
 }  // namespace api
 }  // namespace maliput
