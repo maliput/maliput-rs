@@ -29,6 +29,10 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 mod common;
 
+// TShapeRoad maps is being used to test the traffic light API and its components.
+// YAML information about the TrafficLightBook can be found at:
+// https://github.com/maliput/maliput_malidrive/blob/7136af97ae5415077c49ad955098610abd3a7f04/resources/TShapeRoad.yaml
+
 #[test]
 fn traffic_light_test_api() {
     let road_network = common::create_t_shape_road_network_with_books();
@@ -61,4 +65,104 @@ fn traffic_light_test_api() {
     assert_eq!(orientation.roll(), -PI);
     assert_eq!(orientation.pitch(), 0.0);
     assert_eq!(orientation.yaw(), PI);
+
+    let bulb_groups = traffic_light.bulb_groups();
+    assert_eq!(bulb_groups.len(), 1);
+    let bulb_group = traffic_light.get_bulb_group(&String::from("EastFacingBulbs"));
+    assert!(bulb_group.is_some());
+}
+
+#[test]
+fn bulb_group_test_api() {
+    let road_network = common::create_t_shape_road_network_with_books();
+    let book = road_network.traffic_light_book();
+    let traffic_light = book.get_traffic_light(&String::from("EastFacing")).unwrap();
+    let bulb_groups = traffic_light.bulb_groups();
+    assert_eq!(bulb_groups.len(), 1);
+    let bulb_group = bulb_groups.first().expect("No bulb groups found");
+    assert_eq!(bulb_group.id(), "EastFacingBulbs");
+    let position_traffic_light = bulb_group.position_traffic_light();
+    assert_eq!(position_traffic_light.x(), 0.0);
+    assert_eq!(position_traffic_light.y(), 0.0);
+    assert_eq!(position_traffic_light.z(), 0.0);
+    let orientation_traffic_light = bulb_group.orientation_traffic_light();
+    assert_eq!(orientation_traffic_light.roll(), 0.0);
+    assert_eq!(orientation_traffic_light.pitch(), 0.0);
+    assert_eq!(orientation_traffic_light.yaw(), 0.0);
+    let bulbs = bulb_group.bulbs();
+    assert_eq!(bulbs.len(), 4);
+
+    let bulb = bulb_group.get_bulb(&String::from("RedBulb"));
+    assert!(bulb.is_some());
+    let position_bulb = bulb.unwrap().position_bulb_group();
+    assert_eq!(position_bulb.z(), 0.3937);
+    let bulb = bulb_group.get_bulb(&String::from("YellowBulb"));
+    assert!(bulb.is_some());
+    let position_bulb = bulb.unwrap().position_bulb_group();
+    assert_eq!(position_bulb.z(), 0.);
+    let bulb = bulb_group.get_bulb(&String::from("GreenBulb"));
+    assert!(bulb.is_some());
+    let position_bulb = bulb.unwrap().position_bulb_group();
+    assert_eq!(position_bulb.z(), -0.3937);
+    let bulb = bulb_group.get_bulb(&String::from("YellowLeftArrowBulb"));
+    assert!(bulb.is_some());
+    let position_bulb = bulb.unwrap().position_bulb_group();
+    assert_eq!(position_bulb.y(), -0.3937);
+    assert_eq!(position_bulb.z(), -0.3937);
+    let bulb = bulb_group.get_bulb(&String::from("wrong_bulb_id"));
+    assert!(bulb.is_none());
+
+    let traffic_light_from_bulb_group = bulb_group.traffic_light();
+    assert_eq!(traffic_light_from_bulb_group.id(), traffic_light.id());
+}
+
+#[test]
+fn bulb_test_api() {
+    let road_network = common::create_t_shape_road_network_with_books();
+    let book = road_network.traffic_light_book();
+    let traffic_light = book.get_traffic_light(&String::from("EastFacing")).unwrap();
+    let bulb_group = traffic_light.get_bulb_group(&String::from("EastFacingBulbs")).unwrap();
+    let bulb = bulb_group.get_bulb(&String::from("RedBulb")).unwrap();
+
+    // Test on red bulb.
+    assert_eq!(bulb.id(), "RedBulb");
+    let position = bulb.position_bulb_group();
+    assert_eq!(position.x(), 0.0);
+    assert_eq!(position.y(), 0.0);
+    assert_eq!(position.z(), 0.3937);
+    let orientation = bulb.orientation_bulb_group();
+    assert_eq!(orientation.roll(), 0.0);
+    assert_eq!(orientation.pitch(), 0.0);
+    assert_eq!(orientation.yaw(), 0.0);
+    let color = bulb.color();
+    assert_eq!(color, maliput::api::rules::BulbColor::Red);
+    let bulb_type = bulb.bulb_type();
+    assert_eq!(bulb_type, maliput::api::rules::BulbType::Round);
+    let arrow_orientation = bulb.arrow_orientation_rad();
+    assert!(arrow_orientation.is_none());
+    let states = bulb.states();
+    assert_eq!(states.len(), 2);
+    let default_state = bulb.get_default_state();
+    assert_eq!(default_state, maliput::api::rules::BulbState::Off);
+    let is_valid_state = bulb.is_valid_state(&maliput::api::rules::BulbState::On);
+    assert!(is_valid_state);
+    let bounding_box = bulb.bounding_box();
+    let p_min = bounding_box.0;
+    assert_eq!(p_min.x(), -0.0889);
+    assert_eq!(p_min.y(), -0.1778);
+    assert_eq!(p_min.z(), -0.1778);
+    let p_max = bounding_box.1;
+    assert_eq!(p_max.x(), 0.0889);
+    assert_eq!(p_max.y(), 0.1778);
+    assert_eq!(p_max.z(), 0.1778);
+    let bulb_group_from_bulb = bulb.bulb_group();
+    assert_eq!(bulb_group_from_bulb.id(), bulb_group.id());
+
+    // Extends tests with arrow bulb to the left.
+    let bulb = bulb_group.get_bulb(&String::from("YellowLeftArrowBulb")).unwrap();
+    let arrow_orientation = bulb.arrow_orientation_rad();
+    assert!(arrow_orientation.is_some());
+    #[allow(clippy::approx_constant)]
+    let expected_orientation = 3.14;
+    assert_eq!(arrow_orientation.unwrap(), expected_orientation);
 }

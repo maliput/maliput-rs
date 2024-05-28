@@ -70,6 +70,20 @@ std::unique_ptr<maliput::api::Rotation> TrafficLight_orientation_road_network(co
   return std::make_unique<maliput::api::Rotation>(traffic_light.orientation_road_network());
 }
 
+std::unique_ptr<std::vector<ConstBulbGroupPtr>> TrafficLight_bulb_groups(const TrafficLight& traffic_light) {
+  const auto bulb_groups_cpp = traffic_light.bulb_groups();
+  std::vector<ConstBulbGroupPtr> bulb_groups;
+  bulb_groups.reserve(bulb_groups_cpp.size());
+  for (const auto bulb_group : bulb_groups_cpp) {
+    bulb_groups.push_back({bulb_group});
+  }
+  return std::make_unique<std::vector<ConstBulbGroupPtr>>(std::move(bulb_groups));
+}
+
+const BulbGroup* TrafficLight_GetBulbGroup(const TrafficLight& traffic_light, const rust::String& id) {
+  return traffic_light.GetBulbGroup(BulbGroup::Id{std::string(id)});
+}
+
 rust::String Bulb_id(const Bulb& bulb) {
   return bulb.id().string();
 }
@@ -91,14 +105,14 @@ std::unique_ptr<FloatWrapper> Bulb_arrow_orientation_rad(const Bulb& bulb) {
   return orientation.has_value() ? std::make_unique<FloatWrapper>(FloatWrapper{orientation.value()}) : nullptr;
 }
 
-std::unique_ptr<std::vector<ConstBulbStateRef>> Bulb_states(const Bulb& bulb) {
+std::unique_ptr<std::vector<BulbState>> Bulb_states(const Bulb& bulb) {
   const auto states_cpp = bulb.states();
-  std::vector<ConstBulbStateRef> states;
+  std::vector<BulbState> states;
   states.reserve(states_cpp.size());
   for (const auto state : states_cpp) {
-    states.push_back({state});
+    states.push_back(state);
   }
-  return std::make_unique<std::vector<ConstBulbStateRef>>(std::move(states));
+  return std::make_unique<std::vector<BulbState>>(std::move(states));
 }
 
 std::unique_ptr<maliput::math::Vector3> Bulb_bounding_box_min(const Bulb& bulb) {
@@ -107,6 +121,40 @@ std::unique_ptr<maliput::math::Vector3> Bulb_bounding_box_min(const Bulb& bulb) 
 
 std::unique_ptr<maliput::math::Vector3> Bulb_bounding_box_max(const Bulb& bulb) {
   return std::make_unique<maliput::math::Vector3>(bulb.bounding_box().p_BMax);
+}
+
+const BulbGroup* Bulb_bulb_group(const Bulb& bulb) {
+  return bulb.bulb_group();
+}
+
+rust::String BulbGroup_id(const BulbGroup& bulb_group) {
+  return bulb_group.id().string();
+}
+
+std::unique_ptr<InertialPosition> BulbGroup_position_traffic_light(const BulbGroup& bulb_group) {
+  return std::make_unique<InertialPosition>(bulb_group.position_traffic_light());
+}
+
+std::unique_ptr<Rotation> BulbGroup_orientation_traffic_light(const BulbGroup& bulb_group) {
+  return std::make_unique<Rotation>(bulb_group.orientation_traffic_light());
+}
+
+std::unique_ptr<std::vector<ConstBulbPtr>> BulbGroup_bulbs(const BulbGroup& bulb_group) {
+  const auto bulbs_cpp = bulb_group.bulbs();
+  std::vector<ConstBulbPtr> bulbs;
+  bulbs.reserve(bulbs_cpp.size());
+  for (const auto bulb : bulbs_cpp) {
+    bulbs.push_back({bulb});
+  }
+  return std::make_unique<std::vector<ConstBulbPtr>>(std::move(bulbs));
+}
+
+const Bulb* BulbGroup_GetBulb(const BulbGroup& bulb_group, const rust::String& id) {
+  return bulb_group.GetBulb(Bulb::Id{std::string(id)});
+}
+
+const TrafficLight* BulbGroup_traffic_light(const BulbGroup& bulb_group) {
+  return bulb_group.traffic_light();
 }
 
 }  // namespace rules
