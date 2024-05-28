@@ -175,8 +175,10 @@ pub struct Bulb<'a> {
 
 impl Bulb<'_> {
     /// Returns this Bulb instance's unique identifier.
-    pub fn unique_id(&self) -> String {
-        unimplemented!()
+    pub fn unique_id(&self) -> UniqueBulbId {
+        UniqueBulbId {
+            unique_bulb_id: maliput_sys::api::rules::ffi::Bulb_unique_id(self.bulb),
+        }
     }
 
     /// Get the id of the [Bulb].
@@ -333,8 +335,10 @@ pub struct BulbGroup<'a> {
 
 impl BulbGroup<'_> {
     /// Returns this BulbGroup instance's unique identifier.
-    pub fn unique_id(&self) -> String {
-        unimplemented!()
+    pub fn unique_id(&self) -> UniqueBulbGroupId {
+        UniqueBulbGroupId {
+            unique_bulb_group_id: maliput_sys::api::rules::ffi::BulbGroup_unique_id(self.bulb_group),
+        }
     }
 
     /// Get the id of the [BulbGroup].
@@ -401,5 +405,78 @@ impl BulbGroup<'_> {
                     .expect("Unable to get underlying traffic light pointer. The BulbGroup might not be registered to a TrafficLight.")
             },
         }
+    }
+}
+
+/// Uniquely identifies a bulb in the `Inertial` space. This consists of the
+/// concatenation of the bulb's ID, the ID of the bulb group that contains the
+/// bulb, and the the ID of the traffic light that contains the bulb group.
+///
+/// String representation of this ID is:
+/// "`traffic_light_id().string()`-`bulb_group_id.string()`-`bulb_id.string()`"
+pub struct UniqueBulbId {
+    unique_bulb_id: cxx::UniquePtr<maliput_sys::api::rules::ffi::UniqueBulbId>,
+}
+
+impl UniqueBulbId {
+    /// Get the traffic light id of the [UniqueBulbId].
+    /// ## Return
+    /// The traffic light id of the [UniqueBulbId].
+    pub fn traffic_light_id(&self) -> String {
+        maliput_sys::api::rules::ffi::UniqueBulbId_traffic_light_id(&self.unique_bulb_id)
+    }
+
+    /// Get the bulb group id of the [UniqueBulbId].
+    /// ## Return
+    /// The bulb group id of the [UniqueBulbId].
+    pub fn bulb_group_id(&self) -> String {
+        maliput_sys::api::rules::ffi::UniqueBulbId_bulb_group_id(&self.unique_bulb_id)
+    }
+
+    /// Get the bulb id of the [UniqueBulbId].
+    /// ## Return
+    /// The bulb id of the [UniqueBulbId].
+    pub fn bulb_id(&self) -> String {
+        maliput_sys::api::rules::ffi::UniqueBulbId_bulb_id(&self.unique_bulb_id)
+    }
+
+    /// Get the string representation of the [UniqueBulbId].
+    /// ## Return
+    /// The string representation of the [UniqueBulbId].
+    pub fn string(&self) -> String {
+        self.unique_bulb_id.string().to_string()
+    }
+}
+
+/// Uniquely identifies a bulb group in the `Inertial` space. This consists of
+/// the concatenation of the ID of the bulb group, and the ID of the traffic
+/// light that contains the bulb group.
+///
+/// String representation of this ID is:
+/// "`traffic_light_id().string()`-`bulb_group_id.string()`"
+pub struct UniqueBulbGroupId {
+    unique_bulb_group_id: cxx::UniquePtr<maliput_sys::api::rules::ffi::UniqueBulbGroupId>,
+}
+
+impl UniqueBulbGroupId {
+    /// Get the traffic light id of the [UniqueBulbGroupId].
+    /// ## Return
+    /// The traffic light id of the [UniqueBulbGroupId].
+    pub fn traffic_light_id(&self) -> String {
+        maliput_sys::api::rules::ffi::UniqueBulbGroupId_traffic_light_id(&self.unique_bulb_group_id)
+    }
+
+    /// Get the bulb group id of the [UniqueBulbGroupId].
+    /// ## Return
+    /// The bulb group id of the [UniqueBulbGroupId].
+    pub fn bulb_group_id(&self) -> String {
+        maliput_sys::api::rules::ffi::UniqueBulbGroupId_bulb_group_id(&self.unique_bulb_group_id)
+    }
+
+    /// Get the string representation of the [UniqueBulbGroupId].
+    /// ## Return
+    /// The string representation of the [UniqueBulbGroupId].
+    pub fn string(&self) -> String {
+        self.unique_bulb_group_id.string().to_string()
     }
 }

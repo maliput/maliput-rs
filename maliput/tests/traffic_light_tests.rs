@@ -81,6 +81,17 @@ fn bulb_group_test_api() {
     assert_eq!(bulb_groups.len(), 1);
     let bulb_group = bulb_groups.first().expect("No bulb groups found");
     assert_eq!(bulb_group.id(), "EastFacingBulbs");
+
+    // UniqueBulbGroupId tests.
+    let unique_id = bulb_group.unique_id();
+    let traffic_light_id = unique_id.traffic_light_id();
+    assert_eq!(traffic_light_id, traffic_light.id());
+    let bulb_group_id = unique_id.bulb_group_id();
+    assert_eq!(bulb_group_id, bulb_group.id());
+    let bulb_group_unique_id = unique_id.string();
+    assert_eq!(bulb_group_unique_id, "EastFacing-EastFacingBulbs");
+
+    // BulbGroups pose tests.
     let position_traffic_light = bulb_group.position_traffic_light();
     assert_eq!(position_traffic_light.x(), 0.0);
     assert_eq!(position_traffic_light.y(), 0.0);
@@ -92,6 +103,7 @@ fn bulb_group_test_api() {
     let bulbs = bulb_group.bulbs();
     assert_eq!(bulbs.len(), 4);
 
+    // BulbGroup get api.
     let bulb = bulb_group.get_bulb(&String::from("RedBulb"));
     assert!(bulb.is_some());
     let position_bulb = bulb.unwrap().position_bulb_group();
@@ -123,6 +135,17 @@ fn bulb_test_api() {
     let traffic_light = book.get_traffic_light(&String::from("EastFacing")).unwrap();
     let bulb_group = traffic_light.get_bulb_group(&String::from("EastFacingBulbs")).unwrap();
     let bulb = bulb_group.get_bulb(&String::from("RedBulb")).unwrap();
+
+    // UniqueBulbId tests.
+    let unique_id = bulb.unique_id();
+    let traffic_light_id = unique_id.traffic_light_id();
+    assert_eq!(traffic_light_id, traffic_light.id());
+    let bulb_group_id = unique_id.bulb_group_id();
+    assert_eq!(bulb_group_id, bulb_group.id());
+    let bulb_id = unique_id.bulb_id();
+    assert_eq!(bulb_id, bulb.id());
+    let bulb_unique_id = unique_id.string();
+    assert_eq!(bulb_unique_id, "EastFacing-EastFacingBulbs-RedBulb");
 
     // Test on red bulb.
     assert_eq!(bulb.id(), "RedBulb");

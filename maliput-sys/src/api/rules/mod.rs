@@ -106,6 +106,7 @@ pub mod ffi {
         // Bulb bindings definitions.
         type Bulb;
         fn Bulb_id(bulb: &Bulb) -> String;
+        fn Bulb_unique_id(bulb: &Bulb) -> UniquePtr<UniqueBulbId>;
         fn Bulb_position_bulb_group(bulb: &Bulb) -> UniquePtr<InertialPosition>;
         fn Bulb_orientation_bulb_group(bulb: &Bulb) -> UniquePtr<Rotation>;
         fn color(self: &Bulb) -> &BulbColor;
@@ -122,10 +123,24 @@ pub mod ffi {
         // BulbGroup bindings definitions.
         type BulbGroup;
         fn BulbGroup_id(bulb_group: &BulbGroup) -> String;
+        fn BulbGroup_unique_id(bulb: &BulbGroup) -> UniquePtr<UniqueBulbGroupId>;
         fn BulbGroup_position_traffic_light(bulb_group: &BulbGroup) -> UniquePtr<InertialPosition>;
         fn BulbGroup_orientation_traffic_light(bulb_group: &BulbGroup) -> UniquePtr<Rotation>;
         fn BulbGroup_bulbs(bulb_group: &BulbGroup) -> UniquePtr<CxxVector<ConstBulbPtr>>;
         fn BulbGroup_GetBulb(bulb_group: &BulbGroup, id: &String) -> *const Bulb;
         fn BulbGroup_traffic_light(bulb_group: &BulbGroup) -> *const TrafficLight;
+
+        // UniqueBulbId bindings definitions.
+        type UniqueBulbId;
+        fn string(self: &UniqueBulbId) -> &CxxString;
+        fn UniqueBulbId_traffic_light_id(id: &UniqueBulbId) -> String;
+        fn UniqueBulbId_bulb_group_id(id: &UniqueBulbId) -> String;
+        fn UniqueBulbId_bulb_id(id: &UniqueBulbId) -> String;
+
+        // UniqueBulbGroupId bindings definitions.
+        type UniqueBulbGroupId;
+        fn string(self: &UniqueBulbGroupId) -> &CxxString;
+        fn UniqueBulbGroupId_traffic_light_id(id: &UniqueBulbGroupId) -> String;
+        fn UniqueBulbGroupId_bulb_group_id(id: &UniqueBulbGroupId) -> String;
     }
 }
