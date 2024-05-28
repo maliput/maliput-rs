@@ -1,6 +1,6 @@
 [package]
 name = "maliput"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Franco Cipollone <franco.c@ekumenlabs.com>"]
 categories = ["simulation"]
 description = "Rust API for maliput"
@@ -14,8 +14,8 @@ repository.workspace = true
 
 [dependencies]
 cxx = "1.0.78"
-maliput-sdk = { version = "0.1.2", path = "../maliput-sdk" }
-maliput-sys = { version = "0.1.0", path = "../maliput-sys" }
+maliput-sdk = { version = "0.1.3", path = "../maliput-sdk" }
+maliput-sys = { version = "0.1.1", path = "../maliput-sys" }
 
 [dev-dependencies]
 criterion = { version = "0.4", features = ["html_reports"] }
