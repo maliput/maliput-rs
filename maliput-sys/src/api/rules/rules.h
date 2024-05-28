@@ -84,6 +84,10 @@ const BulbGroup* TrafficLight_GetBulbGroup(const TrafficLight& traffic_light, co
   return traffic_light.GetBulbGroup(BulbGroup::Id{std::string(id)});
 }
 
+std::unique_ptr<UniqueBulbId> Bulb_unique_id(const Bulb& bulb) {
+  return std::make_unique<UniqueBulbId>(bulb.unique_id());
+}
+
 rust::String Bulb_id(const Bulb& bulb) {
   return bulb.id().string();
 }
@@ -131,6 +135,10 @@ rust::String BulbGroup_id(const BulbGroup& bulb_group) {
   return bulb_group.id().string();
 }
 
+std::unique_ptr<UniqueBulbGroupId> BulbGroup_unique_id(const BulbGroup& bulb_group) {
+  return std::make_unique<UniqueBulbGroupId>(bulb_group.unique_id());
+}
+
 std::unique_ptr<InertialPosition> BulbGroup_position_traffic_light(const BulbGroup& bulb_group) {
   return std::make_unique<InertialPosition>(bulb_group.position_traffic_light());
 }
@@ -155,6 +163,26 @@ const Bulb* BulbGroup_GetBulb(const BulbGroup& bulb_group, const rust::String& i
 
 const TrafficLight* BulbGroup_traffic_light(const BulbGroup& bulb_group) {
   return bulb_group.traffic_light();
+}
+
+rust::String UniqueBulbId_traffic_light_id(const UniqueBulbId& id) {
+  return id.traffic_light_id().string();
+}
+
+rust::String UniqueBulbId_bulb_group_id(const UniqueBulbId& id) {
+  return id.bulb_group_id().string();
+}
+
+rust::String UniqueBulbId_bulb_id(const UniqueBulbId& id) {
+  return id.bulb_id().string();
+}
+
+rust::String UniqueBulbGroupId_traffic_light_id(const UniqueBulbGroupId& id) {
+  return id.traffic_light_id().string();
+}
+
+rust::String UniqueBulbGroupId_bulb_group_id(const UniqueBulbGroupId& id) {
+  return id.bulb_group_id().string();
 }
 
 }  // namespace rules
