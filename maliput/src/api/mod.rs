@@ -259,6 +259,13 @@ impl RoadNetwork {
             },
         }
     }
+    /// Get the `RoadRulebook` of the `RoadNetwork`.
+    pub fn rulebook(&self) -> rules::RoadRulebook {
+        let rulebook_ffi = self.rn.rulebook();
+        rules::RoadRulebook {
+            road_rulebook: unsafe { rulebook_ffi.as_ref().expect("Underlying RoadRulebook is null") },
+        }
+    }
 }
 
 /// A Lane Position.
