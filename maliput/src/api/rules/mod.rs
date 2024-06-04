@@ -480,3 +480,28 @@ impl UniqueBulbGroupId {
         self.unique_bulb_group_id.string().to_string()
     }
 }
+
+pub struct RoadRulebook<'a> {
+    pub(super) road_rulebook: &'a maliput_sys::api::rules::ffi::RoadRulebook,
+}
+
+impl<'a> RoadRulebook<'a> {
+    pub fn get_discrete_value_rule(&self, rule_id: &String) -> DiscreteValueRule {
+        DiscreteValueRule {
+            discrete_value_rule: maliput_sys::api::rules::ffi::RoadRulebook_GetDiscreteValueRule(
+                self.road_rulebook,
+                rule_id,
+            ),
+        }
+    }
+}
+
+pub struct DiscreteValueRule {
+    discrete_value_rule: cxx::UniquePtr<maliput_sys::api::rules::ffi::DiscreteValueRule>,
+}
+
+impl DiscreteValueRule {
+    pub fn id(&self) -> String {
+        maliput_sys::api::rules::ffi::DiscreteValueRule_id(&self.discrete_value_rule)
+    }
+}
