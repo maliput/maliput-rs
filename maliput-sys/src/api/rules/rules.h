@@ -217,6 +217,14 @@ std::unique_ptr<std::vector<RelatedUniqueId>> DiscreteValueRuleDiscreteValue_rel
   return std::make_unique<std::vector<RelatedUniqueId>>(std::move(related_unique_ids));
 }
 
+rust::String DiscreteValueRule_id(const DiscreteValueRule& rule) {
+  return rule.id().string();
+}
+
+rust::String DiscreteValueRule_type_id(const DiscreteValueRule& rule) {
+  return rule.type_id().string();
+}
+
 }  // namespace rules
 }  // namespace api
 }  // namespace maliput

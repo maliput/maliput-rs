@@ -174,5 +174,7 @@ pub mod ffi {
         // DiscreteValueRule bindings definitions.
         type DiscreteValueRule;
         fn states(self: &DiscreteValueRule) -> &CxxVector<DiscreteValueRuleDiscreteValue>;
+        fn DiscreteValueRule_id(rule: &DiscreteValueRule) -> String;
+        fn DiscreteValueRule_type_id(rule: &DiscreteValueRule) -> String;
     }
 }
