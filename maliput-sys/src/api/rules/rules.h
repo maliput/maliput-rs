@@ -185,6 +185,38 @@ rust::String UniqueBulbGroupId_bulb_group_id(const UniqueBulbGroupId& id) {
   return id.bulb_group_id().string();
 }
 
+rust::String DiscreteValueRuleDiscreteValue_value(const DiscreteValueRuleDiscreteValue& discrete_value) {
+  return rust::String(discrete_value.value);
+}
+
+rust::i32 DiscreteValueRuleDiscreteValue_severity(const DiscreteValueRuleDiscreteValue& discrete_value) {
+  return discrete_value.severity;
+}
+
+std::unique_ptr<std::vector<RelatedRule>> DiscreteValueRuleDiscreteValue_related_rules(const DiscreteValueRuleDiscreteValue& discrete_value) {
+  std::vector<RelatedRule> related_rules;
+  for (const auto& related_rule : discrete_value.related_rules) {
+    rust::Vec<rust::String> rule_ids;
+    for (const auto& rule_id : related_rule.second) {
+      rule_ids.push_back({rule_id.string()});
+    }
+    related_rules.push_back({related_rule.first, rule_ids});
+  }
+  return std::make_unique<std::vector<RelatedRule>>(std::move(related_rules));
+}
+
+std::unique_ptr<std::vector<RelatedUniqueId>> DiscreteValueRuleDiscreteValue_related_unique_ids(const DiscreteValueRuleDiscreteValue& discrete_value) {
+  std::vector<RelatedUniqueId> related_unique_ids;
+  for (const auto& related_unique_id : discrete_value.related_unique_ids) {
+    rust::Vec<rust::String> unique_ids;
+    for (const auto& rule_id : related_unique_id.second) {
+      unique_ids.push_back({rule_id.string()});
+    }
+    related_unique_ids.push_back({related_unique_id.first, unique_ids});
+  }
+  return std::make_unique<std::vector<RelatedUniqueId>>(std::move(related_unique_ids));
+}
+
 }  // namespace rules
 }  // namespace api
 }  // namespace maliput

@@ -55,6 +55,22 @@ pub mod ffi {
     struct FloatWrapper {
         pub value: f64,
     }
+    /// Shared struct for pairs in a RelatedRules collection.
+    ///  - key: Group name of the rules.
+    ///  - value: Rule ids.
+    /// This is needed because maps can't be binded directly.
+    struct RelatedRule {
+        pub group_name: String,
+        pub rule_ids: Vec<String>,
+    }
+    /// Shared struct for pairs in a RelatedRules collection.
+    ///  - key: Group name.
+    ///  - value: Unique Ids.
+    /// This is needed because maps can't be binded directly.
+    struct RelatedUniqueId {
+        pub group_name: String,
+        pub unique_id: Vec<String>,
+    }
 
     #[repr(i32)]
     enum BulbColor {
@@ -78,6 +94,7 @@ pub mod ffi {
 
     unsafe extern "C++" {
         include!("api/rules/rules.h");
+        include!("api/rules/aliases.h");
 
         // Forward declarations
         #[namespace = "maliput::api"]
@@ -142,5 +159,20 @@ pub mod ffi {
         fn string(self: &UniqueBulbGroupId) -> &CxxString;
         fn UniqueBulbGroupId_traffic_light_id(id: &UniqueBulbGroupId) -> String;
         fn UniqueBulbGroupId_bulb_group_id(id: &UniqueBulbGroupId) -> String;
+
+        // DiscreteValueRule::DiscreteValue bindings definitions.
+        type DiscreteValueRuleDiscreteValue;
+        fn DiscreteValueRuleDiscreteValue_value(value: &DiscreteValueRuleDiscreteValue) -> String;
+        fn DiscreteValueRuleDiscreteValue_severity(value: &DiscreteValueRuleDiscreteValue) -> i32;
+        fn DiscreteValueRuleDiscreteValue_related_rules(
+            value: &DiscreteValueRuleDiscreteValue,
+        ) -> UniquePtr<CxxVector<RelatedRule>>;
+        fn DiscreteValueRuleDiscreteValue_related_unique_ids(
+            value: &DiscreteValueRuleDiscreteValue,
+        ) -> UniquePtr<CxxVector<RelatedUniqueId>>;
+
+        // DiscreteValueRule bindings definitions.
+        type DiscreteValueRule;
+        fn states(self: &DiscreteValueRule) -> &CxxVector<DiscreteValueRuleDiscreteValue>;
     }
 }
