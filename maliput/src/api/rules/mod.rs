@@ -481,11 +481,17 @@ impl UniqueBulbGroupId {
     }
 }
 
+/// Interface for querying "rules of the road". This interface
+/// provides access to static information about a road network (i.e.,
+/// information determined prior to the beginning of a simulation). Some
+/// rule types may refer to additional dynamic information which will be
+/// provided by other interfaces.
 pub struct RoadRulebook<'a> {
     pub(super) road_rulebook: &'a maliput_sys::api::rules::ffi::RoadRulebook,
 }
 
 impl<'a> RoadRulebook<'a> {
+    /// Returns the DiscreteValueRule with the specified `id`.
     pub fn get_discrete_value_rule(&self, rule_id: &String) -> DiscreteValueRule {
         DiscreteValueRule {
             discrete_value_rule: maliput_sys::api::rules::ffi::RoadRulebook_GetDiscreteValueRule(
@@ -496,12 +502,35 @@ impl<'a> RoadRulebook<'a> {
     }
 }
 
+/// ## Rule
+///
+/// A Rule may have multiple states that affect agent behavior while it is
+/// driving through the rule's zone. The possible states of a Rule must be
+/// semantically coherent. The current state of a Rule is given by a
+/// [RuleStateProvider]. States can be:
+///
+/// - range based ([RangeValueRule]).
+/// - discrete ([DiscreteValueRule]).
+///
+/// ## DiscreteValueRule
+///
+/// [DiscreteValue]s are defined by a string value.
+/// Semantics of this rule are based on _all_ possible values that this
+/// [DiscreteValueRule::type_id] could have (as specified by RuleRegistry::FindRuleByType()),
+/// not only the subset of values that a specific instance of this rule can
+/// be in.
 pub struct DiscreteValueRule {
     discrete_value_rule: cxx::UniquePtr<maliput_sys::api::rules::ffi::DiscreteValueRule>,
 }
 
 impl DiscreteValueRule {
+    /// Returns the Id of the rule as a string.
     pub fn id(&self) -> String {
         maliput_sys::api::rules::ffi::DiscreteValueRule_id(&self.discrete_value_rule)
+    }
+    /// Returns the type of the rule as a string.
+    /// Example: "right-of-way-rule-type-id", "direction-usage-rule-type-id"
+    pub fn type_id(&self) -> String {
+        maliput_sys::api::rules::ffi::DiscreteValueRule_type_id(&self.discrete_value_rule)
     }
 }

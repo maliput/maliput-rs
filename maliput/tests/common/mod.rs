@@ -68,6 +68,47 @@ pub fn create_t_shape_road_network_with_books() -> RoadNetwork {
 }
 
 #[allow(dead_code)]
+pub fn create_loop_road_pedestrian_crosswalk_road_network_with_books() -> RoadNetwork {
+    let rm = ResourceManager::new();
+    let loop_road_pedestrian_crosswalk_xodr_path = rm
+        .get_resource_path_by_name("maliput_malidrive", "LoopRoadPedestrianCrosswalk.xodr")
+        .unwrap();
+    let loop_road_pedestrian_crosswalk_books_path = rm
+        .get_resource_path_by_name("maliput_malidrive", "LoopRoadPedestrianCrosswalk.yaml")
+        .unwrap();
+
+    let road_network_properties = HashMap::from([
+        ("road_geometry_id", "my_rg_from_rust"),
+        (
+            "opendrive_file",
+            loop_road_pedestrian_crosswalk_xodr_path.to_str().unwrap(),
+        ),
+        (
+            "road_rule_book",
+            loop_road_pedestrian_crosswalk_books_path.to_str().unwrap(),
+        ),
+        (
+            "rule_registry",
+            loop_road_pedestrian_crosswalk_books_path.to_str().unwrap(),
+        ),
+        (
+            "traffic_light_book",
+            loop_road_pedestrian_crosswalk_books_path.to_str().unwrap(),
+        ),
+        (
+            "phase_ring_book",
+            loop_road_pedestrian_crosswalk_books_path.to_str().unwrap(),
+        ),
+        (
+            "intersection_book",
+            loop_road_pedestrian_crosswalk_books_path.to_str().unwrap(),
+        ),
+        ("linear_tolerance", "0.01"),
+    ]);
+    RoadNetwork::new("maliput_malidrive", &road_network_properties)
+}
+
+#[allow(dead_code)]
 pub fn assert_inertial_position_equality(
     left: &maliput::api::InertialPosition,
     right: &maliput::api::InertialPosition,
