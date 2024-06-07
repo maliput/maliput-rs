@@ -32,6 +32,7 @@
 #include <memory>
 #include <vector>
 
+#include <maliput/api/rules/road_rulebook.h>
 #include <maliput/api/rules/traffic_lights.h>
 #include <maliput/api/rules/traffic_light_book.h>
 #include <maliput/math/vector.h>
@@ -191,6 +192,10 @@ rust::String DiscreteValueRuleDiscreteValue_value(const DiscreteValueRuleDiscret
 
 rust::i32 DiscreteValueRuleDiscreteValue_severity(const DiscreteValueRuleDiscreteValue& discrete_value) {
   return discrete_value.severity;
+}
+
+std::unique_ptr<DiscreteValueRule> RoadRulebook_GetDiscreteValueRule(const RoadRulebook& road_rulebook, const rust::String& id) {
+  return std::make_unique<DiscreteValueRule>(road_rulebook.GetDiscreteValueRule(Rule::Id{std::string(id)}));
 }
 
 std::unique_ptr<std::vector<RelatedRule>> DiscreteValueRuleDiscreteValue_related_rules(const DiscreteValueRuleDiscreteValue& discrete_value) {

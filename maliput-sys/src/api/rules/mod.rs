@@ -160,6 +160,10 @@ pub mod ffi {
         fn UniqueBulbGroupId_traffic_light_id(id: &UniqueBulbGroupId) -> String;
         fn UniqueBulbGroupId_bulb_group_id(id: &UniqueBulbGroupId) -> String;
 
+        // RoadRulebook bindings definitions.
+        type RoadRulebook;
+        fn RoadRulebook_GetDiscreteValueRule(book: &RoadRulebook, rule_id: &String) -> UniquePtr<DiscreteValueRule>;
+
         // DiscreteValueRule::DiscreteValue bindings definitions.
         type DiscreteValueRuleDiscreteValue;
         fn DiscreteValueRuleDiscreteValue_value(value: &DiscreteValueRuleDiscreteValue) -> String;

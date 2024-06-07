@@ -55,6 +55,8 @@ pub mod ffi {
         #[namespace = "maliput::math"]
         type RollPitchYaw = crate::math::ffi::RollPitchYaw;
         #[namespace = "maliput::api::rules"]
+        type RoadRulebook = crate::api::rules::ffi::RoadRulebook;
+        #[namespace = "maliput::api::rules"]
         type TrafficLightBook = crate::api::rules::ffi::TrafficLightBook;
 
         #[namespace = "maliput::api"]
@@ -63,6 +65,7 @@ pub mod ffi {
         fn road_geometry(self: &RoadNetwork) -> *const RoadGeometry;
         fn intersection_book(self: Pin<&mut RoadNetwork>) -> *mut IntersectionBook;
         fn traffic_light_book(self: &RoadNetwork) -> *const TrafficLightBook;
+        fn rulebook(self: &RoadNetwork) -> *const RoadRulebook;
 
         // RoadGeometry bindings definitions.
         type RoadGeometry;
