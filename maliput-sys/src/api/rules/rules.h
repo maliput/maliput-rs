@@ -44,6 +44,33 @@
 namespace maliput {
 namespace api {
 namespace rules {
+namespace {
+
+std::unique_ptr<std::vector<RelatedRule>> related_rules_from_state(const Rule::State& rule_state) {
+  std::vector<RelatedRule> related_rules;
+  for (const auto& related_rule : rule_state.related_rules) {
+    rust::Vec<rust::String> rule_ids;
+    for (const auto& rule_id : related_rule.second) {
+      rule_ids.push_back({rule_id.string()});
+    }
+    related_rules.push_back({related_rule.first, rule_ids});
+  }
+  return std::make_unique<std::vector<RelatedRule>>(std::move(related_rules));
+}
+
+std::unique_ptr<std::vector<RelatedUniqueId>> related_unique_ids_from_state(const Rule::State& rule_state) {
+  std::vector<RelatedUniqueId> related_unique_ids;
+  for (const auto& related_unique_id : rule_state.related_unique_ids) {
+    rust::Vec<rust::String> unique_ids;
+    for (const auto& rule_id : related_unique_id.second) {
+      unique_ids.push_back({rule_id.string()});
+    }
+    related_unique_ids.push_back({related_unique_id.first, unique_ids});
+  }
+  return std::make_unique<std::vector<RelatedUniqueId>>(std::move(related_unique_ids));
+}
+
+} // namespace
 
 std::unique_ptr<std::vector<ConstTrafficLightPtr>> TrafficLightBook_TrafficLights(const TrafficLightBook& traffic_light_book) {
   const auto traffic_lights_cpp = traffic_light_book.TrafficLights();
@@ -199,27 +226,11 @@ std::unique_ptr<DiscreteValueRule> RoadRulebook_GetDiscreteValueRule(const RoadR
 }
 
 std::unique_ptr<std::vector<RelatedRule>> DiscreteValueRuleDiscreteValue_related_rules(const DiscreteValueRuleDiscreteValue& discrete_value) {
-  std::vector<RelatedRule> related_rules;
-  for (const auto& related_rule : discrete_value.related_rules) {
-    rust::Vec<rust::String> rule_ids;
-    for (const auto& rule_id : related_rule.second) {
-      rule_ids.push_back({rule_id.string()});
-    }
-    related_rules.push_back({related_rule.first, rule_ids});
-  }
-  return std::make_unique<std::vector<RelatedRule>>(std::move(related_rules));
+  return related_rules_from_state(discrete_value);
 }
 
 std::unique_ptr<std::vector<RelatedUniqueId>> DiscreteValueRuleDiscreteValue_related_unique_ids(const DiscreteValueRuleDiscreteValue& discrete_value) {
-  std::vector<RelatedUniqueId> related_unique_ids;
-  for (const auto& related_unique_id : discrete_value.related_unique_ids) {
-    rust::Vec<rust::String> unique_ids;
-    for (const auto& rule_id : related_unique_id.second) {
-      unique_ids.push_back({rule_id.string()});
-    }
-    related_unique_ids.push_back({related_unique_id.first, unique_ids});
-  }
-  return std::make_unique<std::vector<RelatedUniqueId>>(std::move(related_unique_ids));
+  return related_unique_ids_from_state(discrete_value);
 }
 
 rust::String DiscreteValueRule_id(const DiscreteValueRule& rule) {
@@ -228,6 +239,42 @@ rust::String DiscreteValueRule_id(const DiscreteValueRule& rule) {
 
 rust::String DiscreteValueRule_type_id(const DiscreteValueRule& rule) {
   return rule.type_id().string();
+}
+
+rust::String RangeValueRuleRange_description(const RangeValueRuleRange& range) {
+  return rust::String(range.description);
+}
+
+rust::f64 RangeValueRuleRange_min(const RangeValueRuleRange& range) {
+  return range.min;
+}
+
+rust::f64 RangeValueRuleRange_max(const RangeValueRuleRange& range) {
+  return range.max;
+}
+
+rust::i32 RangeValueRuleRange_severity(const RangeValueRuleRange& range) {
+  return range.severity;
+}
+
+std::unique_ptr<std::vector<RelatedRule>> RangeValueRuleRange_related_rules(const RangeValueRuleRange& range) {
+  return related_rules_from_state(range);
+}
+
+std::unique_ptr<std::vector<RelatedUniqueId>> RangeValueRuleRange_related_unique_ids(const RangeValueRuleRange& range) {
+  return related_unique_ids_from_state(range);
+}
+
+rust::String RangeValueRule_id(const RangeValueRule& rule) {
+  return rule.id().string();
+}
+
+rust::String RangeValueRule_type_id(const RangeValueRule& rule) {
+  return rule.type_id().string();
+}
+
+std::unique_ptr<RangeValueRule> RoadRulebook_GetRangeValueRule(const RoadRulebook& road_rulebook, const rust::String& id) {
+  return std::make_unique<RangeValueRule>(road_rulebook.GetRangeValueRule(Rule::Id{std::string(id)}));
 }
 
 }  // namespace rules

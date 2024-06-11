@@ -492,12 +492,26 @@ pub struct RoadRulebook<'a> {
 
 impl<'a> RoadRulebook<'a> {
     /// Returns the DiscreteValueRule with the specified `id`.
+    /// ## Arguments
+    /// * `rule_id` - The id of the rule.
+    /// ## Return
+    /// The DiscreteValueRule with the given id.
     pub fn get_discrete_value_rule(&self, rule_id: &String) -> DiscreteValueRule {
         DiscreteValueRule {
             discrete_value_rule: maliput_sys::api::rules::ffi::RoadRulebook_GetDiscreteValueRule(
                 self.road_rulebook,
                 rule_id,
             ),
+        }
+    }
+    /// Returns the RangeValueRule with the specified `id`.
+    /// ## Arguments
+    /// * `rule_id` - The id of the rule.
+    /// ## Return
+    /// The RangeValueRule with the given id.
+    pub fn get_range_value_rule(&self, rule_id: &String) -> RangeValueRule {
+        RangeValueRule {
+            range_value_rule: maliput_sys::api::rules::ffi::RoadRulebook_GetRangeValueRule(self.road_rulebook, rule_id),
         }
     }
 }
@@ -532,5 +546,38 @@ impl DiscreteValueRule {
     /// Example: "right-of-way-rule-type-id", "direction-usage-rule-type-id"
     pub fn type_id(&self) -> String {
         maliput_sys::api::rules::ffi::DiscreteValueRule_type_id(&self.discrete_value_rule)
+    }
+}
+
+/// ## Rule
+///
+/// A Rule may have multiple states that affect agent behavior while it is
+/// driving through the rule's zone. The possible states of a Rule must be
+/// semantically coherent. The current state of a Rule is given by a
+/// [RuleStateProvider]. States can be:
+///
+/// - range based ([RangeValueRule]).
+/// - discrete ([DiscreteValueRule]).
+///
+/// ## RangeValueRule
+///
+/// [Range]s describe a numeric range based rule.
+/// Ranges are closed and continuous, defined by a minimum and maximum quantity.
+/// When only one extreme is formally defined, the other should take a
+/// semantically correct value. For example, if a speed limit only specifies a
+/// maximum value, the minimum value is typically zero.
+pub struct RangeValueRule {
+    range_value_rule: cxx::UniquePtr<maliput_sys::api::rules::ffi::RangeValueRule>,
+}
+
+impl RangeValueRule {
+    /// Returns the Id of the rule as a string.
+    pub fn id(&self) -> String {
+        maliput_sys::api::rules::ffi::RangeValueRule_id(&self.range_value_rule)
+    }
+    /// Returns the type of the rule as a string.
+    /// Example: "right-of-way-rule-type-id", "direction-usage-rule-type-id"
+    pub fn type_id(&self) -> String {
+        maliput_sys::api::rules::ffi::RangeValueRule_type_id(&self.range_value_rule)
     }
 }
