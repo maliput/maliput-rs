@@ -69,7 +69,7 @@ pub mod ffi {
     /// This is needed because maps can't be binded directly.
     struct RelatedUniqueId {
         pub group_name: String,
-        pub unique_id: Vec<String>,
+        pub unique_ids: Vec<String>,
     }
 
     #[repr(i32)]
@@ -187,7 +187,10 @@ pub mod ffi {
         fn RangeValueRuleRange_description(range: &RangeValueRuleRange) -> String;
         fn RangeValueRuleRange_min(range: &RangeValueRuleRange) -> f64;
         fn RangeValueRuleRange_max(range: &RangeValueRuleRange) -> f64;
-
+        fn RangeValueRuleRange_severity(range: &RangeValueRuleRange) -> i32;
+        fn RangeValueRuleRange_related_rules(range: &RangeValueRuleRange) -> UniquePtr<CxxVector<RelatedRule>>;
+        fn RangeValueRuleRange_related_unique_ids(range: &RangeValueRuleRange)
+            -> UniquePtr<CxxVector<RelatedUniqueId>>;
         // RangeValueRule::Range bindings definitions.
         type RangeValueRule;
         fn RangeValueRule_id(rule: &RangeValueRule) -> String;
