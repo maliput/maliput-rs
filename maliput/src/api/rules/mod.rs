@@ -547,6 +547,27 @@ impl DiscreteValueRule {
     pub fn type_id(&self) -> String {
         maliput_sys::api::rules::ffi::DiscreteValueRule_type_id(&self.discrete_value_rule)
     }
+    /// Returns a [LaneSRoute] that represents the zone that the rule applies to.
+    pub fn zone(&self) {
+        unimplemented!("Not yet implemented")
+    }
+    /// Returns the states of the rule.
+    pub fn states(&self) -> Vec<DiscreteValue> {
+        let states_cpp = &self.discrete_value_rule.states();
+        states_cpp
+            .into_iter()
+            .map(|dv| DiscreteValue {
+                rule_state: RuleStateBase {
+                    severity: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_severity(dv),
+                    related_rules: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_related_rules(dv),
+                    related_unique_ids: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_related_unique_ids(
+                        dv,
+                    ),
+                },
+                value: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_value(dv),
+            })
+            .collect::<Vec<DiscreteValue>>()
+    }
 }
 
 /// ## Rule
@@ -579,5 +600,123 @@ impl RangeValueRule {
     /// Example: "right-of-way-rule-type-id", "direction-usage-rule-type-id"
     pub fn type_id(&self) -> String {
         maliput_sys::api::rules::ffi::RangeValueRule_type_id(&self.range_value_rule)
+    }
+    /// Returns a [LaneSRoute] that represents the zone that the rule applies to.
+    pub fn zone(&self) {
+        unimplemented!("Not yet implemented")
+    }
+    /// Returns the states of the rule.
+    pub fn states(&self) -> Vec<Range> {
+        let states_cpp = &self.range_value_rule.states();
+        states_cpp
+            .into_iter()
+            .map(|r| Range {
+                rule_state: RuleStateBase {
+                    severity: maliput_sys::api::rules::ffi::RangeValueRuleRange_severity(r),
+                    related_rules: maliput_sys::api::rules::ffi::RangeValueRuleRange_related_rules(r),
+                    related_unique_ids: maliput_sys::api::rules::ffi::RangeValueRuleRange_related_unique_ids(r),
+                },
+                description: maliput_sys::api::rules::ffi::RangeValueRuleRange_description(r),
+                min: maliput_sys::api::rules::ffi::RangeValueRuleRange_min(r),
+                max: maliput_sys::api::rules::ffi::RangeValueRuleRange_max(r),
+            })
+            .collect::<Vec<Range>>()
+    }
+}
+
+/// Defines a base state for a rule.
+///
+/// ## RuleStateBase
+///
+/// - `severity` - The severity of the rule state.
+/// - `related_rules` - A map of related rules. The key is the group name and the value is a vector of rule ids.
+/// - `related_unique_ids` - A map of related unique ids. The key is the group name and the value is a vector of unique ids.
+///
+/// See [DiscreteValueRule] and [RangeValueRule] for more information.
+pub struct RuleStateBase {
+    severity: i32,
+    related_rules: cxx::UniquePtr<cxx::CxxVector<maliput_sys::api::rules::ffi::RelatedRule>>,
+    related_unique_ids: cxx::UniquePtr<cxx::CxxVector<maliput_sys::api::rules::ffi::RelatedUniqueId>>,
+}
+
+/// Defines the interface for a rule state.
+/// ## To implement by the trait user.
+/// - `get_rule_state` - Returns the base state of the rule.
+///   To be implemented by the concrete rule state.
+pub trait RuleState {
+    /// Returns the base state of the rule.
+    /// To be implemented by the concrete rule state.
+    fn get_rule_state(&self) -> &RuleStateBase;
+
+    /// Returns the severity of the rule state.
+    fn severity(&self) -> i32 {
+        self.get_rule_state().severity
+    }
+
+    /// Returns a map of related unique ids. The key is the group name and the value is a vector of unique ids.
+    fn related_rules(&self) -> std::collections::HashMap<&String, &Vec<String>> {
+        self.get_rule_state()
+            .related_rules
+            .iter()
+            .map(|rr| (&rr.group_name, &rr.rule_ids))
+            .collect::<std::collections::HashMap<&String, &Vec<String>>>()
+    }
+    /// Returns a map of related unique ids. The key is the group name and the value is a vector of unique ids.
+    fn related_unique_ids(&self) -> std::collections::HashMap<&String, &Vec<String>> {
+        self.get_rule_state()
+            .related_unique_ids
+            .iter()
+            .map(|rui| (&rui.group_name, &rui.unique_ids))
+            .collect::<std::collections::HashMap<&String, &Vec<String>>>()
+    }
+}
+
+/// Defines a discrete value for a [DiscreteValueRule].
+/// It extends the [RuleStateBase] with the value of the discrete value.
+pub struct DiscreteValue {
+    rule_state: RuleStateBase,
+    value: String,
+}
+
+impl RuleState for DiscreteValue {
+    fn get_rule_state(&self) -> &RuleStateBase {
+        &self.rule_state
+    }
+}
+
+impl DiscreteValue {
+    /// Returns the value of the discrete value.
+    pub fn value(&self) -> &String {
+        &self.value
+    }
+}
+
+/// Defines a range value for a [RangeValueRule].
+/// It extends the [RuleStateBase] with the description, and min and max values of the range.
+pub struct Range {
+    rule_state: RuleStateBase,
+    description: String,
+    min: f64,
+    max: f64,
+}
+
+impl RuleState for Range {
+    fn get_rule_state(&self) -> &RuleStateBase {
+        &self.rule_state
+    }
+}
+
+impl Range {
+    /// Returns the description of the range value.
+    pub fn description(&self) -> &String {
+        &self.description
+    }
+    /// Returns the minimum value of the range.
+    pub fn min(&self) -> f64 {
+        self.min
+    }
+    /// Returns the maximum value of the range.
+    pub fn max(&self) -> f64 {
+        self.max
     }
 }
