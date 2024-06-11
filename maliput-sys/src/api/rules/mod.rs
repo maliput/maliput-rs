@@ -163,6 +163,7 @@ pub mod ffi {
         // RoadRulebook bindings definitions.
         type RoadRulebook;
         fn RoadRulebook_GetDiscreteValueRule(book: &RoadRulebook, rule_id: &String) -> UniquePtr<DiscreteValueRule>;
+        fn RoadRulebook_GetRangeValueRule(book: &RoadRulebook, rule_id: &String) -> UniquePtr<RangeValueRule>;
 
         // DiscreteValueRule::DiscreteValue bindings definitions.
         type DiscreteValueRuleDiscreteValue;
@@ -180,5 +181,17 @@ pub mod ffi {
         fn states(self: &DiscreteValueRule) -> &CxxVector<DiscreteValueRuleDiscreteValue>;
         fn DiscreteValueRule_id(rule: &DiscreteValueRule) -> String;
         fn DiscreteValueRule_type_id(rule: &DiscreteValueRule) -> String;
+
+        // RangeValueRule::Range bindings definitions.
+        type RangeValueRuleRange;
+        fn RangeValueRuleRange_description(range: &RangeValueRuleRange) -> String;
+        fn RangeValueRuleRange_min(range: &RangeValueRuleRange) -> f64;
+        fn RangeValueRuleRange_max(range: &RangeValueRuleRange) -> f64;
+
+        // RangeValueRule::Range bindings definitions.
+        type RangeValueRule;
+        fn RangeValueRule_id(rule: &RangeValueRule) -> String;
+        fn RangeValueRule_type_id(rule: &RangeValueRule) -> String;
+        fn states(self: &RangeValueRule) -> &CxxVector<RangeValueRuleRange>;
     }
 }

@@ -29,6 +29,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 #include <maliput/api/rules/discrete_value_rule.h>
+#include <maliput/api/rules/range_value_rule.h>
 
 #include <memory>
 #include <vector>
@@ -39,6 +40,7 @@ namespace rules {
 
 // Workaround for supporting nested types: https://github.com/dtolnay/cxx/issues/1198
 using DiscreteValueRuleDiscreteValue = DiscreteValueRule::DiscreteValue;
+using RangeValueRuleRange = RangeValueRule::Range;
 
 }  // namespace rules
 }  // namespace api
