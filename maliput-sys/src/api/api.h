@@ -296,6 +296,15 @@ std::unique_ptr<LaneSRange> LaneSRange_GetIntersection(const LaneSRange& lane_s_
   return nullptr;
 }
 
+std::unique_ptr<LaneSRoute> LaneSRoute_new(const std::vector<ConstLaneSRangeRef>& lane_s_ranges) {
+  std::vector<LaneSRange> lane_s_ranges_cpp;
+  lane_s_ranges_cpp.reserve(lane_s_ranges.size());
+  for (const auto& lane_s_range : lane_s_ranges) {
+    lane_s_ranges_cpp.push_back(LaneSRange{lane_s_range.lane_s_range.lane_id(), lane_s_range.lane_s_range.s_range()});
+  }
+  return std::make_unique<LaneSRoute>(lane_s_ranges_cpp);
+}
+
 std::unique_ptr<LaneEnd> LaneEnd_new(const Lane* lane, bool start) {
   return std::make_unique<LaneEnd>(lane, start ? LaneEnd::kStart : LaneEnd::kFinish);
 }
