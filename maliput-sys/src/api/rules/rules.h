@@ -241,6 +241,10 @@ rust::String DiscreteValueRule_type_id(const DiscreteValueRule& rule) {
   return rule.type_id().string();
 }
 
+std::unique_ptr<LaneSRoute> DiscreteValueRule_zone(const DiscreteValueRule& rule) {
+  return std::make_unique<LaneSRoute>(rule.zone());
+}
+
 rust::String RangeValueRuleRange_description(const RangeValueRuleRange& range) {
   return rust::String(range.description);
 }
@@ -271,6 +275,10 @@ rust::String RangeValueRule_id(const RangeValueRule& rule) {
 
 rust::String RangeValueRule_type_id(const RangeValueRule& rule) {
   return rule.type_id().string();
+}
+
+std::unique_ptr<LaneSRoute> RangeValueRule_zone(const RangeValueRule& rule) {
+  return std::make_unique<LaneSRoute>(rule.zone());
 }
 
 std::unique_ptr<RangeValueRule> RoadRulebook_GetRangeValueRule(const RoadRulebook& road_rulebook, const rust::String& id) {

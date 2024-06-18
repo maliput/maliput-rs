@@ -35,6 +35,7 @@ mod common;
 
 #[test]
 fn range_value_rule_test_api() {
+    static TOLERANCE: f64 = 1e-9;
     use maliput::api::rules::RuleState;
 
     let road_network = common::create_loop_road_pedestrian_crosswalk_road_network_with_books();
@@ -45,6 +46,9 @@ fn range_value_rule_test_api() {
     let rule = book.get_range_value_rule(&expected_rule_id);
     assert_eq!(rule.id(), expected_rule_id);
     assert_eq!(rule.type_id(), expected_type_id);
+    let zone = rule.zone();
+    let expected_zone_length = 15.;
+    assert!((zone.length() - expected_zone_length).abs() < TOLERANCE);
 
     let states = rule.states();
     assert_eq!(states.len(), 1); // Only one speed limit state

@@ -548,8 +548,9 @@ impl DiscreteValueRule {
         maliput_sys::api::rules::ffi::DiscreteValueRule_type_id(&self.discrete_value_rule)
     }
     /// Returns a [LaneSRoute] that represents the zone that the rule applies to.
-    pub fn zone(&self) {
-        unimplemented!("Not yet implemented")
+    pub fn zone(&self) -> crate::api::LaneSRoute {
+        let lane_s_route = maliput_sys::api::rules::ffi::DiscreteValueRule_zone(&self.discrete_value_rule);
+        crate::api::LaneSRoute { lane_s_route }
     }
     /// Returns the states of the rule.
     pub fn states(&self) -> Vec<DiscreteValue> {
@@ -602,8 +603,9 @@ impl RangeValueRule {
         maliput_sys::api::rules::ffi::RangeValueRule_type_id(&self.range_value_rule)
     }
     /// Returns a [LaneSRoute] that represents the zone that the rule applies to.
-    pub fn zone(&self) {
-        unimplemented!("Not yet implemented")
+    pub fn zone(&self) -> crate::api::LaneSRoute {
+        let lane_s_route = maliput_sys::api::rules::ffi::RangeValueRule_zone(&self.range_value_rule);
+        crate::api::LaneSRoute { lane_s_route }
     }
     /// Returns the states of the rule.
     pub fn states(&self) -> Vec<Range> {
