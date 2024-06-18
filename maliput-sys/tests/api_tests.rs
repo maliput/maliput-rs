@@ -353,4 +353,40 @@ mod api_test {
             assert_eq!(s_range.s1(), 2.0);
         }
     }
+
+    mod lane_s_route_test {
+        use maliput_sys::api::ffi::ConstLaneSRangeRef;
+        use maliput_sys::api::ffi::LaneSRange_lane_id;
+        use maliput_sys::api::ffi::LaneSRange_new;
+        use maliput_sys::api::ffi::LaneSRoute_new;
+        use maliput_sys::api::ffi::SRange_new;
+        #[test]
+        fn lane_s_route_api() {
+            let s_range = SRange_new(1.0, 2.0);
+            let lane_id = String::from("0_0_1");
+            let lane_s_range_1 = LaneSRange_new(&lane_id, &s_range);
+            let lane_id = String::from("1_0_1");
+            let lane_s_range_2 = LaneSRange_new(&lane_id, &s_range);
+
+            let mut v = cxx::CxxVector::new();
+            v.as_mut().unwrap().push(ConstLaneSRangeRef {
+                lane_s_range: &lane_s_range_1,
+            });
+            v.as_mut().unwrap().push(ConstLaneSRangeRef {
+                lane_s_range: &lane_s_range_2,
+            });
+            let lane_s_route = LaneSRoute_new(&v);
+            assert!(!lane_s_route.is_null());
+            // Ranges
+            let ranges = lane_s_route.ranges();
+            assert_eq!(ranges.len(), 2);
+            assert_eq!(LaneSRange_lane_id(ranges.get(0).expect("")), "0_0_1");
+            assert_eq!(LaneSRange_lane_id(ranges.get(1).expect("")), "1_0_1");
+            // Length
+            assert_eq!(lane_s_route.length(), 2.0);
+            // Intersects
+            let lane_s_route_b = LaneSRoute_new(&v);
+            assert!(lane_s_route.Intersects(&lane_s_route_b, 1e-3));
+        }
+    }
 }

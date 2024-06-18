@@ -1143,6 +1143,69 @@ impl LaneSRange {
     }
 }
 
+/// A route, possibly spanning multiple (end-to-end) lanes.
+///
+/// The sequence of [LaneSRange]s should be contiguous by either presenting
+/// laterally adjacent [LaneSRange]s, or consecutive [LaneSRange]s. (In other words,
+/// taken as a Lane-space path with r=0 and h=0, it should present a
+/// G1-continuous curve.)
+pub struct LaneSRoute {
+    lane_s_route: cxx::UniquePtr<maliput_sys::api::ffi::LaneSRoute>,
+}
+
+impl LaneSRoute {
+    /// Create a new `LaneSRoute` with the given `ranges`.
+    ///
+    /// ## Arguments
+    /// * `ranges` - A vector of [LaneSRange] to create the [LaneSRoute].
+    pub fn new(ranges: Vec<LaneSRange>) -> LaneSRoute {
+        let mut lane_s_ranges_cpp = cxx::CxxVector::new();
+        for range in &ranges {
+            lane_s_ranges_cpp
+                .as_mut()
+                .unwrap()
+                .push(maliput_sys::api::ffi::ConstLaneSRangeRef {
+                    lane_s_range: &range.lane_s_range,
+                });
+        }
+        LaneSRoute {
+            lane_s_route: maliput_sys::api::ffi::LaneSRoute_new(&lane_s_ranges_cpp),
+        }
+    }
+
+    /// Returns the sequence of [LaneSRange]s.
+    pub fn ranges(&self) -> Vec<LaneSRange> {
+        let mut ranges = Vec::new();
+        let lane_s_ranges = self.lane_s_route.ranges();
+        for range in lane_s_ranges {
+            ranges.push(LaneSRange {
+                lane_s_range: maliput_sys::api::ffi::LaneSRange_new(
+                    &maliput_sys::api::ffi::LaneSRange_lane_id(range),
+                    maliput_sys::api::ffi::LaneSRange_s_range(range).as_ref().expect(""),
+                ),
+            })
+        }
+        ranges
+    }
+
+    /// Computes the accumulated length of all [LaneSRange]s.
+    pub fn length(&self) -> f64 {
+        self.lane_s_route.length()
+    }
+
+    /// Determines whether this LaneSRoute intersects with `other`.
+    ///
+    /// ## Arguments
+    /// * `other` - The other LaneSRoute to check for intersection.
+    /// * `tolerance` - The tolerance to use for intersection checks.
+    ///
+    /// ## Returns
+    /// * `true` if the two LaneSRoute intersect, `false` otherwise.
+    pub fn intersects(&self, other: &LaneSRoute, tolerance: f64) -> bool {
+        self.lane_s_route.Intersects(&other.lane_s_route, tolerance)
+    }
+}
+
 /// A specific endpoint of a specific Lane.
 /// This is analogous to the C++ maliput::api::LaneEnd implementation.
 pub enum LaneEnd<'a> {
@@ -1679,6 +1742,45 @@ mod tests {
                 crate::api::LaneSRange::new(&String::from("lane_test_2"), &crate::api::SRange::new(2.0, 4.0));
             let intersection = lane_s_range_1.get_intersection(&lane_s_range_2, 0.0);
             assert!(intersection.is_none());
+        }
+    }
+
+    mod lane_s_route {
+        // Helper function to create a LaneSRoute
+        // with two LaneSRange.
+        // ## Arguments
+        // * `s0_0` - The s0 of the first LaneSRange.
+        // * `s1_0` - The s1 of the first LaneSRange.
+        // * `s0_1` - The s0 of the second LaneSRange.
+        // * `s1_1` - The s1 of the second LaneSRange.
+        fn _get_lane_s_route(s0_0: f64, s1_0: f64, s0_1: f64, s1_1: f64) -> crate::api::LaneSRoute {
+            let ranges = vec![
+                crate::api::LaneSRange::new(&String::from("lane_test_1"), &crate::api::SRange::new(s0_0, s1_0)),
+                crate::api::LaneSRange::new(&String::from("lane_test_2"), &crate::api::SRange::new(s0_1, s1_1)),
+            ];
+            crate::api::LaneSRoute::new(ranges)
+        }
+        #[test]
+        fn lane_s_route_new() {
+            let lane_s_route = _get_lane_s_route(0., 10., 0., 15.);
+            assert!(!lane_s_route.lane_s_route.is_null());
+            let ranges = lane_s_route.ranges();
+            assert_eq!(ranges.len(), 2);
+            assert_eq!(ranges[0].lane_id(), "lane_test_1");
+            assert_eq!(ranges[1].lane_id(), "lane_test_2");
+        }
+        #[test]
+        fn lane_s_route_length() {
+            let lane_s_route = _get_lane_s_route(0., 10., 0., 15.);
+            assert_eq!(lane_s_route.length(), 25.0);
+        }
+        #[test]
+        fn lane_s_route_intersects() {
+            let lane_s_route = _get_lane_s_route(0., 10., 0., 10.);
+            let lane_s_route_that_intersects = _get_lane_s_route(5., 9., 5., 9.);
+            let lane_s_route_that_not_intersects = _get_lane_s_route(11., 20., 11., 20.);
+            assert!(lane_s_route.intersects(&lane_s_route_that_intersects, 0.0));
+            assert!(!lane_s_route.intersects(&lane_s_route_that_not_intersects, 0.0));
         }
     }
 }

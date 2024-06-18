@@ -42,6 +42,11 @@ pub mod ffi {
     struct MutIntersectionPtr {
         pub intersection: *mut Intersection,
     }
+    /// Shared struct for `LaneSRange` references.
+    /// This is needed because `&f` can't be used directly in the CxxVector collection.
+    struct ConstLaneSRangeRef<'a> {
+        pub lane_s_range: &'a LaneSRange,
+    }
 
     unsafe extern "C++" {
         include!("api/api.h");
@@ -232,6 +237,13 @@ pub mod ffi {
             other: &LaneSRange,
             tolerance: f64,
         ) -> UniquePtr<LaneSRange>;
+
+        // LaneSRoute bindings definitions
+        type LaneSRoute;
+        fn LaneSRoute_new(ranges: &CxxVector<ConstLaneSRangeRef>) -> UniquePtr<LaneSRoute>;
+        fn length(self: &LaneSRoute) -> f64;
+        fn Intersects(self: &LaneSRoute, other: &LaneSRoute, tolerance: f64) -> bool;
+        fn ranges(self: &LaneSRoute) -> &CxxVector<LaneSRange>;
 
         // LaneEnd bindings definitions
         type LaneEnd;
