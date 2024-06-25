@@ -101,6 +101,8 @@ pub mod ffi {
         type InertialPosition = crate::api::ffi::InertialPosition;
         #[namespace = "maliput::api"]
         type Rotation = crate::api::ffi::Rotation;
+        #[namespace = "maliput::api"]
+        type LaneSRoute = crate::api::ffi::LaneSRoute;
         #[namespace = "maliput::math"]
         type Vector3 = crate::math::ffi::Vector3;
 
@@ -181,6 +183,7 @@ pub mod ffi {
         fn states(self: &DiscreteValueRule) -> &CxxVector<DiscreteValueRuleDiscreteValue>;
         fn DiscreteValueRule_id(rule: &DiscreteValueRule) -> String;
         fn DiscreteValueRule_type_id(rule: &DiscreteValueRule) -> String;
+        fn DiscreteValueRule_zone(rule: &DiscreteValueRule) -> UniquePtr<LaneSRoute>;
 
         // RangeValueRule::Range bindings definitions.
         type RangeValueRuleRange;
@@ -195,6 +198,7 @@ pub mod ffi {
         type RangeValueRule;
         fn RangeValueRule_id(rule: &RangeValueRule) -> String;
         fn RangeValueRule_type_id(rule: &RangeValueRule) -> String;
+        fn RangeValueRule_zone(rule: &RangeValueRule) -> UniquePtr<LaneSRoute>;
         fn states(self: &RangeValueRule) -> &CxxVector<RangeValueRuleRange>;
     }
 }
