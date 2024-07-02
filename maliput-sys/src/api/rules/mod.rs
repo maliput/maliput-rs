@@ -162,10 +162,16 @@ pub mod ffi {
         fn UniqueBulbGroupId_traffic_light_id(id: &UniqueBulbGroupId) -> String;
         fn UniqueBulbGroupId_bulb_group_id(id: &UniqueBulbGroupId) -> String;
 
+        // QueryResults bindings definitions.
+        type QueryResults;
+        fn QueryResults_discrete_value_rules(query_results: &QueryResults) -> Vec<String>;
+        fn QueryResults_range_value_rules(query_results: &QueryResults) -> Vec<String>;
+
         // RoadRulebook bindings definitions.
         type RoadRulebook;
         fn RoadRulebook_GetDiscreteValueRule(book: &RoadRulebook, rule_id: &String) -> UniquePtr<DiscreteValueRule>;
         fn RoadRulebook_GetRangeValueRule(book: &RoadRulebook, rule_id: &String) -> UniquePtr<RangeValueRule>;
+        fn RoadRulebook_Rules(book: &RoadRulebook) -> UniquePtr<QueryResults>;
 
         // DiscreteValueRule::DiscreteValue bindings definitions.
         type DiscreteValueRuleDiscreteValue;

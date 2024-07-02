@@ -51,4 +51,20 @@ fn road_rulebook_test_api() {
     let rule = book.get_range_value_rule(&expected_rule_id);
     assert_eq!(rule.id(), expected_rule_id);
     assert_eq!(rule.type_id(), expected_type_id);
+
+    // Test rules method.
+    let rules = book.rules();
+    assert_eq!(rules.discrete_value_rules.len(), 40);
+    assert_eq!(rules.range_value_rules.len(), 16);
+    let dvr_rule = rules
+        .discrete_value_rules
+        .get("Vehicle-Stop-In-Zone-Behavior Rule Type/WestToEastSouth");
+    assert!(dvr_rule.is_some());
+    assert_eq!(
+        dvr_rule.unwrap().id(),
+        "Vehicle-Stop-In-Zone-Behavior Rule Type/WestToEastSouth"
+    );
+    let rvr_rule = rules.range_value_rules.get("Speed-Limit Rule Type/1_0_1_1");
+    assert!(rvr_rule.is_some());
+    assert_eq!(rvr_rule.unwrap().id(), "Speed-Limit Rule Type/1_0_1_1");
 }
