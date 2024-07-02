@@ -1095,7 +1095,7 @@ impl SRange {
 /// Directed longitudinal range of a specific Lane, identified by a LaneId.
 /// Wrapper around C++ implementation `maliput::api::LaneSRange`.
 pub struct LaneSRange {
-    lane_s_range: cxx::UniquePtr<maliput_sys::api::ffi::LaneSRange>,
+    pub(crate) lane_s_range: cxx::UniquePtr<maliput_sys::api::ffi::LaneSRange>,
 }
 
 impl LaneSRange {

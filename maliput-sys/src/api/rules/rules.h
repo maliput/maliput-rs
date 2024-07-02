@@ -288,6 +288,14 @@ std::unique_ptr<QueryResults> RoadRulebook_Rules(const RoadRulebook& road_rulebo
   return std::make_unique<QueryResults>(road_rulebook.Rules());
 }
 
+std::unique_ptr<QueryResults> RoadRulebook_FindRules(const RoadRulebook& road_rulebook, const rust::Vec<ConstLaneSRangeRef>& ranges, double tolerance) {
+  std::vector<LaneSRange> ranges_cpp;
+  for (const auto& range : ranges) {
+    ranges_cpp.push_back(range.lane_s_range);
+  }
+  return std::make_unique<QueryResults>(road_rulebook.FindRules(ranges_cpp, tolerance));
+}
+
 rust::Vec<rust::String> QueryResults_discrete_value_rules(const QueryResults& query_results) {
   const auto discrete_value_rules_cpp = query_results.discrete_value_rules;
   rust::Vec<rust::String> discrete_value_rules_id;

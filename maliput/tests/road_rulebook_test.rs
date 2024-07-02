@@ -67,4 +67,12 @@ fn road_rulebook_test_api() {
     let rvr_rule = rules.range_value_rules.get("Speed-Limit Rule Type/1_0_1_1");
     assert!(rvr_rule.is_some());
     assert_eq!(rvr_rule.unwrap().id(), "Speed-Limit Rule Type/1_0_1_1");
+
+    // Test find_rules method.
+    let lane_s_range_1 = maliput::api::LaneSRange::new(&String::from("1_0_1"), &maliput::api::SRange::new(0.0, 100.0));
+    let lane_s_range_2 = maliput::api::LaneSRange::new(&String::from("2_0_1"), &maliput::api::SRange::new(0.0, 200.0));
+    let ranges = vec![lane_s_range_1, lane_s_range_2];
+    let rules: maliput::api::rules::QueryResults = book.find_rules(&ranges, 1e-3);
+    assert_eq!(rules.discrete_value_rules.len(), 4);
+    assert_eq!(rules.range_value_rules.len(), 2);
 }

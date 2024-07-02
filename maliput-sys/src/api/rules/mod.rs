@@ -72,6 +72,14 @@ pub mod ffi {
         pub unique_ids: Vec<String>,
     }
 
+    /// Shared struct for `LaneSRange` constant reference.
+    /// Interestingly this was done at maliput::api module but
+    /// couldn't reference to that so it was necessary to
+    /// redefine it here.
+    struct ConstLaneSRangeRef<'a> {
+        pub lane_s_range: &'a LaneSRange,
+    }
+
     #[repr(i32)]
     enum BulbColor {
         kRed = 0,
@@ -101,6 +109,8 @@ pub mod ffi {
         type InertialPosition = crate::api::ffi::InertialPosition;
         #[namespace = "maliput::api"]
         type Rotation = crate::api::ffi::Rotation;
+        #[namespace = "maliput::api"]
+        type LaneSRange = crate::api::ffi::LaneSRange;
         #[namespace = "maliput::api"]
         type LaneSRoute = crate::api::ffi::LaneSRoute;
         #[namespace = "maliput::math"]
@@ -172,6 +182,11 @@ pub mod ffi {
         fn RoadRulebook_GetDiscreteValueRule(book: &RoadRulebook, rule_id: &String) -> UniquePtr<DiscreteValueRule>;
         fn RoadRulebook_GetRangeValueRule(book: &RoadRulebook, rule_id: &String) -> UniquePtr<RangeValueRule>;
         fn RoadRulebook_Rules(book: &RoadRulebook) -> UniquePtr<QueryResults>;
+        fn RoadRulebook_FindRules(
+            book: &RoadRulebook,
+            ranges: &Vec<ConstLaneSRangeRef>,
+            tolerance: f64,
+        ) -> UniquePtr<QueryResults>;
 
         // DiscreteValueRule::DiscreteValue bindings definitions.
         type DiscreteValueRuleDiscreteValue;

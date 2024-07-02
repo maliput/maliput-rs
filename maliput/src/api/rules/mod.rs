@@ -547,6 +547,36 @@ impl<'a> RoadRulebook<'a> {
             range_value_rules: rvr_map,
         }
     }
+
+    pub fn find_rules(&self, ranges: &Vec<super::LaneSRange>, tolerance: f64) -> QueryResults {
+        // let mut ranges_cpp = cxx::CxxVector::new().pin_mut();
+        let mut ranges_cpp = Vec::new();
+        for range in ranges {
+            ranges_cpp.push(maliput_sys::api::rules::ffi::ConstLaneSRangeRef {
+                lane_s_range: &range.lane_s_range,
+            });
+        }
+        let query_results_cpp =
+            maliput_sys::api::rules::ffi::RoadRulebook_FindRules(self.road_rulebook, &ranges_cpp, tolerance);
+
+        let discrete_value_rules_id =
+            maliput_sys::api::rules::ffi::QueryResults_discrete_value_rules(&query_results_cpp);
+        let range_value_rules_id = maliput_sys::api::rules::ffi::QueryResults_range_value_rules(&query_results_cpp);
+        let mut dvr_map = std::collections::HashMap::new();
+        for rule_id in discrete_value_rules_id {
+            let rule = self.get_discrete_value_rule(&rule_id);
+            dvr_map.insert(rule.id(), rule);
+        }
+        let mut rvr_map = std::collections::HashMap::new();
+        for rule_id in range_value_rules_id {
+            let rule = self.get_range_value_rule(&rule_id);
+            rvr_map.insert(rule.id(), rule);
+        }
+        QueryResults {
+            discrete_value_rules: dvr_map,
+            range_value_rules: rvr_map,
+        }
+    }
 }
 
 /// ## Rule
