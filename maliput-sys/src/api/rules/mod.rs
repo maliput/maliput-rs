@@ -29,6 +29,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #[cxx::bridge(namespace = "maliput::api::rules")]
+#[allow(clippy::needless_lifetimes)] // Clippy bug: https://github.com/rust-lang/rust-clippy/issues/5787
 pub mod ffi {
     /// Shared struct for `TrafficLight` pointers.
     /// This is needed because `*const` can't be used directly in the CxxVector collection.
@@ -182,6 +183,7 @@ pub mod ffi {
         fn RoadRulebook_GetDiscreteValueRule(book: &RoadRulebook, rule_id: &String) -> UniquePtr<DiscreteValueRule>;
         fn RoadRulebook_GetRangeValueRule(book: &RoadRulebook, rule_id: &String) -> UniquePtr<RangeValueRule>;
         fn RoadRulebook_Rules(book: &RoadRulebook) -> UniquePtr<QueryResults>;
+        #[allow(clippy::needless_lifetimes)]
         fn RoadRulebook_FindRules(
             book: &RoadRulebook,
             ranges: &Vec<ConstLaneSRangeRef>,
