@@ -30,6 +30,7 @@
 #pragma once
 #include <maliput/api/rules/discrete_value_rule.h>
 #include <maliput/api/rules/range_value_rule.h>
+#include <maliput/api/rules/road_rulebook.h>
 
 #include <memory>
 #include <vector>
@@ -41,6 +42,7 @@ namespace rules {
 // Workaround for supporting nested types: https://github.com/dtolnay/cxx/issues/1198
 using DiscreteValueRuleDiscreteValue = DiscreteValueRule::DiscreteValue;
 using RangeValueRuleRange = RangeValueRule::Range;
+using QueryResults = RoadRulebook::QueryResults;
 
 }  // namespace rules
 }  // namespace api

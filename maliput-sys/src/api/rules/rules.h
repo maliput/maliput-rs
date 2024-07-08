@@ -32,7 +32,6 @@
 #include <memory>
 #include <vector>
 
-#include <maliput/api/rules/road_rulebook.h>
 #include <maliput/api/rules/traffic_lights.h>
 #include <maliput/api/rules/traffic_light_book.h>
 #include <maliput/math/vector.h>
@@ -283,6 +282,38 @@ std::unique_ptr<LaneSRoute> RangeValueRule_zone(const RangeValueRule& rule) {
 
 std::unique_ptr<RangeValueRule> RoadRulebook_GetRangeValueRule(const RoadRulebook& road_rulebook, const rust::String& id) {
   return std::make_unique<RangeValueRule>(road_rulebook.GetRangeValueRule(Rule::Id{std::string(id)}));
+}
+
+std::unique_ptr<QueryResults> RoadRulebook_Rules(const RoadRulebook& road_rulebook) {
+  return std::make_unique<QueryResults>(road_rulebook.Rules());
+}
+
+std::unique_ptr<QueryResults> RoadRulebook_FindRules(const RoadRulebook& road_rulebook, const rust::Vec<ConstLaneSRangeRef>& ranges, double tolerance) {
+  std::vector<LaneSRange> ranges_cpp;
+  for (const auto& range : ranges) {
+    ranges_cpp.push_back(range.lane_s_range);
+  }
+  return std::make_unique<QueryResults>(road_rulebook.FindRules(ranges_cpp, tolerance));
+}
+
+rust::Vec<rust::String> QueryResults_discrete_value_rules(const QueryResults& query_results) {
+  const auto discrete_value_rules_cpp = query_results.discrete_value_rules;
+  rust::Vec<rust::String> discrete_value_rules_id;
+  discrete_value_rules_id.reserve(discrete_value_rules_cpp.size());
+  for (const auto discrete_value_rule : discrete_value_rules_cpp) {
+    discrete_value_rules_id.push_back({discrete_value_rule.first.string()});
+  }
+  return discrete_value_rules_id;
+}
+
+rust::Vec<rust::String> QueryResults_range_value_rules(const QueryResults& query_results) {
+  const auto range_value_rules_cpp = query_results.range_value_rules;
+  rust::Vec<rust::String> range_value_rules_id;
+  range_value_rules_id.reserve(range_value_rules_cpp.size());
+  for (const auto range_value_rule : range_value_rules_cpp) {
+    range_value_rules_id.push_back({range_value_rule.first.string()});
+  }
+  return range_value_rules_id;
 }
 
 }  // namespace rules
