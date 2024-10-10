@@ -44,6 +44,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rerun-if-changed=src/math/mod.rs");
     println!("cargo:rerun-if-changed=src/plugin/mod.rs");
     println!("cargo:rerun-if-changed=src/plugin/plugin.h");
+    println!("cargo:rerun-if-changed=src/utility/mod.rs");
+    println!("cargo:rerun-if-changed=src/utility/utility.h");
 
     let maliput_bin_path =
         PathBuf::from(env::var("DEP_MALIPUT_SDK_MALIPUT_BIN_PATH").expect("DEP_MALIPUT_SDK_MALIPUT_BIN_PATH not set"));
@@ -63,6 +65,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     cxx_build::bridges([
         "src/math/mod.rs",
+        "src/utility/mod.rs",
         "src/api/rules/mod.rs",
         "src/api/mod.rs",
         "src/plugin/mod.rs",
