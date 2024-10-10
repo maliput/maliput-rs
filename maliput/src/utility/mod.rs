@@ -28,48 +28,60 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use maliput_sys::api::ffi::RoadNetwork;
+use crate::api::RoadNetwork;
 use std::error::Error;
-use std::fs::{read_to_string, remove_file};
-use std::path::Path;
+use std::fs::{create_dir, read_to_string, remove_file};
+use std::path::{Path, PathBuf};
 
-type Features = maliput_sys::utility::ffi::Features;
+pub type Features = maliput_sys::utility::ffi::Features;
 
-// Generate a mesh obj file from the road network.
+/// Generates a Wavefront and a Material file from the `road_network`. These are written under the
+/// `dirpath` directory as `fileroot.obj` and `fileroot.mtl`.
+///
+/// Fails if `dirpath` doesn't exist, or if the files can't be created.
 pub fn generate_obj_file(road_network: &RoadNetwork, dirpath: &String, fileroot: &String, features: &Features) {
     unsafe {
-        maliput_sys::utility::ffi::Utility_GenerateObjFile(road_network, dirpath, fileroot, features);
+        maliput_sys::utility::ffi::Utility_GenerateObjFile(
+            road_network.rn.as_ref().map_or(std::ptr::null(), |ref_data| {
+                ref_data as *const maliput_sys::utility::ffi::RoadNetwork
+            }),
+            dirpath,
+            fileroot,
+            features,
+        );
     }
 }
 
 pub fn get_obj_description_from_road_network(
     road_network: &RoadNetwork,
-    output_directory: String,
+    features: &Features,
 ) -> Result<String, Box<dyn Error>> {
+    let output_directory = std::env::temp_dir().join("maliput");
+    if !output_directory.exists() {
+        let _ = create_dir(&output_directory);
+    }
+    let output_directory = path_to_string(output_directory)?;
     let file_name = String::from("road_network");
-    let features = Features {
-        max_grid_unit: 1.0,
-        min_grid_resolution: 5.0,
-        draw_stripes: true,
-        draw_arrows: true,
-        draw_lane_haze: true,
-        draw_branch_points: true,
-        draw_elevation_bounds: true,
-        off_grid_mesh_generation: false,
-        simplify_mesh_threshold: 0.,
-        stripe_width: 0.25,
-        stripe_elevation: 0.05,
-        arrow_elevation: 0.05,
-        lane_haze_elevation: 0.02,
-        branch_point_elevation: 0.5,
-        branch_point_height: 0.5,
-        origin: [0.; 3],
-        highlighted_segments: Vec::new(),
-    };
     generate_obj_file(road_network, &output_directory, &file_name, &features);
-    let full_path = Path::new(&output_directory);
-    let full_path = full_path.join(file_name + ".obj");
-    let obj_description = read_to_string(&full_path)?;
-    let _ = remove_file(full_path);
+    let output_directory = Path::new(&output_directory);
+    let obj_full_path = output_directory.join(create_file_name(file_name.as_str(), "obj"));
+    let obj_description = read_to_string(&obj_full_path)?;
+    remove_file(obj_full_path)?;
+    let mtl_full_path = output_directory.join(create_file_name(file_name.as_str(), "mtl"));
+    remove_file(mtl_full_path)?;
     Ok(obj_description)
+}
+
+/// Converts a `PathBuf` to a `String` object.
+fn path_to_string(path: PathBuf) -> Result<String, &'static str> {
+    Ok(path
+        .as_os_str()
+        .to_str()
+        .ok_or("Failed to get output directory.")?
+        .to_string())
+}
+
+/// Returns a `String` concatenating the `extension` to the `file_name`.
+fn create_file_name(file_name: &str, extension: &str) -> String {
+    format!("{}.{}", file_name, extension)
 }

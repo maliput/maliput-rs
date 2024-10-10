@@ -200,7 +200,7 @@ impl<'a> RoadGeometry<'a> {
 /// println!("num_junctions: {}", road_geometry.num_junctions());
 /// ```
 pub struct RoadNetwork {
-    rn: cxx::UniquePtr<maliput_sys::api::ffi::RoadNetwork>,
+    pub(crate) rn: cxx::UniquePtr<maliput_sys::api::ffi::RoadNetwork>,
 }
 
 impl RoadNetwork {
