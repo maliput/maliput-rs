@@ -35,10 +35,18 @@ use std::path::{Path, PathBuf};
 
 pub type Features = maliput_sys::utility::ffi::Features;
 
-/// Generates a Wavefront and a Material file from the `road_network`. These are written under the
-/// `dirpath` directory as `fileroot.obj` and `fileroot.mtl`.
+/// Generates a Wavefront and a Material file from the `road_network`.
 ///
-/// Fails if `dirpath` doesn't exist, or if the files can't be created.
+/// # Arguments
+///
+/// * `road_network` - The road network to generate the Wavefront file from.
+/// * `dirpath` - The directory where the files will be created.
+/// * `fileroot` - The base name of the files. This means without the extension.
+/// * `features` - Customization features for the Wavefront file.
+///
+/// # Details
+/// These are written under the `dirpath` directory as `fileroot.obj` and `fileroot.mtl`.
+/// In case `dirpath` doesn't exist, or if the files can't be created, a runtime error will occur.
 pub fn generate_obj_file(road_network: &RoadNetwork, dirpath: &String, fileroot: &String, features: &Features) {
     unsafe {
         maliput_sys::utility::ffi::Utility_GenerateObjFile(
@@ -52,6 +60,17 @@ pub fn generate_obj_file(road_network: &RoadNetwork, dirpath: &String, fileroot:
     }
 }
 
+/// Obtain a Wavefront formatted String that describes `road_network`'s geometry.
+///
+/// # Arguments
+///
+/// * `road_network` - The road network to get the Wavefront description from.
+/// * `features` - Customization features for the Wavefront meshes.
+///
+/// # Returns
+///
+/// * A String containing the Wavefront description.
+/// * A dynamic error if there was an issue processing the road network.
 pub fn get_obj_description_from_road_network(
     road_network: &RoadNetwork,
     features: &Features,
