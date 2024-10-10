@@ -49,7 +49,7 @@ void Utility_GenerateObjFile(const maliput::api::RoadNetwork* road_network,
                                  const rust::String& fileroot,
                                  const Features& features) {
 
-  ObjFeatures obj_features = {};
+  ObjFeatures obj_features{};
   obj_features.max_grid_unit = features.max_grid_unit;
   obj_features.min_grid_resolution = features.min_grid_resolution;
   obj_features.draw_stripes = features.draw_stripes;
