@@ -33,7 +33,7 @@ use std::error::Error;
 use std::fs::{create_dir, read_to_string, remove_file};
 use std::path::{Path, PathBuf};
 
-pub type Features = maliput_sys::utility::ffi::Features;
+pub type ObjFeatures = maliput_sys::utility::ffi::Features;
 
 /// Generates a Wavefront and a Material file from the `road_network`.
 ///
@@ -42,12 +42,12 @@ pub type Features = maliput_sys::utility::ffi::Features;
 /// * `road_network` - The road network to generate the Wavefront file from.
 /// * `dirpath` - The directory where the files will be created.
 /// * `fileroot` - The base name of the files. This means without the extension.
-/// * `features` - Customization features for the Wavefront file.
+/// * `obj_features` - Customization features for the Wavefront file.
 ///
 /// # Details
 /// These are written under the `dirpath` directory as `fileroot.obj` and `fileroot.mtl`.
 /// In case `dirpath` doesn't exist, or if the files can't be created, a runtime error will occur.
-pub fn generate_obj_file(road_network: &RoadNetwork, dirpath: &String, fileroot: &String, features: &Features) {
+pub fn generate_obj_file(road_network: &RoadNetwork, dirpath: &String, fileroot: &String, obj_features: &ObjFeatures) {
     unsafe {
         maliput_sys::utility::ffi::Utility_GenerateObjFile(
             road_network.rn.as_ref().map_or(std::ptr::null(), |ref_data| {
@@ -55,7 +55,7 @@ pub fn generate_obj_file(road_network: &RoadNetwork, dirpath: &String, fileroot:
             }),
             dirpath,
             fileroot,
-            features,
+            obj_features,
         );
     }
 }
@@ -65,7 +65,7 @@ pub fn generate_obj_file(road_network: &RoadNetwork, dirpath: &String, fileroot:
 /// # Arguments
 ///
 /// * `road_network` - The road network to get the Wavefront description from.
-/// * `features` - Customization features for the Wavefront meshes.
+/// * `obj_features` - Customization features for the Wavefront meshes.
 ///
 /// # Returns
 ///
@@ -73,7 +73,7 @@ pub fn generate_obj_file(road_network: &RoadNetwork, dirpath: &String, fileroot:
 /// * A dynamic error if there was an issue processing the road network.
 pub fn get_obj_description_from_road_network(
     road_network: &RoadNetwork,
-    features: &Features,
+    obj_features: &ObjFeatures,
 ) -> Result<String, Box<dyn Error>> {
     let output_directory = std::env::temp_dir().join("maliput");
     if !output_directory.exists() {
@@ -81,7 +81,7 @@ pub fn get_obj_description_from_road_network(
     }
     let output_directory = path_to_string(output_directory)?;
     let file_name = String::from("road_network");
-    generate_obj_file(road_network, &output_directory, &file_name, features);
+    generate_obj_file(road_network, &output_directory, &file_name, obj_features);
     let output_directory = Path::new(&output_directory);
     let obj_full_path = output_directory.join(create_file_name(file_name.as_str(), "obj"));
     let obj_description = read_to_string(&obj_full_path)?;
