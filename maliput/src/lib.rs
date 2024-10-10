@@ -32,6 +32,7 @@
 
 pub mod api;
 pub mod math;
+pub mod utility;
 
 /// ### ResourceManager
 ///

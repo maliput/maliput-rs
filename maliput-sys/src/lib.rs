@@ -33,3 +33,4 @@
 pub mod api;
 pub mod math;
 pub mod plugin;
+pub mod utility;
