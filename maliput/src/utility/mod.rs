@@ -62,7 +62,7 @@ pub fn get_obj_description_from_road_network(
     }
     let output_directory = path_to_string(output_directory)?;
     let file_name = String::from("road_network");
-    generate_obj_file(road_network, &output_directory, &file_name, &features);
+    generate_obj_file(road_network, &output_directory, &file_name, features);
     let output_directory = Path::new(&output_directory);
     let obj_full_path = output_directory.join(create_file_name(file_name.as_str(), "obj"));
     let obj_description = read_to_string(&obj_full_path)?;
