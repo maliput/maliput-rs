@@ -49,26 +49,26 @@ void Utility_GenerateObjFile(const maliput::api::RoadNetwork* road_network,
                                  const rust::String& fileroot,
                                  const Features& features) {
 
-  struct ObjFeatures objFeatures = {};
-  objFeatures.max_grid_unit = features.max_grid_unit;
-  objFeatures.min_grid_resolution = features.min_grid_resolution;
-  objFeatures.draw_stripes = features.draw_stripes;
-  objFeatures.draw_arrows = features.draw_arrows;
-  objFeatures.draw_lane_haze = features.draw_lane_haze;
-  objFeatures.draw_branch_points = features.draw_branch_points;
-  objFeatures.draw_elevation_bounds = features.draw_elevation_bounds;
-  objFeatures.off_grid_mesh_generation = features.off_grid_mesh_generation;
-  objFeatures.simplify_mesh_threshold = features.simplify_mesh_threshold;
-  objFeatures.stripe_width = features.stripe_width;
-  objFeatures.stripe_elevation = features.stripe_elevation;
-  objFeatures.arrow_elevation = features.arrow_elevation;
-  objFeatures.lane_haze_elevation = features.lane_haze_elevation;
-  objFeatures.branch_point_elevation = features.branch_point_elevation;
-  objFeatures.branch_point_height = features.branch_point_height;
-  objFeatures.origin = api::InertialPosition{features.origin[0], features.origin[1], features.origin[2]};
+  ObjFeatures obj_features = {};
+  obj_features.max_grid_unit = features.max_grid_unit;
+  obj_features.min_grid_resolution = features.min_grid_resolution;
+  obj_features.draw_stripes = features.draw_stripes;
+  obj_features.draw_arrows = features.draw_arrows;
+  obj_features.draw_lane_haze = features.draw_lane_haze;
+  obj_features.draw_branch_points = features.draw_branch_points;
+  obj_features.draw_elevation_bounds = features.draw_elevation_bounds;
+  obj_features.off_grid_mesh_generation = features.off_grid_mesh_generation;
+  obj_features.simplify_mesh_threshold = features.simplify_mesh_threshold;
+  obj_features.stripe_width = features.stripe_width;
+  obj_features.stripe_elevation = features.stripe_elevation;
+  obj_features.arrow_elevation = features.arrow_elevation;
+  obj_features.lane_haze_elevation = features.lane_haze_elevation;
+  obj_features.branch_point_elevation = features.branch_point_elevation;
+  obj_features.branch_point_height = features.branch_point_height;
+  obj_features.origin = api::InertialPosition{features.origin[0], features.origin[1], features.origin[2]};
 
   maliput::utility::GenerateObjFile(road_network, std::string(dirpath),
-                                    std::string(fileroot), objFeatures);
+                                    std::string(fileroot), obj_features);
 }
 
 
