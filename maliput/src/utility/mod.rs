@@ -31,7 +31,7 @@
 use crate::api::RoadNetwork;
 use std::error::Error;
 use std::fs::{create_dir, read_to_string, remove_file};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 pub type ObjFeatures = maliput_sys::utility::ffi::Features;
 
@@ -44,15 +44,19 @@ pub type ObjFeatures = maliput_sys::utility::ffi::Features;
 /// * `fileroot` - The base name of the files. This means without the extension.
 /// * `obj_features` - Customization features for the Wavefront file.
 ///
+/// # Returns
+/// A `PathBuf` object containing the path to the generated Wavefront file.
+///
 /// # Details
 /// These are written under the `dirpath` directory as `fileroot.obj` and `fileroot.mtl`.
-/// In case `dirpath` doesn't exist, or if the files can't be created, a runtime error will occur.
+/// In case `dirpath` doesn't exist, or if the files can't be created, an error is returned.
 pub fn generate_obj_file(
     road_network: &RoadNetwork,
     dirpath: impl AsRef<Path>,
     fileroot: impl AsRef<Path>,
     obj_features: &ObjFeatures,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<PathBuf, Box<dyn Error>> {
+    let complete_file_path = dirpath.as_ref().join(fileroot.as_ref().with_extension("obj"));
     let dirpath = to_string(dirpath)?;
     let fileroot = to_string(fileroot)?;
     let raw_rn = road_network.rn.as_ref();
@@ -60,7 +64,7 @@ pub fn generate_obj_file(
         unsafe {
             maliput_sys::utility::ffi::Utility_GenerateObjFile(raw_rn, &dirpath, &fileroot, obj_features);
         }
-        Ok(())
+        Ok(complete_file_path)
     } else {
         Result::Err(Box::from("RoadNetwork is empty."))
     }
@@ -87,12 +91,10 @@ pub fn get_obj_description_from_road_network(
     }
     let output_directory = to_string(output_directory)?;
     let file_name = String::from("road_network");
-    generate_obj_file(road_network, &output_directory, &file_name, obj_features)?;
-    let output_directory = Path::new(&output_directory);
-    let obj_full_path = output_directory.join(create_file_name(file_name.as_str(), "obj"));
-    let obj_description = read_to_string(&obj_full_path)?;
-    remove_file(obj_full_path)?;
-    let mtl_full_path = output_directory.join(create_file_name(file_name.as_str(), "mtl"));
+    let path_to_obj_file = generate_obj_file(road_network, &output_directory, &file_name, obj_features)?;
+    let obj_description = read_to_string(&path_to_obj_file)?;
+    remove_file(path_to_obj_file.clone())?;
+    let mtl_full_path = path_to_obj_file.with_extension("mtl");
     remove_file(mtl_full_path)?;
     Ok(obj_description)
 }
@@ -105,9 +107,4 @@ fn to_string(path: impl AsRef<Path>) -> Result<String, &'static str> {
         .to_str()
         .ok_or("Failed to get output directory.")?
         .to_string())
-}
-
-/// Returns a `String` concatenating the `extension` to the `file_name`.
-fn create_file_name(file_name: &str, extension: &str) -> String {
-    format!("{}.{}", file_name, extension)
 }
