@@ -53,11 +53,11 @@ pub type ObjFeatures = maliput_sys::utility::ffi::Features;
 pub fn generate_obj_file(
     road_network: &RoadNetwork,
     dirpath: impl AsRef<Path>,
-    fileroot: &String,
+    fileroot: impl AsRef<str>,
     obj_features: &ObjFeatures,
 ) -> Result<PathBuf, Box<dyn Error>> {
     // Saves the complete path to the generated Wavefront file.
-    let future_obj_file_path = dirpath.as_ref().join(fileroot.clone() + ".obj");
+    let future_obj_file_path = dirpath.as_ref().join(fileroot.as_ref().to_string() + ".obj");
     let dirpath = to_string(dirpath)?;
     // Creates dirpath if does not exist.
     if !Path::new(&dirpath).exists() {
@@ -66,7 +66,12 @@ pub fn generate_obj_file(
     let raw_rn = road_network.rn.as_ref();
     if let Some(raw_rn) = raw_rn {
         unsafe {
-            maliput_sys::utility::ffi::Utility_GenerateObjFile(raw_rn, &dirpath, fileroot, obj_features);
+            maliput_sys::utility::ffi::Utility_GenerateObjFile(
+                raw_rn,
+                &dirpath,
+                &fileroot.as_ref().to_string(),
+                obj_features,
+            );
         }
         // Verify if the file was created.
         if future_obj_file_path.is_file() && future_obj_file_path.with_extension("mtl").is_file() {
