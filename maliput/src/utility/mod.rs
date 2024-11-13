@@ -30,7 +30,7 @@
 
 use crate::api::RoadNetwork;
 use std::error::Error;
-use std::fs::{create_dir, read_to_string, remove_file};
+use std::fs::{create_dir, create_dir_all, read_to_string, remove_file};
 use std::path::{Path, PathBuf};
 
 pub type ObjFeatures = maliput_sys::utility::ffi::Features;
@@ -53,18 +53,27 @@ pub type ObjFeatures = maliput_sys::utility::ffi::Features;
 pub fn generate_obj_file(
     road_network: &RoadNetwork,
     dirpath: impl AsRef<Path>,
-    fileroot: impl AsRef<Path>,
+    fileroot: &String,
     obj_features: &ObjFeatures,
 ) -> Result<PathBuf, Box<dyn Error>> {
-    let complete_file_path = dirpath.as_ref().join(fileroot.as_ref().with_extension("obj"));
+    // Saves the complete path to the generated Wavefront file.
+    let future_obj_file_path = dirpath.as_ref().join(fileroot.clone() + ".obj");
     let dirpath = to_string(dirpath)?;
-    let fileroot = to_string(fileroot)?;
+    // Creates dirpath if does not exist.
+    if !Path::new(&dirpath).exists() {
+        let _ = create_dir_all(&dirpath);
+    }
     let raw_rn = road_network.rn.as_ref();
     if let Some(raw_rn) = raw_rn {
         unsafe {
-            maliput_sys::utility::ffi::Utility_GenerateObjFile(raw_rn, &dirpath, &fileroot, obj_features);
+            maliput_sys::utility::ffi::Utility_GenerateObjFile(raw_rn, &dirpath, fileroot, obj_features);
         }
-        Ok(complete_file_path)
+        // Verify if the file was created.
+        if future_obj_file_path.is_file() && future_obj_file_path.with_extension("mtl").is_file() {
+            Ok(future_obj_file_path)
+        } else {
+            Result::Err(Box::from("Failed to generate the Wavefront files."))
+        }
     } else {
         Result::Err(Box::from("RoadNetwork is empty."))
     }
@@ -89,7 +98,6 @@ pub fn get_obj_description_from_road_network(
     if !output_directory.exists() {
         let _ = create_dir(&output_directory);
     }
-    let output_directory = to_string(output_directory)?;
     let file_name = String::from("road_network");
     let path_to_obj_file = generate_obj_file(road_network, &output_directory, &file_name, obj_features)?;
     let obj_description = read_to_string(&path_to_obj_file)?;
