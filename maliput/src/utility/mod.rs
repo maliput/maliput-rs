@@ -98,9 +98,7 @@ pub fn get_obj_description_from_road_network(
     obj_features: &ObjFeatures,
 ) -> Result<String, Box<dyn Error>> {
     let output_directory = std::env::temp_dir().join("maliput");
-    if !output_directory.exists() {
-        let _ = create_dir_all(&output_directory);
-    }
+    create_dir_all(&output_directory)?;
     let file_name = String::from("road_network");
     let path_to_obj_file = generate_obj_file(road_network, &output_directory, &file_name, obj_features)?;
     let obj_description = read_to_string(&path_to_obj_file)?;
