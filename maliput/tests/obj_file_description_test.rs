@@ -24,7 +24,7 @@ fn generate_obj_file_test() {
         origin: [0.; 3],
         highlighted_segments: Vec::new(),
     };
-    let dirpath = std::env::temp_dir().join("maliput");
+    let dirpath = std::env::temp_dir().join("maliput/test/deep/random/place/");
     let fileroot: String = String::from("my_test.random");
     let obj_file_path = generate_obj_file(&road_network, dirpath, &fileroot, &features);
     assert!(obj_file_path.is_ok());

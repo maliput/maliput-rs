@@ -30,7 +30,7 @@
 
 use crate::api::RoadNetwork;
 use std::error::Error;
-use std::fs::{create_dir, create_dir_all, read_to_string, remove_file};
+use std::fs::{create_dir_all, read_to_string, remove_file};
 use std::path::{Path, PathBuf};
 
 pub type ObjFeatures = maliput_sys::utility::ffi::Features;
@@ -60,9 +60,7 @@ pub fn generate_obj_file(
     let future_obj_file_path = dirpath.as_ref().join(fileroot.as_ref().to_string() + ".obj");
     let dirpath = to_string(dirpath)?;
     // Creates dirpath if does not exist.
-    if !Path::new(&dirpath).exists() {
-        let _ = create_dir_all(&dirpath);
-    }
+    create_dir_all(&dirpath)?;
     let raw_rn = road_network.rn.as_ref();
     if let Some(raw_rn) = raw_rn {
         unsafe {
@@ -101,7 +99,7 @@ pub fn get_obj_description_from_road_network(
 ) -> Result<String, Box<dyn Error>> {
     let output_directory = std::env::temp_dir().join("maliput");
     if !output_directory.exists() {
-        let _ = create_dir(&output_directory);
+        let _ = create_dir_all(&output_directory);
     }
     let file_name = String::from("road_network");
     let path_to_obj_file = generate_obj_file(road_network, &output_directory, &file_name, obj_features)?;
