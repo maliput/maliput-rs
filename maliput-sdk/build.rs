@@ -84,6 +84,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     let bazel_output_base_dir = out_dir.join("bazel_output_base");
     fs::create_dir_all(&bazel_output_base_dir)?;
 
+    // Forward number of jobs used in cargo build execution to the bazel build.
+    // NUM_JOBS env var is set by cargo to the number of jobs used in the build.
+    let jobs = env::var("NUM_JOBS").unwrap().to_string();
     // Bazel build
     let code = std::process::Command::new("bazel")
         .arg(format!("--output_base={}", bazel_output_base_dir.display()))
@@ -92,6 +95,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             "--symlink_prefix={}",
             bazel_output_base_dir.join("bazel-").display()
         ))
+        .arg(format!("--jobs={}", jobs))
         .arg("//...")
         .status()
         .expect("Failed to generate build script");
