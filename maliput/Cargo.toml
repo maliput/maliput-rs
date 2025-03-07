@@ -23,3 +23,7 @@ criterion = { version = "0.4", features = ["html_reports"] }
 [[bench]]
 name = "to_road_position"
 harness = false
+
+[[bench]]
+name = "backend_custom_command"
+harness = false

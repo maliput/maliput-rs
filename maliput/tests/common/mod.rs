@@ -46,6 +46,20 @@ pub fn create_t_shape_road_network() -> RoadNetwork {
 }
 
 #[allow(dead_code)]
+pub fn create_arc_lane_road_network() -> RoadNetwork {
+    // Get location of odr resources
+    let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
+    let xodr_path = format!("{}/data/xodr/ArcLane.xodr", package_location);
+
+    let road_network_properties = HashMap::from([
+        ("road_geometry_id", "my_rg_from_rust"),
+        ("opendrive_file", xodr_path.as_str()),
+        ("linear_tolerance", "0.01"),
+    ]);
+    RoadNetwork::new("maliput_malidrive", &road_network_properties)
+}
+
+#[allow(dead_code)]
 pub fn create_t_shape_road_network_with_books() -> RoadNetwork {
     let rm = ResourceManager::new();
     let t_shape_xodr_path = rm

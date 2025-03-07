@@ -90,3 +90,16 @@ fn by_index() {
     let junction = road_geometry.get_junction(&junction_id);
     assert_eq!(junction.id(), "0_0");
 }
+
+#[test]
+fn backend_custom_command() {
+    let road_network = common::create_arc_lane_road_network();
+    let road_geometry = road_network.road_geometry();
+
+    let command = String::from("OpenScenarioLanePositionToMaliputRoadPosition,1,50,-1,0.");
+    let result = road_geometry.backend_custom_command(&command);
+    assert_eq!(result, "1_0_-1,51.250000,0.000000,0.000000");
+    let command = String::from("OpenScenarioRoadPositionToMaliputRoadPosition,1,50,0.");
+    let result = road_geometry.backend_custom_command(&command);
+    assert_eq!(result, "1_0_-1,51.250000,1.000000,0.000000");
+}

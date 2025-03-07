@@ -181,6 +181,18 @@ impl<'a> RoadGeometry<'a> {
             }
         }
     }
+    /// Execute a custom command on the backend.
+    /// ### Details
+    /// The documentation of the custom command should be provided by the backend: https://github.com/maliput/maliput_malidrive/blob/main/src/maliput_malidrive/base/road_geometry.h
+    ///
+    /// ### Arguments
+    /// * `command` - The command to execute.
+    ///
+    /// ### Return
+    /// The result of the command.
+    pub fn backend_custom_command(&self, command: &String) -> String {
+        maliput_sys::api::ffi::RoadGeometry_BackendCustomCommand(self.rg, command)
+    }
 }
 
 /// A RoadNetwork.
