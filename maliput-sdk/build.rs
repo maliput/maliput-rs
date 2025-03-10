@@ -65,7 +65,7 @@ fn get_bazel_library_version(library_name: &str) -> String {
     let line_index: usize = process_output_lines
         .position(|line| line.contains(&library_token))
         .expect("Couldn't find the library");
-    let library_version: &str = process_output
+    let mut library_version: &str = process_output
         .lines()
         .nth(line_index)
         .expect("Failed to retrieve the line from the process output.")
@@ -73,6 +73,10 @@ fn get_bazel_library_version(library_name: &str) -> String {
         .last()
         .expect("Failed to retrieve library version.")
         .trim(); // Remove trailing spaces.
+    if library_version == "_" {
+        // Support the case when "local_path_override" is used for the modules.
+        library_version = "override";
+    }
     String::from(library_version)
 }
 

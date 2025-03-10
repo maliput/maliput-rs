@@ -232,6 +232,10 @@ const Junction* RoadGeometry_GetJunction(const RoadGeometry& road_geometry, cons
   return road_geometry.ById().GetJunction(JunctionId{std::string(junction_id)});
 }
 
+rust::String RoadGeometry_BackendCustomCommand(const RoadGeometry& road_geometry, const rust::String& command) {
+  return road_geometry.BackendCustomCommand(std::string(command));
+}
+
 std::unique_ptr<Rotation> Rotation_new() {
   return std::make_unique<Rotation>();
 }
