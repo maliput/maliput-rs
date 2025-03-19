@@ -584,7 +584,7 @@ impl<'a> RoadRulebook<'a> {
 /// A Rule may have multiple states that affect agent behavior while it is
 /// driving through the rule's zone. The possible states of a Rule must be
 /// semantically coherent. The current state of a Rule is given by a
-/// [RuleStateProvider]. States can be:
+/// RuleStateProvider. States can be:
 ///
 /// - range based ([RangeValueRule]).
 /// - discrete ([DiscreteValueRule]).
@@ -610,7 +610,7 @@ impl DiscreteValueRule {
     pub fn type_id(&self) -> String {
         maliput_sys::api::rules::ffi::DiscreteValueRule_type_id(&self.discrete_value_rule)
     }
-    /// Returns a [LaneSRoute] that represents the zone that the rule applies to.
+    /// Returns a [crate::api::LaneSRoute] that represents the zone that the rule applies to.
     pub fn zone(&self) -> crate::api::LaneSRoute {
         let lane_s_route = maliput_sys::api::rules::ffi::DiscreteValueRule_zone(&self.discrete_value_rule);
         crate::api::LaneSRoute { lane_s_route }
@@ -639,7 +639,7 @@ impl DiscreteValueRule {
 /// A Rule may have multiple states that affect agent behavior while it is
 /// driving through the rule's zone. The possible states of a Rule must be
 /// semantically coherent. The current state of a Rule is given by a
-/// [RuleStateProvider]. States can be:
+/// RuleStateProvider. States can be:
 ///
 /// - range based ([RangeValueRule]).
 /// - discrete ([DiscreteValueRule]).
@@ -665,7 +665,7 @@ impl RangeValueRule {
     pub fn type_id(&self) -> String {
         maliput_sys::api::rules::ffi::RangeValueRule_type_id(&self.range_value_rule)
     }
-    /// Returns a [LaneSRoute] that represents the zone that the rule applies to.
+    /// Returns a [crate::api::LaneSRoute] that represents the zone that the rule applies to.
     pub fn zone(&self) -> crate::api::LaneSRoute {
         let lane_s_route = maliput_sys::api::rules::ffi::RangeValueRule_zone(&self.range_value_rule);
         crate::api::LaneSRoute { lane_s_route }

@@ -44,6 +44,7 @@ pub mod ffi {
     }
     /// Shared struct for `LaneSRange` references.
     /// This is needed because `&f` can't be used directly in the CxxVector collection.
+    #[allow(clippy::needless_lifetimes)]
     struct ConstLaneSRangeRef<'a> {
         pub lane_s_range: &'a LaneSRange,
     }
@@ -168,7 +169,9 @@ pub mod ffi {
         // RoadPosition bindings definitions
         type RoadPosition;
         /// # Safety
+        ///
         /// This function is unsafe because it dereferences `lane` pointers.
+        #[allow(clippy::missing_safety_doc)]
         unsafe fn RoadPosition_new(lane: *const Lane, lane_pos: &LanePosition) -> UniquePtr<RoadPosition>;
         fn RoadPosition_ToInertialPosition(road_position: &RoadPosition) -> UniquePtr<InertialPosition>;
         fn RoadPosition_lane(road_position: &RoadPosition) -> *const Lane;
@@ -252,7 +255,9 @@ pub mod ffi {
         // However, this LaneEnd_new is expected to be used on methods that return a Cpp LaneEnd
         // and a conversion to Rust LaneEnd is needed.
         /// # Safety
+        ///
         /// This function is unsafe because it dereferences `lane` pointer.
+        #[allow(clippy::missing_safety_doc)]
         unsafe fn LaneEnd_new(lane: *const Lane, start: bool) -> UniquePtr<LaneEnd>;
         fn LaneEnd_lane(lane_end: &LaneEnd) -> *const Lane;
         fn LaneEnd_is_start(lane_end: &LaneEnd) -> bool;

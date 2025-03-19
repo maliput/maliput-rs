@@ -90,6 +90,7 @@ pub mod ffi {
         /// # Safety
         ///
         /// The caller must ensure the `road_network` pointer is valid during the method execution.
+        #[allow(clippy::missing_safety_doc)]
         unsafe fn Utility_GenerateObjFile(
             road_network: *const RoadNetwork,
             dirpath: &String,
