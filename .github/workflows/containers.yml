@@ -47,7 +47,7 @@ jobs:
     - name: Image - Rust
       uses: docker/build-push-action@v6
       with:
-        context: devcontainer
+        context: ./.devcontainer
         file: ./.devcontainer/rust-zen/Dockerfile
         push: true
         build-args: |
