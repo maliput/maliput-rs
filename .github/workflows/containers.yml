@@ -6,7 +6,7 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}-rust-ci
   BAZEL_VERSION: "6.4.0"
-  RUSTC_VERSION: "1.75.0"
+  RUSTC_VERSION: "1.83.0"
 
 on:
   push:
@@ -43,8 +43,9 @@ jobs:
         echo "TAGS: ${{ steps.meta.outputs.tags }}"
         echo "LABELS: ${{ steps.meta.outputs.labels }}"
     - name: Image - Rust
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       with:
+        context: ./.devcontainer
         file: ./.devcontainer/rust-zen/Dockerfile
         push: true
         build-args: |
