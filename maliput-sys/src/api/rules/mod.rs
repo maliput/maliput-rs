@@ -77,6 +77,7 @@ pub mod ffi {
     /// Interestingly this was done at maliput::api module but
     /// couldn't reference to that so it was necessary to
     /// redefine it here.
+    #[allow(clippy::needless_lifetimes)]
     struct ConstLaneSRangeRef<'a> {
         pub lane_s_range: &'a LaneSRange,
     }
