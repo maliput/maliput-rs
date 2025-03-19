@@ -15,7 +15,7 @@ FROM mcr.microsoft.com/devcontainers/base:${BASE_IMAGE}
 ################################################################################
 
 ARG BAZEL_VERSION=6.4.0
-ARG RUST_VERSION=1.75.0
+ARG RUST_VERSION=1.83.0
 
 ################################################################################
 # User 'zen'
