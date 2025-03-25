@@ -30,6 +30,8 @@
 #![allow(rustdoc::bare_urls)]
 #![doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/README.md"))]
 
+#[allow(clippy::needless_lifetimes)]
+// Remove after rust 1.87 is used. https://github.com/rust-lang/rust-clippy/issues/14441
 pub mod api;
 pub mod math;
 pub mod utility;
