@@ -108,4 +108,7 @@ fn backend_custom_command() {
     let command = String::from("MaliputRoadPositionToOpenScenarioRoadPosition,1_0_-1,51.250000,1.000000,0.000000");
     let result = road_geometry.backend_custom_command(&command);
     assert_eq!(result, "1,50.000000,0.000000");
+    let command = String::from("OpenScenarioRelativeRoadPositionToMaliputRoadPosition,1,0.,1.,50.,1.");
+    let result = road_geometry.backend_custom_command(&command);
+    assert_eq!(result, "1_0_1,48.750000,1.000000,0.000000");
 }
