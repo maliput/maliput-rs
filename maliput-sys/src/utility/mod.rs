@@ -29,6 +29,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #[cxx::bridge(namespace = "maliput::utility")]
+#[allow(clippy::missing_safety_doc)]
 pub mod ffi {
 
     pub struct Features {
