@@ -31,6 +31,8 @@
 pub mod rules;
 
 #[cxx::bridge(namespace = "maliput::api")]
+#[allow(clippy::needless_lifetimes)] // Remove after rust 1.87 is used. https://github.com/rust-lang/rust-clippy/issues/14441
+#[allow(clippy::missing_safety_doc)]
 pub mod ffi {
     /// Shared struct for `Lane` pointers.
     /// This is needed because `*const Lane` can't be used directly in the CxxVector collection.
@@ -168,6 +170,7 @@ pub mod ffi {
         // RoadPosition bindings definitions
         type RoadPosition;
         /// # Safety
+        ///
         /// This function is unsafe because it dereferences `lane` pointers.
         unsafe fn RoadPosition_new(lane: *const Lane, lane_pos: &LanePosition) -> UniquePtr<RoadPosition>;
         fn RoadPosition_ToInertialPosition(road_position: &RoadPosition) -> UniquePtr<InertialPosition>;
