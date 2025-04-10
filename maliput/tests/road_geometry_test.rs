@@ -111,4 +111,13 @@ fn backend_custom_command() {
     let command = String::from("OpenScenarioRelativeRoadPositionToMaliputRoadPosition,1,0.,1.,50.,1.");
     let result = road_geometry.backend_custom_command(&command);
     assert_eq!(result, "1_0_1,48.750000,1.000000,0.000000");
+    let command = String::from("OpenScenarioRelativeLanePositionWithDsToMaliputRoadPosition,1,1,0.,-1,50.,-0.8");
+    let result = road_geometry.backend_custom_command(&command);
+    assert_eq!(result, "1_0_-1,48.750000,-0.800000,0.000000");
+    let command = String::from("OpenScenarioRelativeLanePositionWithDsLaneToMaliputRoadPosition,1,-1,0.,1,50.,0.8");
+    let result = road_geometry.backend_custom_command(&command);
+    assert_eq!(result, "1_0_1,50.000000,0.800000,0.000000");
+    let command = String::from("GetRoadOrientationAtOpenScenarioRoadPosition,1,50.,0.");
+    let result = road_geometry.backend_custom_command(&command);
+    assert_eq!(result, "0.000000,-0.000000,1.250000");
 }
