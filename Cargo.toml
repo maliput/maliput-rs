@@ -10,4 +10,4 @@ repository = "https://github.com/maliput/maliput-rs"
 
 [workspace.dependencies]
 maliput-sdk = { version = "0.2", path = "maliput-sdk" }
-maliput-sys = { version = "0.1", path = "maliput-sys" }
+maliput-sys = { version = "0.2", path = "maliput-sys" }
