@@ -9,5 +9,5 @@ license = "BSD-3-Clause"
 repository = "https://github.com/maliput/maliput-rs"
 
 [workspace.dependencies]
-maliput-sdk = { version = "0.3", path = "maliput-sdk" }
+maliput-sdk = { version = "0.2", path = "maliput-sdk" }
 maliput-sys = { version = "0.1", path = "maliput-sys" }
