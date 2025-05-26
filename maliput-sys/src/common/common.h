@@ -27,11 +27,19 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#![allow(rustdoc::bare_urls)]
-#![doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/README.md"))]
 
-pub mod api;
-pub mod common;
-pub mod math;
-pub mod plugin;
-pub mod utility;
+#pragma once
+
+#include <maliput/common/logger.h>
+
+#include <rust/cxx.h>
+
+namespace maliput {
+namespace common {
+
+rust::String LOG_set_log_level(const rust::str level) {
+  return maliput::common::set_log_level(std::string(level));
+}
+
+} // namespace common
+}  // namespace maliput

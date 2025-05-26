@@ -27,11 +27,13 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#![allow(rustdoc::bare_urls)]
-#![doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/README.md"))]
 
-pub mod api;
-pub mod common;
-pub mod math;
-pub mod plugin;
-pub mod utility;
+#[cxx::bridge(namespace = "maliput::common")]
+pub mod ffi {
+    unsafe extern "C++" {
+        include!("common/common.h");
+
+        #[namespace = "maliput::common"]
+        fn LOG_set_log_level(level: &str) -> String;
+    }
+}

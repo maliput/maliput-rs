@@ -13,12 +13,17 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-cxx = "1.0.78"
+clap = { workspace = true, features = ["derive"] }
+cxx = { workspace = true }
 maliput-sdk = { workspace = true }
 maliput-sys = { workspace = true }
 
 [dev-dependencies]
 criterion = { version = "0.4", features = ["html_reports"] }
+
+[[bin]]
+name = "maliput_query"
+path = "bin/maliput_query.rs"
 
 [[bench]]
 name = "to_road_position"
