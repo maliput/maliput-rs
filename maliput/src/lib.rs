@@ -33,6 +33,7 @@
 #[allow(clippy::needless_lifetimes)]
 // Remove after rust 1.87 is used. https://github.com/rust-lang/rust-clippy/issues/14441
 pub mod api;
+pub mod common;
 pub mod math;
 pub mod utility;
 

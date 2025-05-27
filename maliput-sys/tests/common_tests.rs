@@ -1,6 +1,6 @@
 // BSD 3-Clause License
 //
-// Copyright (c) 2024, Woven by Toyota.
+// Copyright (c) 2025, Woven by Toyota.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,11 +27,27 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#![allow(rustdoc::bare_urls)]
-#![doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/README.md"))]
 
-pub mod api;
-pub mod common;
-pub mod math;
-pub mod plugin;
-pub mod utility;
+#[cfg(test)]
+mod common_test {
+    use maliput_sys::common::ffi::LOG_set_log_level;
+    #[test]
+    fn test_log_level() {
+        LOG_set_log_level("off");
+        let last_level = LOG_set_log_level("trace");
+        assert_eq!(last_level, "off");
+        let last_level = LOG_set_log_level("debug");
+        assert_eq!(last_level, "trace");
+        let last_level = LOG_set_log_level("info");
+        assert_eq!(last_level, "debug");
+        let last_level = LOG_set_log_level("warn");
+        assert_eq!(last_level, "info");
+        let last_level = LOG_set_log_level("error");
+        assert_eq!(last_level, "warn");
+        let last_level = LOG_set_log_level("critical");
+        assert_eq!(last_level, "error");
+        let last_level = LOG_set_log_level("unchanged");
+        assert_eq!(last_level, "critical");
+        // TODO(francocipollone): Test an invalid log level. It throws under the hood in c++.
+    }
+}

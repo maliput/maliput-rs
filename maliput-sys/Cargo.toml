@@ -15,8 +15,8 @@ repository.workspace = true
 build = "build.rs"
 
 [dependencies]
-cxx = "1.0.78"
+cxx = { workspace = true }
 maliput-sdk = { workspace = true }
 
 [build-dependencies]
-cxx-build = "1.0.78"
+cxx-build = { workspace = true }
