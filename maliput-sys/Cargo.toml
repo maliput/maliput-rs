@@ -1,6 +1,6 @@
 [package]
 name = "maliput-sys"
-version = "0.3.1"
+version = "0.3.2"
 authors = ["Franco Cipollone <franco.c@ekumenlabs.com>"]
 categories = ["external-ffi-bindings", "simulation"]
 description = "FFI Rust bindings for maliput"
