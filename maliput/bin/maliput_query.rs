@@ -241,7 +241,7 @@ struct Args {
     allow_non_drivable_lanes: bool,
 
     #[arg(long, default_value_t = false)]
-    parallel_builder_policy: bool,
+    disable_parallel_builder_policy: bool,
 
     #[arg(long, default_value_t = maliput::common::LogLevel::Info)]
     set_log_level: maliput::common::LogLevel,
@@ -271,7 +271,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let max_linear_tolerance = args.max_linear_tolerance;
     let angular_tolerance = args.angular_tolerance.to_string();
     let omit_non_drivable_lanes = if args.allow_non_drivable_lanes { "false" } else { "true" };
-    let parallel_builder_policy = args.parallel_builder_policy;
+    let parallel_builder_policy = !args.disable_parallel_builder_policy;
 
     let mut road_network_properties = HashMap::from([
         ("road_geometry_id", "maliput_query_rg"),
