@@ -280,7 +280,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ("omit_nondrivable_lanes", omit_non_drivable_lanes),
         ("angular_tolerance", angular_tolerance.as_str()),
         (
-            "parallel_builder_policy",
+            "build_policy",
             if parallel_builder_policy {
                 "parallel"
             } else {
