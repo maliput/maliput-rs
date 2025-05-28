@@ -34,14 +34,17 @@
 
 use clap::Parser;
 
-use maliput::api::RoadNetwork;
+use maliput::api::{LanePosition, RoadNetwork};
 use std::collections::HashMap;
 
 // Define the MaliputQuery enum to represent different types of queries that can be made to the road network.
 enum MaliputQuery {
+    PrintAllLanes,
     GetNumberOfLanes,
     GetTotalLengthOfTheRoadGeometry,
     GetLaneLength(String),
+    GetLaneBounds(String, f64),                // lane_id, s
+    GetSegmentBounds(String, f64),             // lane_id, s
     ToRoadPosition(f64, f64, f64),             // x, y, z
     ToLanePosition(String, f64, f64, f64),     // lane_id, x, y, z
     ToSegmentPosition(String, f64, f64, f64),  // lane_id, x, y, z
@@ -53,9 +56,12 @@ enum MaliputQuery {
 impl From<Vec<&str>> for MaliputQuery {
     fn from(args: Vec<&str>) -> Self {
         match args.as_slice() {
+            ["PrintAllLanes"] => MaliputQuery::PrintAllLanes,
             ["GetNumberOfLanes"] => MaliputQuery::GetNumberOfLanes,
             ["GetTotalLengthOfTheRoadGeometry"] => MaliputQuery::GetTotalLengthOfTheRoadGeometry,
             ["GetLaneLength", lane_id] => MaliputQuery::GetLaneLength(lane_id.to_string()),
+            ["GetLaneBounds", lane_id, s] => MaliputQuery::GetLaneBounds(lane_id.to_string(), s.parse().unwrap()),
+            ["GetSegmentBounds", lane_id, s] => MaliputQuery::GetSegmentBounds(lane_id.to_string(), s.parse().unwrap()),
             ["ToRoadPosition", x, y, z] => {
                 MaliputQuery::ToRoadPosition(x.parse().unwrap(), y.parse().unwrap(), z.parse().unwrap())
             }
@@ -90,15 +96,18 @@ impl From<Vec<&str>> for MaliputQuery {
 
 impl MaliputQuery {
     fn print_available_queries() {
-        println!("Available commands:");
-        println!("1. GetNumberOfLanes");
-        println!("2. GetTotalLengthOfTheRoadGeometry");
-        println!("3. GetLaneLength <lane_id>");
-        println!("4. ToRoadPosition <x> <y> <z>");
-        println!("5. ToLanePosition <lane_id> <x> <y> <z>");
-        println!("6. ToSegmentPosition <lane_id> <x> <y> <z>");
-        println!("7. ToInertialPosition <lane_id> <s> <r> <h>");
-        println!("8. GetOrientation <lane_id> <s> <r> <h>");
+        println!("-> Available commands:");
+        println!("\t1. PrintAllLanes");
+        println!("\t2. GetNumberOfLanes");
+        println!("\t3. GetTotalLengthOfTheRoadGeometry");
+        println!("\t4. GetLaneLength <lane_id>");
+        println!("\t5. GetLaneBounds <lane_id> <s>");
+        println!("\t6. GetSegmentBounds <lane_id> <s>");
+        println!("\t7. ToRoadPosition <x> <y> <z>");
+        println!("\t8. ToLanePosition <lane_id> <x> <y> <z>");
+        println!("\t9. ToSegmentPosition <lane_id> <x> <y> <z>");
+        println!("\t10 ToInertialPosition <lane_id> <s> <r> <h>");
+        println!("\t11. GetOrientation <lane_id> <s> <r> <h>");
     }
 }
 
@@ -115,33 +124,78 @@ impl<'a> RoadNetworkQuery<'a> {
         let rg = self.rn.road_geometry();
         let start_time = std::time::Instant::now();
         match query {
+            MaliputQuery::PrintAllLanes => {
+                // Sort it by lane length in descending order and then print them
+                let mut lanes = rg.get_lanes();
+                lanes.sort_by(|a, b| b.length().partial_cmp(&a.length()).unwrap());
+                print_elapsed_time(start_time);
+                println!("-> All lanes in the road geometry: {} lanes", lanes.len());
+                for lane in lanes {
+                    println!(
+                        "\t* Lane ID: {}\t Length: {} meters \t InertiaPos at (s=0,r=0,h=0): {}",
+                        lane.id(),
+                        lane.length(),
+                        lane.to_inertial_position(&LanePosition::new(0., 0., 0.))
+                    );
+                }
+            }
             MaliputQuery::GetNumberOfLanes => {
                 let len = rg.get_lanes().len();
                 print_elapsed_time(start_time);
-                println!("Number of lanes: {}", len);
+                println!("-> Number of lanes: {}", len);
             }
             MaliputQuery::GetTotalLengthOfTheRoadGeometry => {
                 let lanes_num = rg.get_lanes().len();
                 let total_length = rg.get_lanes().iter().map(|lane| lane.length()).sum::<f64>();
-                println!("Total length of the road geometry: {} meters along {} lanes. The average lane length is {} meters.",
+                print_elapsed_time(start_time);
+                println!("-> Total length of the road geometry: {} meters along {} lanes. The average lane length is {} meters.",
                 total_length,
                 lanes_num,
                 total_length / lanes_num as f64);
-                print_elapsed_time(start_time);
             }
             MaliputQuery::GetLaneLength(lane_id) => {
                 if let Some(lane) = rg.get_lane(&lane_id) {
                     let lane_length = lane.length();
                     print_elapsed_time(start_time);
-                    println!("Length of lane {}: {} meters", lane_id, lane_length);
+                    println!("-> Length of lane {}: {} meters", lane_id, lane_length);
                 } else {
-                    println!("Lane with ID {} not found.", lane_id);
+                    println!("-> Lane with ID {} not found.", lane_id);
+                }
+            }
+            MaliputQuery::GetLaneBounds(lane_id, s) => {
+                if let Some(lane) = rg.get_lane(&lane_id) {
+                    let lane_bounds = lane.lane_bounds(s);
+                    print_elapsed_time(start_time);
+                    println!(
+                        "-> Bounds of lane {} at s={}: max: {}, min: {}",
+                        lane_id,
+                        s,
+                        lane_bounds.max(),
+                        lane_bounds.min()
+                    );
+                } else {
+                    println!("-> Lane with ID {} not found.", lane_id);
+                }
+            }
+            MaliputQuery::GetSegmentBounds(lane_id, s) => {
+                if let Some(lane) = rg.get_lane(&lane_id) {
+                    let segment_bounds = lane.segment_bounds(s);
+                    print_elapsed_time(start_time);
+                    println!(
+                        "-> Segment bounds of lane {} at s={}: max: {}, min: {}",
+                        lane_id,
+                        s,
+                        segment_bounds.max(),
+                        segment_bounds.min()
+                    );
+                } else {
+                    println!("-> Lane with ID {} not found.", lane_id);
                 }
             }
             MaliputQuery::ToRoadPosition(x, y, z) => {
                 let road_position_result = rg.to_road_position(&maliput::api::InertialPosition::new(x, y, z));
                 print_elapsed_time(start_time);
-                println!("Road Position Result:");
+                println!("-> Road Position Result:");
                 println!("\t* Road Position:");
                 println!("\t\t* lane_id: {}", road_position_result.road_position.lane().id());
                 println!("\t\t* lane_position: {}", road_position_result.road_position.pos());
@@ -154,7 +208,7 @@ impl<'a> RoadNetworkQuery<'a> {
                 if let Some(lane) = rg.get_lane(&lane_id) {
                     let lane_position_result = lane.to_lane_position(&maliput::api::InertialPosition::new(x, y, z));
                     print_elapsed_time(start_time);
-                    println!("Lane Position Result for lane {}:", lane_id);
+                    println!("-> Lane Position Result for lane {}:", lane_id);
                     println!("\t* Lane Position:");
                     println!("\t\t* lane_position: {}", lane_position_result.lane_position);
                     println!("\t* Nearest Position:");
@@ -169,7 +223,7 @@ impl<'a> RoadNetworkQuery<'a> {
                 if let Some(lane) = rg.get_lane(&lane_id) {
                     let lane_position_result = lane.to_segment_position(&maliput::api::InertialPosition::new(x, y, z));
                     print_elapsed_time(start_time);
-                    println!("Segment Position Result for lane {}:", lane_id);
+                    println!("-> Segment Position Result for lane {}:", lane_id);
                     println!("\t* Lane Position:");
                     println!("\t\t* lane_position: {}", lane_position_result.lane_position);
                     println!("\t* Nearest Position:");
@@ -184,17 +238,17 @@ impl<'a> RoadNetworkQuery<'a> {
                 if let Some(lane) = rg.get_lane(&lane_id) {
                     let inertial_position = lane.to_inertial_position(&maliput::api::LanePosition::new(s, r, h));
                     print_elapsed_time(start_time);
-                    println!("Inertial Position Result for lane {}:", lane_id);
+                    println!("-> Inertial Position Result for lane {}:", lane_id);
                     println!("\t* inertial_position: {}", inertial_position);
                 } else {
-                    println!("Lane with ID {} not found.", lane_id);
+                    println!("-> Lane with ID {} not found.", lane_id);
                 }
             }
             MaliputQuery::GetOrientaiton(lane_id, s, r, h) => {
                 if let Some(lane) = rg.get_lane(&lane_id) {
                     let orientation = lane.get_orientation(&maliput::api::LanePosition::new(s, r, h));
                     print_elapsed_time(start_time);
-                    println!("Orientation Result for lane {}:", lane_id);
+                    println!("-> Orientation Result for lane {}:", lane_id);
                     println!("\t* orientation:");
                     println!(
                         "\t\t* roll: {}, pitch: {}, yaw: {}",
@@ -203,11 +257,11 @@ impl<'a> RoadNetworkQuery<'a> {
                         orientation.yaw()
                     );
                 } else {
-                    println!("Lane with ID {} not found.", lane_id);
+                    println!("-> Lane with ID {} not found.", lane_id);
                 }
             }
             MaliputQuery::Invalid => {
-                println!("Invalid query command. Please try again.");
+                println!("-> Invalid query command. Please try again.");
                 println!();
                 MaliputQuery::print_available_queries();
             }
@@ -215,7 +269,7 @@ impl<'a> RoadNetworkQuery<'a> {
         /// Print the elapsed time for the query execution.
         fn print_elapsed_time(start_time: std::time::Instant) {
             let elapsed = start_time.elapsed();
-            println!("Query executed in {:.2?}.", elapsed);
+            println!("-> Query executed in {:.2?}.", elapsed);
         }
     }
 }
@@ -243,7 +297,7 @@ struct Args {
     #[arg(long, default_value_t = false)]
     disable_parallel_builder_policy: bool,
 
-    #[arg(long, default_value_t = maliput::common::LogLevel::Info)]
+    #[arg(long, default_value_t = maliput::common::LogLevel::Error)]
     set_log_level: maliput::common::LogLevel,
 }
 
@@ -263,6 +317,10 @@ fn parse_xodr_file_path(path: &str) -> PathBuf {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    println!("Welcome to maliput_query app:");
+    println!("\t* This application allows you to query a road network built from an OpenDRIVE file.");
+    println!("\t* Usage: maliput_query <XODR_FILE_PATH> [OPTIONS]");
+    println!();
     let args = Args::parse();
 
     // Configuration for the road network.
@@ -280,7 +338,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ("omit_nondrivable_lanes", omit_non_drivable_lanes),
         ("angular_tolerance", angular_tolerance.as_str()),
         (
-            "parallel_builder_policy",
+            "build_policy",
             if parallel_builder_policy {
                 "parallel"
             } else {
@@ -294,20 +352,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         road_network_properties.insert("max_linear_tolerance", max_linear_tolerance_str.as_str());
     }
 
-    // Print the parsed arguments
-    println!(
-        "maliput_query application started with the following arguments: {:?}",
-        args
-    );
     println!();
-    // Print the road network properties for debugging purposes.
-    println!("Road network properties: {:?}", road_network_properties);
-
+    println!("-> Setting maliput log level to: {}", args.set_log_level);
     maliput::common::set_log_level(args.set_log_level);
+    println!("-> Road network builder options: {:?}", road_network_properties);
+    println!("->");
+    println!(
+        "-> Building Maliput Road Network from OpenDRIVE file: {}",
+        xodr_path.display()
+    );
+    println!("-> This may take a while, depending on the size of the OpenDRIVE file and the complexity of the road network...");
+    println!("-> ...");
     let now = std::time::Instant::now();
     let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties);
     let elapsed = now.elapsed();
-    println!("Road network loaded in {:.2?}.", elapsed);
+    println!("-> Road network loaded in {:.2?}.", elapsed);
 
     // Print available commands
     println!();
@@ -317,7 +376,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     loop {
         println!();
         let mut input = String::new();
-        println!("Enter a query command (or 'exit' to quit):");
+        println!("-> Enter a query command (or 'exit' to quit):");
         std::io::stdin().read_line(&mut input)?;
         let input = input.trim();
 
