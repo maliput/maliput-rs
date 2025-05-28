@@ -12,6 +12,8 @@ keywords.workspace = true
 license.workspace = true
 repository.workspace = true
 
+build = "build.rs"
+
 [dependencies]
 clap = { workspace = true, features = ["derive"] }
 cxx = { workspace = true }
