@@ -82,6 +82,7 @@ fn get_bazel_library_version(library_name: &str) -> String {
 
 fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rerun-if-changed=src/lib.rs");
+    println!("cargo:rerun-if-changed=.bazelrc");
     println!("cargo:rerun-if-changed=BUILD.bazel");
     println!("cargo:rerun-if-changed=MODULE.bazel");
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
