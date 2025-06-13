@@ -4,6 +4,7 @@
 
 # Bazel's output
 */bazel-*
+*.bazel.lock
 
 # VSCode
 .vscode
