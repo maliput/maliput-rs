@@ -43,14 +43,88 @@ enum MaliputQuery {
     GetNumberOfLanes,
     GetTotalLengthOfTheRoadGeometry,
     GetLaneLength(String),
-    GetLaneBounds(String, f64),                // lane_id, s
-    GetSegmentBounds(String, f64),             // lane_id, s
-    ToRoadPosition(f64, f64, f64),             // x, y, z
-    ToLanePosition(String, f64, f64, f64),     // lane_id, x, y, z
-    ToSegmentPosition(String, f64, f64, f64),  // lane_id, x, y, z
-    ToInertialPosition(String, f64, f64, f64), // lane_id, s, r, h
-    GetOrientaiton(String, f64, f64, f64),     // lane_id, s, r, h
+    GetLaneBounds(String, f64),                                           // lane_id, s
+    GetSegmentBounds(String, f64),                                        // lane_id, s
+    ToRoadPosition(f64, f64, f64),                                        // x, y, z
+    ToLanePosition(String, f64, f64, f64),                                // lane_id, x, y, z
+    ToSegmentPosition(String, f64, f64, f64),                             // lane_id, x, y, z
+    ToInertialPosition(String, f64, f64, f64),                            // lane_id, s, r, h
+    GetOrientaiton(String, f64, f64, f64),                                // lane_id, s, r, h
+    OpenScenarioRoadPositionToMaliputRoadPosition(String, f64, f64),      // xodr_road_id, xodr_s, xodr_t
+    OpenScenarioLanePositionToMaliputRoadPosition(String, f64, i64, f64), // xodr_road_id, xodr_s, xodr_lane_id, offset
+    MaliputRoadPositionToOpenScenarioRoadPosition(String, f64, f64, f64), // lane_id, s, r, h
+    MaliputRoadPositionToOpenScenarioLanePosition(String, f64, f64, f64), // lane_id, s, r, h
+    OpenScenarioRelativeRoadPositionToMaliputRoadPosition(String, f64, f64, f64, f64), // xodr_road_id, xodr_s, xodr_t, xodr_ds, xodr_dt
+    OpenScenarioRelativeLanePositionWithDsToMaliputRoadPosition(String, i64, f64, f64, f64, f64), // xodr_road_id, xodr_lane_id, xodr_s, d_lane, xodr_ds, offset
+    OpenScenarioRelativeLanePositionWithDsLaneToMaliputRoadPosition(String, i64, f64, f64, f64, f64), // xodr_road_id, xodr_lane_id, xodr_s, d_lane, xodr_ds_lane, offset
+    GetRoadOrientationAtOpenScenarioRoadPosition(String, f64, f64), // xodr_road_id, xodr_s, xodr_t
     Invalid,
+}
+
+impl MaliputQuery {
+    /// Converts the MaliputQuery to a string format that can be used in backend custom commands architecture.
+    /// ### Returns
+    /// - Some(String): A string representation of the command if it is a valid query.
+    /// - None: If the query is not a valid command for backend custom commands.
+    fn to_backend_custom_command_format(&self) -> Option<String> {
+        match self {
+            MaliputQuery::OpenScenarioRoadPositionToMaliputRoadPosition(xodr_road_id, xodr_s, xodr_t) => Some(format!(
+                "OpenScenarioRoadPositionToMaliputRoadPosition,{},{},{}",
+                xodr_road_id, xodr_s, xodr_t
+            )),
+            MaliputQuery::OpenScenarioLanePositionToMaliputRoadPosition(xodr_road_id, xodr_s, xodr_lane_id, offset) => {
+                Some(format!(
+                    "OpenScenarioLanePositionToMaliputRoadPosition,{},{},{},{}",
+                    xodr_road_id, xodr_s, xodr_lane_id, offset
+                ))
+            }
+            MaliputQuery::MaliputRoadPositionToOpenScenarioRoadPosition(lane_id, s, r, h) => Some(format!(
+                "MaliputRoadPositionToOpenScenarioRoadPosition,{},{},{},{}",
+                lane_id, s, r, h
+            )),
+            MaliputQuery::MaliputRoadPositionToOpenScenarioLanePosition(lane_id, s, r, h) => Some(format!(
+                "MaliputRoadPositionToOpenScenarioLanePosition,{},{},{},{}",
+                lane_id, s, r, h
+            )),
+            MaliputQuery::OpenScenarioRelativeRoadPositionToMaliputRoadPosition(
+                xodr_road_id,
+                xodr_s,
+                xodr_t,
+                xodr_ds,
+                xodr_dt,
+            ) => Some(format!(
+                "OpenScenarioRelativeRoadPositionToMaliputRoadPosition,{},{},{},{},{}",
+                xodr_road_id, xodr_s, xodr_t, xodr_ds, xodr_dt
+            )),
+            MaliputQuery::OpenScenarioRelativeLanePositionWithDsToMaliputRoadPosition(
+                xodr_road_id,
+                xodr_lane_id,
+                xodr_s,
+                d_lane,
+                xodr_ds,
+                offset,
+            ) => Some(format!(
+                "OpenScenarioRelativeLanePositionWithDsToMaliputRoadPosition,{},{},{},{},{},{}",
+                xodr_road_id, xodr_lane_id, xodr_s, d_lane, xodr_ds, offset
+            )),
+            MaliputQuery::OpenScenarioRelativeLanePositionWithDsLaneToMaliputRoadPosition(
+                xodr_road_id,
+                xodr_lane_id,
+                xodr_s,
+                d_lane,
+                xodr_ds_lane,
+                offset,
+            ) => Some(format!(
+                "OpenScenarioRelativeLanePositionWithDsLaneToMaliputRoadPosition,{},{},{},{},{},{}",
+                xodr_road_id, xodr_lane_id, xodr_s, d_lane, xodr_ds_lane, offset
+            )),
+            MaliputQuery::GetRoadOrientationAtOpenScenarioRoadPosition(xodr_road_id, xodr_s, xodr_t) => Some(format!(
+                "GetRoadOrientationAtOpenScenarioRoadPosition,{},{},{}",
+                xodr_road_id, xodr_s, xodr_t
+            )),
+            _ => None,
+        }
+    }
 }
 
 impl From<Vec<&str>> for MaliputQuery {
@@ -89,6 +163,73 @@ impl From<Vec<&str>> for MaliputQuery {
                 r.parse().unwrap(),
                 h.parse().unwrap(),
             ),
+            ["OpenScenarioRoadPositionToMaliputRoadPosition", xodr_road_id, xodr_s, xodr_t] => {
+                MaliputQuery::OpenScenarioRoadPositionToMaliputRoadPosition(
+                    xodr_road_id.to_string(),
+                    xodr_s.parse().unwrap(),
+                    xodr_t.parse().unwrap(),
+                )
+            }
+            ["OpenScenarioLanePositionToMaliputRoadPosition", xodr_road_id, xodr_s, xodr_lane_id, offset] => {
+                MaliputQuery::OpenScenarioLanePositionToMaliputRoadPosition(
+                    xodr_road_id.to_string(),
+                    xodr_s.parse().unwrap(),
+                    xodr_lane_id.parse().unwrap(),
+                    offset.parse().unwrap(),
+                )
+            }
+            ["MaliputRoadPositionToOpenScenarioRoadPosition", lane_id, s, r, h] => {
+                MaliputQuery::MaliputRoadPositionToOpenScenarioRoadPosition(
+                    lane_id.to_string(),
+                    s.parse().unwrap(),
+                    r.parse().unwrap(),
+                    h.parse().unwrap(),
+                )
+            }
+            ["MaliputRoadPositionToOpenScenarioLanePosition", lane_id, s, r, h] => {
+                MaliputQuery::MaliputRoadPositionToOpenScenarioLanePosition(
+                    lane_id.to_string(),
+                    s.parse().unwrap(),
+                    r.parse().unwrap(),
+                    h.parse().unwrap(),
+                )
+            }
+            ["OpenScenarioRelativeRoadPositionToMaliputRoadPosition", xodr_road_id, xodr_s, xodr_t, xodr_ds, xodr_dt] => {
+                MaliputQuery::OpenScenarioRelativeRoadPositionToMaliputRoadPosition(
+                    xodr_road_id.to_string(),
+                    xodr_s.parse().unwrap(),
+                    xodr_t.parse().unwrap(),
+                    xodr_ds.parse().unwrap(),
+                    xodr_dt.parse().unwrap(),
+                )
+            }
+            ["OpenScenarioRelativeLanePositionWithDsToMaliputRoadPosition", xodr_road_id, xodr_lane_id, xodr_s, d_lane, xodr_ds, offset] => {
+                MaliputQuery::OpenScenarioRelativeLanePositionWithDsToMaliputRoadPosition(
+                    xodr_road_id.to_string(),
+                    xodr_lane_id.parse().unwrap(),
+                    xodr_s.parse().unwrap(),
+                    d_lane.parse().unwrap(),
+                    xodr_ds.parse().unwrap(),
+                    offset.parse().unwrap(),
+                )
+            }
+            ["OpenScenarioRelativeLanePositionWithDsLaneToMaliputRoadPosition", xodr_road_id, xodr_lane_id, xodr_s, d_lane, xodr_ds_lane, offset] => {
+                MaliputQuery::OpenScenarioRelativeLanePositionWithDsLaneToMaliputRoadPosition(
+                    xodr_road_id.to_string(),
+                    xodr_lane_id.parse().unwrap(),
+                    xodr_s.parse().unwrap(),
+                    d_lane.parse().unwrap(),
+                    xodr_ds_lane.parse().unwrap(),
+                    offset.parse().unwrap(),
+                )
+            }
+            ["GetRoadOrientationAtOpenScenarioRoadPosition", xodr_road_id, xodr_s, xodr_t] => {
+                MaliputQuery::GetRoadOrientationAtOpenScenarioRoadPosition(
+                    xodr_road_id.to_string(),
+                    xodr_s.parse().unwrap(),
+                    xodr_t.parse().unwrap(),
+                )
+            }
             _ => MaliputQuery::Invalid,
         }
     }
@@ -97,17 +238,29 @@ impl From<Vec<&str>> for MaliputQuery {
 impl MaliputQuery {
     fn print_available_queries() {
         println!("-> Available commands:");
-        println!("\t1. PrintAllLanes");
-        println!("\t2. GetNumberOfLanes");
-        println!("\t3. GetTotalLengthOfTheRoadGeometry");
-        println!("\t4. GetLaneLength <lane_id>");
-        println!("\t5. GetLaneBounds <lane_id> <s>");
-        println!("\t6. GetSegmentBounds <lane_id> <s>");
-        println!("\t7. ToRoadPosition <x> <y> <z>");
-        println!("\t8. ToLanePosition <lane_id> <x> <y> <z>");
-        println!("\t9. ToSegmentPosition <lane_id> <x> <y> <z>");
-        println!("\t10 ToInertialPosition <lane_id> <s> <r> <h>");
-        println!("\t11. GetOrientation <lane_id> <s> <r> <h>");
+        println!("\t* General commands:");
+        println!("\t\t1. PrintAllLanes");
+        println!("\t\t2. GetNumberOfLanes");
+        println!("\t\t3. GetTotalLengthOfTheRoadGeometry");
+        println!("\t\t4. GetLaneLength <lane_id>");
+        println!("\t\t5. GetLaneBounds <lane_id> <s>");
+        println!("\t\t6. GetSegmentBounds <lane_id> <s>");
+        println!("\t\t7. ToRoadPosition <x> <y> <z>");
+        println!("\t\t8. ToLanePosition <lane_id> <x> <y> <z>");
+        println!("\t\t9. ToSegmentPosition <lane_id> <x> <y> <z>");
+        println!("\t\t10 ToInertialPosition <lane_id> <s> <r> <h>");
+        println!("\t\t11. GetOrientation <lane_id> <s> <r> <h>");
+        println!("\t* Commands particular to maliput_malidrive / OpenDRIVE specification:");
+        println!("\t\t1. OpenScenarioRoadPositionToMaliputRoadPosition <xodr_road_id> <xodr_s> <xodr_t>");
+        println!(
+            "\t\t2. OpenScenarioLanePositionToMaliputRoadPosition <xodr_road_id> <xodr_s> <xodr_lane_id> <offset>"
+        );
+        println!("\t\t3. MaliputRoadPositionToOpenScenarioRoadPosition <lane_id> <s> <r> <h>");
+        println!("\t\t4. MaliputRoadPositionToOpenScenarioLanePosition <lane_id> <s> <r> <h>");
+        println!("\t\t5. OpenScenarioRelativeRoadPositionToMaliputRoadPosition <xodr_road_id> <xodr_s> <xodr_t> <xodr_ds> <xodr_dt>");
+        println!("\t\t6. OpenScenarioRelativeLanePositionWithDsToMaliputRoadPosition <xodr_road_id> <xodr_lane_id> <xodr_s> <d_lane> <xodr_ds> <offset>");
+        println!("\t\t7. OpenScenarioRelativeLanePositionWithDsLaneToMaliputRoadPosition <xodr_road_id> <xodr_lane_id> <xodr_s> <d_lane> <xodr_ds_lane> <offset>");
+        println!("\t\t8. GetRoadOrientationAtOpenScenarioRoadPosition <xodr_road_id> <xodr_s> <xodr_t>");
     }
 }
 
@@ -258,6 +411,148 @@ impl<'a> RoadNetworkQuery<'a> {
                     );
                 } else {
                     println!("-> Lane with ID {} not found.", lane_id);
+                }
+            }
+            MaliputQuery::OpenScenarioRoadPositionToMaliputRoadPosition(..) => {
+                let command = query
+                    .to_backend_custom_command_format()
+                    .expect("Invalid query command format for OpenScenarioRoadPositionToMaliputRoadPosition");
+                let res = rg.backend_custom_command(&command);
+                print_elapsed_time(start_time);
+                let res: Vec<&str> = res.split(',').collect();
+                println!("-> OpenScenarioRoadPositionToMaliputRoadPosition Result:");
+                if res.len() == 4 {
+                    println!("\t* Maliput Road Position:");
+                    println!("\t\t* lane_id: {}", res[0]);
+                    println!("\t\t* s: {}", res[1]);
+                    println!("\t\t* r: {}", res[2]);
+                    println!("\t\t* h: {}", res[3]);
+                } else {
+                    println!("-> Invalid response from backend custom command: {}", res.join(", "));
+                }
+            }
+            MaliputQuery::OpenScenarioLanePositionToMaliputRoadPosition(..) => {
+                let command = query
+                    .to_backend_custom_command_format()
+                    .expect("Invalid query command format for OpenScenarioLanePositionToMaliputRoadPosition");
+                let res = rg.backend_custom_command(&command);
+                print_elapsed_time(start_time);
+                let res: Vec<&str> = res.split(',').collect();
+                println!("-> OpenScenarioLanePositionToMaliputRoadPosition Result:");
+                if res.len() == 4 {
+                    println!("\t* Maliput Road Position:");
+                    println!("\t\t* lane_id: {}", res[0]);
+                    println!("\t\t* s: {}", res[1]);
+                    println!("\t\t* r: {}", res[2]);
+                    println!("\t\t* h: {}", res[3]);
+                } else {
+                    println!("-> Invalid response from backend custom command: {}", res.join(", "));
+                }
+            }
+            MaliputQuery::MaliputRoadPositionToOpenScenarioRoadPosition(..) => {
+                let command = query
+                    .to_backend_custom_command_format()
+                    .expect("Invalid query command format for MaliputRoadPositionToOpenScenarioRoadPosition");
+                let res = rg.backend_custom_command(&command);
+                print_elapsed_time(start_time);
+                let res: Vec<&str> = res.split(',').collect();
+                println!("-> MaliputRoadPositionToOpenScenarioRoadPosition Result:");
+                if res.len() == 3 {
+                    println!("\t* OpenScenario Road Position:");
+                    println!("\t\t* xodr_road_id: {}", res[0]);
+                    println!("\t\t* xodr_s: {}", res[1]);
+                    println!("\t\t* xodr_t: {}", res[2]);
+                } else {
+                    println!("-> Invalid response from backend custom command: {}", res.join(", "));
+                }
+            }
+            MaliputQuery::MaliputRoadPositionToOpenScenarioLanePosition(..) => {
+                let command = query
+                    .to_backend_custom_command_format()
+                    .expect("Invalid query command format for MaliputRoadPositionToOpenScenarioLanePosition");
+                let res = rg.backend_custom_command(&command);
+                print_elapsed_time(start_time);
+                let res: Vec<&str> = res.split(',').collect();
+                println!("-> MaliputRoadPositionToOpenScenarioLanePosition Result for lane:");
+                if res.len() == 4 {
+                    println!("\t* OpenScenario Lane Position:");
+                    println!("\t\t* xodr_road_id: {}", res[0]);
+                    println!("\t\t* xodr_s: {}", res[1]);
+                    println!("\t\t* xodr_lane_id: {}", res[2]);
+                    println!("\t\t* offset: {}", res[3]);
+                } else {
+                    println!("-> Invalid response from backend custom command: {}", res.join(", "));
+                }
+            }
+            MaliputQuery::OpenScenarioRelativeRoadPositionToMaliputRoadPosition(..) => {
+                let command = query
+                    .to_backend_custom_command_format()
+                    .expect("Invalid query command format for OpenScenarioRelativeRoadPositionToMaliputRoadPosition");
+                let res = rg.backend_custom_command(&command);
+                print_elapsed_time(start_time);
+                let res: Vec<&str> = res.split(',').collect();
+                println!("-> OpenScenarioRelativeRoadPositionToMaliputRoadPosition Result:");
+                if res.len() == 4 {
+                    println!("\t* Maliput Road Position:");
+                    println!("\t\t* lane_id: {}", res[0]);
+                    println!("\t\t* s: {}", res[1]);
+                    println!("\t\t* r: {}", res[2]);
+                    println!("\t\t* h: {}", res[3]);
+                } else {
+                    println!("-> Invalid response from backend custom command: {}", res.join(", "));
+                }
+            }
+            MaliputQuery::OpenScenarioRelativeLanePositionWithDsToMaliputRoadPosition(..) => {
+                let command = query.to_backend_custom_command_format().expect(
+                    "Invalid query command format for OpenScenarioRelativeLanePositionWithDsToMaliputRoadPosition",
+                );
+                let res = rg.backend_custom_command(&command);
+                print_elapsed_time(start_time);
+                let res: Vec<&str> = res.split(',').collect();
+                println!("-> OpenScenarioRelativeLanePositionWithDsToMaliputRoadPosition Result:");
+                if res.len() == 4 {
+                    println!("\t* Maliput Road Position:");
+                    println!("\t\t* lane_id: {}", res[0]);
+                    println!("\t\t* s: {}", res[1]);
+                    println!("\t\t* r: {}", res[2]);
+                    println!("\t\t* h: {}", res[3]);
+                } else {
+                    println!("-> Invalid response from backend custom command: {}", res.join(", "));
+                }
+            }
+            MaliputQuery::OpenScenarioRelativeLanePositionWithDsLaneToMaliputRoadPosition(..) => {
+                let command = query.to_backend_custom_command_format().expect(
+                    "Invalid query command format for OpenScenarioRelativeLanePositionWithDsLaneToMaliputRoadPosition",
+                );
+                let res = rg.backend_custom_command(&command);
+                print_elapsed_time(start_time);
+                let res: Vec<&str> = res.split(',').collect();
+                println!("-> OpenScenarioRelativeLanePositionWithDsLaneToMaliputRoadPosition Result:");
+                if res.len() == 4 {
+                    println!("\t* Maliput Road Position:");
+                    println!("\t\t* lane_id: {}", res[0]);
+                    println!("\t\t* s: {}", res[1]);
+                    println!("\t\t* r: {}", res[2]);
+                    println!("\t\t* h: {}", res[3]);
+                } else {
+                    println!("-> Invalid response from backend custom command: {}", res.join(", "));
+                }
+            }
+            MaliputQuery::GetRoadOrientationAtOpenScenarioRoadPosition(..) => {
+                let command = query
+                    .to_backend_custom_command_format()
+                    .expect("Invalid query command format for GetRoadOrientationAtOpenScenarioRoadPosition");
+                let res = rg.backend_custom_command(&command);
+                print_elapsed_time(start_time);
+                let res: Vec<&str> = res.split(',').collect();
+                println!("-> GetRoadOrientationAtOpenScenarioRoadPosition Result:");
+                if res.len() == 3 {
+                    println!("\t* Orientation:");
+                    println!("\t\t* roll: {}", res[0]);
+                    println!("\t\t* pitch: {}", res[1]);
+                    println!("\t\t* yaw: {}", res[2]);
+                } else {
+                    println!("-> Invalid response from backend custom command: {}", res.join(", "));
                 }
             }
             MaliputQuery::Invalid => {
