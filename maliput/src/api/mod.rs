@@ -647,7 +647,11 @@ impl<'a> Lane<'a> {
     /// coordinates. It's on the user side to verify, if needed, that the lane position is within lane boundaries.
     /// Bare in mind that the inertial position will be a point in the `s-r` plane, but *not* necessarily on the road surface.
     ///
-    /// The s component of lane_position must be in domain [0, Lane::length()].
+    /// @param lane_position A maliput `LanePosition`.
+    ///
+    /// @pre The s component of @p lane_position must be in domain [0, Lane::length()].
+    ///
+    /// @returns an `InertialPosition` corresponding to the input `LanePosition`.
     pub fn to_inertial_position(&self, lane_position: &LanePosition) -> InertialPosition {
         InertialPosition {
             ip: maliput_sys::api::ffi::Lane_ToInertialPosition(self.lane, lane_position.lp.as_ref().expect("")),
