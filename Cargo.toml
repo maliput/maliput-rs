@@ -14,4 +14,4 @@ cxx-build = { version = "1.0.78" }
 clap = { version = "~4.3" }
 
 maliput-sdk = { version = "0.5", path = "maliput-sdk" }
-maliput-sys = { version = "0.4", path = "maliput-sys" }
+maliput-sys = { version = "0.5", path = "maliput-sys" }
