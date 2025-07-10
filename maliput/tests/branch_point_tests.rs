@@ -46,6 +46,14 @@ fn branch_point_api() {
     assert_eq!(confluent_branches.size(), 1);
     let ongoing_branches = branch_point.get_ongoing_branches(&lane_end);
     assert_eq!(ongoing_branches.size(), 2);
+    let ongoing_branches_id_lane_end = ongoing_branches.to_lane_map();
+    assert_eq!(ongoing_branches_id_lane_end.len(), 2);
+    assert!(ongoing_branches_id_lane_end.contains_key("5_0_-1"));
+    assert!(ongoing_branches_id_lane_end.contains_key("9_0_-1"));
+    let lane_end_5 = ongoing_branches_id_lane_end.get("5_0_-1").unwrap();
+    let lane_end_9 = ongoing_branches_id_lane_end.get("9_0_-1").unwrap();
+    assert!(matches!(lane_end_5, maliput::api::LaneEnd::Start(_)));
+    assert!(matches!(lane_end_9, maliput::api::LaneEnd::Start(_)));
     let lane_end_set = branch_point.get_b_side();
     assert_eq!(lane_end_set.size(), 2);
 
