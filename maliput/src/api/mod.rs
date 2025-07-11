@@ -1314,6 +1314,16 @@ impl<'a> LaneEndSet<'a> {
             false => LaneEnd::Finish(Lane { lane: lane_ref }),
         }
     }
+
+    /// Convert the LaneEndSet to a map of lane-id to LaneEnd.
+    pub fn to_lane_map(&self) -> std::collections::HashMap<String, LaneEnd> {
+        (0..self.size())
+            .map(|i| {
+                let end = self.get(i);
+                (end.lane().id(), end)
+            })
+            .collect()
+    }
 }
 
 /// A BranchPoint is a node in the network of a RoadGeometry at which
