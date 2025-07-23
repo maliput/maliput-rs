@@ -43,7 +43,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         ("opendrive_file", xodr_path.as_str()),
         ("linear_tolerance", "0.01"),
     ]);
-    let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties);
+    let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties).unwrap();
     let road_geometry = road_network.road_geometry();
 
     let command = "OpenScenarioRoadPositionToMaliputRoadPosition,3,30,-1."; // <command>/<road_id>/<s>/<t>

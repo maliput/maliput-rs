@@ -28,31 +28,32 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use criterion::{criterion_group, criterion_main, Criterion};
-
-use maliput::api::RoadNetwork;
-use std::collections::HashMap;
-
-pub fn criterion_benchmark(c: &mut Criterion) {
-    // Get location of odr resources
-    let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
-    let xodr_path = format!("{}/data/xodr/Town01.xodr", package_location);
-
-    let road_network_properties = HashMap::from([
-        ("road_geometry_id", "my_rg_from_rust"),
-        ("opendrive_file", xodr_path.as_str()),
-        ("linear_tolerance", "0.01"),
-    ]);
-    let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties).unwrap();
-    let road_geometry = road_network.road_geometry();
-    let inertial_pos = maliput::api::InertialPosition::new(5.0, 1.75, 0.0);
-
-    c.bench_function("RoadGeometry::to_road_position", |b| {
-        b.iter(|| {
-            let _road_position_result = road_geometry.to_road_position(&inertial_pos);
-        })
-    });
+#[cfg(test)]
+mod plugin_tests {
+    use maliput_sys::plugin::ffi::CreateRoadNetwork;
+    #[test]
+    fn create_valid_road_network_test() {
+        std::env::set_var("MALIPUT_PLUGIN_PATH", maliput_sdk::get_maliput_malidrive_plugin_path());
+        let road_network_loader_id = String::from("maliput_malidrive");
+        let package_location = env!("CARGO_MANIFEST_DIR");
+        let xodr_path = format!("opendrive_file:{}/tests/resources/ArcLane.xodr", package_location);
+        let road_network_properties = vec![xodr_path];
+        let rn_res = CreateRoadNetwork(&road_network_loader_id, &road_network_properties);
+        assert!(
+            rn_res.is_ok(),
+            "Expected RoadNetwork to be created successfully with ArcLane.xodr"
+        );
+    }
+    #[test]
+    fn create_invalid_road_network_test() {
+        std::env::set_var("MALIPUT_PLUGIN_PATH", maliput_sdk::get_maliput_malidrive_plugin_path());
+        let road_network_loader_id = String::from("maliput_malidrive");
+        let invalid_xodr_path = "/hopefully/this/path/does/not/exist.xodr".to_string();
+        let road_network_properties = vec![invalid_xodr_path];
+        let rn_res = CreateRoadNetwork(&road_network_loader_id, &road_network_properties);
+        assert!(
+            rn_res.is_err(),
+            "Expected an error when creating RoadNetwork with an invalid xodr_path"
+        );
+    }
 }
-
-criterion_group!(benches, criterion_benchmark);
-criterion_main!(benches);

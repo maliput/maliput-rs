@@ -28,6 +28,22 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+/// Error types for maliput lib.
+#[derive(Debug, thiserror::Error)]
+pub enum MaliputError {
+    // TODO(francocipollone): Add more specific error types as we handle it from the C++ side.
+    #[error("Maliput assertion error: {0}")]
+    AssertionError(String),
+    #[error("Other: {0}")]
+    Other(String),
+}
+
+impl From<cxx::Exception> for MaliputError {
+    fn from(e: cxx::Exception) -> Self {
+        MaliputError::AssertionError(e.to_string())
+    }
+}
+
 /// Log levels for the under the hood maliput library's logging system.
 ///
 /// See https://github.com/maliput/maliput/blob/main/include/maliput/common/logger.h

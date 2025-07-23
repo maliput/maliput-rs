@@ -12,6 +12,7 @@ repository = "https://github.com/maliput/maliput-rs"
 cxx = { version = "1.0.78" }
 cxx-build = { version = "1.0.78" }
 clap = { version = "~4.3" }
+thiserror = { version = "1.0" }
 
 maliput-sdk = { version = "0.5", path = "maliput-sdk" }
 maliput-sys = { version = "0.5", path = "maliput-sys" }

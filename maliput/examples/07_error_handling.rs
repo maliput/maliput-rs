@@ -1,6 +1,6 @@
 // BSD 3-Clause License
 //
-// Copyright (c) 2024, Woven by Toyota.
+// Copyright (c) 2025, Woven by Toyota.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,31 +28,42 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use criterion::{criterion_group, criterion_main, Criterion};
-
-use maliput::api::RoadNetwork;
 use std::collections::HashMap;
 
-pub fn criterion_benchmark(c: &mut Criterion) {
-    // Get location of odr resources
-    let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
-    let xodr_path = format!("{}/data/xodr/Town01.xodr", package_location);
-
-    let road_network_properties = HashMap::from([
-        ("road_geometry_id", "my_rg_from_rust"),
-        ("opendrive_file", xodr_path.as_str()),
-        ("linear_tolerance", "0.01"),
-    ]);
-    let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties).unwrap();
-    let road_geometry = road_network.road_geometry();
-    let inertial_pos = maliput::api::InertialPosition::new(5.0, 1.75, 0.0);
-
-    c.bench_function("RoadGeometry::to_road_position", |b| {
-        b.iter(|| {
-            let _road_position_result = road_geometry.to_road_position(&inertial_pos);
-        })
-    });
+/// Returns a very simple HashMap with the road network properties based on the provided xodr_path.
+fn get_road_network_properties(xodr_path: &str) -> HashMap<&str, &str> {
+    HashMap::from([("road_geometry_id", "my_rg_from_rust"), ("opendrive_file", xodr_path)])
 }
 
-criterion_group!(benches, criterion_benchmark);
-criterion_main!(benches);
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    use maliput::api::RoadNetwork;
+
+    // Use a wrong xodr_path
+    let invalid_xodr_path = "/hopefully/this/path/does/not/exist.xodr";
+    let road_network_properties = get_road_network_properties(invalid_xodr_path);
+    let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties);
+    assert!(
+        road_network.is_err(),
+        "Expected an error when creating RoadNetwork with an invalid xodr_path"
+    );
+
+    // Use a valid xodr_path
+    // Get location of odr resources
+    let package_location = std::env::var("CARGO_MANIFEST_DIR")?;
+    let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
+    let road_network_properties = get_road_network_properties(xodr_path.as_str());
+    let road_network_result = RoadNetwork::new("maliput_malidrive", &road_network_properties);
+    assert!(
+        road_network_result.is_ok(),
+        "Expected RoadNetwork to be created successfully with a valid xodr_path"
+    );
+
+    // If we reach here, the RoadNetwork was created successfully.
+    let road_network = road_network_result.unwrap();
+    let road_geometry = road_network.road_geometry();
+    // Print number of lanes to show that we can query the road geometry.
+    let lanes = road_geometry.get_lanes();
+    println!("Number of lanes: {}", lanes.len());
+    // TODO(francocipollone): Proceed to do some queries that might fail.
+    Ok(())
+}
