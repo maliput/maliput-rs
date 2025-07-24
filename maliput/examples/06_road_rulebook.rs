@@ -28,7 +28,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     use maliput::api::RoadNetwork;
     use std::collections::HashMap;
 
@@ -47,7 +47,7 @@ fn main() {
         ("linear_tolerance", "0.01"),
     ]);
 
-    let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties);
+    let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties)?;
     let rulebook = road_network.rulebook();
     let all_rules = rulebook.rules();
 
@@ -143,4 +143,6 @@ fn main() {
     let state = states.first().unwrap();
     assert!((state.value() == "WithS") || (state.value() == "AgainstS"));
     println!("Direction-Usage Rule Type State: {}", state.value());
+
+    Ok(())
 }

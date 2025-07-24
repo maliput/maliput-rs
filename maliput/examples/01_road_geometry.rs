@@ -28,7 +28,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     use maliput::api::RoadNetwork;
     use std::collections::HashMap;
 
@@ -41,7 +41,7 @@ fn main() {
         ("opendrive_file", xodr_path.as_str()),
     ]);
 
-    let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties);
+    let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties)?;
     let road_geometry = road_network.road_geometry();
 
     // Excercise the RoadGeometry API.
@@ -55,4 +55,5 @@ fn main() {
     for lane in lanes {
         println!("\tlane id: {}", lane.id());
     }
+    Ok(())
 }

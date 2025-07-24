@@ -42,7 +42,12 @@ pub fn create_t_shape_road_network() -> RoadNetwork {
         ("opendrive_file", xodr_path.as_str()),
         ("linear_tolerance", "0.01"),
     ]);
-    RoadNetwork::new("maliput_malidrive", &road_network_properties)
+    let rn_res = RoadNetwork::new("maliput_malidrive", &road_network_properties);
+    assert!(
+        rn_res.is_ok(),
+        "Expected RoadNetwork to be created successfully with TShapeRoad.xodr"
+    );
+    rn_res.unwrap()
 }
 
 #[allow(dead_code)]
@@ -56,7 +61,12 @@ pub fn create_arc_lane_road_network() -> RoadNetwork {
         ("opendrive_file", xodr_path.as_str()),
         ("linear_tolerance", "0.01"),
     ]);
-    RoadNetwork::new("maliput_malidrive", &road_network_properties)
+    let rn_res = RoadNetwork::new("maliput_malidrive", &road_network_properties);
+    assert!(
+        rn_res.is_ok(),
+        "Expected RoadNetwork to be created successfully with ArcLane.xodr"
+    );
+    rn_res.unwrap()
 }
 
 #[allow(dead_code)]
@@ -78,7 +88,12 @@ pub fn create_t_shape_road_network_with_books() -> RoadNetwork {
         ("intersection_book", t_shape_books_path.to_str().unwrap()),
         ("linear_tolerance", "0.01"),
     ]);
-    RoadNetwork::new("maliput_malidrive", &road_network_properties)
+    let rn_res = RoadNetwork::new("maliput_malidrive", &road_network_properties);
+    assert!(
+        rn_res.is_ok(),
+        "Expected RoadNetwork to be created successfully with TShapeRoad.xodr and books"
+    );
+    rn_res.unwrap()
 }
 
 #[allow(dead_code)]
@@ -119,7 +134,12 @@ pub fn create_loop_road_pedestrian_crosswalk_road_network_with_books() -> RoadNe
         ),
         ("linear_tolerance", "0.01"),
     ]);
-    RoadNetwork::new("maliput_malidrive", &road_network_properties)
+    let rn_res = RoadNetwork::new("maliput_malidrive", &road_network_properties);
+    assert!(
+        rn_res.is_ok(),
+        "Expected RoadNetwork to be created successfully with LoopRoadPedestrianCrosswalk.xodr and books"
+    );
+    rn_res.unwrap()
 }
 
 #[allow(dead_code)]

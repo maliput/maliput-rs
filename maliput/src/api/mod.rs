@@ -28,6 +28,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+use crate::common::MaliputError;
 use crate::math::Matrix3;
 use crate::math::Quaternion;
 use crate::math::RollPitchYaw;
@@ -135,7 +136,7 @@ impl<'a> RoadGeometry<'a> {
     /// let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
     /// let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
     /// let road_network_properties = HashMap::from([("road_geometry_id", "my_rg_from_rust"), ("opendrive_file", xodr_path.as_str())]);
-    /// let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties);
+    /// let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties)?;
     /// let road_geometry = road_network.road_geometry();
     /// let lanes = road_geometry.get_lanes();
     /// for lane in lanes {
@@ -207,7 +208,7 @@ impl<'a> RoadGeometry<'a> {
 /// let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
 /// let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
 /// let road_network_properties = HashMap::from([("road_geometry_id", "my_rg_from_rust"), ("opendrive_file", xodr_path.as_str())]);
-/// let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties);
+/// let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties)?;
 /// let road_geometry = road_network.road_geometry();
 /// println!("num_junctions: {}", road_geometry.num_junctions());
 /// ```
@@ -225,16 +226,21 @@ impl RoadNetwork {
     ///
     /// # Details
     /// It relies on `maliput_sys::plugin::ffi::CreateRoadNetwork` to create a new `RoadNetwork`.
-    pub fn new(road_network_loader_id: &str, properties: &std::collections::HashMap<&str, &str>) -> RoadNetwork {
+    ///
+    /// # Returns
+    /// A result containing the `RoadNetwork` or a `MaliputError` if the creation fails.
+    pub fn new(
+        road_network_loader_id: &str,
+        properties: &std::collections::HashMap<&str, &str>,
+    ) -> Result<RoadNetwork, MaliputError> {
         // Translate the properties to ffi types
         let mut properties_vec = Vec::new();
         for (key, value) in properties.iter() {
             properties_vec.push(format!("{}:{}", key, value));
         }
         std::env::set_var("MALIPUT_PLUGIN_PATH", maliput_sdk::get_maliput_malidrive_plugin_path());
-        RoadNetwork {
-            rn: maliput_sys::plugin::ffi::CreateRoadNetwork(&road_network_loader_id.to_string(), &properties_vec),
-        }
+        let rn = maliput_sys::plugin::ffi::CreateRoadNetwork(&road_network_loader_id.to_string(), &properties_vec)?;
+        Ok(RoadNetwork { rn })
     }
 
     /// Get the `RoadGeometry` of the `RoadNetwork`.

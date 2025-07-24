@@ -36,6 +36,9 @@ pub mod ffi {
         #[namespace = "maliput::api"]
         type RoadNetwork = crate::api::ffi::RoadNetwork;
 
-        fn CreateRoadNetwork(road_network_loader_id: &String, properties: &Vec<String>) -> UniquePtr<RoadNetwork>;
+        fn CreateRoadNetwork(
+            road_network_loader_id: &String,
+            properties: &Vec<String>,
+        ) -> Result<UniquePtr<RoadNetwork>>;
     }
 }

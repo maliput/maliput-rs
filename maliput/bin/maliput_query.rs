@@ -659,7 +659,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("-> This may take a while, depending on the size of the OpenDRIVE file and the complexity of the road network...");
     println!("-> ...");
     let now = std::time::Instant::now();
-    let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties);
+    let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties)?;
     let elapsed = now.elapsed();
     println!("-> Road network loaded in {:.2?}.", elapsed);
 

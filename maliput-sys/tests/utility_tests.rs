@@ -46,7 +46,12 @@ mod utility_test {
             let xodr_path = format!("opendrive_file:{}/tests/resources/ArcLane.xodr", package_location);
             let road_network_properties = vec![xodr_path];
 
-            CreateRoadNetwork(&road_network_loader_id, &road_network_properties)
+            let rn_res = CreateRoadNetwork(&road_network_loader_id, &road_network_properties);
+            assert!(
+                rn_res.is_ok(),
+                "Expected RoadNetwork to be created successfully with ArcLane.xodr"
+            );
+            rn_res.unwrap()
         }
 
         #[test]
