@@ -31,6 +31,7 @@
 #[cfg(test)]
 mod plugin_tests {
     use maliput_sys::plugin::ffi::CreateRoadNetwork;
+    use std::any::Any;
     #[test]
     fn create_valid_road_network_test() {
         std::env::set_var("MALIPUT_PLUGIN_PATH", maliput_sdk::get_maliput_malidrive_plugin_path());
@@ -54,6 +55,12 @@ mod plugin_tests {
         assert!(
             rn_res.is_err(),
             "Expected an error when creating RoadNetwork with an invalid xodr_path"
+        );
+        let e: cxx::Exception = rn_res.err().unwrap();
+        assert!(
+            e.type_id() == std::any::TypeId::of::<cxx::Exception>(),
+            "Expected cxx::Exception, got: {:?}",
+            e.type_id()
         );
     }
 }

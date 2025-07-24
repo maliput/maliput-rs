@@ -28,7 +28,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use std::collections::HashMap;
+use std::{any::Any, collections::HashMap};
 
 /// Returns a very simple HashMap with the road network properties based on the provided xodr_path.
 fn get_road_network_properties(xodr_path: &str) -> HashMap<&str, &str> {
@@ -46,6 +46,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         road_network.is_err(),
         "Expected an error when creating RoadNetwork with an invalid xodr_path"
     );
+    match road_network {
+        Ok(_) => panic!("Expected RoadNetwork creation to fail with an invalid xodr_path"),
+        Err(e) => {
+            assert!(
+                e.type_id() == std::any::TypeId::of::<maliput::common::MaliputError>(),
+                "Expected MaliputError, got: {:?}",
+                e.type_id()
+            );
+            if let maliput::common::MaliputError::AssertionError(_) = e {
+                // This is the expected error type.
+            } else {
+                panic!("Expected MaliputError::AssertionError, got: {:?}", e);
+            }
+        }
+    }
 
     // Use a valid xodr_path
     // Get location of odr resources

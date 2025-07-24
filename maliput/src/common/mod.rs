@@ -29,7 +29,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /// Error types for maliput lib.
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, PartialEq, Eq, thiserror::Error)]
 pub enum MaliputError {
     // TODO(francocipollone): Add more specific error types as we handle it from the C++ side.
     #[error("Maliput assertion error: {0}")]
