@@ -28,7 +28,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-fn main() -> Result<(), Box<impl std::error::Error>> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     use maliput::api::RoadNetwork;
     use std::collections::HashMap;
 
@@ -55,5 +55,5 @@ fn main() -> Result<(), Box<impl std::error::Error>> {
     for lane in lanes {
         println!("\tlane id: {}", lane.id());
     }
-    Ok::<(), Box<maliput::common::MaliputError>>(())
+    Ok(())
 }
