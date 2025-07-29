@@ -236,6 +236,10 @@ rust::String RoadGeometry_BackendCustomCommand(const RoadGeometry& road_geometry
   return road_geometry.BackendCustomCommand(std::string(command));
 }
 
+rust::String RoadGeometry_GeoReferenceInfo(const RoadGeometry& road_geometry) {
+  return road_geometry.GeoReferenceInfo();
+}
+
 std::unique_ptr<Rotation> Rotation_new() {
   return std::make_unique<Rotation>();
 }
