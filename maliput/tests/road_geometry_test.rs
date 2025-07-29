@@ -121,3 +121,21 @@ fn backend_custom_command() {
     let result = road_geometry.backend_custom_command(&command);
     assert_eq!(result, "0.000000,-0.000000,1.250000");
 }
+
+#[test]
+fn geo_reference_info() {
+    let road_network = common::create_town_01_road_network();
+    let road_geometry = road_network.road_geometry();
+    let expected_geo_ref = String::from("+lat_0=4.9000000000000000e+1 +lon_0=8.0000000000000000e+0");
+    let actual_geo_ref = road_geometry.geo_reference_info();
+    assert_eq!(actual_geo_ref, expected_geo_ref);
+}
+
+#[test]
+fn geo_reference_info_empty() {
+    let road_network = common::create_arc_lane_road_network();
+    let road_geometry = road_network.road_geometry();
+    let expected_geo_ref = String::from("");
+    let actual_geo_ref = road_geometry.geo_reference_info();
+    assert_eq!(actual_geo_ref, expected_geo_ref);
+}

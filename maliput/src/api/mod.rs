@@ -194,6 +194,13 @@ impl<'a> RoadGeometry<'a> {
     pub fn backend_custom_command(&self, command: &String) -> String {
         maliput_sys::api::ffi::RoadGeometry_BackendCustomCommand(self.rg, command)
     }
+    /// Obtains the Geo Reference info of this RoadGeometry.
+    ///
+    /// ### Return
+    /// A string containing the Geo Reference projection, if any.
+    pub fn geo_reference_info(&self) -> String {
+        maliput_sys::api::ffi::RoadGeometry_GeoReferenceInfo(self.rg)
+    }
 }
 
 /// A RoadNetwork.
