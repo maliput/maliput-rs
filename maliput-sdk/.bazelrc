@@ -10,7 +10,7 @@ common --enable_bzlmod
 # common --registry=file://%workspace%/../bazel-central-registry
 
 # Central Registry
-build --registry=https://raw.githubusercontent.com/bazelbuild/bazel-central-registry/main/
+build --registry=https://bcr.bazel.build
 
 ########################################
 # Bazel Configuration
