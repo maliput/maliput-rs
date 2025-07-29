@@ -31,7 +31,7 @@ _Note: What is maliput? Refer to https://maliput.readthedocs.org._
       ("opendrive_file", xodr_path.as_str()),
   ]);
 
-  let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties);
+  let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties)?;
   let road_geometry = road_network.road_geometry();
 
   // Excercise the RoadGeometry API.
