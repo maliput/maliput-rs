@@ -31,6 +31,7 @@
 #[cxx::bridge(namespace = "maliput::plugin")]
 pub mod ffi {
     unsafe extern "C++" {
+        include!("cxx_utils/error_handling.h");
         include!("plugin/plugin.h");
 
         #[namespace = "maliput::api"]

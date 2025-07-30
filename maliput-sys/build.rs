@@ -41,6 +41,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rerun-if-changed=src/api/rules/mod.rs");
     println!("cargo:rerun-if-changed=src/common/common.h");
     println!("cargo:rerun-if-changed=src/common/mod.rs");
+    println!("cargo:rerun-if-changed=src/cxx_utils/error_handling.h");
     println!("cargo:rerun-if-changed=src/lib.rs");
     println!("cargo:rerun-if-changed=src/math/math.h");
     println!("cargo:rerun-if-changed=src/math/mod.rs");
