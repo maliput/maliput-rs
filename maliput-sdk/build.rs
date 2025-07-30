@@ -70,7 +70,7 @@ fn get_bazel_library_version(library_name: &str) -> String {
         .nth(line_index)
         .expect("Failed to retrieve the line from the process output.")
         .split('@')
-        .last()
+        .next_back()
         .expect("Failed to retrieve library version.")
         .trim(); // Remove trailing spaces.
     if library_version == "_" {
