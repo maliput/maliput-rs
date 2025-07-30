@@ -104,6 +104,7 @@ pub mod ffi {
     unsafe extern "C++" {
         include!("api/rules/rules.h");
         include!("api/rules/aliases.h");
+        include!("cxx_utils/error_handling.h");
 
         // Forward declarations
         #[namespace = "maliput::api"]

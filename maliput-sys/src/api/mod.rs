@@ -52,6 +52,7 @@ pub mod ffi {
 
     unsafe extern "C++" {
         include!("api/api.h");
+        include!("cxx_utils/error_handling.h");
 
         #[namespace = "maliput::math"]
         type Vector3 = crate::math::ffi::Vector3;

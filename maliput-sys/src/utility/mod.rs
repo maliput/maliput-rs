@@ -81,6 +81,7 @@ pub mod ffi {
         pub highlighted_segments: Vec<String>,
     }
     unsafe extern "C++" {
+        include!("cxx_utils/error_handling.h");
         include!("utility/utility.h");
 
         #[namespace = "maliput::api"]

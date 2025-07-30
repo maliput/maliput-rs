@@ -49,7 +49,7 @@ mod plugin_tests {
     fn create_invalid_road_network_test() {
         std::env::set_var("MALIPUT_PLUGIN_PATH", maliput_sdk::get_maliput_malidrive_plugin_path());
         let road_network_loader_id = String::from("maliput_malidrive");
-        let invalid_xodr_path = "/hopefully/this/path/does/not/exist.xodr".to_string();
+        let invalid_xodr_path = "opendrive_file:/hopefully/this/path/does/not/exist.xodr".to_string();
         let road_network_properties = vec![invalid_xodr_path];
         let rn_res = CreateRoadNetwork(&road_network_loader_id, &road_network_properties);
         assert!(

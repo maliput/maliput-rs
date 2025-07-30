@@ -40,7 +40,12 @@ pub enum MaliputError {
 
 impl From<cxx::Exception> for MaliputError {
     fn from(e: cxx::Exception) -> Self {
-        MaliputError::AssertionError(e.to_string())
+        let msg = e.to_string();
+        if msg.contains("maliput::common::assertion_error") {
+            MaliputError::AssertionError(msg)
+        } else {
+            MaliputError::Other(msg)
+        }
     }
 }
 

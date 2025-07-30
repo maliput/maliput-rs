@@ -32,6 +32,7 @@
 pub mod ffi {
     unsafe extern "C++" {
         include!("common/common.h");
+        include!("cxx_utils/error_handling.h");
 
         #[namespace = "maliput::common"]
         fn LOG_set_log_level(level: &str) -> String;
