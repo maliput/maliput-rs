@@ -22,28 +22,31 @@ _Note: What is maliput? Refer to https://maliput.readthedocs.org._
   use maliput::api::RoadNetwork;
   use std::collections::HashMap;
 
-  // Get location of odr resources
-  let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
-  let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
+  fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Get location of odr resources
+    let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
+    let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
 
-  let road_network_properties = HashMap::from([
-      ("road_geometry_id", "my_rg_from_rust"),
-      ("opendrive_file", xodr_path.as_str()),
-  ]);
+    let road_network_properties = HashMap::from([
+        ("road_geometry_id", "my_rg_from_rust"),
+        ("opendrive_file", xodr_path.as_str()),
+    ]);
 
-  let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties)?;
-  let road_geometry = road_network.road_geometry();
+    let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties)?;
+    let road_geometry = road_network.road_geometry();
 
-  // Excercise the RoadGeometry API.
-  println!("linear_tolerance: {}", road_geometry.linear_tolerance());
-  println!("angular_tolerance: {}", road_geometry.angular_tolerance());
-  println!("num_junctions: {}", road_geometry.num_junctions());
+    // Excercise the RoadGeometry API.
+    println!("linear_tolerance: {}", road_geometry.linear_tolerance());
+    println!("angular_tolerance: {}", road_geometry.angular_tolerance());
+    println!("num_junctions: {}", road_geometry.num_junctions());
 
-  let lanes = road_geometry.get_lanes();
-  println!("num_lanes: {}", lanes.len());
-  println!("lanes: ");
-  for lane in lanes {
-      println!("\tlane id: {}", lane.id());
+    let lanes = road_geometry.get_lanes();
+    println!("num_lanes: {}", lanes.len());
+    println!("lanes: ");
+    for lane in lanes {
+        println!("\tlane id: {}", lane.id());
+    }
+    Ok(())
   }
 ```
 
@@ -51,14 +54,14 @@ _Note: What is maliput? Refer to https://maliput.readthedocs.org._
 ## Examples
 
  - Load `maliput::api::RoadNetwork` and perform some basic queries against the Road Geometry.
-    ```
-    cargo run --example road_geometry
+    ```bash
+    cargo run --example 01_road_geometry
     ```
 
 ## Benches
 
  - Evaluate the execution of `maliput::api::RoadGeometry::to_road_position` method.
-    ```
+    ```bash
     cargo bench to_road_position
     ```
 

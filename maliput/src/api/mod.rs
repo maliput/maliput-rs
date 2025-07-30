@@ -136,7 +136,7 @@ impl<'a> RoadGeometry<'a> {
     /// let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
     /// let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
     /// let road_network_properties = HashMap::from([("road_geometry_id", "my_rg_from_rust"), ("opendrive_file", xodr_path.as_str())]);
-    /// let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties)?;
+    /// let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties).unwrap();
     /// let road_geometry = road_network.road_geometry();
     /// let lanes = road_geometry.get_lanes();
     /// for lane in lanes {
@@ -215,7 +215,7 @@ impl<'a> RoadGeometry<'a> {
 /// let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
 /// let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
 /// let road_network_properties = HashMap::from([("road_geometry_id", "my_rg_from_rust"), ("opendrive_file", xodr_path.as_str())]);
-/// let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties)?;
+/// let road_network = maliput::api::RoadNetwork::new("maliput_malidrive", &road_network_properties).unwrap();
 /// let road_geometry = road_network.road_geometry();
 /// println!("num_junctions: {}", road_geometry.num_junctions());
 /// ```
