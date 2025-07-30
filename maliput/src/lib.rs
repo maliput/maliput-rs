@@ -43,8 +43,8 @@ pub mod utility;
 ///
 /// ### Backends
 ///  - maliput_malidrive: Resources from maliput_malidrive are brought by maliput-sdk package.
-///                       All the maliput_malidrive resources are stored in the same directory:
-///                       (See https://github.com/maliput/maliput_malidrive/tree/main/resources)
+///    All the maliput_malidrive resources are stored in the same directory:
+///    (See https://github.com/maliput/maliput_malidrive/tree/main/resources)
 /// ### Example
 ///
 /// How to get all the resources from the maliput_malidrive backend:

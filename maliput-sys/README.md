@@ -30,7 +30,7 @@ For example:
 ## Examples
 
  - Load `maliput::api::RoadNetwork` and perform some basic queries.
-    ```
+    ```bash
     cargo run --example create_rn
     ```
 
