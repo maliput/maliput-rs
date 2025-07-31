@@ -634,6 +634,19 @@ impl DiscreteValueRule {
     }
 }
 
+impl std::fmt::Debug for DiscreteValueRule {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "DiscreteValueRule {{ id: {}, type_id: {}, zone: {:?}, states: {:?} }}",
+            self.id(),
+            self.type_id(),
+            self.zone(),
+            self.states()
+        )
+    }
+}
+
 /// ## Rule
 ///
 /// A Rule may have multiple states that affect agent behavior while it is
@@ -753,6 +766,19 @@ impl DiscreteValue {
     /// Returns the value of the discrete value.
     pub fn value(&self) -> &String {
         &self.value
+    }
+}
+
+impl std::fmt::Debug for DiscreteValue {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "DiscreteValue {{ value: {}, severity: {}, related_rules: {:?}, related_unique_ids: {:?} }}",
+            self.value(),
+            self.severity(),
+            self.related_rules(),
+            self.related_unique_ids()
+        )
     }
 }
 
