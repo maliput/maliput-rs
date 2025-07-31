@@ -22,7 +22,7 @@ jobs:
         with:
           toolchain: nightly
       - name: Build docs
-        run: cargo doc --no-deps
+        run: cargo +nightly doc --no-deps
         env:
           # We are building a workspace and we want to provide online docs for all the packages.
           # We rely on an experimental option for this:
