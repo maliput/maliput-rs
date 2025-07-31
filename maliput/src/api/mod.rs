@@ -1133,6 +1133,12 @@ impl SRange {
     }
 }
 
+impl std::fmt::Debug for SRange {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "SRange {{ s0: {}, s1: {} }}", self.s0(), self.s1())
+    }
+}
+
 /// Directed longitudinal range of a specific Lane, identified by a LaneId.
 /// Wrapper around C++ implementation `maliput::api::LaneSRange`.
 pub struct LaneSRange {
@@ -1181,6 +1187,17 @@ impl LaneSRange {
                 lane_s_range: intersection,
             }),
         }
+    }
+}
+
+impl std::fmt::Debug for LaneSRange {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(
+            f,
+            "LaneSRange {{ lane_id: {}, s_range: {:?} }}",
+            self.lane_id(),
+            self.s_range()
+        )
     }
 }
 
@@ -1244,6 +1261,12 @@ impl LaneSRoute {
     /// * `true` if the two LaneSRoute intersect, `false` otherwise.
     pub fn intersects(&self, other: &LaneSRoute, tolerance: f64) -> bool {
         self.lane_s_route.Intersects(&other.lane_s_route, tolerance)
+    }
+}
+
+impl std::fmt::Debug for LaneSRoute {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "LaneSRoute {{ ranges: {:?} }}", self.ranges())
     }
 }
 
