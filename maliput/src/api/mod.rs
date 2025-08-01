@@ -676,7 +676,7 @@ impl<'a> Lane<'a> {
     /// * `lane_position` - A maliput [LanePosition].
     ///
     /// ## Precondition
-    /// The s component of `lane_position` must be in domain [0, Lane::length()).
+    /// The s component of `lane_position` must be in domain [0, Lane::length()].
     ///
     /// ## Return
     /// The [InertialPosition] corresponding to the input [LanePosition].
