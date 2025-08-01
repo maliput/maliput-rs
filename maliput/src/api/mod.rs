@@ -200,8 +200,9 @@ impl<'a> RoadGeometry<'a> {
     /// The result of the command.
     // pub fn backend_custom_command(&self, command: &String) -> String {
     pub fn backend_custom_command(&self, command: &String) -> Result<String, MaliputError> {
-        maliput_sys::api::ffi::RoadGeometry_BackendCustomCommand(self.rg, command)
-            .map_err(|e| MaliputError::AssertionError(e.to_string()))
+        Ok(maliput_sys::api::ffi::RoadGeometry_BackendCustomCommand(
+            self.rg, command,
+        )?)
     }
     /// Obtains the Geo Reference info of this RoadGeometry.
     ///
