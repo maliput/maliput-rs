@@ -39,6 +39,6 @@ fn junction_api() {
     assert_eq!(junction.id(), junction_id);
     let num_segments = junction.num_segments();
     assert_eq!(num_segments, 1);
-    let segment = junction.segment(0);
+    let segment = junction.segment(0).unwrap();
     assert_eq!(segment.id(), String::from("0_0"));
 }

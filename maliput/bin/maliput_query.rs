@@ -35,6 +35,7 @@
 use clap::Parser;
 
 use maliput::api::{LanePosition, RoadNetwork};
+use maliput::common::MaliputError;
 use std::collections::HashMap;
 
 // Define the MaliputQuery enum to represent different types of queries that can be made to the road network.
@@ -273,7 +274,7 @@ impl<'a> RoadNetworkQuery<'a> {
         RoadNetworkQuery { rn }
     }
 
-    fn execute_query(&self, query: MaliputQuery) {
+    fn execute_query(&self, query: MaliputQuery) -> Result<(), MaliputError> {
         let rg = self.rn.road_geometry();
         let start_time = std::time::Instant::now();
         match query {
@@ -346,7 +347,7 @@ impl<'a> RoadNetworkQuery<'a> {
                 }
             }
             MaliputQuery::ToRoadPosition(x, y, z) => {
-                let road_position_result = rg.to_road_position(&maliput::api::InertialPosition::new(x, y, z));
+                let road_position_result = rg.to_road_position(&maliput::api::InertialPosition::new(x, y, z))?;
                 print_elapsed_time(start_time);
                 println!("-> Road Position Result:");
                 println!("\t* Road Position:");
@@ -359,7 +360,7 @@ impl<'a> RoadNetworkQuery<'a> {
             }
             MaliputQuery::ToLanePosition(lane_id, x, y, z) => {
                 if let Some(lane) = rg.get_lane(&lane_id) {
-                    let lane_position_result = lane.to_lane_position(&maliput::api::InertialPosition::new(x, y, z));
+                    let lane_position_result = lane.to_lane_position(&maliput::api::InertialPosition::new(x, y, z))?;
                     print_elapsed_time(start_time);
                     println!("-> Lane Position Result for lane {}:", lane_id);
                     println!("\t* Lane Position:");
@@ -374,7 +375,8 @@ impl<'a> RoadNetworkQuery<'a> {
             }
             MaliputQuery::ToSegmentPosition(lane_id, x, y, z) => {
                 if let Some(lane) = rg.get_lane(&lane_id) {
-                    let lane_position_result = lane.to_segment_position(&maliput::api::InertialPosition::new(x, y, z));
+                    let lane_position_result =
+                        lane.to_segment_position(&maliput::api::InertialPosition::new(x, y, z))?;
                     print_elapsed_time(start_time);
                     println!("-> Segment Position Result for lane {}:", lane_id);
                     println!("\t* Lane Position:");
@@ -417,7 +419,7 @@ impl<'a> RoadNetworkQuery<'a> {
                 let command = query
                     .to_backend_custom_command_format()
                     .expect("Invalid query command format for OpenScenarioRoadPositionToMaliputRoadPosition");
-                let res = rg.backend_custom_command(&command);
+                let res = rg.backend_custom_command(&command)?;
                 print_elapsed_time(start_time);
                 let res: Vec<&str> = res.split(',').collect();
                 println!("-> OpenScenarioRoadPositionToMaliputRoadPosition Result:");
@@ -435,7 +437,7 @@ impl<'a> RoadNetworkQuery<'a> {
                 let command = query
                     .to_backend_custom_command_format()
                     .expect("Invalid query command format for OpenScenarioLanePositionToMaliputRoadPosition");
-                let res = rg.backend_custom_command(&command);
+                let res = rg.backend_custom_command(&command)?;
                 print_elapsed_time(start_time);
                 let res: Vec<&str> = res.split(',').collect();
                 println!("-> OpenScenarioLanePositionToMaliputRoadPosition Result:");
@@ -453,7 +455,7 @@ impl<'a> RoadNetworkQuery<'a> {
                 let command = query
                     .to_backend_custom_command_format()
                     .expect("Invalid query command format for MaliputRoadPositionToOpenScenarioRoadPosition");
-                let res = rg.backend_custom_command(&command);
+                let res = rg.backend_custom_command(&command)?;
                 print_elapsed_time(start_time);
                 let res: Vec<&str> = res.split(',').collect();
                 println!("-> MaliputRoadPositionToOpenScenarioRoadPosition Result:");
@@ -470,7 +472,7 @@ impl<'a> RoadNetworkQuery<'a> {
                 let command = query
                     .to_backend_custom_command_format()
                     .expect("Invalid query command format for MaliputRoadPositionToOpenScenarioLanePosition");
-                let res = rg.backend_custom_command(&command);
+                let res = rg.backend_custom_command(&command)?;
                 print_elapsed_time(start_time);
                 let res: Vec<&str> = res.split(',').collect();
                 println!("-> MaliputRoadPositionToOpenScenarioLanePosition Result for lane:");
@@ -488,7 +490,7 @@ impl<'a> RoadNetworkQuery<'a> {
                 let command = query
                     .to_backend_custom_command_format()
                     .expect("Invalid query command format for OpenScenarioRelativeRoadPositionToMaliputRoadPosition");
-                let res = rg.backend_custom_command(&command);
+                let res = rg.backend_custom_command(&command)?;
                 print_elapsed_time(start_time);
                 let res: Vec<&str> = res.split(',').collect();
                 println!("-> OpenScenarioRelativeRoadPositionToMaliputRoadPosition Result:");
@@ -506,7 +508,7 @@ impl<'a> RoadNetworkQuery<'a> {
                 let command = query.to_backend_custom_command_format().expect(
                     "Invalid query command format for OpenScenarioRelativeLanePositionWithDsToMaliputRoadPosition",
                 );
-                let res = rg.backend_custom_command(&command);
+                let res = rg.backend_custom_command(&command)?;
                 print_elapsed_time(start_time);
                 let res: Vec<&str> = res.split(',').collect();
                 println!("-> OpenScenarioRelativeLanePositionWithDsToMaliputRoadPosition Result:");
@@ -524,7 +526,7 @@ impl<'a> RoadNetworkQuery<'a> {
                 let command = query.to_backend_custom_command_format().expect(
                     "Invalid query command format for OpenScenarioRelativeLanePositionWithDsLaneToMaliputRoadPosition",
                 );
-                let res = rg.backend_custom_command(&command);
+                let res = rg.backend_custom_command(&command)?;
                 print_elapsed_time(start_time);
                 let res: Vec<&str> = res.split(',').collect();
                 println!("-> OpenScenarioRelativeLanePositionWithDsLaneToMaliputRoadPosition Result:");
@@ -542,7 +544,7 @@ impl<'a> RoadNetworkQuery<'a> {
                 let command = query
                     .to_backend_custom_command_format()
                     .expect("Invalid query command format for GetRoadOrientationAtOpenScenarioRoadPosition");
-                let res = rg.backend_custom_command(&command);
+                let res = rg.backend_custom_command(&command)?;
                 print_elapsed_time(start_time);
                 let res: Vec<&str> = res.split(',').collect();
                 println!("-> GetRoadOrientationAtOpenScenarioRoadPosition Result:");
@@ -566,6 +568,7 @@ impl<'a> RoadNetworkQuery<'a> {
             let elapsed = start_time.elapsed();
             println!("-> Query executed in {:.2?}.", elapsed);
         }
+        Ok(())
     }
 }
 
@@ -681,7 +684,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let query: MaliputQuery = input.split_whitespace().collect::<Vec<&str>>().into();
         let query_handler = RoadNetworkQuery::new(&road_network);
-        query_handler.execute_query(query);
+        query_handler.execute_query(query)?;
     }
 
     Ok(())

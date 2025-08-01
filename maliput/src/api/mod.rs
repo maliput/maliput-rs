@@ -68,40 +68,48 @@ impl<'a> RoadGeometry<'a> {
     pub fn num_branch_points(&self) -> i32 {
         self.rg.num_branch_points()
     }
-    /// Determines the RoadPosition corresponding to InertialPosition `inertial_position`.
+    /// Determines the [RoadPosition] corresponding to [InertialPosition] `inertial_position`.
     ///
-    /// Returns a RoadPositionResult. Its RoadPosition is the point in the
-    /// RoadGeometry's manifold which is, in the `Inertial`-frame, closest to
+    /// Returns a RoadPositionResult. Its [RoadPosition] is the point in the
+    /// [RoadGeometry]'s manifold which is, in the `Inertial`-frame, closest to
     /// `inertial_position`. Its InertialPosition is the `Inertial`-frame equivalent of the
-    /// RoadPosition and its distance is the Cartesian distance from
+    /// [RoadPosition] and its distance is the Cartesian distance from
     /// `inertial_position` to the nearest point.
     ///
     /// This method guarantees that its result satisfies the condition that
     /// `result.lane.to_lane_position(result.pos)` is within `linear_tolerance()`
-    /// of the returned InertialPosition.
+    /// of the returned [InertialPosition].
     ///
-    /// The map from RoadGeometry to the `Inertial`-frame is not onto (as a bounded
-    /// RoadGeometry cannot completely cover the unbounded Cartesian universe).
+    /// The map from [RoadGeometry] to the `Inertial`-frame is not onto (as a bounded
+    /// [RoadGeometry] cannot completely cover the unbounded Cartesian universe).
     /// If `inertial_position` does represent a point contained within the volume
     /// of the RoadGeometry, then result distance is guaranteed to be less
     /// than or equal to `linear_tolerance()`.
     ///
-    /// The map from RoadGeometry to `Inertial`-frame is not necessarily one-to-one.
+    /// The map from [RoadGeometry] to `Inertial`-frame is not necessarily one-to-one.
     /// Different `(s,r,h)` coordinates from different Lanes, potentially from
     /// different Segments, may map to the same `(x,y,z)` `Inertial`-frame location.
     ///
     /// If `inertial_position` is contained within the volumes of multiple Segments,
-    /// then ToRoadPosition() will choose a Segment which yields the minimum
-    /// height `h` value in the result.  If the chosen Segment has multiple
-    /// Lanes, then ToRoadPosition() will choose a Lane which contains
+    /// then ToRoadPosition() will choose a [Segment] which yields the minimum
+    /// height `h` value in the result.  If the chosen [Segment] has multiple
+    /// Lanes, then ToRoadPosition() will choose a [Lane] which contains
     /// `inertial_position` within its `lane_bounds()` if possible, and if that is
-    /// still ambiguous, it will further select a Lane which minimizes the
+    /// still ambiguous, it will further select a [Lane] which minimizes the
     /// absolute value of the lateral `r` coordinate in the result.
     ///
     /// Wrapper around C++ implementation `maliput::api::RoadGeometry::ToRoadPosition`.
-    pub fn to_road_position(&self, inertial_position: &InertialPosition) -> RoadPositionResult {
-        let rpr = maliput_sys::api::ffi::RoadGeometry_ToRoadPosition(self.rg, &inertial_position.ip);
-        RoadPositionResult {
+    ///
+    /// ### Arguments
+    /// * `inertial_position` - The [InertialPosition] to convert into a [RoadPosition].
+    ///
+    /// ### Return
+    /// A [RoadPositionResult] with the nearest [RoadPosition], the corresponding [InertialPosition]
+    /// to that [RoadPosition] and the distance between the input and output [InertialPosition]s.
+    pub fn to_road_position(&self, inertial_position: &InertialPosition) -> Result<RoadPositionResult, MaliputError> {
+        let rpr = maliput_sys::api::ffi::RoadGeometry_ToRoadPosition(self.rg, &inertial_position.ip)
+            .map_err(|e| MaliputError::AssertionError(e.to_string()))?;
+        Ok(RoadPositionResult {
             road_position: RoadPosition {
                 rp: maliput_sys::api::ffi::RoadPositionResult_road_position(&rpr),
             },
@@ -109,7 +117,7 @@ impl<'a> RoadGeometry<'a> {
                 ip: maliput_sys::api::ffi::RoadPositionResult_nearest_position(&rpr),
             },
             distance: maliput_sys::api::ffi::RoadPositionResult_distance(&rpr),
-        }
+        })
     }
     /// Get the lane matching given `lane_id`.
     /// ### Arguments
@@ -191,8 +199,10 @@ impl<'a> RoadGeometry<'a> {
     ///
     /// ### Return
     /// The result of the command.
-    pub fn backend_custom_command(&self, command: &String) -> String {
+    // pub fn backend_custom_command(&self, command: &String) -> String {
+    pub fn backend_custom_command(&self, command: &String) -> Result<String, MaliputError> {
         maliput_sys::api::ffi::RoadGeometry_BackendCustomCommand(self.rg, command)
+            .map_err(|e| MaliputError::AssertionError(e.to_string()))
     }
     /// Obtains the Geo Reference info of this RoadGeometry.
     ///
@@ -666,7 +676,7 @@ impl<'a> Lane<'a> {
     /// * `lane_position` - A maliput [LanePosition].
     ///
     /// ## Precondition
-    /// The s component of `lane_position` must be in domain [0, Lane::length()].
+    /// The s component of `lane_position` must be in domain [0, Lane::length()).
     ///
     /// ## Return
     /// The [InertialPosition] corresponding to the input [LanePosition].
@@ -682,9 +692,17 @@ impl<'a> Lane<'a> {
     /// This method guarantees that its result satisfies the condition that
     /// `to_inertial_position(result.lane_position)` is within `linear_tolerance()`
     ///  of `result.nearest_position`.
-    pub fn to_lane_position(&self, inertial_position: &InertialPosition) -> LanePositionResult {
-        let lpr = maliput_sys::api::ffi::Lane_ToLanePosition(self.lane, inertial_position.ip.as_ref().expect(""));
-        LanePositionResult {
+    ///
+    /// ### Arguments
+    /// * `inertial_position` - A [InertialPosition] to get a [LanePosition] from.
+    ///
+    /// ### Return
+    /// A [LanePositionResult] with the closest [LanePosition], the corresponding [InertialPosition] to that [LanePosition]
+    /// and the distance between the input and output [InertialPosition]s.
+    pub fn to_lane_position(&self, inertial_position: &InertialPosition) -> Result<LanePositionResult, MaliputError> {
+        let lpr = maliput_sys::api::ffi::Lane_ToLanePosition(self.lane, inertial_position.ip.as_ref().expect(""))
+            .map_err(|e| MaliputError::AssertionError(e.to_string()))?;
+        Ok(LanePositionResult {
             lane_position: LanePosition {
                 lp: maliput_sys::api::ffi::LanePositionResult_road_position(&lpr),
             },
@@ -692,18 +710,30 @@ impl<'a> Lane<'a> {
                 ip: maliput_sys::api::ffi::LanePositionResult_nearest_position(&lpr),
             },
             distance: maliput_sys::api::ffi::LanePositionResult_distance(&lpr),
-        }
+        })
     }
-    /// Determines the LanePosition corresponding to InertialPosition `inertial_position`.
-    /// The LanePosition is expected to be contained within the segment's boundaries.
+    /// Determines the [LanePosition] corresponding to [InertialPosition] `inertial_position`.
+    /// The [LanePosition] is expected to be contained within the segment's boundaries.
     /// See [Lane::to_lane_position] method.
     ///
     /// This method guarantees that its result satisfies the condition that
     /// `to_inertial_position(result.lane_position)` is within `linear_tolerance()`
     ///  of `result.nearest_position`.
-    pub fn to_segment_position(&self, inertial_position: &InertialPosition) -> LanePositionResult {
-        let spr = maliput_sys::api::ffi::Lane_ToSegmentPosition(self.lane, inertial_position.ip.as_ref().expect(""));
-        LanePositionResult {
+    ///
+    /// ### Arguments
+    /// * `inertial_position` - A [InertialPosition] to get a SegmentPosition from.
+    ///
+    /// ### Return
+    /// A [LanePositionResult] with the closest [LanePosition] within the segment, the corresponding
+    /// [InertialPosition] to that [LanePosition] and the distance between the input and output
+    /// [InertialPosition]s.
+    pub fn to_segment_position(
+        &self,
+        inertial_position: &InertialPosition,
+    ) -> Result<LanePositionResult, MaliputError> {
+        let spr = maliput_sys::api::ffi::Lane_ToSegmentPosition(self.lane, inertial_position.ip.as_ref().expect(""))
+            .map_err(|e| MaliputError::AssertionError(e.to_string()))?;
+        Ok(LanePositionResult {
             lane_position: LanePosition {
                 lp: maliput_sys::api::ffi::LanePositionResult_road_position(&spr),
             },
@@ -711,7 +741,7 @@ impl<'a> Lane<'a> {
                 ip: maliput_sys::api::ffi::LanePositionResult_nearest_position(&spr),
             },
             distance: maliput_sys::api::ffi::LanePositionResult_distance(&spr),
-        }
+        })
     }
     /// Get the lane bounds of the `Lane` at the given `s`.
     pub fn lane_bounds(&self, s: f64) -> RBounds {
@@ -904,11 +934,16 @@ impl<'a> Junction<'a> {
         self.junction.num_segments()
     }
     /// Get the segment at the given `index`.
-    pub fn segment(&self, index: i32) -> Segment {
+    pub fn segment(&self, index: i32) -> Result<Segment, MaliputError> {
         unsafe {
-            Segment {
-                segment: self.junction.segment(index).as_ref().expect(""),
-            }
+            Ok(Segment {
+                segment: self
+                    .junction
+                    .segment(index)
+                    .map_err(|e| MaliputError::Other(e.to_string()))?
+                    .as_ref()
+                    .expect(""),
+            })
         }
     }
 }
@@ -1335,8 +1370,11 @@ impl<'a> LaneEndSet<'a> {
         self.lane_end_set.size()
     }
     /// Get the LaneEnd at the given index.
-    pub fn get(&self, index: i32) -> LaneEnd {
-        let lane_end = self.lane_end_set.get(index);
+    pub fn get(&self, index: i32) -> Result<LaneEnd, MaliputError> {
+        let lane_end = self
+            .lane_end_set
+            .get(index)
+            .map_err(|e| MaliputError::Other(e.to_string()))?;
         // Obtain end type and lane reference.
         let is_start = maliput_sys::api::ffi::LaneEnd_is_start(lane_end);
         let lane_ref = unsafe {
@@ -1345,17 +1383,17 @@ impl<'a> LaneEndSet<'a> {
                 .expect("Underlying LaneEnd is null")
         };
         // Create a LaneEnd enum variant.
-        match is_start {
+        Ok(match is_start {
             true => LaneEnd::Start(Lane { lane: lane_ref }),
             false => LaneEnd::Finish(Lane { lane: lane_ref }),
-        }
+        })
     }
 
     /// Convert the LaneEndSet to a map of lane-id to LaneEnd.
     pub fn to_lane_map(&self) -> std::collections::HashMap<String, LaneEnd> {
         (0..self.size())
             .map(|i| {
-                let end = self.get(i);
+                let end = self.get(i).unwrap();
                 (end.lane().id(), end)
             })
             .collect()
