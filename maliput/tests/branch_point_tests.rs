@@ -41,7 +41,7 @@ fn branch_point_api() {
     // cpp tests.
     let lane_end_set = branch_point.get_a_side();
     assert_eq!(lane_end_set.size(), 1);
-    let lane_end = lane_end_set.get(0);
+    let lane_end = lane_end_set.get(0).unwrap();
     let confluent_branches = branch_point.get_confluent_branches(&lane_end);
     assert_eq!(confluent_branches.size(), 1);
     let ongoing_branches = branch_point.get_ongoing_branches(&lane_end);

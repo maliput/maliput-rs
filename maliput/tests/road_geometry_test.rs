@@ -52,7 +52,7 @@ fn to_road_position() {
     let road_network = common::create_t_shape_road_network();
     let road_geometry = road_network.road_geometry();
 
-    let road_position_result = road_geometry.to_road_position(&expected_nearest_position);
+    let road_position_result = road_geometry.to_road_position(&expected_nearest_position).unwrap();
     assert_eq!(road_position_result.road_position.lane().id(), expected_lane_id);
     common::assert_lane_position_equality(
         &road_position_result.road_position.pos(),
@@ -97,28 +97,28 @@ fn backend_custom_command() {
     let road_geometry = road_network.road_geometry();
 
     let command = String::from("OpenScenarioLanePositionToMaliputRoadPosition,1,50,-1,0.");
-    let result = road_geometry.backend_custom_command(&command);
+    let result = road_geometry.backend_custom_command(&command).unwrap();
     assert_eq!(result, "1_0_-1,51.250000,0.000000,0.000000");
     let command = String::from("OpenScenarioRoadPositionToMaliputRoadPosition,1,50,0.");
-    let result = road_geometry.backend_custom_command(&command);
+    let result = road_geometry.backend_custom_command(&command).unwrap();
     assert_eq!(result, "1_0_-1,51.250000,1.000000,0.000000");
     let command = String::from("MaliputRoadPositionToOpenScenarioLanePosition,1_0_-1,51.250000,0.000000,0.000000");
-    let result = road_geometry.backend_custom_command(&command);
+    let result = road_geometry.backend_custom_command(&command).unwrap();
     assert_eq!(result, "1,50.000000,-1,0.000000");
     let command = String::from("MaliputRoadPositionToOpenScenarioRoadPosition,1_0_-1,51.250000,1.000000,0.000000");
-    let result = road_geometry.backend_custom_command(&command);
+    let result = road_geometry.backend_custom_command(&command).unwrap();
     assert_eq!(result, "1,50.000000,0.000000");
     let command = String::from("OpenScenarioRelativeRoadPositionToMaliputRoadPosition,1,0.,1.,50.,1.");
-    let result = road_geometry.backend_custom_command(&command);
+    let result = road_geometry.backend_custom_command(&command).unwrap();
     assert_eq!(result, "1_0_1,48.750000,1.000000,0.000000");
     let command = String::from("OpenScenarioRelativeLanePositionWithDsToMaliputRoadPosition,1,1,0.,-1,50.,-0.8");
-    let result = road_geometry.backend_custom_command(&command);
+    let result = road_geometry.backend_custom_command(&command).unwrap();
     assert_eq!(result, "1_0_-1,48.750000,-0.800000,0.000000");
     let command = String::from("OpenScenarioRelativeLanePositionWithDsLaneToMaliputRoadPosition,1,-1,0.,1,50.,0.8");
-    let result = road_geometry.backend_custom_command(&command);
+    let result = road_geometry.backend_custom_command(&command).unwrap();
     assert_eq!(result, "1_0_1,50.000000,0.800000,0.000000");
     let command = String::from("GetRoadOrientationAtOpenScenarioRoadPosition,1,50.,0.");
-    let result = road_geometry.backend_custom_command(&command);
+    let result = road_geometry.backend_custom_command(&command).unwrap();
     assert_eq!(result, "0.000000,-0.000000,1.250000");
 }
 
