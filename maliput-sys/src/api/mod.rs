@@ -136,11 +136,11 @@ pub mod ffi {
         fn Contains(self: &Lane, lane_position: &LanePosition) -> bool;
         fn segment(self: &Lane) -> *const Segment;
         fn Lane_id(lane: &Lane) -> String;
-        fn Lane_lane_bounds(lane: &Lane, s: f64) -> UniquePtr<RBounds>;
-        fn Lane_segment_bounds(lane: &Lane, s: f64) -> UniquePtr<RBounds>;
-        fn Lane_elevation_bounds(lane: &Lane, s: f64, r: f64) -> UniquePtr<HBounds>;
-        fn Lane_GetOrientation(lane: &Lane, lane_position: &LanePosition) -> UniquePtr<Rotation>;
-        fn Lane_ToInertialPosition(lane: &Lane, lane_position: &LanePosition) -> UniquePtr<InertialPosition>;
+        fn Lane_lane_bounds(lane: &Lane, s: f64) -> Result<UniquePtr<RBounds>>;
+        fn Lane_segment_bounds(lane: &Lane, s: f64) -> Result<UniquePtr<RBounds>>;
+        fn Lane_elevation_bounds(lane: &Lane, s: f64, r: f64) -> Result<UniquePtr<HBounds>>;
+        fn Lane_GetOrientation(lane: &Lane, lane_position: &LanePosition) -> Result<UniquePtr<Rotation>>;
+        fn Lane_ToInertialPosition(lane: &Lane, lane_position: &LanePosition) -> Result<UniquePtr<InertialPosition>>;
         fn Lane_ToLanePosition(
             lane: &Lane,
             inertial_position: &InertialPosition,

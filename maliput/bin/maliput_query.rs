@@ -289,7 +289,7 @@ impl<'a> RoadNetworkQuery<'a> {
                         "\t* Lane ID: {}\t Length: {} meters \t InertiaPos at (s=0,r=0,h=0): {}",
                         lane.id(),
                         lane.length(),
-                        lane.to_inertial_position(&LanePosition::new(0., 0., 0.))
+                        lane.to_inertial_position(&LanePosition::new(0., 0., 0.))?
                     );
                 }
             }
@@ -318,7 +318,7 @@ impl<'a> RoadNetworkQuery<'a> {
             }
             MaliputQuery::GetLaneBounds(lane_id, s) => {
                 if let Some(lane) = rg.get_lane(&lane_id) {
-                    let lane_bounds = lane.lane_bounds(s);
+                    let lane_bounds = lane.lane_bounds(s)?;
                     print_elapsed_time(start_time);
                     println!(
                         "-> Bounds of lane {} at s={}: max: {}, min: {}",
@@ -333,7 +333,7 @@ impl<'a> RoadNetworkQuery<'a> {
             }
             MaliputQuery::GetSegmentBounds(lane_id, s) => {
                 if let Some(lane) = rg.get_lane(&lane_id) {
-                    let segment_bounds = lane.segment_bounds(s);
+                    let segment_bounds = lane.segment_bounds(s)?;
                     print_elapsed_time(start_time);
                     println!(
                         "-> Segment bounds of lane {} at s={}: max: {}, min: {}",
@@ -391,7 +391,7 @@ impl<'a> RoadNetworkQuery<'a> {
             }
             MaliputQuery::ToInertialPosition(lane_id, s, r, h) => {
                 if let Some(lane) = rg.get_lane(&lane_id) {
-                    let inertial_position = lane.to_inertial_position(&maliput::api::LanePosition::new(s, r, h));
+                    let inertial_position = lane.to_inertial_position(&maliput::api::LanePosition::new(s, r, h))?;
                     print_elapsed_time(start_time);
                     println!("-> Inertial Position Result for lane {}:", lane_id);
                     println!("\t* inertial_position: {}", inertial_position);
@@ -401,7 +401,7 @@ impl<'a> RoadNetworkQuery<'a> {
             }
             MaliputQuery::GetOrientaiton(lane_id, s, r, h) => {
                 if let Some(lane) = rg.get_lane(&lane_id) {
-                    let orientation = lane.get_orientation(&maliput::api::LanePosition::new(s, r, h));
+                    let orientation = lane.get_orientation(&maliput::api::LanePosition::new(s, r, h))?;
                     print_elapsed_time(start_time);
                     println!("-> Orientation Result for lane {}:", lane_id);
                     println!("\t* orientation:");

@@ -657,10 +657,10 @@ impl<'a> Lane<'a> {
         }
     }
     /// Get the orientation of the `Lane` at the given `LanePosition`.
-    pub fn get_orientation(&self, lane_position: &LanePosition) -> Rotation {
-        Rotation {
-            r: maliput_sys::api::ffi::Lane_GetOrientation(self.lane, lane_position.lp.as_ref().expect("")),
-        }
+    pub fn get_orientation(&self, lane_position: &LanePosition) -> Result<Rotation, MaliputError> {
+        Ok(Rotation {
+            r: maliput_sys::api::ffi::Lane_GetOrientation(self.lane, lane_position.lp.as_ref().expect(""))?,
+        })
     }
     /// ## Brief
     /// Get the [InertialPosition] of the [Lane] at the given [LanePosition].
@@ -679,10 +679,10 @@ impl<'a> Lane<'a> {
     ///
     /// ## Return
     /// The [InertialPosition] corresponding to the input [LanePosition].
-    pub fn to_inertial_position(&self, lane_position: &LanePosition) -> InertialPosition {
-        InertialPosition {
-            ip: maliput_sys::api::ffi::Lane_ToInertialPosition(self.lane, lane_position.lp.as_ref().expect("")),
-        }
+    pub fn to_inertial_position(&self, lane_position: &LanePosition) -> Result<InertialPosition, MaliputError> {
+        Ok(InertialPosition {
+            ip: maliput_sys::api::ffi::Lane_ToInertialPosition(self.lane, lane_position.lp.as_ref().expect(""))?,
+        })
     }
     /// Determines the LanePosition corresponding to InertialPosition `inertial_position`.
     /// The LanePosition is expected to be contained within the lane's boundaries.
@@ -741,19 +741,19 @@ impl<'a> Lane<'a> {
         })
     }
     /// Get the lane bounds of the `Lane` at the given `s`.
-    pub fn lane_bounds(&self, s: f64) -> RBounds {
-        let bounds = maliput_sys::api::ffi::Lane_lane_bounds(self.lane, s);
-        RBounds::new(bounds.min(), bounds.max())
+    pub fn lane_bounds(&self, s: f64) -> Result<RBounds, MaliputError> {
+        let bounds = maliput_sys::api::ffi::Lane_lane_bounds(self.lane, s)?;
+        Ok(RBounds::new(bounds.min(), bounds.max()))
     }
     /// Get the segment bounds of the `Lane` at the given `s`.
-    pub fn segment_bounds(&self, s: f64) -> RBounds {
-        let bounds = maliput_sys::api::ffi::Lane_segment_bounds(self.lane, s);
-        RBounds::new(bounds.min(), bounds.max())
+    pub fn segment_bounds(&self, s: f64) -> Result<RBounds, MaliputError> {
+        let bounds = maliput_sys::api::ffi::Lane_segment_bounds(self.lane, s)?;
+        Ok(RBounds::new(bounds.min(), bounds.max()))
     }
     /// Get the elevation bounds of the `Lane` at the given `s` and `r`.
-    pub fn elevation_bounds(&self, s: f64, r: f64) -> HBounds {
-        let bounds = maliput_sys::api::ffi::Lane_elevation_bounds(self.lane, s, r);
-        HBounds::new(bounds.min(), bounds.max())
+    pub fn elevation_bounds(&self, s: f64, r: f64) -> Result<HBounds, MaliputError> {
+        let bounds = maliput_sys::api::ffi::Lane_elevation_bounds(self.lane, s, r)?;
+        Ok(HBounds::new(bounds.min(), bounds.max()))
     }
     /// Computes derivatives of [LanePosition] given a velocity vector `velocity`.
     /// `velocity` is a isometric velocity vector oriented in the `Lane`-frame
