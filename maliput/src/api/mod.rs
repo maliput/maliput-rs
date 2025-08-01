@@ -107,8 +107,7 @@ impl<'a> RoadGeometry<'a> {
     /// A [RoadPositionResult] with the nearest [RoadPosition], the corresponding [InertialPosition]
     /// to that [RoadPosition] and the distance between the input and output [InertialPosition]s.
     pub fn to_road_position(&self, inertial_position: &InertialPosition) -> Result<RoadPositionResult, MaliputError> {
-        let rpr = maliput_sys::api::ffi::RoadGeometry_ToRoadPosition(self.rg, &inertial_position.ip)
-            .map_err(|e| MaliputError::AssertionError(e.to_string()))?;
+        let rpr = maliput_sys::api::ffi::RoadGeometry_ToRoadPosition(self.rg, &inertial_position.ip)?;
         Ok(RoadPositionResult {
             road_position: RoadPosition {
                 rp: maliput_sys::api::ffi::RoadPositionResult_road_position(&rpr),
@@ -700,8 +699,7 @@ impl<'a> Lane<'a> {
     /// A [LanePositionResult] with the closest [LanePosition], the corresponding [InertialPosition] to that [LanePosition]
     /// and the distance between the input and output [InertialPosition]s.
     pub fn to_lane_position(&self, inertial_position: &InertialPosition) -> Result<LanePositionResult, MaliputError> {
-        let lpr = maliput_sys::api::ffi::Lane_ToLanePosition(self.lane, inertial_position.ip.as_ref().expect(""))
-            .map_err(|e| MaliputError::AssertionError(e.to_string()))?;
+        let lpr = maliput_sys::api::ffi::Lane_ToLanePosition(self.lane, inertial_position.ip.as_ref().expect(""))?;
         Ok(LanePositionResult {
             lane_position: LanePosition {
                 lp: maliput_sys::api::ffi::LanePositionResult_road_position(&lpr),
@@ -731,8 +729,7 @@ impl<'a> Lane<'a> {
         &self,
         inertial_position: &InertialPosition,
     ) -> Result<LanePositionResult, MaliputError> {
-        let spr = maliput_sys::api::ffi::Lane_ToSegmentPosition(self.lane, inertial_position.ip.as_ref().expect(""))
-            .map_err(|e| MaliputError::AssertionError(e.to_string()))?;
+        let spr = maliput_sys::api::ffi::Lane_ToSegmentPosition(self.lane, inertial_position.ip.as_ref().expect(""))?;
         Ok(LanePositionResult {
             lane_position: LanePosition {
                 lp: maliput_sys::api::ffi::LanePositionResult_road_position(&spr),
@@ -937,12 +934,7 @@ impl<'a> Junction<'a> {
     pub fn segment(&self, index: i32) -> Result<Segment, MaliputError> {
         unsafe {
             Ok(Segment {
-                segment: self
-                    .junction
-                    .segment(index)
-                    .map_err(|e| MaliputError::Other(e.to_string()))?
-                    .as_ref()
-                    .expect(""),
+                segment: self.junction.segment(index)?.as_ref().expect(""),
             })
         }
     }
@@ -1371,10 +1363,7 @@ impl<'a> LaneEndSet<'a> {
     }
     /// Get the LaneEnd at the given index.
     pub fn get(&self, index: i32) -> Result<LaneEnd, MaliputError> {
-        let lane_end = self
-            .lane_end_set
-            .get(index)
-            .map_err(|e| MaliputError::Other(e.to_string()))?;
+        let lane_end = self.lane_end_set.get(index)?;
         // Obtain end type and lane reference.
         let is_start = maliput_sys::api::ffi::LaneEnd_is_start(lane_end);
         let lane_ref = unsafe {
