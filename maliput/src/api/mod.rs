@@ -160,33 +160,60 @@ impl<'a> RoadGeometry<'a> {
             .collect::<Vec<Lane>>()
     }
     /// Get the segment matching given `segment_id`.
-    pub fn get_segment(&self, segment_id: &String) -> Segment {
+    ///
+    /// ### Arguments
+    /// * `segment_id` - The id of the segment.
+    ///
+    /// ### Return
+    /// The segment with the given id.
+    /// If no segment is found with the given id, return None.
+    pub fn get_segment(&self, segment_id: &String) -> Option<Segment> {
+        let segment = maliput_sys::api::ffi::RoadGeometry_GetSegment(self.rg, segment_id);
+        if segment.is_null() {
+            return None;
+        }
         unsafe {
-            Segment {
-                segment: maliput_sys::api::ffi::RoadGeometry_GetSegment(self.rg, segment_id)
-                    .as_ref()
-                    .expect(""),
-            }
+            Some(Segment {
+                segment: segment.as_ref().expect(""),
+            })
         }
     }
     /// Get the junction matching given `junction_id`.
-    pub fn get_junction(&self, junction_id: &String) -> Junction {
+    ///
+    /// ### Arguments
+    /// * `junction_id` - The id of the junction.
+    ///
+    /// ### Return
+    /// The junction with the given id.
+    /// If no junction is found with the given id, return None.
+    pub fn get_junction(&self, junction_id: &String) -> Option<Junction> {
+        let junction = maliput_sys::api::ffi::RoadGeometry_GetJunction(self.rg, junction_id);
+        if junction.is_null() {
+            return None;
+        }
         unsafe {
-            Junction {
-                junction: maliput_sys::api::ffi::RoadGeometry_GetJunction(self.rg, junction_id)
-                    .as_ref()
-                    .expect(""),
-            }
+            Some(Junction {
+                junction: junction.as_ref().expect(""),
+            })
         }
     }
     /// Get the branch point matching given `branch_point_id`.
-    pub fn get_branch_point(&self, branch_point_id: &String) -> BranchPoint {
+    ///
+    /// ### Arguments
+    /// * `branch_point_id` - The id of the branch point.
+    ///
+    /// ### Return
+    /// The branch point with the given id.
+    /// If no branch point is found with the given id, return None.
+    pub fn get_branch_point(&self, branch_point_id: &String) -> Option<BranchPoint> {
+        let branch_point = maliput_sys::api::ffi::RoadGeometry_GetBranchPoint(self.rg, branch_point_id);
+        if branch_point.is_null() {
+            return None;
+        }
         unsafe {
-            BranchPoint {
-                branch_point: maliput_sys::api::ffi::RoadGeometry_GetBranchPoint(self.rg, branch_point_id)
-                    .as_ref()
-                    .expect("Underlying BranchPoint is null"),
-            }
+            Some(BranchPoint {
+                branch_point: branch_point.as_ref().expect(""),
+            })
         }
     }
     /// Execute a custom command on the backend.
@@ -772,53 +799,74 @@ impl<'a> Lane<'a> {
             ),
         }
     }
-    /// Returns the lane's BranchPoint for the specified end.
-    pub fn get_branch_point(&self, end: &LaneEnd) -> BranchPoint {
-        assert! {
-            end == &LaneEnd::Start(self.clone()) || end == &LaneEnd::Finish(self.clone()),
-            "LaneEnd must be an end of this lane {:?}",
-            end
+    /// Returns the lane's [BranchPoint] for the specified end.
+    ///
+    /// ### Argument
+    /// * `end` - This lane's start or end [LaneEnd].
+    ///
+    /// ### Return
+    /// The lane's [BranchPoint] for the specified end.
+    pub fn get_branch_point(&self, end: &LaneEnd) -> Result<BranchPoint, MaliputError> {
+        if end != &LaneEnd::Start(self.clone()) && end != &LaneEnd::Finish(self.clone()) {
+            return Err(MaliputError::AssertionError(format!(
+                "LaneEnd must be an end of this lane {:?}",
+                end
+            )));
         }
-        BranchPoint {
+        Ok(BranchPoint {
             branch_point: unsafe {
                 maliput_sys::api::ffi::Lane_GetBranchPoint(self.lane, end == &LaneEnd::Start(self.clone()))
                     .as_ref()
                     .expect("Underlying BranchPoint is null")
             },
-        }
+        })
     }
-    /// Returns the set of LaneEnd's which connect with this lane on the
-    /// same side of the BranchPoint at `end`. At a minimum,
-    /// this set will include this Lane.
-    pub fn get_confluent_branches(&self, end: &LaneEnd) -> LaneEndSet {
-        assert! {
-            end == &LaneEnd::Start(self.clone()) || end == &LaneEnd::Finish(self.clone()),
-            "LaneEnd must be an end of this lane {:?}",
-            end
+    /// Returns the set of [LaneEnd]'s which connect with this lane on the
+    /// same side of the [BranchPoint] at `end`. At a minimum,
+    /// this set will include this [Lane].
+    ///
+    /// ### Arguments
+    /// * `end` - This lane's start or end [LaneEnd].
+    ///
+    /// ### Return
+    /// A [LaneEndSet] with all the [LaneEnd]s at the same side of the [BranchPoint] at `end`.
+    pub fn get_confluent_branches(&self, end: &LaneEnd) -> Result<LaneEndSet, MaliputError> {
+        if end != &LaneEnd::Start(self.clone()) && end != &LaneEnd::Finish(self.clone()) {
+            return Err(MaliputError::AssertionError(format!(
+                "LaneEnd must be an end of this lane {:?}",
+                end
+            )));
         }
-        LaneEndSet {
+        Ok(LaneEndSet {
             lane_end_set: unsafe {
-                maliput_sys::api::ffi::Lane_GetConfluentBranches(self.lane, end == &LaneEnd::Start(self.clone()))
+                maliput_sys::api::ffi::Lane_GetConfluentBranches(self.lane, end == &LaneEnd::Start(self.clone()))?
                     .as_ref()
                     .expect("Underlying LaneEndSet is null")
             },
-        }
+        })
     }
-    /// Returns the set of LaneEnd's which continue onward from this lane at the
-    /// BranchPoint at `end`.
-    pub fn get_ongoing_branches(&self, end: &LaneEnd) -> LaneEndSet {
-        assert! {
-            end == &LaneEnd::Start(self.clone()) || end == &LaneEnd::Finish(self.clone()),
-            "LaneEnd must be an end of this lane {:?}",
-            end
+    /// Returns the set of [LaneEnd]s which continue onward from this lane at the
+    /// [BranchPoint] at `end`.
+    ///
+    /// ### Arguments
+    /// * `end` - This lane's start or end [LaneEnd].
+    ///
+    /// ### Return
+    /// A [LaneEndSet] with all the [LaneEnd]s at the opposite side of the [BranchPoint] at `end`.
+    pub fn get_ongoing_branches(&self, end: &LaneEnd) -> Result<LaneEndSet, MaliputError> {
+        if end != &LaneEnd::Start(self.clone()) && end != &LaneEnd::Finish(self.clone()) {
+            return Err(MaliputError::AssertionError(format!(
+                "LaneEnd must be an end of this lane {:?}",
+                end
+            )));
         }
-        LaneEndSet {
+        Ok(LaneEndSet {
             lane_end_set: unsafe {
-                maliput_sys::api::ffi::Lane_GetOngoingBranches(self.lane, end == &LaneEnd::Start(self.clone()))
+                maliput_sys::api::ffi::Lane_GetOngoingBranches(self.lane, end == &LaneEnd::Start(self.clone()))?
                     .as_ref()
                     .expect("Underlying LaneEndSet is null")
             },
-        }
+        })
     }
     /// Returns the default ongoing LaneEnd connected at `end`,
     /// or None if no default branch has been established.
@@ -1415,29 +1463,41 @@ impl<'a> BranchPoint<'a> {
             }
         }
     }
-    /// Returns the set of LaneEnds on the same side as the given LaneEnd.
+    /// Returns the set of [LaneEnd]s on the same side as the given [LaneEnd].
     /// E.g: For a T-junction, this would return the set of LaneEnds on the merging side.
-    pub fn get_confluent_branches(&self, end: &LaneEnd) -> LaneEndSet {
+    ///
+    /// ### Arguments
+    /// * `end` - This branch's start or end [LaneEnd].
+    ///
+    /// ### Return
+    /// A [LaneEndSet] of [LaneEnd]s on the same side as the given [LaneEnd].
+    pub fn get_confluent_branches(&self, end: &LaneEnd) -> Result<LaneEndSet, MaliputError> {
         let lane_end_set_ptr = self.branch_point.GetConfluentBranches(
             BranchPoint::from_lane_end_to_ffi(end)
                 .as_ref()
                 .expect("Underlying LaneEnd is null"),
-        );
-        LaneEndSet {
+        )?;
+        Ok(LaneEndSet {
             lane_end_set: unsafe { lane_end_set_ptr.as_ref().expect("Underlying LaneEndSet is null") },
-        }
+        })
     }
-    /// Returns the set of LaneEnds on the opposite side as the given LaneEnd.
-    /// E.g: For a T-junction, this would return the LaneEnds which end flows into the junction.
-    pub fn get_ongoing_branches(&self, end: &LaneEnd) -> LaneEndSet {
+    /// Returns the set of [LaneEnd]s on the opposite side as the given [LaneEnd].
+    /// E.g: For a T-junction, this would return the [LaneEnd]s which end flows into the junction.
+    ///
+    /// ### Arguments
+    /// * `end` - This branch's start or end [LaneEnd].
+    ///
+    /// ### Return
+    /// A [LaneEndSet] of [LaneEnd]s on the opposite side as the given [LaneEnd].
+    pub fn get_ongoing_branches(&self, end: &LaneEnd) -> Result<LaneEndSet, MaliputError> {
         let lane_end_set_ptr = self.branch_point.GetOngoingBranches(
             BranchPoint::from_lane_end_to_ffi(end)
                 .as_ref()
                 .expect("Underlying LaneEnd is null"),
-        );
-        LaneEndSet {
+        )?;
+        Ok(LaneEndSet {
             lane_end_set: unsafe { lane_end_set_ptr.as_ref().expect("Underlying LaneEndSet is null") },
-        }
+        })
     }
     /// Returns the default ongoing branch (if any) for the given `end`.
     /// This typically represents what would be considered "continuing

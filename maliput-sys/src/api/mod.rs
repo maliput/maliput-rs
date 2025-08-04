@@ -150,8 +150,8 @@ pub mod ffi {
             inertial_position: &InertialPosition,
         ) -> Result<UniquePtr<LanePositionResult>>;
         fn Lane_GetBranchPoint(lane: &Lane, start: bool) -> *const BranchPoint;
-        fn Lane_GetConfluentBranches(lane: &Lane, start: bool) -> *const LaneEndSet;
-        fn Lane_GetOngoingBranches(lane: &Lane, start: bool) -> *const LaneEndSet;
+        fn Lane_GetConfluentBranches(lane: &Lane, start: bool) -> Result<*const LaneEndSet>;
+        fn Lane_GetOngoingBranches(lane: &Lane, start: bool) -> Result<*const LaneEndSet>;
         fn Lane_GetDefaultBranch(lane: &Lane, start: bool) -> UniquePtr<LaneEnd>;
         fn Lane_EvalMotionDerivatives(
             lane: &Lane,
@@ -277,8 +277,8 @@ pub mod ffi {
         type BranchPoint;
         fn BranchPoint_id(branch_point: &BranchPoint) -> String;
         fn road_geometry(self: &BranchPoint) -> *const RoadGeometry;
-        fn GetConfluentBranches(self: &BranchPoint, end: &LaneEnd) -> *const LaneEndSet;
-        fn GetOngoingBranches(self: &BranchPoint, end: &LaneEnd) -> *const LaneEndSet;
+        fn GetConfluentBranches(self: &BranchPoint, end: &LaneEnd) -> Result<*const LaneEndSet>;
+        fn GetOngoingBranches(self: &BranchPoint, end: &LaneEnd) -> Result<*const LaneEndSet>;
         fn GetASide(self: &BranchPoint) -> *const LaneEndSet;
         fn GetBSide(self: &BranchPoint) -> *const LaneEndSet;
         fn BranchPoint_GetDefaultBranch(branch_point: &BranchPoint, end: &LaneEnd) -> UniquePtr<LaneEnd>;

@@ -34,7 +34,7 @@ fn branch_point_api() {
     let road_network = common::create_t_shape_road_network();
     let road_geometry = road_network.road_geometry();
     let branch_point_id = String::from("2");
-    let branch_point = road_geometry.get_branch_point(&branch_point_id);
+    let branch_point = road_geometry.get_branch_point(&branch_point_id).unwrap();
     assert_eq!(branch_point.id(), branch_point_id);
     assert_eq!(branch_point.road_geometry().id(), road_geometry.id());
     // Testing that the api works. The actual values are not important, they are tested in the
@@ -42,9 +42,9 @@ fn branch_point_api() {
     let lane_end_set = branch_point.get_a_side();
     assert_eq!(lane_end_set.size(), 1);
     let lane_end = lane_end_set.get(0).unwrap();
-    let confluent_branches = branch_point.get_confluent_branches(&lane_end);
+    let confluent_branches = branch_point.get_confluent_branches(&lane_end).unwrap();
     assert_eq!(confluent_branches.size(), 1);
-    let ongoing_branches = branch_point.get_ongoing_branches(&lane_end);
+    let ongoing_branches = branch_point.get_ongoing_branches(&lane_end).unwrap();
     assert_eq!(ongoing_branches.size(), 2);
     let ongoing_branches_id_lane_end = ongoing_branches.to_lane_map();
     assert_eq!(ongoing_branches_id_lane_end.len(), 2);

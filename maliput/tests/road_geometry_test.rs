@@ -83,11 +83,11 @@ fn by_index() {
     assert_eq!(lanes.len(), 12);
 
     let segment_id = String::from("0_0");
-    let segment = road_geometry.get_segment(&segment_id);
+    let segment = road_geometry.get_segment(&segment_id).unwrap();
     assert_eq!(segment.id(), "0_0");
 
     let junction_id = String::from("0_0");
-    let junction = road_geometry.get_junction(&junction_id);
+    let junction = road_geometry.get_junction(&junction_id).unwrap();
     assert_eq!(junction.id(), "0_0");
 }
 

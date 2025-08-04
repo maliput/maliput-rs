@@ -57,7 +57,9 @@ fn lane_api() {
     assert_eq!(orientation.roll(), 0.0);
     assert_eq!(orientation.pitch(), 0.0);
     assert_eq!(orientation.yaw(), 0.0);
-    let ret_inertial_position = lane.to_inertial_position(&road_position_result.road_position.pos()).unwrap();
+    let ret_inertial_position = lane
+        .to_inertial_position(&road_position_result.road_position.pos())
+        .unwrap();
     assert!((ret_inertial_position.x() - inertial_pos.x()).abs() < tolerance);
     assert!((ret_inertial_position.y() - inertial_pos.y()).abs() < tolerance);
     assert!((ret_inertial_position.z() - inertial_pos.z()).abs() < tolerance);
@@ -79,11 +81,11 @@ fn lane_api() {
     assert_eq!(lane.id(), cloned_lane.id());
 
     let lane_end = maliput::api::LaneEnd::Start(lane.clone());
-    let branch_point = lane.get_branch_point(&lane_end);
+    let branch_point = lane.get_branch_point(&lane_end).unwrap();
     assert_eq!(branch_point.id(), "3");
-    let confluent_branches = lane.get_confluent_branches(&lane_end);
+    let confluent_branches = lane.get_confluent_branches(&lane_end).unwrap();
     assert_eq!(confluent_branches.size(), 1);
-    let ongoing_branches = lane.get_ongoing_branches(&lane_end);
+    let ongoing_branches = lane.get_ongoing_branches(&lane_end).unwrap();
     assert_eq!(ongoing_branches.size(), 0);
     let default_branch = lane.get_default_branch(&lane_end);
     assert_eq!(

@@ -35,7 +35,7 @@ fn segment_api() {
     let road_geometry = road_network.road_geometry();
 
     let segment_id = String::from("0_0");
-    let segment = road_geometry.get_segment(&segment_id);
+    let segment = road_geometry.get_segment(&segment_id).unwrap();
     assert_eq!(segment.id(), segment_id);
     let junction = segment.junction();
     assert_eq!(junction.id(), String::from("0_0"));
