@@ -34,11 +34,17 @@ fn junction_api() {
     let road_network = common::create_t_shape_road_network();
     let road_geometry = road_network.road_geometry();
     let junction_id = String::from("0_0");
-    let junction = road_geometry.get_junction(&junction_id);
+    let junction = road_geometry.get_junction(&junction_id).unwrap();
     assert_eq!(junction.road_geometry().id(), road_geometry.id());
     assert_eq!(junction.id(), junction_id);
     let num_segments = junction.num_segments();
     assert_eq!(num_segments, 1);
-    let segment = junction.segment(0);
+    let segment = junction.segment(0).unwrap();
     assert_eq!(segment.id(), String::from("0_0"));
+    // Testing invalid ids.
+    let invalid_junction_id = String::from("invalid_id");
+    let invalid_junction = road_geometry.get_junction(&invalid_junction_id);
+    assert!(invalid_junction.is_none());
+    let invalid_segment = junction.segment(100);
+    assert!(invalid_segment.is_err());
 }

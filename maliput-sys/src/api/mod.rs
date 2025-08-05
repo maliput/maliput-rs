@@ -85,13 +85,13 @@ pub mod ffi {
         fn RoadGeometry_ToRoadPosition(
             rg: &RoadGeometry,
             inertial_position: &InertialPosition,
-        ) -> UniquePtr<RoadPositionResult>;
+        ) -> Result<UniquePtr<RoadPositionResult>>;
         fn RoadGeometry_GetLane(rg: &RoadGeometry, lane_id: &String) -> ConstLanePtr;
         fn RoadGeometry_GetLanes(rg: &RoadGeometry) -> UniquePtr<CxxVector<ConstLanePtr>>;
         fn RoadGeometry_GetSegment(rg: &RoadGeometry, segment_id: &String) -> *const Segment;
         fn RoadGeometry_GetJunction(rg: &RoadGeometry, junction_id: &String) -> *const Junction;
         fn RoadGeometry_GetBranchPoint(rg: &RoadGeometry, branch_point_id: &String) -> *const BranchPoint;
-        fn RoadGeometry_BackendCustomCommand(rg: &RoadGeometry, command: &String) -> String;
+        fn RoadGeometry_BackendCustomCommand(rg: &RoadGeometry, command: &String) -> Result<String>;
         fn RoadGeometry_GeoReferenceInfo(rg: &RoadGeometry) -> String;
         // LanePosition bindings definitions.
         type LanePosition;
@@ -136,16 +136,22 @@ pub mod ffi {
         fn Contains(self: &Lane, lane_position: &LanePosition) -> bool;
         fn segment(self: &Lane) -> *const Segment;
         fn Lane_id(lane: &Lane) -> String;
-        fn Lane_lane_bounds(lane: &Lane, s: f64) -> UniquePtr<RBounds>;
-        fn Lane_segment_bounds(lane: &Lane, s: f64) -> UniquePtr<RBounds>;
-        fn Lane_elevation_bounds(lane: &Lane, s: f64, r: f64) -> UniquePtr<HBounds>;
-        fn Lane_GetOrientation(lane: &Lane, lane_position: &LanePosition) -> UniquePtr<Rotation>;
-        fn Lane_ToInertialPosition(lane: &Lane, lane_position: &LanePosition) -> UniquePtr<InertialPosition>;
-        fn Lane_ToLanePosition(lane: &Lane, inertial_position: &InertialPosition) -> UniquePtr<LanePositionResult>;
-        fn Lane_ToSegmentPosition(lane: &Lane, inertial_position: &InertialPosition) -> UniquePtr<LanePositionResult>;
+        fn Lane_lane_bounds(lane: &Lane, s: f64) -> Result<UniquePtr<RBounds>>;
+        fn Lane_segment_bounds(lane: &Lane, s: f64) -> Result<UniquePtr<RBounds>>;
+        fn Lane_elevation_bounds(lane: &Lane, s: f64, r: f64) -> Result<UniquePtr<HBounds>>;
+        fn Lane_GetOrientation(lane: &Lane, lane_position: &LanePosition) -> Result<UniquePtr<Rotation>>;
+        fn Lane_ToInertialPosition(lane: &Lane, lane_position: &LanePosition) -> Result<UniquePtr<InertialPosition>>;
+        fn Lane_ToLanePosition(
+            lane: &Lane,
+            inertial_position: &InertialPosition,
+        ) -> Result<UniquePtr<LanePositionResult>>;
+        fn Lane_ToSegmentPosition(
+            lane: &Lane,
+            inertial_position: &InertialPosition,
+        ) -> Result<UniquePtr<LanePositionResult>>;
         fn Lane_GetBranchPoint(lane: &Lane, start: bool) -> *const BranchPoint;
-        fn Lane_GetConfluentBranches(lane: &Lane, start: bool) -> *const LaneEndSet;
-        fn Lane_GetOngoingBranches(lane: &Lane, start: bool) -> *const LaneEndSet;
+        fn Lane_GetConfluentBranches(lane: &Lane, start: bool) -> Result<*const LaneEndSet>;
+        fn Lane_GetOngoingBranches(lane: &Lane, start: bool) -> Result<*const LaneEndSet>;
         fn Lane_GetDefaultBranch(lane: &Lane, start: bool) -> UniquePtr<LaneEnd>;
         fn Lane_EvalMotionDerivatives(
             lane: &Lane,
@@ -166,7 +172,7 @@ pub mod ffi {
         type Junction;
         fn road_geometry(self: &Junction) -> *const RoadGeometry;
         fn num_segments(self: &Junction) -> i32;
-        fn segment(self: &Junction, index: i32) -> *const Segment;
+        fn segment(self: &Junction, index: i32) -> Result<*const Segment>;
         fn Junction_id(junction: &Junction) -> String;
 
         // RoadPosition bindings definitions
@@ -265,14 +271,14 @@ pub mod ffi {
         // LaneEndSet bindings definitions
         type LaneEndSet;
         fn size(self: &LaneEndSet) -> i32;
-        fn get(self: &LaneEndSet, index: i32) -> &LaneEnd;
+        fn get(self: &LaneEndSet, index: i32) -> Result<&LaneEnd>;
 
         // BranchPoint bindings definitions
         type BranchPoint;
         fn BranchPoint_id(branch_point: &BranchPoint) -> String;
         fn road_geometry(self: &BranchPoint) -> *const RoadGeometry;
-        fn GetConfluentBranches(self: &BranchPoint, end: &LaneEnd) -> *const LaneEndSet;
-        fn GetOngoingBranches(self: &BranchPoint, end: &LaneEnd) -> *const LaneEndSet;
+        fn GetConfluentBranches(self: &BranchPoint, end: &LaneEnd) -> Result<*const LaneEndSet>;
+        fn GetOngoingBranches(self: &BranchPoint, end: &LaneEnd) -> Result<*const LaneEndSet>;
         fn GetASide(self: &BranchPoint) -> *const LaneEndSet;
         fn GetBSide(self: &BranchPoint) -> *const LaneEndSet;
         fn BranchPoint_GetDefaultBranch(branch_point: &BranchPoint, end: &LaneEnd) -> UniquePtr<LaneEnd>;

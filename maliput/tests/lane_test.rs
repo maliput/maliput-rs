@@ -37,33 +37,39 @@ fn lane_api() {
     let road_network = common::create_t_shape_road_network();
     let road_geometry = road_network.road_geometry();
 
-    let road_position_result = road_geometry.to_road_position(&inertial_pos);
+    let road_position_result = road_geometry.to_road_position(&inertial_pos).unwrap();
     assert_eq!(road_position_result.road_position.lane().id(), expected_lane_id);
     let lane = road_position_result.road_position.lane();
     let index = lane.index();
     assert_eq!(index, 1);
     let contains = lane.contains(&road_position_result.road_position.pos());
     assert!(contains);
-    let lane_bounds = lane.lane_bounds(0.0);
+    let lane_bounds = lane.lane_bounds(0.0).unwrap();
     assert_eq!(lane_bounds.min(), -1.75);
     assert_eq!(lane_bounds.max(), 1.75);
-    let segment_bounds = lane.segment_bounds(0.0);
+    let invalid_lane_bounds = lane.lane_bounds(1e10);
+    assert!(invalid_lane_bounds.is_err());
+    let segment_bounds = lane.segment_bounds(0.0).unwrap();
     assert_eq!(segment_bounds.min(), -5.25);
     assert_eq!(segment_bounds.max(), 1.75);
-    let elevation_bounds = lane.elevation_bounds(0.0, 0.0);
+    let invalid_segment_bounds = lane.segment_bounds(1e10);
+    assert!(invalid_segment_bounds.is_err());
+    let elevation_bounds = lane.elevation_bounds(0.0, 0.0).unwrap();
     assert_eq!(elevation_bounds.min(), 0.0);
     assert_eq!(elevation_bounds.max(), 5.0);
-    let orientation = lane.get_orientation(&road_position_result.road_position.pos());
+    let orientation = lane.get_orientation(&road_position_result.road_position.pos()).unwrap();
     assert_eq!(orientation.roll(), 0.0);
     assert_eq!(orientation.pitch(), 0.0);
     assert_eq!(orientation.yaw(), 0.0);
-    let ret_inertial_position = lane.to_inertial_position(&road_position_result.road_position.pos());
+    let ret_inertial_position = lane
+        .to_inertial_position(&road_position_result.road_position.pos())
+        .unwrap();
     assert!((ret_inertial_position.x() - inertial_pos.x()).abs() < tolerance);
     assert!((ret_inertial_position.y() - inertial_pos.y()).abs() < tolerance);
     assert!((ret_inertial_position.z() - inertial_pos.z()).abs() < tolerance);
-    let ret_lane_position = lane.to_lane_position(&ret_inertial_position);
+    let ret_lane_position = lane.to_lane_position(&ret_inertial_position).unwrap();
     assert_eq!(ret_lane_position.distance, road_position_result.distance);
-    let ret_segment_position = lane.to_segment_position(&inertial_pos);
+    let ret_segment_position = lane.to_segment_position(&inertial_pos).unwrap();
     assert_eq!(ret_segment_position.distance, road_position_result.distance);
     let left_lane = lane.to_left();
     let right_lane = lane.to_right();
@@ -79,11 +85,11 @@ fn lane_api() {
     assert_eq!(lane.id(), cloned_lane.id());
 
     let lane_end = maliput::api::LaneEnd::Start(lane.clone());
-    let branch_point = lane.get_branch_point(&lane_end);
+    let branch_point = lane.get_branch_point(&lane_end).unwrap();
     assert_eq!(branch_point.id(), "3");
-    let confluent_branches = lane.get_confluent_branches(&lane_end);
+    let confluent_branches = lane.get_confluent_branches(&lane_end).unwrap();
     assert_eq!(confluent_branches.size(), 1);
-    let ongoing_branches = lane.get_ongoing_branches(&lane_end);
+    let ongoing_branches = lane.get_ongoing_branches(&lane_end).unwrap();
     assert_eq!(ongoing_branches.size(), 0);
     let default_branch = lane.get_default_branch(&lane_end);
     assert_eq!(

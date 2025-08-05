@@ -33,18 +33,26 @@ mod common;
 fn branch_point_api() {
     let road_network = common::create_t_shape_road_network();
     let road_geometry = road_network.road_geometry();
+
+    // Testing valid branch point id.
     let branch_point_id = String::from("2");
-    let branch_point = road_geometry.get_branch_point(&branch_point_id);
+    let branch_point = road_geometry.get_branch_point(&branch_point_id).unwrap();
     assert_eq!(branch_point.id(), branch_point_id);
     assert_eq!(branch_point.road_geometry().id(), road_geometry.id());
+
+    // Testing invalid branch point id returns None.
+    let invalid_branch_point_id = String::from("invalid_id");
+    let invalid_branch_point = road_geometry.get_branch_point(&invalid_branch_point_id);
+    assert!(invalid_branch_point.is_none());
+
     // Testing that the api works. The actual values are not important, they are tested in the
     // cpp tests.
     let lane_end_set = branch_point.get_a_side();
     assert_eq!(lane_end_set.size(), 1);
-    let lane_end = lane_end_set.get(0);
-    let confluent_branches = branch_point.get_confluent_branches(&lane_end);
+    let lane_end = lane_end_set.get(0).unwrap();
+    let confluent_branches = branch_point.get_confluent_branches(&lane_end).unwrap();
     assert_eq!(confluent_branches.size(), 1);
-    let ongoing_branches = branch_point.get_ongoing_branches(&lane_end);
+    let ongoing_branches = branch_point.get_ongoing_branches(&lane_end).unwrap();
     assert_eq!(ongoing_branches.size(), 2);
     let ongoing_branches_id_lane_end = ongoing_branches.to_lane_map();
     assert_eq!(ongoing_branches_id_lane_end.len(), 2);
@@ -56,6 +64,18 @@ fn branch_point_api() {
     assert!(matches!(lane_end_9, maliput::api::LaneEnd::Start(_)));
     let lane_end_set = branch_point.get_b_side();
     assert_eq!(lane_end_set.size(), 2);
+
+    // Testing invalid lane ends.
+    let lane_end_set = branch_point.get_a_side();
+    let invalid_lane_end = lane_end_set.get(123);
+    assert!(invalid_lane_end.is_err());
+    // Testing valid id with lane ends from another branch point.
+    let other_branch_point_id = String::from("1");
+    let other_branch_point = road_geometry.get_branch_point(&other_branch_point_id).unwrap();
+    let confluent_branches = other_branch_point.get_confluent_branches(&lane_end);
+    assert!(confluent_branches.is_err());
+    let ongoing_branches = other_branch_point.get_ongoing_branches(&lane_end);
+    assert!(ongoing_branches.is_err());
 
     // Test default branch.
     let default_lane_end = branch_point.get_default_branch(&lane_end);
