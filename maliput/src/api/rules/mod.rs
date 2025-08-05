@@ -539,11 +539,13 @@ impl<'a> RoadRulebook<'a> {
         let range_value_rules_id = maliput_sys::api::rules::ffi::QueryResults_range_value_rules(&query_results_cpp);
         let mut dvr_map = std::collections::HashMap::new();
         for rule_id in discrete_value_rules_id {
+            // It is okay to unwrap here since we are iterating valid IDs obtained above.
             let rule = self.get_discrete_value_rule(&rule_id).unwrap();
             dvr_map.insert(rule.id(), rule);
         }
         let mut rvr_map = std::collections::HashMap::new();
         for rule_id in range_value_rules_id {
+            // It is okay to unwrap here since we are iterating valid IDs obtained above.
             let rule = self.get_range_value_rule(&rule_id).unwrap();
             rvr_map.insert(rule.id(), rule);
         }
