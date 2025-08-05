@@ -181,15 +181,18 @@ pub mod ffi {
 
         // RoadRulebook bindings definitions.
         type RoadRulebook;
-        fn RoadRulebook_GetDiscreteValueRule(book: &RoadRulebook, rule_id: &String) -> UniquePtr<DiscreteValueRule>;
-        fn RoadRulebook_GetRangeValueRule(book: &RoadRulebook, rule_id: &String) -> UniquePtr<RangeValueRule>;
+        fn RoadRulebook_GetDiscreteValueRule(
+            book: &RoadRulebook,
+            rule_id: &String,
+        ) -> Result<UniquePtr<DiscreteValueRule>>;
+        fn RoadRulebook_GetRangeValueRule(book: &RoadRulebook, rule_id: &String) -> Result<UniquePtr<RangeValueRule>>;
         fn RoadRulebook_Rules(book: &RoadRulebook) -> UniquePtr<QueryResults>;
         #[allow(clippy::needless_lifetimes)]
         fn RoadRulebook_FindRules(
             book: &RoadRulebook,
             ranges: &Vec<ConstLaneSRangeRef>,
             tolerance: f64,
-        ) -> UniquePtr<QueryResults>;
+        ) -> Result<UniquePtr<QueryResults>>;
 
         // DiscreteValueRule::DiscreteValue bindings definitions.
         type DiscreteValueRuleDiscreteValue;
