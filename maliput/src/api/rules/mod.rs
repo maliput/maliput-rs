@@ -28,6 +28,8 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+use crate::common::MaliputError;
+
 /// Interface for accessing the [TrafficLight] in the [super::RoadNetwork]
 pub struct TrafficLightBook<'a> {
     pub(super) traffic_light_book: &'a maliput_sys::api::rules::ffi::TrafficLightBook,
@@ -505,23 +507,26 @@ impl<'a> RoadRulebook<'a> {
     /// * `rule_id` - The id of the rule.
     /// ## Return
     /// The DiscreteValueRule with the given id.
-    pub fn get_discrete_value_rule(&self, rule_id: &String) -> DiscreteValueRule {
-        DiscreteValueRule {
+    pub fn get_discrete_value_rule(&self, rule_id: &String) -> Result<DiscreteValueRule, MaliputError> {
+        Ok(DiscreteValueRule {
             discrete_value_rule: maliput_sys::api::rules::ffi::RoadRulebook_GetDiscreteValueRule(
                 self.road_rulebook,
                 rule_id,
-            ),
-        }
+            )?,
+        })
     }
     /// Returns the RangeValueRule with the specified `id`.
     /// ## Arguments
     /// * `rule_id` - The id of the rule.
     /// ## Return
     /// The RangeValueRule with the given id.
-    pub fn get_range_value_rule(&self, rule_id: &String) -> RangeValueRule {
-        RangeValueRule {
-            range_value_rule: maliput_sys::api::rules::ffi::RoadRulebook_GetRangeValueRule(self.road_rulebook, rule_id),
-        }
+    pub fn get_range_value_rule(&self, rule_id: &String) -> Result<RangeValueRule, MaliputError> {
+        Ok(RangeValueRule {
+            range_value_rule: maliput_sys::api::rules::ffi::RoadRulebook_GetRangeValueRule(
+                self.road_rulebook,
+                rule_id,
+            )?,
+        })
     }
 
     /// Returns all the rules in the road rulebook.
@@ -534,12 +539,14 @@ impl<'a> RoadRulebook<'a> {
         let range_value_rules_id = maliput_sys::api::rules::ffi::QueryResults_range_value_rules(&query_results_cpp);
         let mut dvr_map = std::collections::HashMap::new();
         for rule_id in discrete_value_rules_id {
-            let rule = self.get_discrete_value_rule(&rule_id);
+            // It is okay to unwrap here since we are iterating valid IDs obtained above.
+            let rule = self.get_discrete_value_rule(&rule_id).unwrap();
             dvr_map.insert(rule.id(), rule);
         }
         let mut rvr_map = std::collections::HashMap::new();
         for rule_id in range_value_rules_id {
-            let rule = self.get_range_value_rule(&rule_id);
+            // It is okay to unwrap here since we are iterating valid IDs obtained above.
+            let rule = self.get_range_value_rule(&rule_id).unwrap();
             rvr_map.insert(rule.id(), rule);
         }
         QueryResults {
@@ -548,8 +555,7 @@ impl<'a> RoadRulebook<'a> {
         }
     }
 
-    pub fn find_rules(&self, ranges: &Vec<super::LaneSRange>, tolerance: f64) -> QueryResults {
-        // let mut ranges_cpp = cxx::CxxVector::new().pin_mut();
+    pub fn find_rules(&self, ranges: &Vec<super::LaneSRange>, tolerance: f64) -> Result<QueryResults, MaliputError> {
         let mut ranges_cpp = Vec::new();
         for range in ranges {
             ranges_cpp.push(maliput_sys::api::rules::ffi::ConstLaneSRangeRef {
@@ -557,25 +563,25 @@ impl<'a> RoadRulebook<'a> {
             });
         }
         let query_results_cpp =
-            maliput_sys::api::rules::ffi::RoadRulebook_FindRules(self.road_rulebook, &ranges_cpp, tolerance);
+            maliput_sys::api::rules::ffi::RoadRulebook_FindRules(self.road_rulebook, &ranges_cpp, tolerance)?;
 
         let discrete_value_rules_id =
             maliput_sys::api::rules::ffi::QueryResults_discrete_value_rules(&query_results_cpp);
         let range_value_rules_id = maliput_sys::api::rules::ffi::QueryResults_range_value_rules(&query_results_cpp);
         let mut dvr_map = std::collections::HashMap::new();
         for rule_id in discrete_value_rules_id {
-            let rule = self.get_discrete_value_rule(&rule_id);
+            let rule = self.get_discrete_value_rule(&rule_id)?;
             dvr_map.insert(rule.id(), rule);
         }
         let mut rvr_map = std::collections::HashMap::new();
         for rule_id in range_value_rules_id {
-            let rule = self.get_range_value_rule(&rule_id);
+            let rule = self.get_range_value_rule(&rule_id)?;
             rvr_map.insert(rule.id(), rule);
         }
-        QueryResults {
+        Ok(QueryResults {
             discrete_value_rules: dvr_map,
             range_value_rules: rvr_map,
-        }
+        })
     }
 }
 

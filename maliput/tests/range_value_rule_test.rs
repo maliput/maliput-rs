@@ -44,11 +44,17 @@ fn range_value_rule_test_api() {
     let expected_rule_id = String::from("Speed-Limit Rule Type/1_0_1_1");
     let expected_type_id = String::from("Speed-Limit Rule Type");
     let rule = book.get_range_value_rule(&expected_rule_id);
+    assert!(rule.is_ok());
+    let rule = rule.unwrap();
     assert_eq!(rule.id(), expected_rule_id);
     assert_eq!(rule.type_id(), expected_type_id);
     let zone = rule.zone();
     let expected_zone_length = 15.;
     assert!((zone.length() - expected_zone_length).abs() < TOLERANCE);
+
+    let invalid_rule_id = String::from("Invaliid Rule Type/InvalidRule");
+    let invalid_rule = book.get_range_value_rule(&invalid_rule_id);
+    assert!(invalid_rule.is_err());
 
     let states = rule.states();
     assert_eq!(states.len(), 1); // Only one speed limit state

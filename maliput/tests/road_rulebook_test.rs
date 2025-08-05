@@ -42,6 +42,8 @@ fn road_rulebook_test_api() {
     let expected_rule_id = String::from("Vehicle-Stop-In-Zone-Behavior Rule Type/WestToEastSouth");
     let expected_type_id = String::from("Vehicle-Stop-In-Zone-Behavior Rule Type");
     let rule = book.get_discrete_value_rule(&expected_rule_id);
+    assert!(rule.is_ok());
+    let rule = rule.unwrap();
     assert_eq!(rule.id(), expected_rule_id);
     assert_eq!(rule.type_id(), expected_type_id);
 
@@ -49,6 +51,8 @@ fn road_rulebook_test_api() {
     let expected_rule_id = String::from("Speed-Limit Rule Type/1_0_1_1");
     let expected_type_id = String::from("Speed-Limit Rule Type");
     let rule = book.get_range_value_rule(&expected_rule_id);
+    assert!(rule.is_ok());
+    let rule = rule.unwrap();
     assert_eq!(rule.id(), expected_rule_id);
     assert_eq!(rule.type_id(), expected_type_id);
 
@@ -72,7 +76,9 @@ fn road_rulebook_test_api() {
     let lane_s_range_1 = maliput::api::LaneSRange::new(&String::from("1_0_1"), &maliput::api::SRange::new(0.0, 100.0));
     let lane_s_range_2 = maliput::api::LaneSRange::new(&String::from("2_0_1"), &maliput::api::SRange::new(0.0, 200.0));
     let ranges = vec![lane_s_range_1, lane_s_range_2];
-    let rules: maliput::api::rules::QueryResults = book.find_rules(&ranges, 1e-3);
+    let rules = book.find_rules(&ranges, 1e-3);
+    assert!(rules.is_ok());
+    let rules = rules.unwrap();
     assert_eq!(rules.discrete_value_rules.len(), 4);
     assert_eq!(rules.range_value_rules.len(), 2);
 }

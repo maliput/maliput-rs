@@ -102,7 +102,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         &String::from("1_0_1"),
         &maliput::api::SRange::new(0.0, lane_1_0_1.length()),
     )];
-    let rules_at_1_0_1 = rulebook.find_rules(&ranges_to_find_rules, 1e-3);
+    let rules_at_1_0_1 = rulebook.find_rules(&ranges_to_find_rules, 1e-3)?;
     let discrete_value_rules_at_1_0_1 = rules_at_1_0_1.discrete_value_rules;
     println!("All Discrete Value Rules at 1_0_1:");
     for (rule_id, _) in discrete_value_rules_at_1_0_1.iter() {
@@ -135,7 +135,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!();
     // Alternatively, if you know the type of the rule and the lane id, you can use the `get_discrete_value_rule` method to get the rule directly.
     let expected_rule_id = String::from("Direction-Usage Rule Type/1_0_1");
-    let rule = rulebook.get_discrete_value_rule(&expected_rule_id);
+    let rule = rulebook.get_discrete_value_rule(&expected_rule_id)?;
     assert_eq!(rule.id(), expected_rule_id);
     assert_eq!(rule.type_id(), "Direction-Usage Rule Type");
     let states = rule.states();
