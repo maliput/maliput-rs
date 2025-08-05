@@ -43,4 +43,8 @@ fn segment_api() {
     assert_eq!(num_lanes, 2);
     let lane = segment.lane(0);
     assert_eq!(lane.id(), String::from("0_0_-1"));
+    // Testing invalid ids.
+    let invalid_segment_id = String::from("invalid_id");
+    let invalid_segment = road_geometry.get_segment(&invalid_segment_id);
+    assert!(invalid_segment.is_none());
 }

@@ -47,9 +47,13 @@ fn lane_api() {
     let lane_bounds = lane.lane_bounds(0.0).unwrap();
     assert_eq!(lane_bounds.min(), -1.75);
     assert_eq!(lane_bounds.max(), 1.75);
+    let invalid_lane_bounds = lane.lane_bounds(1e10);
+    assert!(invalid_lane_bounds.is_err());
     let segment_bounds = lane.segment_bounds(0.0).unwrap();
     assert_eq!(segment_bounds.min(), -5.25);
     assert_eq!(segment_bounds.max(), 1.75);
+    let invalid_segment_bounds = lane.segment_bounds(1e10);
+    assert!(invalid_segment_bounds.is_err());
     let elevation_bounds = lane.elevation_bounds(0.0, 0.0).unwrap();
     assert_eq!(elevation_bounds.min(), 0.0);
     assert_eq!(elevation_bounds.max(), 5.0);

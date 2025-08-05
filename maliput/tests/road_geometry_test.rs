@@ -120,6 +120,9 @@ fn backend_custom_command() {
     let command = String::from("GetRoadOrientationAtOpenScenarioRoadPosition,1,50.,0.");
     let result = road_geometry.backend_custom_command(&command).unwrap();
     assert_eq!(result, "0.000000,-0.000000,1.250000");
+    let invalid_command = String::from("InvalidCommand");
+    let result = road_geometry.backend_custom_command(&invalid_command);
+    assert!(result.is_err());
 }
 
 #[test]
