@@ -34,6 +34,8 @@ pub enum MaliputError {
     // TODO(francocipollone): Add more specific error types as we handle it from the C++ side.
     #[error("Maliput assertion error: {0}")]
     AssertionError(String),
+    #[error("Maliput OBJ creation error: {0}")]
+    ObjCreationError(String),
     #[error("Other: {0}")]
     Other(String),
 }

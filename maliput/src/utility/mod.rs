@@ -29,6 +29,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use crate::api::RoadNetwork;
+use crate::common::MaliputError;
 use std::error::Error;
 use std::fs::{create_dir_all, read_to_string, remove_file};
 use std::path::{Path, PathBuf};
@@ -55,12 +56,12 @@ pub fn generate_obj_file(
     dirpath: impl AsRef<Path>,
     fileroot: impl AsRef<str>,
     obj_features: &ObjFeatures,
-) -> Result<PathBuf, Box<dyn Error>> {
+) -> Result<PathBuf, MaliputError> {
     // Saves the complete path to the generated Wavefront file.
     let future_obj_file_path = dirpath.as_ref().join(fileroot.as_ref().to_string() + ".obj");
-    let dirpath = to_string(dirpath)?;
+    let dirpath = to_string(dirpath).map_err(|e| MaliputError::ObjCreationError(e.to_string()))?;
     // Creates dirpath if does not exist.
-    create_dir_all(&dirpath)?;
+    create_dir_all(&dirpath).map_err(|e| MaliputError::ObjCreationError(e.to_string()))?;
     let raw_rn = road_network.rn.as_ref();
     if let Some(raw_rn) = raw_rn {
         unsafe {
@@ -69,16 +70,19 @@ pub fn generate_obj_file(
                 &dirpath,
                 &fileroot.as_ref().to_string(),
                 obj_features,
-            );
+            )
+            .map_err(|e| MaliputError::ObjCreationError(e.to_string()))?;
         }
         // Verify if the file was created.
         if future_obj_file_path.is_file() && future_obj_file_path.with_extension("mtl").is_file() {
             Ok(future_obj_file_path)
         } else {
-            Result::Err(Box::from("Failed to generate the Wavefront files."))
+            Result::Err(MaliputError::ObjCreationError(String::from(
+                "Failed to generate the Wavefront files.",
+            )))
         }
     } else {
-        Result::Err(Box::from("RoadNetwork is empty."))
+        Result::Err(MaliputError::ObjCreationError(String::from("RoadNetwork is empty.")))
     }
 }
 

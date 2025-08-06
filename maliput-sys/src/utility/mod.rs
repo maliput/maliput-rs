@@ -97,6 +97,6 @@ pub mod ffi {
             dirpath: &String,
             fileroot: &String,
             features: &Features,
-        );
+        ) -> Result<()>;
     }
 }
