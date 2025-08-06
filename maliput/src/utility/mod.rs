@@ -59,9 +59,9 @@ pub fn generate_obj_file(
 ) -> Result<PathBuf, MaliputError> {
     // Saves the complete path to the generated Wavefront file.
     let future_obj_file_path = dirpath.as_ref().join(fileroot.as_ref().to_string() + ".obj");
-    let dirpath = to_string(dirpath).map_err(|e| MaliputError::Other(e.to_string()))?;
+    let dirpath = to_string(dirpath).map_err(|e| MaliputError::ObjCreationError(e.to_string()))?;
     // Creates dirpath if does not exist.
-    create_dir_all(&dirpath).map_err(|e| MaliputError::Other(e.to_string()))?;
+    create_dir_all(&dirpath).map_err(|e| MaliputError::ObjCreationError(e.to_string()))?;
     let raw_rn = road_network.rn.as_ref();
     if let Some(raw_rn) = raw_rn {
         unsafe {
@@ -70,18 +70,19 @@ pub fn generate_obj_file(
                 &dirpath,
                 &fileroot.as_ref().to_string(),
                 obj_features,
-            )?;
+            )
+            .map_err(|e| MaliputError::ObjCreationError(e.to_string()))?;
         }
         // Verify if the file was created.
         if future_obj_file_path.is_file() && future_obj_file_path.with_extension("mtl").is_file() {
             Ok(future_obj_file_path)
         } else {
-            Result::Err(MaliputError::Other(String::from(
+            Result::Err(MaliputError::ObjCreationError(String::from(
                 "Failed to generate the Wavefront files.",
             )))
         }
     } else {
-        Result::Err(MaliputError::AssertionError(String::from("RoadNetwork is empty.")))
+        Result::Err(MaliputError::ObjCreationError(String::from("RoadNetwork is empty.")))
     }
 }
 
