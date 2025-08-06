@@ -85,7 +85,10 @@ mod utility_test {
             let out_dir = out_dir.as_os_str().to_str().unwrap().to_string();
             let file_root = String::from("road_network");
             unsafe {
-                Utility_GenerateObjFile(road_network.as_ref().unwrap(), &out_dir, &file_root, &obj_features);
+                assert!(
+                    Utility_GenerateObjFile(road_network.as_ref().unwrap(), &out_dir, &file_root, &obj_features)
+                        .is_ok()
+                );
             }
             let file_path = PathBuf::from(&out_dir).join(file_root + ".obj");
             let metadata = metadata(file_path).unwrap();
