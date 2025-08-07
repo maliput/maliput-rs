@@ -1243,7 +1243,7 @@ impl RoadPosition {
     /// Gets the [LanePosition] associated with this `RoadPosition`.
     ///
     /// # Returns
-    /// A [LanePosition] that defines the position within the lane for this `RoadPosition
+    /// A [LanePosition] that defines the position within the lane for this `RoadPosition`.
     pub fn pos(&self) -> LanePosition {
         LanePosition {
             lp: maliput_sys::api::ffi::RoadPosition_pos(&self.rp),
@@ -1526,7 +1526,7 @@ impl LaneSRange {
     /// Returns the lane id of the `LaneSRange`.
     ///
     /// # Returns
-    /// A `String` containing the id of the lane associated with this `LaneSRange
+    /// A `String` containing the id of the lane associated with this `LaneSRange`.
     pub fn lane_id(&self) -> String {
         maliput_sys::api::ffi::LaneSRange_lane_id(&self.lane_s_range)
     }
