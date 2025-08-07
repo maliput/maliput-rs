@@ -220,9 +220,9 @@ impl<'a> RoadGeometry<'a> {
     /// different Segments, may map to the same `(x,y,z)` `Inertial`-frame location.
     ///
     /// If `inertial_position` is contained within the volumes of multiple Segments,
-    /// then ToRoadPosition() will choose a [Segment] which yields the minimum
+    /// then to_road_position() will choose a [Segment] which yields the minimum
     /// height `h` value in the result.  If the chosen [Segment] has multiple
-    /// Lanes, then ToRoadPosition() will choose a [Lane] which contains
+    /// Lanes, then to_road_position() will choose a [Lane] which contains
     /// `inertial_position` within its `lane_bounds()` if possible, and if that is
     /// still ambiguous, it will further select a [Lane] which minimizes the
     /// absolute value of the lateral `r` coordinate in the result.
@@ -245,6 +245,33 @@ impl<'a> RoadGeometry<'a> {
             distance: maliput_sys::api::ffi::RoadPositionResult_distance(&rpr),
         })
     }
+
+    /// TODO(#197): Implement find_road_positions
+    /// Obtains all [RoadPosition]s within a radius of the inertial_position.
+    ///
+    /// Only Lanes whose segment regions include points that are within radius of
+    /// inertial position are included in the search. For each of these Lanes,
+    /// include the [RoadPosition] or [RoadPosition]s with the minimum distance to
+    /// inertial position in the returned result.
+    ///
+    /// # Arguments
+    ///
+    /// * `inertial_position` - The [InertialPosition] to search around.
+    /// * `radius` - The radius around the [InertialPosition] to search for [RoadPosition]s.
+    ///
+    /// # Return
+    ///
+    /// A vector of [RoadPositionResult]s.
+    pub fn find_road_positions(
+        &self,
+        _inertial_position: &[InertialPosition],
+        _radius: f64,
+    ) -> Result<Vec<RoadPositionResult>, MaliputError> {
+        Err(MaliputError::Other(
+            "find_road_positions is not implemented yet".to_string(),
+        ))
+    }
+
     /// Get the lane matching given `lane_id`.
     ///
     /// # Arguments
@@ -1255,7 +1282,7 @@ impl RoadPosition {
 /// This struct contains the `RoadPosition`, the nearest `InertialPosition` to that `RoadPosition`,
 /// and the distance between the input `InertialPosition` and the nearest `InertialPosition`.
 ///
-/// This struct is typically used as return type for the methods: [RoadGeometry::to_road_position] and RoadGeometry::fi
+/// This struct is typically used as return type for the methods: [RoadGeometry::to_road_position] and [RoadGeometry::find_road_positions].
 pub struct RoadPositionResult {
     /// The candidate RoadPosition returned by the query.
     pub road_position: RoadPosition,
