@@ -36,225 +36,35 @@ use crate::math::Vector3;
 
 pub mod rules;
 
-/// A RoadGeometry.
-/// Wrapper around C++ implementation `maliput::api::RoadGeometry`.
-/// See RoadNetwork for an example of how to get a RoadGeometry.
-pub struct RoadGeometry<'a> {
-    rg: &'a maliput_sys::api::ffi::RoadGeometry,
-}
-
-impl<'a> RoadGeometry<'a> {
-    /// Returns the id of the RoadGeometry.
-    pub fn id(&self) -> String {
-        maliput_sys::api::ffi::RoadGeometry_id(self.rg)
-    }
-    /// Returns the number of Junctions in the RoadGeometry.
-    ///
-    /// Return value is non-negative.
-    pub fn num_junctions(&self) -> i32 {
-        self.rg.num_junctions()
-    }
-    /// Returns the tolerance guaranteed for linear measurements (positions).
-    pub fn linear_tolerance(&self) -> f64 {
-        self.rg.linear_tolerance()
-    }
-    /// Returns the tolerance guaranteed for angular measurements (orientations).
-    pub fn angular_tolerance(&self) -> f64 {
-        self.rg.angular_tolerance()
-    }
-    /// Returns the number of BranchPoints in the RoadGeometry.
-    ///
-    /// Return value is non-negative.
-    pub fn num_branch_points(&self) -> i32 {
-        self.rg.num_branch_points()
-    }
-    /// Determines the [RoadPosition] corresponding to [InertialPosition] `inertial_position`.
-    ///
-    /// Returns a RoadPositionResult. Its [RoadPosition] is the point in the
-    /// [RoadGeometry]'s manifold which is, in the `Inertial`-frame, closest to
-    /// `inertial_position`. Its InertialPosition is the `Inertial`-frame equivalent of the
-    /// [RoadPosition] and its distance is the Cartesian distance from
-    /// `inertial_position` to the nearest point.
-    ///
-    /// This method guarantees that its result satisfies the condition that
-    /// `result.lane.to_lane_position(result.pos)` is within `linear_tolerance()`
-    /// of the returned [InertialPosition].
-    ///
-    /// The map from [RoadGeometry] to the `Inertial`-frame is not onto (as a bounded
-    /// [RoadGeometry] cannot completely cover the unbounded Cartesian universe).
-    /// If `inertial_position` does represent a point contained within the volume
-    /// of the RoadGeometry, then result distance is guaranteed to be less
-    /// than or equal to `linear_tolerance()`.
-    ///
-    /// The map from [RoadGeometry] to `Inertial`-frame is not necessarily one-to-one.
-    /// Different `(s,r,h)` coordinates from different Lanes, potentially from
-    /// different Segments, may map to the same `(x,y,z)` `Inertial`-frame location.
-    ///
-    /// If `inertial_position` is contained within the volumes of multiple Segments,
-    /// then ToRoadPosition() will choose a [Segment] which yields the minimum
-    /// height `h` value in the result.  If the chosen [Segment] has multiple
-    /// Lanes, then ToRoadPosition() will choose a [Lane] which contains
-    /// `inertial_position` within its `lane_bounds()` if possible, and if that is
-    /// still ambiguous, it will further select a [Lane] which minimizes the
-    /// absolute value of the lateral `r` coordinate in the result.
-    ///
-    /// Wrapper around C++ implementation `maliput::api::RoadGeometry::ToRoadPosition`.
-    ///
-    /// ### Arguments
-    /// * `inertial_position` - The [InertialPosition] to convert into a [RoadPosition].
-    ///
-    /// ### Return
-    /// A [RoadPositionResult] with the nearest [RoadPosition], the corresponding [InertialPosition]
-    /// to that [RoadPosition] and the distance between the input and output [InertialPosition]s.
-    pub fn to_road_position(&self, inertial_position: &InertialPosition) -> Result<RoadPositionResult, MaliputError> {
-        let rpr = maliput_sys::api::ffi::RoadGeometry_ToRoadPosition(self.rg, &inertial_position.ip)?;
-        Ok(RoadPositionResult {
-            road_position: RoadPosition {
-                rp: maliput_sys::api::ffi::RoadPositionResult_road_position(&rpr),
-            },
-            nearest_position: InertialPosition {
-                ip: maliput_sys::api::ffi::RoadPositionResult_nearest_position(&rpr),
-            },
-            distance: maliput_sys::api::ffi::RoadPositionResult_distance(&rpr),
-        })
-    }
-    /// Get the lane matching given `lane_id`.
-    /// ### Arguments
-    /// * `lane_id` - The id of the lane.
-    /// ### Return
-    /// The lane with the given id.
-    /// If no lane is found with the given id, return None.
-    pub fn get_lane(&self, lane_id: &String) -> Option<Lane> {
-        let lane = maliput_sys::api::ffi::RoadGeometry_GetLane(self.rg, lane_id);
-        if lane.lane.is_null() {
-            return None;
-        }
-        Some(Lane {
-            lane: unsafe { lane.lane.as_ref().expect("") },
-        })
-    }
-    /// Get all lanes of the `RoadGeometry`.
-    /// Returns a vector of `Lane`.
-    /// # Example
-    /// ```rust, no_run
-    /// use maliput::api::RoadNetwork;
-    /// use std::collections::HashMap;
-    ///
-    /// let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
-    /// let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
-    /// let road_network_properties = HashMap::from([("road_geometry_id", "my_rg_from_rust"), ("opendrive_file", xodr_path.as_str())]);
-    /// let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties).unwrap();
-    /// let road_geometry = road_network.road_geometry();
-    /// let lanes = road_geometry.get_lanes();
-    /// for lane in lanes {
-    ///    println!("lane_id: {}", lane.id());
-    /// }
-    /// ```
-    pub fn get_lanes(&self) -> Vec<Lane> {
-        let lanes = maliput_sys::api::ffi::RoadGeometry_GetLanes(self.rg);
-        lanes
-            .into_iter()
-            .map(|l| Lane {
-                lane: unsafe { l.lane.as_ref().expect("") },
-            })
-            .collect::<Vec<Lane>>()
-    }
-    /// Get the segment matching given `segment_id`.
-    ///
-    /// ### Arguments
-    /// * `segment_id` - The id of the segment.
-    ///
-    /// ### Return
-    /// The segment with the given id.
-    /// If no segment is found with the given id, return None.
-    pub fn get_segment(&self, segment_id: &String) -> Option<Segment> {
-        let segment = maliput_sys::api::ffi::RoadGeometry_GetSegment(self.rg, segment_id);
-        if segment.is_null() {
-            return None;
-        }
-        unsafe {
-            Some(Segment {
-                segment: segment.as_ref().expect(""),
-            })
-        }
-    }
-    /// Get the junction matching given `junction_id`.
-    ///
-    /// ### Arguments
-    /// * `junction_id` - The id of the junction.
-    ///
-    /// ### Return
-    /// The junction with the given id.
-    /// If no junction is found with the given id, return None.
-    pub fn get_junction(&self, junction_id: &String) -> Option<Junction> {
-        let junction = maliput_sys::api::ffi::RoadGeometry_GetJunction(self.rg, junction_id);
-        if junction.is_null() {
-            return None;
-        }
-        unsafe {
-            Some(Junction {
-                junction: junction.as_ref().expect(""),
-            })
-        }
-    }
-    /// Get the branch point matching given `branch_point_id`.
-    ///
-    /// ### Arguments
-    /// * `branch_point_id` - The id of the branch point.
-    ///
-    /// ### Return
-    /// The branch point with the given id.
-    /// If no branch point is found with the given id, return None.
-    pub fn get_branch_point(&self, branch_point_id: &String) -> Option<BranchPoint> {
-        let branch_point = maliput_sys::api::ffi::RoadGeometry_GetBranchPoint(self.rg, branch_point_id);
-        if branch_point.is_null() {
-            return None;
-        }
-        unsafe {
-            Some(BranchPoint {
-                branch_point: branch_point.as_ref().expect(""),
-            })
-        }
-    }
-    /// Execute a custom command on the backend.
-    /// ### Details
-    /// The documentation of the custom command should be provided by the backend: https://github.com/maliput/maliput_malidrive/blob/main/src/maliput_malidrive/base/road_geometry.h
-    ///
-    /// ### Arguments
-    /// * `command` - The command to execute.
-    ///
-    /// ### Return
-    /// The result of the command.
-    // pub fn backend_custom_command(&self, command: &String) -> String {
-    pub fn backend_custom_command(&self, command: &String) -> Result<String, MaliputError> {
-        Ok(maliput_sys::api::ffi::RoadGeometry_BackendCustomCommand(
-            self.rg, command,
-        )?)
-    }
-    /// Obtains the Geo Reference info of this RoadGeometry.
-    ///
-    /// ### Return
-    /// A string containing the Geo Reference projection, if any.
-    pub fn geo_reference_info(&self) -> String {
-        maliput_sys::api::ffi::RoadGeometry_GeoReferenceInfo(self.rg)
-    }
-}
-
-/// A RoadNetwork.
-/// Wrapper around C++ implementation `maliput::api::RoadNetwork`.
+/// Represents a complete Maliput road network.
 ///
-/// ## Example
+/// A `RoadNetwork` is the main entry point for interacting with a road map in Maliput.
+/// It serves as a container for all the elements that describe a road network,
+/// including its physical layout and the rules of the road.
+///
+/// It provides access to the following key components:
+///
+/// * [`RoadGeometry`]: The geometric description of the road surfaces.
+/// * [`rules::RoadRulebook`]: The set of traffic rules, like speed limits and right-of-way.
+/// * [`rules::TrafficLightBook`]: A catalog of all traffic lights in the network.
+/// * [`IntersectionBook`]: A collection of logical intersections and their states.
+///   TODO: Complete with other books when available (e.g., `RuleRegistry / PhaseRingBook / etc)
+///
+/// More info can be found at https://maliput.readthedocs.io/en/latest/html/deps/maliput/html/maliput_design.html.
+///
+/// # Example
 ///
 /// ```rust, no_run
 /// use maliput::api::RoadNetwork;
 /// use std::collections::HashMap;
 ///
+/// // Properties to load an OpenDRIVE file using the "maliput_malidrive" backend.
 /// let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
 /// let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
 /// let road_network_properties = HashMap::from([("road_geometry_id", "my_rg_from_rust"), ("opendrive_file", xodr_path.as_str())]);
-/// let road_network = maliput::api::RoadNetwork::new("maliput_malidrive", &road_network_properties).unwrap();
-/// let road_geometry = road_network.road_geometry();
-/// println!("num_junctions: {}", road_geometry.num_junctions());
+///
+/// // Create the RoadNetwork by specifying the loader ID and properties.
+/// let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties).unwrap();
 /// ```
 pub struct RoadNetwork {
     pub(crate) rn: cxx::UniquePtr<maliput_sys::api::ffi::RoadNetwork>,
@@ -265,7 +75,7 @@ impl RoadNetwork {
     ///
     /// # Arguments
     ///
-    /// * `road_network_loader_id` - The id of the road network loader.
+    /// * `road_network_loader_id` - The id of the road network loader. It identifies the backend to be used (e.g., "maliput_malidrive").
     /// * `properties` - The properties of the road network.
     ///
     /// # Details
@@ -330,10 +140,271 @@ impl RoadNetwork {
     }
 }
 
-/// A Lane Position.
-/// Wrapper around C++ implementation `maliput::api::LanePosition`.
+/// Represents the geometry of a road network.
 ///
-/// ## Example
+/// `RoadGeometry` is the top-level container for the road network's geometric
+/// description. It is composed of a set of `Junction`s, which in turn contain
+/// `Segment`s and `Lane`s.
+///
+/// It provides access to the entire road network's geometric structure,
+/// allowing for queries about its components (e.g., finding a `Lane` by its ID)
+/// and for coordinate conversions between the inertial frame and the road network's
+/// intrinsic coordinate systems (lane coordinates).
+///
+/// An instance of `RoadGeometry` is typically obtained from a `RoadNetwork`.
+///
+/// More info can be found at https://maliput.readthedocs.io/en/latest/html/deps/maliput/html/maliput_design.html.
+///
+/// # Example of obtaining a `RoadGeometry`
+///
+/// ```rust, no_run
+/// use maliput::api::RoadNetwork;
+/// use std::collections::HashMap;
+///
+/// let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
+/// let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
+/// let road_network_properties = HashMap::from([("road_geometry_id", "my_rg_from_rust"), ("opendrive_file", xodr_path.as_str())]);
+/// let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties).unwrap();
+/// let road_geometry = road_network.road_geometry();
+/// println!("RoadGeometry ID: {}", road_geometry.id());
+/// ```
+pub struct RoadGeometry<'a> {
+    rg: &'a maliput_sys::api::ffi::RoadGeometry,
+}
+
+impl<'a> RoadGeometry<'a> {
+    /// Returns the id of the RoadGeometry.
+    pub fn id(&self) -> String {
+        maliput_sys::api::ffi::RoadGeometry_id(self.rg)
+    }
+    /// Returns the number of Junctions in the RoadGeometry.
+    ///
+    /// Return value is non-negative.
+    pub fn num_junctions(&self) -> i32 {
+        self.rg.num_junctions()
+    }
+    /// Returns the tolerance guaranteed for linear measurements (positions).
+    pub fn linear_tolerance(&self) -> f64 {
+        self.rg.linear_tolerance()
+    }
+    /// Returns the tolerance guaranteed for angular measurements (orientations).
+    pub fn angular_tolerance(&self) -> f64 {
+        self.rg.angular_tolerance()
+    }
+    /// Returns the number of BranchPoints in the RoadGeometry.
+    ///
+    /// Return value is non-negative.
+    pub fn num_branch_points(&self) -> i32 {
+        self.rg.num_branch_points()
+    }
+    /// Determines the [RoadPosition] corresponding to [InertialPosition] `inertial_position`.
+    ///
+    /// Returns a RoadPositionResult. Its [RoadPosition] is the point in the
+    /// [RoadGeometry]'s manifold which is, in the `Inertial`-frame, closest to
+    /// `inertial_position`. Its InertialPosition is the `Inertial`-frame equivalent of the
+    /// [RoadPosition] and its distance is the Cartesian distance from
+    /// `inertial_position` to the nearest point.
+    ///
+    /// This method guarantees that its result satisfies the condition that
+    /// `result.lane.to_lane_position(result.pos)` is within `linear_tolerance()`
+    /// of the returned [InertialPosition].
+    ///
+    /// The map from [RoadGeometry] to the `Inertial`-frame is not onto (as a bounded
+    /// [RoadGeometry] cannot completely cover the unbounded Cartesian universe).
+    /// If `inertial_position` does represent a point contained within the volume
+    /// of the RoadGeometry, then result distance is guaranteed to be less
+    /// than or equal to `linear_tolerance()`.
+    ///
+    /// The map from [RoadGeometry] to `Inertial`-frame is not necessarily one-to-one.
+    /// Different `(s,r,h)` coordinates from different Lanes, potentially from
+    /// different Segments, may map to the same `(x,y,z)` `Inertial`-frame location.
+    ///
+    /// If `inertial_position` is contained within the volumes of multiple Segments,
+    /// then to_road_position() will choose a [Segment] which yields the minimum
+    /// height `h` value in the result.  If the chosen [Segment] has multiple
+    /// Lanes, then to_road_position() will choose a [Lane] which contains
+    /// `inertial_position` within its `lane_bounds()` if possible, and if that is
+    /// still ambiguous, it will further select a [Lane] which minimizes the
+    /// absolute value of the lateral `r` coordinate in the result.
+    ///
+    /// # Arguments
+    /// * `inertial_position` - The [InertialPosition] to convert into a [RoadPosition].
+    ///
+    /// # Return
+    /// A [RoadPositionResult] with the nearest [RoadPosition], the corresponding [InertialPosition]
+    /// to that [RoadPosition] and the distance between the input and output [InertialPosition]s.
+    pub fn to_road_position(&self, inertial_position: &InertialPosition) -> Result<RoadPositionResult, MaliputError> {
+        let rpr = maliput_sys::api::ffi::RoadGeometry_ToRoadPosition(self.rg, &inertial_position.ip)?;
+        Ok(RoadPositionResult {
+            road_position: RoadPosition {
+                rp: maliput_sys::api::ffi::RoadPositionResult_road_position(&rpr),
+            },
+            nearest_position: InertialPosition {
+                ip: maliput_sys::api::ffi::RoadPositionResult_nearest_position(&rpr),
+            },
+            distance: maliput_sys::api::ffi::RoadPositionResult_distance(&rpr),
+        })
+    }
+
+    /// TODO(#197): Implement find_road_positions
+    /// Obtains all [RoadPosition]s within a radius of the inertial_position.
+    ///
+    /// Only Lanes whose segment regions include points that are within radius of
+    /// inertial position are included in the search. For each of these Lanes,
+    /// include the [RoadPosition] or [RoadPosition]s with the minimum distance to
+    /// inertial position in the returned result.
+    ///
+    /// # Arguments
+    ///
+    /// * `inertial_position` - The [InertialPosition] to search around.
+    /// * `radius` - The radius around the [InertialPosition] to search for [RoadPosition]s.
+    ///
+    /// # Return
+    ///
+    /// A vector of [RoadPositionResult]s.
+    pub fn find_road_positions(
+        &self,
+        _inertial_position: &[InertialPosition],
+        _radius: f64,
+    ) -> Result<Vec<RoadPositionResult>, MaliputError> {
+        Err(MaliputError::Other(
+            "find_road_positions is not implemented yet".to_string(),
+        ))
+    }
+
+    /// Get the lane matching given `lane_id`.
+    ///
+    /// # Arguments
+    /// * `lane_id` - The id of the lane.
+    ///
+    /// # Return
+    /// The lane with the given id.
+    /// If no lane is found with the given id, return None.
+    pub fn get_lane(&self, lane_id: &String) -> Option<Lane> {
+        let lane = maliput_sys::api::ffi::RoadGeometry_GetLane(self.rg, lane_id);
+        if lane.lane.is_null() {
+            return None;
+        }
+        Some(Lane {
+            lane: unsafe { lane.lane.as_ref().expect("") },
+        })
+    }
+    /// Get all lanes of the `RoadGeometry`.
+    /// Returns a vector of `Lane`.
+    /// # Example
+    /// ```rust, no_run
+    /// use maliput::api::RoadNetwork;
+    /// use std::collections::HashMap;
+    ///
+    /// let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
+    /// let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
+    /// let road_network_properties = HashMap::from([("road_geometry_id", "my_rg_from_rust"), ("opendrive_file", xodr_path.as_str())]);
+    /// let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties).unwrap();
+    /// let road_geometry = road_network.road_geometry();
+    /// let lanes = road_geometry.get_lanes();
+    /// for lane in lanes {
+    ///    println!("lane_id: {}", lane.id());
+    /// }
+    /// ```
+    pub fn get_lanes(&self) -> Vec<Lane> {
+        let lanes = maliput_sys::api::ffi::RoadGeometry_GetLanes(self.rg);
+        lanes
+            .into_iter()
+            .map(|l| Lane {
+                lane: unsafe { l.lane.as_ref().expect("") },
+            })
+            .collect::<Vec<Lane>>()
+    }
+    /// Get the segment matching given `segment_id`.
+    ///
+    /// # Arguments
+    /// * `segment_id` - The id of the segment.
+    ///
+    /// # Return
+    /// The segment with the given id.
+    /// If no segment is found with the given id, return None.
+    pub fn get_segment(&self, segment_id: &String) -> Option<Segment> {
+        let segment = maliput_sys::api::ffi::RoadGeometry_GetSegment(self.rg, segment_id);
+        if segment.is_null() {
+            return None;
+        }
+        unsafe {
+            Some(Segment {
+                segment: segment.as_ref().expect(""),
+            })
+        }
+    }
+    /// Get the junction matching given `junction_id`.
+    ///
+    /// # Arguments
+    /// * `junction_id` - The id of the junction.
+    ///
+    /// # Return
+    /// The junction with the given id.
+    /// If no junction is found with the given id, return None.
+    pub fn get_junction(&self, junction_id: &String) -> Option<Junction> {
+        let junction = maliput_sys::api::ffi::RoadGeometry_GetJunction(self.rg, junction_id);
+        if junction.is_null() {
+            return None;
+        }
+        unsafe {
+            Some(Junction {
+                junction: junction.as_ref().expect(""),
+            })
+        }
+    }
+    /// Get the branch point matching given `branch_point_id`.
+    ///
+    /// # Arguments
+    /// * `branch_point_id` - The id of the branch point.
+    ///
+    /// # Return
+    /// The branch point with the given id.
+    /// If no branch point is found with the given id, return None.
+    pub fn get_branch_point(&self, branch_point_id: &String) -> Option<BranchPoint> {
+        let branch_point = maliput_sys::api::ffi::RoadGeometry_GetBranchPoint(self.rg, branch_point_id);
+        if branch_point.is_null() {
+            return None;
+        }
+        unsafe {
+            Some(BranchPoint {
+                branch_point: branch_point.as_ref().expect(""),
+            })
+        }
+    }
+    /// Execute a custom command on the backend.
+    ///
+    /// # Details
+    /// The documentation of the custom command should be provided by the backend: https://github.com/maliput/maliput_malidrive/blob/main/src/maliput_malidrive/base/road_geometry.h
+    ///
+    /// # Arguments
+    /// * `command` - The command to execute.
+    ///
+    /// # Return
+    /// The result of the command.
+    // pub fn backend_custom_command(&self, command: &String) -> String {
+    pub fn backend_custom_command(&self, command: &String) -> Result<String, MaliputError> {
+        Ok(maliput_sys::api::ffi::RoadGeometry_BackendCustomCommand(
+            self.rg, command,
+        )?)
+    }
+    /// Obtains the Geo Reference info of this RoadGeometry.
+    ///
+    /// # Return
+    /// A string containing the Geo Reference projection, if any.
+    pub fn geo_reference_info(&self) -> String {
+        maliput_sys::api::ffi::RoadGeometry_GeoReferenceInfo(self.rg)
+    }
+}
+
+/// A 3-dimensional position in a `Lane`-frame, consisting of three components:
+///
+/// * s is longitudinal position, as arc-length along a Lane's reference line.
+/// * r is lateral position, perpendicular to the reference line at s. +r is to
+///   to the left when traveling in the direction of +s.
+/// * h is height above the road surface.
+///
+/// # Example
 ///
 /// ```rust, no_run
 /// use maliput::api::LanePosition;
@@ -423,10 +494,10 @@ impl std::fmt::Debug for LanePosition {
     }
 }
 
-/// An Inertial Position.
-/// Wrapper around C++ implementation `maliput::api::InertialPosition`.
+/// A position in 3-dimensional geographical Cartesian space, i.e., in the
+/// `Inertial`-frame, consisting of three components x, y, and z.
 ///
-/// ## Example
+/// # Example
 ///
 /// ```rust, no_run
 /// use maliput::api::InertialPosition;
@@ -565,18 +636,23 @@ pub struct RBounds {
 }
 
 impl RBounds {
+    /// Create a new `RBounds` with the given `min` and `max` values.
     pub fn new(min: f64, max: f64) -> RBounds {
         RBounds { min, max }
     }
+    /// Get the `min` value of the `RBounds`.
     pub fn min(&self) -> f64 {
         self.min
     }
+    /// Get the `max` value of the `RBounds`.
     pub fn max(&self) -> f64 {
         self.max
     }
+    /// Set the `min` value of the `RBounds`.
     pub fn set_min(&mut self, min: f64) {
         self.min = min;
     }
+    /// Set the `max` value of the `RBounds`.
     pub fn set_max(&mut self, max: f64) {
         self.max = max;
     }
@@ -592,18 +668,23 @@ pub struct HBounds {
 }
 
 impl HBounds {
+    /// Create a new `HBounds` with the given `min` and `max` values.
     pub fn new(min: f64, max: f64) -> HBounds {
         HBounds { min, max }
     }
+    /// Get the `min` value of the `HBounds`.
     pub fn min(&self) -> f64 {
         self.min
     }
+    /// Get the `max` value of the `HBounds`.
     pub fn max(&self) -> f64 {
         self.max
     }
+    /// Set the `min` value of the `HBounds`.
     pub fn set_min(&mut self, min: f64) {
         self.min = min;
     }
+    /// Set the `max` value of the `HBounds`.
     pub fn set_max(&mut self, max: f64) {
         self.max = max;
     }
@@ -631,18 +712,52 @@ impl IsoLaneVelocity {
     }
 }
 
-/// A maliput::api::Lane
-/// Wrapper around C++ implementation `maliput::api::Lane`.
+/// A Lane represents a lane of travel in a road network.  A Lane defines
+/// a curvilinear coordinate system covering the road surface, with a
+/// longitudinal 's' coordinate that expresses the arc-length along a
+/// central reference curve.  The reference curve nominally represents
+/// an ideal travel trajectory along the Lane.
+///
+/// Lanes are grouped by Segment.  All Lanes belonging to a Segment
+/// represent the same road surface, but with different coordinate
+/// parameterizations (e.g., each Lane has its own reference curve).
 pub struct Lane<'a> {
     lane: &'a maliput_sys::api::ffi::Lane,
 }
 
 impl<'a> Lane<'a> {
+    /// Returns the id of the Lane.
+    ///
+    /// The id is a unique identifier for the Lane within the RoadGeometry.
+    ///
+    /// # Returns
+    /// A `String` containing the id of the Lane.
+    pub fn id(&self) -> String {
+        maliput_sys::api::ffi::Lane_id(self.lane)
+    }
     /// Returns the index of this Lane within the Segment which owns it.
     pub fn index(&self) -> i32 {
         self.lane.index()
     }
-    /// Get the left lane of the `Lane`.
+    /// Returns the Segment to which this Lane belongs.
+    ///
+    /// # Returns
+    /// A [`Segment`] containing the Segment to which this Lane belongs.
+    pub fn segment(&self) -> Segment<'a> {
+        unsafe {
+            Segment {
+                segment: self.lane.segment().as_ref().expect(""),
+            }
+        }
+    }
+    /// Returns the adjacent lane to the left, if one exists.
+    ///
+    /// "Left" is defined as the direction of `+r` in the `(s, r, h)` lane-coordinate frame.
+    ///
+    /// # Returns
+    ///
+    /// An [`Option<Lane>`] containing the left lane, or `None` if this is the
+    /// leftmost lane.
     pub fn to_left(&self) -> Option<Lane> {
         let lane = self.lane.to_left();
         if lane.is_null() {
@@ -655,7 +770,15 @@ impl<'a> Lane<'a> {
             }
         }
     }
-    /// Get the right lane of the `Lane`.
+    /// Returns the adjacent lane to the right, if one exists.
+    ///
+    /// "Right" is defined as the direction of `-r` in the `(s, r, h)` lane-coordinate
+    /// frame.
+    ///
+    /// # Returns
+    ///
+    /// An [`Option<Lane>`] containing the right lane, or `None` if this is the
+    /// rightmost lane.
     pub fn to_right(&self) -> Option<Lane> {
         let lane = self.lane.to_right();
         if lane.is_null() {
@@ -668,44 +791,40 @@ impl<'a> Lane<'a> {
             }
         }
     }
-    /// Get the length of the `Lane`.
+    /// Returns the arc-length of the Lane along its reference curve.
+    ///
+    /// The value of length() is also the maximum s-coordinate for this Lane;
+    /// i.e., the domain of s is [0, length()].
+    ///
+    /// # Returns
+    ///
+    /// The length of the Lane in meters.
     pub fn length(&self) -> f64 {
         self.lane.length()
     }
-    /// Get the id of the `Lane` as a string.
-    pub fn id(&self) -> String {
-        maliput_sys::api::ffi::Lane_id(self.lane)
-    }
-    /// Returns the Segment to which this Lane belongs.
-    pub fn segment(&self) -> Segment<'a> {
-        unsafe {
-            Segment {
-                segment: self.lane.segment().as_ref().expect(""),
-            }
-        }
-    }
+
     /// Get the orientation of the `Lane` at the given `LanePosition`.
     pub fn get_orientation(&self, lane_position: &LanePosition) -> Result<Rotation, MaliputError> {
         Ok(Rotation {
             r: maliput_sys::api::ffi::Lane_GetOrientation(self.lane, lane_position.lp.as_ref().expect(""))?,
         })
     }
-    /// ## Brief
+    /// # Brief
     /// Get the [InertialPosition] of the [Lane] at the given [LanePosition].
     ///
-    /// ## Notes
+    /// # Notes
     /// Note there is no constraint for the `r` coordinate, as it can be outside the lane boundaries.
     /// In that scenario, the resultant inertial position represents a point in the `s-r` plane at the given `s` and `h`
     /// coordinates. It's on the user side to verify, if needed, that the lane position is within lane boundaries.
     /// Bare in mind that the inertial position will be a point in the `s-r` plane, but *not* necessarily on the road surface.
     ///
-    /// ## Arguments
+    /// # Arguments
     /// * `lane_position` - A maliput [LanePosition].
     ///
-    /// ## Precondition
+    /// # Precondition
     /// The s component of `lane_position` must be in domain [0, Lane::length()].
     ///
-    /// ## Return
+    /// # Return
     /// The [InertialPosition] corresponding to the input [LanePosition].
     pub fn to_inertial_position(&self, lane_position: &LanePosition) -> Result<InertialPosition, MaliputError> {
         Ok(InertialPosition {
@@ -720,10 +839,10 @@ impl<'a> Lane<'a> {
     /// `to_inertial_position(result.lane_position)` is within `linear_tolerance()`
     ///  of `result.nearest_position`.
     ///
-    /// ### Arguments
+    /// # Arguments
     /// * `inertial_position` - A [InertialPosition] to get a [LanePosition] from.
     ///
-    /// ### Return
+    /// # Return
     /// A [LanePositionResult] with the closest [LanePosition], the corresponding [InertialPosition] to that [LanePosition]
     /// and the distance between the input and output [InertialPosition]s.
     pub fn to_lane_position(&self, inertial_position: &InertialPosition) -> Result<LanePositionResult, MaliputError> {
@@ -746,10 +865,10 @@ impl<'a> Lane<'a> {
     /// `to_inertial_position(result.lane_position)` is within `linear_tolerance()`
     ///  of `result.nearest_position`.
     ///
-    /// ### Arguments
+    /// # Arguments
     /// * `inertial_position` - A [InertialPosition] to get a SegmentPosition from.
     ///
-    /// ### Return
+    /// # Return
     /// A [LanePositionResult] with the closest [LanePosition] within the segment, the corresponding
     /// [InertialPosition] to that [LanePosition] and the distance between the input and output
     /// [InertialPosition]s.
@@ -768,17 +887,68 @@ impl<'a> Lane<'a> {
             distance: maliput_sys::api::ffi::LanePositionResult_distance(&spr),
         })
     }
-    /// Get the lane bounds of the `Lane` at the given `s`.
+    /// Returns the nominal lateral (r) bounds for the lane as a function of s.
+    ///
+    /// These are the lateral bounds for a position that is considered to be
+    /// "staying in the lane".
+    ///
+    /// See also [Lane::segment_bounds] that defines the whole surface.
+    ///
+    /// # Arguments
+    /// * `s` - The longitudinal position along the lane's reference line.
+    ///
+    /// # Returns
+    /// A [RBounds] containing the lateral bounds of the lane at the given `s.
+    ///
+    /// # Errors
+    /// If lane bounds cannot be computed, an error is returned. This can happen if the
+    /// `s` value is out of bounds (i.e., not in the range [0, Lane::length()]).
     pub fn lane_bounds(&self, s: f64) -> Result<RBounds, MaliputError> {
         let bounds = maliput_sys::api::ffi::Lane_lane_bounds(self.lane, s)?;
         Ok(RBounds::new(bounds.min(), bounds.max()))
     }
-    /// Get the segment bounds of the `Lane` at the given `s`.
+    /// Returns the lateral segment (r) bounds of the lane as a function of s.
+    ///
+    /// These are the lateral bounds for a position that is considered to be
+    /// "on segment", reflecting the physical extent of the surface of the
+    /// lane's segment.
+    ///
+    /// See also [Lane::lane_bounds] that defines what's considered to be "staying
+    /// in the lane".
+    ///
+    /// # Arguments
+    /// * `s` - The longitudinal position along the lane's reference line.
+    ///
+    /// # Returns
+    /// A [RBounds] containing the lateral segment bounds of the lane at the given `
+    /// s`.
+    ///
+    /// # Errors
+    /// If segment bounds cannot be computed, an error is returned. This can happen if the
+    /// `s` value is out of bounds (i.e., not in the range [0, Lane::length()]).
     pub fn segment_bounds(&self, s: f64) -> Result<RBounds, MaliputError> {
         let bounds = maliput_sys::api::ffi::Lane_segment_bounds(self.lane, s)?;
         Ok(RBounds::new(bounds.min(), bounds.max()))
     }
-    /// Get the elevation bounds of the `Lane` at the given `s` and `r`.
+    /// Returns the elevation (`h`) bounds of the lane as a function of `(s, r)`.
+    ///
+    /// These are the elevation bounds for a position that is considered to be
+    /// within the Lane's volume modeled by the RoadGeometry.
+    ///
+    /// `s` is within [0, `length()`] of this Lane and `r` is within
+    /// `lane_bounds(s)`.
+    ///
+    /// # Arguments
+    /// * `s` - The longitudinal position along the lane's reference line.
+    /// * `r` - The lateral position perpendicular to the reference line at `s`.
+    ///
+    /// # Returns
+    /// A [HBounds] containing the elevation bounds of the lane at the given `(s, r)`.
+    ///
+    /// # Errors
+    /// If elevation bounds cannot be computed, an error is returned. This can happen if the
+    /// `s` value is out of bounds (i.e., not in the range [0, Lane::length()]) or if `r` is not within the
+    /// lane bounds at `s`.
     pub fn elevation_bounds(&self, s: f64, r: f64) -> Result<HBounds, MaliputError> {
         let bounds = maliput_sys::api::ffi::Lane_elevation_bounds(self.lane, s, r)?;
         Ok(HBounds::new(bounds.min(), bounds.max()))
@@ -787,6 +957,12 @@ impl<'a> Lane<'a> {
     /// `velocity` is a isometric velocity vector oriented in the `Lane`-frame
     /// at `position`.
     ///
+    /// # Arguments
+    /// * `lane_position` - A [LanePosition] at which to evaluate the derivatives.
+    /// * `velocity` - An [IsoLaneVelocity] representing the velocity vector in the `Lane`-frame
+    ///   at `lane_position`.
+    ///
+    /// # Returns
     /// Returns `Lane`-frame derivatives packed into a [LanePosition] struct.
     pub fn eval_motion_derivatives(&self, lane_position: &LanePosition, velocity: &IsoLaneVelocity) -> LanePosition {
         LanePosition {
@@ -801,10 +977,10 @@ impl<'a> Lane<'a> {
     }
     /// Returns the lane's [BranchPoint] for the specified end.
     ///
-    /// ### Argument
+    /// # Argument
     /// * `end` - This lane's start or end [LaneEnd].
     ///
-    /// ### Return
+    /// # Return
     /// The lane's [BranchPoint] for the specified end.
     pub fn get_branch_point(&self, end: &LaneEnd) -> Result<BranchPoint, MaliputError> {
         if end != &LaneEnd::Start(self.clone()) && end != &LaneEnd::Finish(self.clone()) {
@@ -825,10 +1001,10 @@ impl<'a> Lane<'a> {
     /// same side of the [BranchPoint] at `end`. At a minimum,
     /// this set will include this [Lane].
     ///
-    /// ### Arguments
+    /// # Arguments
     /// * `end` - This lane's start or end [LaneEnd].
     ///
-    /// ### Return
+    /// # Return
     /// A [LaneEndSet] with all the [LaneEnd]s at the same side of the [BranchPoint] at `end`.
     pub fn get_confluent_branches(&self, end: &LaneEnd) -> Result<LaneEndSet, MaliputError> {
         if end != &LaneEnd::Start(self.clone()) && end != &LaneEnd::Finish(self.clone()) {
@@ -848,10 +1024,10 @@ impl<'a> Lane<'a> {
     /// Returns the set of [LaneEnd]s which continue onward from this lane at the
     /// [BranchPoint] at `end`.
     ///
-    /// ### Arguments
+    /// # Arguments
     /// * `end` - This lane's start or end [LaneEnd].
     ///
-    /// ### Return
+    /// # Return
     /// A [LaneEndSet] with all the [LaneEnd]s at the opposite side of the [BranchPoint] at `end`.
     pub fn get_ongoing_branches(&self, end: &LaneEnd) -> Result<LaneEndSet, MaliputError> {
         if end != &LaneEnd::Start(self.clone()) && end != &LaneEnd::Finish(self.clone()) {
@@ -870,11 +1046,18 @@ impl<'a> Lane<'a> {
     }
     /// Returns the default ongoing LaneEnd connected at `end`,
     /// or None if no default branch has been established.
+    ///
+    /// # Arguments
+    /// * `end` - This lane's start or end [LaneEnd].
+    ///
+    /// # Return
+    /// An `Option<LaneEnd>` containing the default branch if it exists, or None
+    /// if no default branch has been established.
     pub fn get_default_branch(&self, end: &LaneEnd) -> Option<LaneEnd> {
         assert! {
             end == &LaneEnd::Start(self.clone()) || end == &LaneEnd::Finish(self.clone()),
             "LaneEnd must be an end of this lane {:?}",
-            end
+           end
         }
         let lane_end = maliput_sys::api::ffi::Lane_GetDefaultBranch(self.lane, end == &LaneEnd::Start(self.clone()));
         match lane_end.is_null() {
@@ -895,7 +1078,13 @@ impl<'a> Lane<'a> {
             }
         }
     }
-    /// Check if the `Lane` contains the given `LanePosition`.
+    /// Evaluates if the `Lane` contains the given `LanePosition`.
+    ///
+    /// # Arguments
+    /// * `lane_position` - A [LanePosition] to check if it is contained within the `Lane`.
+    ///
+    /// # Returns
+    /// A boolean indicating whether the `Lane` contains the `LanePosition`.
     pub fn contains(&self, lane_position: &LanePosition) -> bool {
         self.lane.Contains(lane_position.lp.as_ref().expect(""))
     }
@@ -916,35 +1105,64 @@ impl Clone for Lane<'_> {
 /// map to the same GeoPoint in 3-space.
 ///
 /// Segments are grouped by [Junction].
-///
-/// Wrapper around C++ implementation `maliput::api::Segment`.
 pub struct Segment<'a> {
     segment: &'a maliput_sys::api::ffi::Segment,
 }
 
 impl<'a> Segment<'a> {
-    /// Get the id of the `Segment` as a string.
+    /// Returns the id of the Segment.
+    /// The id is a unique identifier for the Segment within the RoadGeometry.
+    ///
+    /// # Returns
+    /// A `String` containing the id of the Segment.
     pub fn id(&self) -> String {
         maliput_sys::api::ffi::Segment_id(self.segment)
     }
     /// Returns the [Junction] to which this Segment belongs.
-    pub fn junction(&self) -> Junction {
+    ///
+    /// # Returns
+    /// An [`Result<Junction, MaliputError>`] containing the Junction to which this Segment belongs.
+    /// If the Segment does not belong to a Junction, an error is returned.
+    pub fn junction(&self) -> Result<Junction, MaliputError> {
+        let junction = self.segment.junction()?;
+        if junction.is_null() {
+            return Err(MaliputError::AssertionError(
+                "Segment does not belong to a Junction".to_string(),
+            ));
+        }
         unsafe {
-            Junction {
-                junction: self.segment.junction().as_ref().expect(""),
-            }
+            Ok(Junction {
+                junction: junction.as_ref().expect(""),
+            })
         }
     }
-    /// Get the number of lanes in the `Segment`.
+    /// Returns the number of lanes in the Segment.
+    ///
+    /// # Returns
+    /// The number of lanes in the Segment.
     pub fn num_lanes(&self) -> i32 {
         self.segment.num_lanes()
     }
-    /// Get the lane at the given `index`.
-    pub fn lane(&self, index: i32) -> Lane {
+    /// Returns the lane at the given `index`.
+    ///
+    /// # Arguments
+    /// * `index` - The index of the lane to retrieve.
+    ///
+    /// # Returns
+    /// A [`Lane`] containing the lane at the given index.
+    pub fn lane(&self, index: i32) -> Result<Lane, MaliputError> {
+        if index < 0 || index >= self.num_lanes() {
+            return Err(MaliputError::AssertionError(format!(
+                "Index {} is out of bounds for Segment with {} lanes",
+                index,
+                self.num_lanes()
+            )));
+        }
+        let lane = self.segment.lane(index)?;
         unsafe {
-            Lane {
-                lane: self.segment.lane(index).as_ref().expect(""),
-            }
+            Ok(Lane {
+                lane: lane.as_ref().expect(""),
+            })
         }
     }
 }
@@ -956,18 +1174,23 @@ impl<'a> Segment<'a> {
 /// connected to one another in the network topology.
 ///
 /// Junctions are grouped by [RoadGeometry].
-///
-/// Wrapper around C++ implementation `maliput::api::Segment`.
 pub struct Junction<'a> {
     junction: &'a maliput_sys::api::ffi::Junction,
 }
 
 impl<'a> Junction<'a> {
-    /// Get the id of the `Junction` as a string.
+    /// Returns the id of the Junction.
+    /// The id is a unique identifier for the Junction within the RoadGeometry.
+    ///
+    /// # Returns
+    /// A `String` containing the id of the Junction.
     pub fn id(&self) -> String {
         maliput_sys::api::ffi::Junction_id(self.junction)
     }
-    /// Get the road geometry of the `Junction`.
+    /// Returns the [RoadGeometry] to which this Junction belongs.
+    ///
+    /// # Returns
+    /// A [`RoadGeometry`] containing the RoadGeometry to which this Junction belongs.
     pub fn road_geometry(&self) -> RoadGeometry {
         unsafe {
             RoadGeometry {
@@ -975,11 +1198,21 @@ impl<'a> Junction<'a> {
             }
         }
     }
-    /// Get the number of segments in the `Junction`.
+    /// Returns the number of segments in the Junction.
+    ///
+    /// # Returns
+    /// The number of segments in the Junction.
     pub fn num_segments(&self) -> i32 {
         self.junction.num_segments()
     }
-    /// Get the segment at the given `index`.
+    /// Returns the segment at the given `index`.
+    ///
+    /// # Arguments
+    /// * `index` - The index of the segment to retrieve.
+    ///
+    /// # Returns
+    /// A [Result<Segment, MaliputError>] containing the segment at the given index.
+    /// If the index is out of bounds, an error is returned.
     pub fn segment(&self, index: i32) -> Result<Segment, MaliputError> {
         unsafe {
             Ok(Segment {
@@ -989,14 +1222,21 @@ impl<'a> Junction<'a> {
     }
 }
 
-/// A maliput::api::RoadPosition
-/// Wrapper around C++ implementation `maliput::api::RoadPosition`.
+/// A position in the road network compound by a specific lane and a lane-frame position in that lane.
+/// This position is defined by a [Lane] and a [LanePosition].
 pub struct RoadPosition {
     rp: cxx::UniquePtr<maliput_sys::api::ffi::RoadPosition>,
 }
 
 impl RoadPosition {
     /// Create a new `RoadPosition` with the given `lane` and `lane_pos`.
+    ///
+    /// # Arguments
+    /// * `lane` - A reference to a [Lane] that this `RoadPosition` is associated with.
+    /// * `lane_pos` - A reference to a [LanePosition] that defines the position within the lane.
+    ///
+    /// # Returns
+    /// A new `RoadPosition` instance.
     pub fn new(lane: &Lane, lane_pos: &LanePosition) -> RoadPosition {
         unsafe {
             RoadPosition {
@@ -1004,13 +1244,22 @@ impl RoadPosition {
             }
         }
     }
-    /// Get the inertial position of the `RoadPosition` via doing a Lane::ToInertialPosition query call.
+    /// Computes the [InertialPosition] corresponding to this `RoadPosition`.
+    ///
+    /// # Notes
+    /// This is an indirection to [Lane::to_inertial_position] method.
+    ///
+    /// # Returns
+    /// An [InertialPosition] corresponding to this `RoadPosition`.
     pub fn to_inertial_position(&self) -> InertialPosition {
         InertialPosition {
             ip: maliput_sys::api::ffi::RoadPosition_ToInertialPosition(&self.rp),
         }
     }
-    /// Get the lane of the `RoadPosition`.
+    /// Gets the [Lane] associated with this `RoadPosition`.
+    ///
+    /// # Returns
+    /// A [Lane] that this `RoadPosition` is associated with.
     pub fn lane(&self) -> Lane {
         unsafe {
             Lane {
@@ -1018,7 +1267,10 @@ impl RoadPosition {
             }
         }
     }
-    /// Get the lane position of the `RoadPosition`.
+    /// Gets the [LanePosition] associated with this `RoadPosition`.
+    ///
+    /// # Returns
+    /// A [LanePosition] that defines the position within the lane for this `RoadPosition`.
     pub fn pos(&self) -> LanePosition {
         LanePosition {
             lp: maliput_sys::api::ffi::RoadPosition_pos(&self.rp),
@@ -1027,9 +1279,17 @@ impl RoadPosition {
 }
 
 /// Represents the result of a RoadPosition query.
+/// This struct contains the `RoadPosition`, the nearest `InertialPosition` to that `RoadPosition`,
+/// and the distance between the input `InertialPosition` and the nearest `InertialPosition`.
+///
+/// This struct is typically used as return type for the methods: [RoadGeometry::to_road_position] and [RoadGeometry::find_road_positions].
 pub struct RoadPositionResult {
+    /// The candidate RoadPosition returned by the query.
     pub road_position: RoadPosition,
+    /// The nearest InertialPosition to the candidate RoadPosition.
+    /// This is the position in the inertial frame that is closest to the candidate RoadPosition
     pub nearest_position: InertialPosition,
+    /// The distance between the input InertialPosition and the nearest InertialPosition.
     pub distance: f64,
 }
 
@@ -1045,9 +1305,20 @@ impl RoadPositionResult {
 }
 
 /// Represents the result of a LanePosition query.
+/// This struct contains the `LanePosition`, the nearest `InertialPosition` to that `LanePosition`,
+/// and the distance between the input `InertialPosition` and the nearest `InertialPosition`.
+///
+/// This struct is typically used as return type for the methods: [Lane::to_lane_position] and [Lane::to_segment_position].
 pub struct LanePositionResult {
+    /// The candidate LanePosition within the Lane' lane-bounds or segment-bounds
+    /// depending if [Lane::to_lane_position] or [Lane::to_segment_position] respectively, was called.
+    /// The LanePosition is closest to a `inertial_position` supplied to [Lane::to_lane_position]
+    /// (measured by the Cartesian metric in the `Inertial`-frame).
     pub lane_position: LanePosition,
+    /// The position that exactly corresponds to `lane_position`.
     pub nearest_position: InertialPosition,
+    /// The Cartesian distance between `nearest_position` and the
+    /// `inertial_position` supplied to [Lane::to_lane_position] / [Lane::to_segment_position].
     pub distance: f64,
 }
 
@@ -1062,8 +1333,11 @@ impl LanePositionResult {
     }
 }
 
-/// A maliput::api::Rotation
-/// A wrapper around C++ implementation `maliput::api::Rotation`.
+/// A 3-dimensional rotation in the road network.
+/// This struct represents a rotation in the road network, which can be defined
+/// using a quaternion or roll-pitch-yaw angles.
+/// It provides methods to create a rotation, convert between representations,
+/// and apply the rotation to an inertial position.
 pub struct Rotation {
     r: cxx::UniquePtr<maliput_sys::api::ffi::Rotation>,
 }
@@ -1154,52 +1428,94 @@ impl Rotation {
 }
 
 /// Directed, inclusive longitudinal (s value) range from s0 to s1.
-/// Wrapper around C++ implementation `maliput::api::SRange`.
 pub struct SRange {
     s_range: cxx::UniquePtr<maliput_sys::api::ffi::SRange>,
 }
 
 impl SRange {
-    /// Create a new `SRange` with the given `s0` and `s1`.
+    /// Creates a new `SRange` with the given `s0` and `s1`.
+    ///
+    /// # Arguments
+    /// * `s0` - The starting value of the range.
+    /// * `s1` - The ending value of the range.
+    ///
+    /// # Returns
+    /// A new `SRange` instance.
     pub fn new(s0: f64, s1: f64) -> SRange {
         SRange {
             s_range: maliput_sys::api::ffi::SRange_new(s0, s1),
         }
     }
-    /// Get the s0 of the `SRange`.
+    /// Returns the s0 of the `SRange`.
+    ///
+    /// # Returns
+    /// The starting value of the range.
     pub fn s0(&self) -> f64 {
         self.s_range.s0()
     }
-    /// Get the s1 of the `SRange`.
+    /// Returns the s1 of the `SRange`.
+    ///
+    /// # Returns
+    /// The ending value of the range.
     pub fn s1(&self) -> f64 {
         self.s_range.s1()
     }
-    /// Set the s0 of the `SRange`.
+    /// Sets the s0 of the `SRange`.
+    ///
+    /// # Arguments
+    /// * `s0` - The new starting value of the range.
     pub fn set_s0(&mut self, s0: f64) {
         self.s_range.as_mut().expect("Underlying SRange is null").set_s0(s0);
     }
-    /// Set the s1 of the `SRange`.
+    /// Sets the s1 of the `SRange`.
+    ///
+    /// # Arguments
+    /// * `s1` - The new ending value of the range.
     pub fn set_s1(&mut self, s1: f64) {
         self.s_range.as_mut().expect("Underlying SRange is null").set_s1(s1);
     }
     /// Get the size of the `SRange`.
+    ///
+    /// # Returns
+    /// The size of the range, which is the difference between s1 and s0.
     pub fn size(&self) -> f64 {
         self.s_range.size()
     }
-    /// Returns true When this SRange is in the direction of +s.
+    /// Defines whether this SRange is in the direction of +s (i.e., s1() > s0()).
+    ///
+    /// # Returns
+    /// A boolean indicating whether the SRange is in the direction of +s.
     pub fn with_s(&self) -> bool {
         self.s_range.WithS()
     }
     /// Determines whether this SRange intersects with `s_range`.
+    ///
+    /// # Arguments
+    /// * `s_range` - Another `SRange` to check for intersection.
+    /// * `tolerance` - A tolerance value to consider when checking for intersection.
+    ///
+    /// # Returns
+    /// A boolean indicating whether this SRange intersects with `s_range`.
     pub fn intersects(&self, s_range: &SRange, tolerance: f64) -> bool {
         self.s_range.Intersects(&s_range.s_range, tolerance)
     }
     /// Determines whether this SRange contains `s_range`.
+    ///
+    /// # Arguments
+    /// * `s_range` - Another `SRange` to check if it is contained within this SRange.
+    /// * `tolerance` - A tolerance value to consider when checking for containment.
     pub fn contains(&self, s_range: &SRange, tolerance: f64) -> bool {
         self.s_range.Contains(&s_range.s_range, tolerance)
     }
     /// Get the intersection of this SRange with `s_range`.
-    /// Returns None if the intersection is empty.
+    ///
+    /// # Arguments
+    /// * `s_range` - Another `SRange` to get the intersection with.
+    /// * `tolerance` - A tolerance value to consider when checking for intersection.
+    ///
+    /// # Returns
+    /// An `Option<SRange>` containing the intersection of this SRange with `s_range`.
+    /// If the intersection is empty, it returns None.
     pub fn get_intersection(&self, s_range: &SRange, tolerance: f64) -> Option<SRange> {
         let intersection = maliput_sys::api::ffi::SRange_GetIntersection(&self.s_range, &s_range.s_range, tolerance);
         match intersection.is_null() {
@@ -1216,41 +1532,84 @@ impl std::fmt::Debug for SRange {
 }
 
 /// Directed longitudinal range of a specific Lane, identified by a LaneId.
-/// Wrapper around C++ implementation `maliput::api::LaneSRange`.
+/// Similar to [SRange], but associated with a specific Lane.
 pub struct LaneSRange {
     pub(crate) lane_s_range: cxx::UniquePtr<maliput_sys::api::ffi::LaneSRange>,
 }
 
 impl LaneSRange {
-    /// Create a new `LaneSRange` with the given `lane_id` and `s_range`.
+    /// Creates a new `LaneSRange` with the given `lane_id` and `s_range`.
+    /// # Arguments
+    /// * `lane_id` - A `String` representing the id of the lane.
+    /// * `s_range` - A reference to an [SRange] that defines the longitudinal range of the lane.
+    ///
+    /// # Returns
+    /// A new `LaneSRange` instance.
     pub fn new(lane_id: &String, s_range: &SRange) -> LaneSRange {
         LaneSRange {
             lane_s_range: maliput_sys::api::ffi::LaneSRange_new(lane_id, &s_range.s_range),
         }
     }
-    /// Get the lane id of the `LaneSRange`.
+    /// Returns the lane id of the `LaneSRange`.
+    ///
+    /// # Returns
+    /// A `String` containing the id of the lane associated with this `LaneSRange`.
     pub fn lane_id(&self) -> String {
         maliput_sys::api::ffi::LaneSRange_lane_id(&self.lane_s_range)
     }
-    /// Get the s range of the `LaneSRange`.
+    /// Returns the [SRange] of the `LaneSRange`.
+    ///
+    /// # Returns
+    /// An [SRange] containing the longitudinal range of the lane associated with this `LaneSRange`.
     pub fn s_range(&self) -> SRange {
         SRange {
             s_range: maliput_sys::api::ffi::LaneSRange_s_range(&self.lane_s_range),
         }
     }
-    /// Get the length of the `LaneSRange`.
+    /// Returns the length of the `LaneSRange`.
+    ///
+    /// This is equivalent to `s_range.size()`.
+    ///
+    /// # Returns
+    /// A `f64` representing the length of the `LaneSRange`.
     pub fn length(&self) -> f64 {
         self.lane_s_range.length()
     }
     /// Determines whether this LaneSRange intersects with `lane_s_range`.
+    ///
+    /// # Arguments
+    /// * `lane_s_range` - Another `LaneSRange` to check for intersection.
+    /// * `tolerance` - A tolerance value to consider when checking for intersection.
+    ///
+    /// # Returns
+    /// A boolean indicating whether this LaneSRange intersects with `lane_s_range`.
     pub fn intersects(&self, lane_s_range: &LaneSRange, tolerance: f64) -> bool {
         self.lane_s_range.Intersects(&lane_s_range.lane_s_range, tolerance)
     }
     /// Determines whether this LaneSRange contains `lane_s_range`.
+    ///
+    /// # Arguments
+    /// * `lane_s_range` - Another `LaneSRange` to check if it is contained within this LaneSRange.
+    /// * `tolerance` - A tolerance value to consider when checking for containment.
+    ///
+    /// # Returns
+    /// A boolean indicating whether this LaneSRange contains `lane_s_range`.
+    /// This checks if the `s_range` of `lane_s_range` is fully contained
+    /// within the `s_range` of this `LaneSRange`, considering the lane id.
+    /// If the lane id does not match, it returns false.
     pub fn contains(&self, lane_s_range: &LaneSRange, tolerance: f64) -> bool {
         self.lane_s_range.Contains(&lane_s_range.lane_s_range, tolerance)
     }
-    /// Get the intersection of this LaneSRange with `lane_s_range`.
+    /// Computes the intersection of this `LaneSRange` with `lane_s_range`.
+    ///
+    /// # Arguments
+    /// * `lane_s_range` - Another `LaneSRange` to get the intersection with.
+    /// * `tolerance` - A tolerance value to consider when checking for intersection.
+    ///
+    /// # Returns
+    /// An `Option<LaneSRange>` containing the intersection of this `LaneSRange` with `lane_s_range`.
+    /// If the lane ids do not match, it returns None.
+    /// If the intersection is empty, it returns None.
     pub fn get_intersection(&self, lane_s_range: &LaneSRange, tolerance: f64) -> Option<LaneSRange> {
         let intersection = maliput_sys::api::ffi::LaneSRange_GetIntersection(
             &self.lane_s_range,
@@ -1288,10 +1647,13 @@ pub struct LaneSRoute {
 }
 
 impl LaneSRoute {
-    /// Create a new `LaneSRoute` with the given `ranges`.
+    /// Creates a new `LaneSRoute` with the given `ranges`.
     ///
-    /// ## Arguments
+    /// # Arguments
     /// * `ranges` - A vector of [LaneSRange] to create the [LaneSRoute].
+    ///
+    /// # Returns
+    /// A new `LaneSRoute` instance containing the provided ranges.
     pub fn new(ranges: Vec<LaneSRange>) -> LaneSRoute {
         let mut lane_s_ranges_cpp = cxx::CxxVector::new();
         for range in &ranges {
@@ -1308,6 +1670,9 @@ impl LaneSRoute {
     }
 
     /// Returns the sequence of [LaneSRange]s.
+    ///
+    /// # Returns
+    /// A vector of [LaneSRange]s that make up this [LaneSRoute].
     pub fn ranges(&self) -> Vec<LaneSRange> {
         let mut ranges = Vec::new();
         let lane_s_ranges = self.lane_s_route.ranges();
@@ -1323,17 +1688,20 @@ impl LaneSRoute {
     }
 
     /// Computes the accumulated length of all [LaneSRange]s.
+    ///
+    /// # Returns
+    /// A `f64` representing the total length of the [LaneSRoute].
     pub fn length(&self) -> f64 {
         self.lane_s_route.length()
     }
 
     /// Determines whether this LaneSRoute intersects with `other`.
     ///
-    /// ## Arguments
+    /// # Arguments
     /// * `other` - The other LaneSRoute to check for intersection.
     /// * `tolerance` - The tolerance to use for intersection checks.
     ///
-    /// ## Returns
+    /// # Returns
     /// * `true` if the two LaneSRoute intersect, `false` otherwise.
     pub fn intersects(&self, other: &LaneSRoute, tolerance: f64) -> bool {
         self.lane_s_route.Intersects(&other.lane_s_route, tolerance)
@@ -1347,7 +1715,6 @@ impl std::fmt::Debug for LaneSRoute {
 }
 
 /// A specific endpoint of a specific Lane.
-/// This is analogous to the C++ maliput::api::LaneEnd implementation.
 pub enum LaneEnd<'a> {
     /// The start of the Lane. ("s == 0")
     Start(Lane<'a>),
@@ -1356,7 +1723,11 @@ pub enum LaneEnd<'a> {
 }
 
 impl LaneEnd<'_> {
-    /// Get the Lane of the `LaneEnd`.
+    /// Gets the Lane of the `LaneEnd`.
+    ///
+    /// # Returns
+    /// A reference to the [Lane] associated with this `LaneEnd`.
+    /// This will return the Lane for both Start and Finish variants.
     pub fn lane(&self) -> &Lane {
         match self {
             LaneEnd::Start(lane) => lane,
@@ -1406,11 +1777,21 @@ pub struct LaneEndSet<'a> {
 }
 
 impl<'a> LaneEndSet<'a> {
-    /// Obtain the size of the LaneEndSet.
+    /// Obtains the size of the LaneEndSet.
+    ///
+    /// # Returns
+    /// The number of LaneEnds in the set.
     pub fn size(&self) -> i32 {
         self.lane_end_set.size()
     }
-    /// Get the LaneEnd at the given index.
+    /// Gets the [LaneEnd] at the given index.
+    ///
+    /// # Arguments
+    /// * `index` - The index of the LaneEnd to retrieve.
+    ///
+    /// # Returns
+    /// A [Result<LaneEnd, MaliputError>] containing the LaneEnd at the given index.
+    /// If the index is out of bounds, an error is returned.
     pub fn get(&self, index: i32) -> Result<LaneEnd, MaliputError> {
         let lane_end = self.lane_end_set.get(index)?;
         // Obtain end type and lane reference.
@@ -1427,7 +1808,11 @@ impl<'a> LaneEndSet<'a> {
         })
     }
 
-    /// Convert the LaneEndSet to a map of lane-id to LaneEnd.
+    /// Converts the LaneEndSet to a map of lane-id to LaneEnd.
+    ///
+    /// # Returns
+    /// A `HashMap<String, LaneEnd>` where the key is the lane id and
+    /// the value is the corresponding LaneEnd.
     pub fn to_lane_map(&self) -> std::collections::HashMap<String, LaneEnd> {
         (0..self.size())
             .map(|i| {
@@ -1452,10 +1837,17 @@ pub struct BranchPoint<'a> {
 }
 
 impl<'a> BranchPoint<'a> {
-    /// Get the id of the `BranchPoint` as a string.
+    /// Returns the id of the BranchPoint.
+    ///
+    /// # Returns
+    /// A `String` containing the id of the BranchPoint.
     pub fn id(&self) -> String {
         maliput_sys::api::ffi::BranchPoint_id(self.branch_point)
     }
+    /// Returns the [RoadGeometry] to which this BranchPoint belongs.
+    ///
+    /// # Returns
+    /// A [RoadGeometry] containing the RoadGeometry to which this BranchPoint belongs.
     pub fn road_geometry(&self) -> RoadGeometry {
         unsafe {
             RoadGeometry {
@@ -1466,10 +1858,10 @@ impl<'a> BranchPoint<'a> {
     /// Returns the set of [LaneEnd]s on the same side as the given [LaneEnd].
     /// E.g: For a T-junction, this would return the set of LaneEnds on the merging side.
     ///
-    /// ### Arguments
+    /// # Arguments
     /// * `end` - This branch's start or end [LaneEnd].
     ///
-    /// ### Return
+    /// # Return
     /// A [LaneEndSet] of [LaneEnd]s on the same side as the given [LaneEnd].
     pub fn get_confluent_branches(&self, end: &LaneEnd) -> Result<LaneEndSet, MaliputError> {
         let lane_end_set_ptr = self.branch_point.GetConfluentBranches(
@@ -1484,10 +1876,10 @@ impl<'a> BranchPoint<'a> {
     /// Returns the set of [LaneEnd]s on the opposite side as the given [LaneEnd].
     /// E.g: For a T-junction, this would return the [LaneEnd]s which end flows into the junction.
     ///
-    /// ### Arguments
+    /// # Arguments
     /// * `end` - This branch's start or end [LaneEnd].
     ///
-    /// ### Return
+    /// # Return
     /// A [LaneEndSet] of [LaneEnd]s on the opposite side as the given [LaneEnd].
     pub fn get_ongoing_branches(&self, end: &LaneEnd) -> Result<LaneEndSet, MaliputError> {
         let lane_end_set_ptr = self.branch_point.GetOngoingBranches(
@@ -1506,6 +1898,13 @@ impl<'a> BranchPoint<'a> {
     ///
     /// If `end` has no default-branch at this BranchPoint, the return
     /// value will be None.
+    ///
+    /// # Arguments
+    /// * `end` - The [LaneEnd] for which to get the default branch.
+    ///
+    /// # Returns
+    /// An `Option<LaneEnd>` containing the default branch if it exists.
+    /// If no default branch exists, it returns None.
     pub fn get_default_branch(&self, end: &LaneEnd) -> Option<LaneEnd> {
         let lane_end = maliput_sys::api::ffi::BranchPoint_GetDefaultBranch(
             self.branch_point,
@@ -1532,6 +1931,9 @@ impl<'a> BranchPoint<'a> {
         }
     }
     /// Returns the set of LaneEnds grouped together on the "A-side".
+    ///
+    /// # Returns
+    /// A [LaneEndSet] containing the LaneEnds on the "A-side" of the BranchPoint.
     pub fn get_a_side(&self) -> LaneEndSet {
         let lane_end_set_ptr = self.branch_point.GetASide();
         LaneEndSet {
@@ -1539,13 +1941,17 @@ impl<'a> BranchPoint<'a> {
         }
     }
     /// Returns the set of LaneEnds grouped together on the "B-side".
+    ///
+    /// # Returns
+    /// A [LaneEndSet] containing the LaneEnds on the "B-side" of the BranchPoint.
+    /// This is the opposite side of the "A-side".
     pub fn get_b_side(&self) -> LaneEndSet {
         let lane_end_set_ptr = self.branch_point.GetBSide();
         LaneEndSet {
             lane_end_set: unsafe { lane_end_set_ptr.as_ref().expect("Underlying LaneEndSet is null") },
         }
     }
-    /// Convert LaneEnd enum to LaneEnd ffi.
+    /// Converts LaneEnd enum to LaneEnd ffi.
     fn from_lane_end_to_ffi(end: &LaneEnd) -> cxx::UniquePtr<maliput_sys::api::ffi::LaneEnd> {
         match end {
             LaneEnd::Start(lane) => unsafe { maliput_sys::api::ffi::LaneEnd_new(lane.lane, true) },
@@ -1563,7 +1969,7 @@ pub struct Intersection<'a> {
 }
 
 impl<'a> Intersection<'a> {
-    /// Get the id of the `Intersection` as a string.
+    /// Returns the id of the `Intersection` as a string.
     pub fn id(&self) -> String {
         maliput_sys::api::ffi::Intersection_id(self.intersection)
     }
@@ -1575,7 +1981,10 @@ pub struct IntersectionBook<'a> {
 }
 
 impl<'a> IntersectionBook<'a> {
-    /// Gets a list of all Intersections within this book.
+    /// Returns all Intersections in the book.
+    ///
+    /// # Returns
+    /// A vector of [Intersection]s containing all Intersections in the book.
     pub fn get_intersections(&mut self) -> Vec<Intersection> {
         let book_pin = unsafe { std::pin::Pin::new_unchecked(&mut *self.intersection_book) };
         let intersections_cpp = maliput_sys::api::ffi::IntersectionBook_GetIntersections(book_pin);
@@ -1594,10 +2003,10 @@ impl<'a> IntersectionBook<'a> {
 
     /// Gets the specified Intersection.
     ///
-    /// ## Arguments
+    /// # Arguments
     ///   * `id` - The id of the Intersection to get.
     ///
-    /// ## Returns
+    /// # Returns
     ///   * An `Option<Intersection>`
     ///     * Some(Intersection) - The Intersection with the specified id.
     ///     * None - If the Intersection with the specified id does not exist.
@@ -1910,7 +2319,7 @@ mod tests {
     mod lane_s_route {
         // Helper function to create a LaneSRoute
         // with two LaneSRange.
-        // ## Arguments
+        // # Arguments
         // * `s0_0` - The s0 of the first LaneSRange.
         // * `s1_0` - The s1 of the first LaneSRange.
         // * `s0_1` - The s0 of the second LaneSRange.

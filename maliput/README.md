@@ -35,7 +35,7 @@ _Note: What is maliput? Refer to https://maliput.readthedocs.org._
     let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties)?;
     let road_geometry = road_network.road_geometry();
 
-    // Excercise the RoadGeometry API.
+    // Exercise the RoadGeometry API.
     println!("linear_tolerance: {}", road_geometry.linear_tolerance());
     println!("angular_tolerance: {}", road_geometry.angular_tolerance());
     println!("num_junctions: {}", road_geometry.num_junctions());
@@ -50,6 +50,18 @@ _Note: What is maliput? Refer to https://maliput.readthedocs.org._
   }
 ```
 
+## Apps
+
+ - `maliput_query`: A command-line tool for interactively querying a road network. It loads a road network from an OpenDRIVE file and provides a set of commands to inspect its geometric properties and perform coordinate transformations.
+
+   To run the application:
+   ```bash
+   cargo run --bin maliput_query -- <path_to_xodr_file>
+   ```
+   For example, using one of the provided XODR files:
+   ```bash
+   cargo run --bin maliput_query -- data/xodr/TShapeRoad.xodr
+   ```
 
 ## Examples
 

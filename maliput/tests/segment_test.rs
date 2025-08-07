@@ -38,10 +38,14 @@ fn segment_api() {
     let segment = road_geometry.get_segment(&segment_id).unwrap();
     assert_eq!(segment.id(), segment_id);
     let junction = segment.junction();
+    assert!(junction.is_ok());
+    let junction = junction.unwrap();
     assert_eq!(junction.id(), String::from("0_0"));
     let num_lanes = segment.num_lanes();
     assert_eq!(num_lanes, 2);
     let lane = segment.lane(0);
+    assert!(lane.is_ok());
+    let lane = lane.unwrap();
     assert_eq!(lane.id(), String::from("0_0_-1"));
     // Testing invalid ids.
     let invalid_segment_id = String::from("invalid_id");
