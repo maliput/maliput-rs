@@ -36,8 +36,9 @@ pub struct TrafficLightBook<'a> {
 }
 
 impl<'a> TrafficLightBook<'a> {
-    /// Get all the [TrafficLight]s in the [TrafficLightBook]
-    /// ## Return
+    /// Gets all the [TrafficLight]s in the [TrafficLightBook]
+    ///
+    /// # Returns
     /// A vector of [TrafficLight]s
     pub fn traffic_lights(&self) -> Vec<TrafficLight> {
         let traffic_lights_cpp = maliput_sys::api::rules::ffi::TrafficLightBook_TrafficLights(self.traffic_light_book);
@@ -49,10 +50,12 @@ impl<'a> TrafficLightBook<'a> {
             .collect::<Vec<TrafficLight>>()
     }
 
-    /// Get a [TrafficLight] by its id
-    /// ## Arguments
-    /// * `id` - The id of the [TrafficLight]
-    /// ## Return
+    /// Gets a [TrafficLight] by its id.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the [TrafficLight].
+    ///
+    /// # Returns
     /// The [TrafficLight] with the given id.
     /// If no [TrafficLight] is found with the given id, return None.
     pub fn get_traffic_light(&self, id: &String) -> Option<TrafficLight> {
@@ -89,14 +92,16 @@ pub struct TrafficLight<'a> {
 
 impl<'a> TrafficLight<'a> {
     /// Get the id of the [TrafficLight].
-    /// ## Return
+    ///
+    /// # Returns
     /// The id of the [TrafficLight].
     pub fn id(&self) -> String {
         maliput_sys::api::rules::ffi::TrafficLight_id(self.traffic_light)
     }
 
     /// Get the position of the [TrafficLight] in the road network.
-    /// ## Return
+    ///
+    /// # Returns
     /// An [crate::api::InertialPosition] representing the position of the [TrafficLight] in the road network.
     pub fn position_road_network(&self) -> crate::api::InertialPosition {
         let inertial_position = maliput_sys::api::rules::ffi::TrafficLight_position_road_network(self.traffic_light);
@@ -104,7 +109,8 @@ impl<'a> TrafficLight<'a> {
     }
 
     /// Get the orientation of the [TrafficLight] in the road network.
-    /// ## Return
+    ///
+    /// # Returns
     /// An [crate::api::Rotation] representing the orientation of the [TrafficLight] in the road network.
     pub fn orientation_road_network(&self) -> crate::api::Rotation {
         let rotation = maliput_sys::api::rules::ffi::TrafficLight_orientation_road_network(self.traffic_light);
@@ -112,7 +118,8 @@ impl<'a> TrafficLight<'a> {
     }
 
     /// Get the bulb groups of the [TrafficLight].
-    /// ## Return
+    ///
+    /// # Returns
     /// A vector of [BulbGroup]s in the [TrafficLight].
     /// If the [TrafficLight] has no bulb groups, return an empty vector.
     pub fn bulb_groups(&self) -> Vec<BulbGroup> {
@@ -126,10 +133,11 @@ impl<'a> TrafficLight<'a> {
     }
 
     /// Get a [BulbGroup] by its id.
-    /// ## Arguments
+    ///
+    /// # Arguments
     /// * `id` - The id of the [BulbGroup].
     ///
-    /// ## Return
+    /// # Returns
     /// The [BulbGroup] with the given id.
     /// If no [BulbGroup] is found with the given id, return None.
     pub fn get_bulb_group(&self, id: &String) -> Option<BulbGroup> {
@@ -177,6 +185,9 @@ pub struct Bulb<'a> {
 
 impl Bulb<'_> {
     /// Returns this Bulb instance's unique identifier.
+    ///
+    /// # Returns
+    /// A [UniqueBulbId] representing the unique identifier of the [Bulb].
     pub fn unique_id(&self) -> UniqueBulbId {
         UniqueBulbId {
             unique_bulb_id: maliput_sys::api::rules::ffi::Bulb_unique_id(self.bulb),
@@ -184,14 +195,16 @@ impl Bulb<'_> {
     }
 
     /// Get the id of the [Bulb].
-    /// ## Return
+    ///
+    /// # Returns
     /// The id of the [Bulb].
     pub fn id(&self) -> String {
         maliput_sys::api::rules::ffi::Bulb_id(self.bulb)
     }
 
     /// Get the color of the [Bulb].
-    /// ## Return
+    ///
+    /// # Returns
     /// The [BulbColor].
     pub fn color(&self) -> BulbColor {
         let color = self.bulb.color();
@@ -204,7 +217,8 @@ impl Bulb<'_> {
     }
 
     /// Get the type of the [Bulb].
-    /// ## Return
+    ///
+    /// # Returns
     /// The [BulbType].
     pub fn bulb_type(&self) -> BulbType {
         let bulb_type = maliput_sys::api::rules::ffi::Bulb_type(self.bulb);
@@ -216,7 +230,8 @@ impl Bulb<'_> {
     }
 
     /// Get the position of the [Bulb] in the bulb group.
-    /// ## Return
+    ///
+    /// # Returns
     /// An [crate::api::InertialPosition] representing the position of the [Bulb] in the bulb group.
     pub fn position_bulb_group(&self) -> crate::api::InertialPosition {
         let inertial_position = maliput_sys::api::rules::ffi::Bulb_position_bulb_group(self.bulb);
@@ -224,15 +239,18 @@ impl Bulb<'_> {
     }
 
     /// Get the orientation of the [Bulb] in the bulb group.
-    /// ## Return
+    ///
+    /// # Returns
     /// An [crate::api::Rotation] representing the orientation of the [Bulb] in the bulb group.
     pub fn orientation_bulb_group(&self) -> crate::api::Rotation {
         let rotation = maliput_sys::api::rules::ffi::Bulb_orientation_bulb_group(self.bulb);
         crate::api::Rotation { r: rotation }
     }
 
-    /// Returns the arrow's orientation. Only applicable if [Bulb::bulb_type] returns
-    /// [BulbType::Arrow].
+    /// Returns the arrow's orientation. Only applicable if [Bulb::bulb_type] returns [BulbType::Arrow].
+    ///
+    /// # Returns
+    /// An `Option<f64>` representing the orientation of the arrow in radians.
     pub fn arrow_orientation_rad(&self) -> Option<f64> {
         let arrow_orientation = maliput_sys::api::rules::ffi::Bulb_arrow_orientation_rad(self.bulb);
         if arrow_orientation.is_null() {
@@ -241,7 +259,10 @@ impl Bulb<'_> {
         Some(arrow_orientation.value)
     }
 
-    /// Get the possible states of the [Bulb].
+    /// Gets the possible states of the [Bulb].
+    ///
+    /// # Returns
+    /// A vector of [BulbState]s representing the possible states of the [Bulb].
     pub fn states(&self) -> Vec<BulbState> {
         let states_cpp = maliput_sys::api::rules::ffi::Bulb_states(self.bulb);
         states_cpp
@@ -250,19 +271,29 @@ impl Bulb<'_> {
             .collect::<Vec<BulbState>>()
     }
 
-    /// Get the default state of the [Bulb].
+    /// Gets the default state of the [Bulb].
+    ///
+    /// # Returns
+    /// A [BulbState] representing the default state of the [Bulb].
     pub fn get_default_state(&self) -> BulbState {
         let default_state = self.bulb.GetDefaultState();
         Bulb::_from_cpp_state_to_rust_state(&default_state)
     }
 
     /// Check if the given state is possible valid for the [Bulb].
+    ///
+    /// # Arguments
+    /// * `state` - The [BulbState] to check.
+    ///
+    /// # Returns
+    /// A boolean indicating whether the given state is valid for the [Bulb].
     pub fn is_valid_state(&self, state: &BulbState) -> bool {
         self.bulb.IsValidState(&Bulb::_from_rust_state_to_cpp_state(state))
     }
 
     /// Returns the bounding box of the bulb.
-    /// ## Return
+    ///
+    /// # Returns
     /// A tuple containing the minimum and maximum points of the bounding box.
     pub fn bounding_box(&self) -> (crate::math::Vector3, crate::math::Vector3) {
         let min = maliput_sys::api::rules::ffi::Bulb_bounding_box_min(self.bulb);
@@ -271,7 +302,8 @@ impl Bulb<'_> {
     }
 
     /// Returns the parent [BulbGroup] of the bulb.
-    /// ## Return
+    ///
+    /// # Returns
     /// The parent [BulbGroup] of the bulb.
     /// If the bulb is not part of any group, return None.
     pub fn bulb_group(&self) -> BulbGroup {
@@ -287,11 +319,13 @@ impl Bulb<'_> {
     /// Convert from the C++ BulbState to the Rust BulbState
     /// It is expected to be used only internally.
     ///
-    /// ## Arguments
+    /// # Arguments
     /// * `cpp_bulb_state` - The C++ BulbState
-    /// ## Return
+    ///
+    /// # Returns
     /// The Rust BulbState
-    /// ## Panics
+    ///
+    /// # Panics
     /// If the C++ BulbState is invalid.
     fn _from_cpp_state_to_rust_state(cpp_bulb_state: &maliput_sys::api::rules::ffi::BulbState) -> BulbState {
         match *cpp_bulb_state {
@@ -305,9 +339,10 @@ impl Bulb<'_> {
     /// Convert from the Rust BulbState to the C++ BulbState
     /// It is expected to be used only internally.
     ///
-    /// ## Arguments
+    /// # Arguments
     /// * `rust_bulb_state` - The Rust BulbState
-    /// ## Return
+    ///
+    /// # Returns
     /// The C++ BulbState
     fn _from_rust_state_to_cpp_state(rust_bulb_state: &BulbState) -> maliput_sys::api::rules::ffi::BulbState {
         match rust_bulb_state {
@@ -337,29 +372,35 @@ pub struct BulbGroup<'a> {
 
 impl BulbGroup<'_> {
     /// Returns this BulbGroup instance's unique identifier.
+    ///
+    /// # Returns
+    /// A [UniqueBulbGroupId] representing the unique identifier of the [BulbGroup].
     pub fn unique_id(&self) -> UniqueBulbGroupId {
         UniqueBulbGroupId {
             unique_bulb_group_id: maliput_sys::api::rules::ffi::BulbGroup_unique_id(self.bulb_group),
         }
     }
 
-    /// Get the id of the [BulbGroup].
-    /// ## Return
+    /// Gets the id of the [BulbGroup].
+    ///
+    /// # Returns
     /// The id of the [BulbGroup].
     pub fn id(&self) -> String {
         maliput_sys::api::rules::ffi::BulbGroup_id(self.bulb_group)
     }
 
-    /// Get the position of the [BulbGroup] in the traffic light.
-    /// ## Return
+    /// Gets the position of the [BulbGroup] in the traffic light.
+    ///
+    /// # Returns
     /// An [crate::api::InertialPosition] representing the position of the [BulbGroup] in the traffic light.
     pub fn position_traffic_light(&self) -> crate::api::InertialPosition {
         let inertial_position = maliput_sys::api::rules::ffi::BulbGroup_position_traffic_light(self.bulb_group);
         crate::api::InertialPosition { ip: inertial_position }
     }
 
-    /// Get the orientation of the [BulbGroup] in the traffic light.
-    /// ## Return
+    /// Gets the orientation of the [BulbGroup] in the traffic light.
+    ///
+    /// # Returns
     /// An [crate::api::Rotation] representing the orientation of the [BulbGroup] in the traffic light.
     pub fn orientation_traffic_light(&self) -> crate::api::Rotation {
         let rotation = maliput_sys::api::rules::ffi::BulbGroup_orientation_traffic_light(self.bulb_group);
@@ -367,7 +408,8 @@ impl BulbGroup<'_> {
     }
 
     /// Returns the bulbs in the bulb group.
-    /// ## Return
+    ///
+    /// # Returns
     /// A vector of [Bulb]s in the bulb group.
     pub fn bulbs(&self) -> Vec<Bulb> {
         let bulbs_cpp = maliput_sys::api::rules::ffi::BulbGroup_bulbs(self.bulb_group);
@@ -379,11 +421,12 @@ impl BulbGroup<'_> {
             .collect::<Vec<Bulb>>()
     }
 
-    /// Get a [Bulb] by its id
-    /// ## Arguments
+    /// Gets a [Bulb] by its id
+    ///
+    /// # Arguments
     /// * `id` - The id of the [Bulb].
     ///
-    /// ## Return
+    /// # Returns
     /// The [Bulb] with the given id.
     /// If no [Bulb] is found with the given id, return None.
     pub fn get_bulb(&self, id: &String) -> Option<Bulb> {
@@ -397,7 +440,8 @@ impl BulbGroup<'_> {
     }
 
     /// Returns the parent [TrafficLight] of the bulb group.
-    /// ## Return
+    ///
+    /// # Returns
     /// The parent [TrafficLight] of the bulb group.
     pub fn traffic_light(&self) -> TrafficLight {
         TrafficLight {
@@ -422,28 +466,32 @@ pub struct UniqueBulbId {
 
 impl UniqueBulbId {
     /// Get the traffic light id of the [UniqueBulbId].
-    /// ## Return
+    ///
+    /// # Returns
     /// The traffic light id of the [UniqueBulbId].
     pub fn traffic_light_id(&self) -> String {
         maliput_sys::api::rules::ffi::UniqueBulbId_traffic_light_id(&self.unique_bulb_id)
     }
 
     /// Get the bulb group id of the [UniqueBulbId].
-    /// ## Return
+    ///
+    /// # Returns
     /// The bulb group id of the [UniqueBulbId].
     pub fn bulb_group_id(&self) -> String {
         maliput_sys::api::rules::ffi::UniqueBulbId_bulb_group_id(&self.unique_bulb_id)
     }
 
     /// Get the bulb id of the [UniqueBulbId].
-    /// ## Return
+    ///
+    /// # Returns
     /// The bulb id of the [UniqueBulbId].
     pub fn bulb_id(&self) -> String {
         maliput_sys::api::rules::ffi::UniqueBulbId_bulb_id(&self.unique_bulb_id)
     }
 
     /// Get the string representation of the [UniqueBulbId].
-    /// ## Return
+    ///
+    /// # Returns
     /// The string representation of the [UniqueBulbId].
     pub fn string(&self) -> String {
         self.unique_bulb_id.string().to_string()
@@ -462,21 +510,24 @@ pub struct UniqueBulbGroupId {
 
 impl UniqueBulbGroupId {
     /// Get the traffic light id of the [UniqueBulbGroupId].
-    /// ## Return
+    ///
+    /// # Returns
     /// The traffic light id of the [UniqueBulbGroupId].
     pub fn traffic_light_id(&self) -> String {
         maliput_sys::api::rules::ffi::UniqueBulbGroupId_traffic_light_id(&self.unique_bulb_group_id)
     }
 
     /// Get the bulb group id of the [UniqueBulbGroupId].
-    /// ## Return
+    ///
+    /// # Returns
     /// The bulb group id of the [UniqueBulbGroupId].
     pub fn bulb_group_id(&self) -> String {
         maliput_sys::api::rules::ffi::UniqueBulbGroupId_bulb_group_id(&self.unique_bulb_group_id)
     }
 
     /// Get the string representation of the [UniqueBulbGroupId].
-    /// ## Return
+    ///
+    /// # Returns
     /// The string representation of the [UniqueBulbGroupId].
     pub fn string(&self) -> String {
         self.unique_bulb_group_id.string().to_string()
@@ -503,9 +554,11 @@ pub struct RoadRulebook<'a> {
 
 impl<'a> RoadRulebook<'a> {
     /// Returns the DiscreteValueRule with the specified `id`.
-    /// ## Arguments
+    ///
+    /// # Arguments
     /// * `rule_id` - The id of the rule.
-    /// ## Return
+    ///
+    /// # Returns
     /// The DiscreteValueRule with the given id.
     pub fn get_discrete_value_rule(&self, rule_id: &String) -> Result<DiscreteValueRule, MaliputError> {
         Ok(DiscreteValueRule {
@@ -516,9 +569,11 @@ impl<'a> RoadRulebook<'a> {
         })
     }
     /// Returns the RangeValueRule with the specified `id`.
-    /// ## Arguments
+    ///
+    /// # Arguments
     /// * `rule_id` - The id of the rule.
-    /// ## Return
+    ///
+    /// # Returns
     /// The RangeValueRule with the given id.
     pub fn get_range_value_rule(&self, rule_id: &String) -> Result<RangeValueRule, MaliputError> {
         Ok(RangeValueRule {
@@ -530,7 +585,8 @@ impl<'a> RoadRulebook<'a> {
     }
 
     /// Returns all the rules in the road rulebook.
-    /// ## Return
+    ///
+    /// # Returns
     /// A [QueryResults] containing all the rules in the road rulebook.
     pub fn rules(&self) -> QueryResults {
         let query_results_cpp = maliput_sys::api::rules::ffi::RoadRulebook_Rules(self.road_rulebook);
@@ -555,6 +611,18 @@ impl<'a> RoadRulebook<'a> {
         }
     }
 
+    /// Finds rules that apply to the given lane s ranges.
+    ///
+    /// # Arguments
+    /// * `ranges` - A vector of [super::LaneSRange]s to find rules for.
+    /// * `tolerance` - A tolerance value to use when finding rules.
+    ///
+    /// # Returns
+    /// A [QueryResults] containing the rules that apply to the given lane s ranges.
+    /// If no rules are found, an empty [QueryResults] is returned.
+    ///
+    /// # Errors
+    /// Returns a [MaliputError] if the underlying C++ function fails.
     pub fn find_rules(&self, ranges: &Vec<super::LaneSRange>, tolerance: f64) -> Result<QueryResults, MaliputError> {
         let mut ranges_cpp = Vec::new();
         for range in ranges {
@@ -585,7 +653,7 @@ impl<'a> RoadRulebook<'a> {
     }
 }
 
-/// ## Rule
+/// # Rule
 ///
 /// A Rule may have multiple states that affect agent behavior while it is
 /// driving through the rule's zone. The possible states of a Rule must be
@@ -595,7 +663,7 @@ impl<'a> RoadRulebook<'a> {
 /// - range based ([RangeValueRule]).
 /// - discrete ([DiscreteValueRule]).
 ///
-/// ## DiscreteValueRule
+/// # DiscreteValueRule
 ///
 /// [DiscreteValue]s are defined by a string value.
 /// Semantics of this rule are based on _all_ possible values that this
@@ -608,20 +676,33 @@ pub struct DiscreteValueRule {
 
 impl DiscreteValueRule {
     /// Returns the Id of the rule as a string.
+    ///
+    /// # Returns
+    /// The id of the rule.
     pub fn id(&self) -> String {
         maliput_sys::api::rules::ffi::DiscreteValueRule_id(&self.discrete_value_rule)
     }
     /// Returns the type of the rule as a string.
     /// Example: "right-of-way-rule-type-id", "direction-usage-rule-type-id"
+    ///
+    /// # Returns
+    /// The type id of the rule.
     pub fn type_id(&self) -> String {
         maliput_sys::api::rules::ffi::DiscreteValueRule_type_id(&self.discrete_value_rule)
     }
     /// Returns a [crate::api::LaneSRoute] that represents the zone that the rule applies to.
+    ///
+    /// # Returns
+    /// A [crate::api::LaneSRoute] representing the zone of the rule.
     pub fn zone(&self) -> crate::api::LaneSRoute {
         let lane_s_route = maliput_sys::api::rules::ffi::DiscreteValueRule_zone(&self.discrete_value_rule);
         crate::api::LaneSRoute { lane_s_route }
     }
     /// Returns the states of the rule.
+    ///
+    /// # Returns
+    /// A vector of [DiscreteValue]s representing the states of the rule.
+    /// If the rule has no states, an empty vector is returned.
     pub fn states(&self) -> Vec<DiscreteValue> {
         let states_cpp = &self.discrete_value_rule.states();
         states_cpp
@@ -653,7 +734,7 @@ impl std::fmt::Debug for DiscreteValueRule {
     }
 }
 
-/// ## Rule
+/// # Rule
 ///
 /// A Rule may have multiple states that affect agent behavior while it is
 /// driving through the rule's zone. The possible states of a Rule must be
@@ -663,7 +744,7 @@ impl std::fmt::Debug for DiscreteValueRule {
 /// - range based ([RangeValueRule]).
 /// - discrete ([DiscreteValueRule]).
 ///
-/// ## RangeValueRule
+/// # RangeValueRule
 ///
 /// [Range]s describe a numeric range based rule.
 /// Ranges are closed and continuous, defined by a minimum and maximum quantity.
@@ -676,20 +757,33 @@ pub struct RangeValueRule {
 
 impl RangeValueRule {
     /// Returns the Id of the rule as a string.
+    ///
+    /// # Returns
+    /// The id of the rule.
     pub fn id(&self) -> String {
         maliput_sys::api::rules::ffi::RangeValueRule_id(&self.range_value_rule)
     }
     /// Returns the type of the rule as a string.
     /// Example: "right-of-way-rule-type-id", "direction-usage-rule-type-id"
+    ///
+    /// # Returns
+    /// The type id of the rule.
     pub fn type_id(&self) -> String {
         maliput_sys::api::rules::ffi::RangeValueRule_type_id(&self.range_value_rule)
     }
     /// Returns a [crate::api::LaneSRoute] that represents the zone that the rule applies to.
+    ///
+    /// # Returns
+    /// A [crate::api::LaneSRoute] representing the zone of the rule.
     pub fn zone(&self) -> crate::api::LaneSRoute {
         let lane_s_route = maliput_sys::api::rules::ffi::RangeValueRule_zone(&self.range_value_rule);
         crate::api::LaneSRoute { lane_s_route }
     }
     /// Returns the states of the rule.
+    ///
+    /// # Returns
+    /// A vector of [Range]s representing the states of the rule.
+    /// If the rule has no states, an empty vector is returned.
     pub fn states(&self) -> Vec<Range> {
         let states_cpp = &self.range_value_rule.states();
         states_cpp
@@ -710,7 +804,7 @@ impl RangeValueRule {
 
 /// Defines a base state for a rule.
 ///
-/// ## RuleStateBase
+/// # RuleStateBase
 ///
 /// - `severity` - The severity of the rule state.
 /// - `related_rules` - A map of related rules. The key is the group name and the value is a vector of rule ids.
@@ -718,26 +812,50 @@ impl RangeValueRule {
 ///
 /// See [DiscreteValueRule] and [RangeValueRule] for more information.
 pub struct RuleStateBase {
+    /// Severity of the rule's state. A non-negative quantity that specifies the
+    /// level of enforcement. The smaller it is, the more strictly the rule is
+    /// enforced. Each rule type can define its own set of severity level
+    /// semantics.
     severity: i32,
     related_rules: cxx::UniquePtr<cxx::CxxVector<maliput_sys::api::rules::ffi::RelatedRule>>,
     related_unique_ids: cxx::UniquePtr<cxx::CxxVector<maliput_sys::api::rules::ffi::RelatedUniqueId>>,
 }
 
-/// Defines the interface for a rule state.
-/// ## To implement by the trait user.
-/// - `get_rule_state` - Returns the base state of the rule.
-///   To be implemented by the concrete rule state.
+/// A trait representing a possible state of a `Rule`.
+///
+/// A `Rule` can have multiple states that affect agent behavior. This trait
+/// provides a common interface for accessing the properties shared by all
+/// rule states, such as severity and related rules.
+///
+/// This trait is implemented by specific state types like [`DiscreteValue`]
+/// and [`Range`].
+///
+/// # Implementors
+///
+/// When implementing this trait, you must provide an implementation for the
+/// [`get_rule_state()`] method, which gives access to the underlying
+/// [`RuleStateBase`] data. The other methods have default implementations.
 pub trait RuleState {
-    /// Returns the base state of the rule.
-    /// To be implemented by the concrete rule state.
+    /// Gets the underlying [`RuleStateBase`] that contains common state properties.
+    ///
+    /// # Returns
+    /// A reference to the [`RuleStateBase`] that contains the severity, related rules,
+    /// and related unique ids for the rule state.
     fn get_rule_state(&self) -> &RuleStateBase;
 
     /// Returns the severity of the rule state.
+    ///
+    /// # Returns
+    /// An `i32` representing the severity of the rule state.
+    /// The severity is a numeric value that indicates the importance or urgency of the rule. The lower the value, the more strictly the rule is enforced.
     fn severity(&self) -> i32 {
         self.get_rule_state().severity
     }
 
-    /// Returns a map of related unique ids. The key is the group name and the value is a vector of unique ids.
+    /// Returns a map of related rules ids. The key is the group name and the value is a vector of rule ids.
+    ///
+    /// # Returns
+    /// A map of related rules where the key is the group name and the value is a vector of rule ids.
     fn related_rules(&self) -> std::collections::HashMap<&String, &Vec<String>> {
         self.get_rule_state()
             .related_rules
@@ -746,6 +864,9 @@ pub trait RuleState {
             .collect::<std::collections::HashMap<&String, &Vec<String>>>()
     }
     /// Returns a map of related unique ids. The key is the group name and the value is a vector of unique ids.
+    ///
+    /// # Returns
+    /// A map of related unique ids where the key is the group name and the value is a vector of unique ids.
     fn related_unique_ids(&self) -> std::collections::HashMap<&String, &Vec<String>> {
         self.get_rule_state()
             .related_unique_ids

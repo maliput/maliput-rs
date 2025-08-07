@@ -37,15 +37,16 @@ pub mod common;
 pub mod math;
 pub mod utility;
 
-/// ### ResourceManager
+/// # ResourceManager
 ///
 /// Convenient method for getting the path to the resources of the backends.
 ///
-/// ### Backends
+/// # Backends
 ///  - maliput_malidrive: Resources from maliput_malidrive are brought by maliput-sdk package.
 ///    All the maliput_malidrive resources are stored in the same directory:
 ///    (See https://github.com/maliput/maliput_malidrive/tree/main/resources)
-/// ### Example
+///
+/// # Example
 ///
 /// How to get all the resources from the maliput_malidrive backend:
 ///
@@ -90,12 +91,12 @@ impl ResourceManager {
     }
 
     /// Obtains the path to a resource by its name.
-    /// ### Arguments
+    /// # Arguments
     ///
     /// * `backend_name` - The name of the backend.
     /// * `resource_name` - The name of the resource.
     ///
-    /// ### Returns
+    /// # Returns
     /// The path to the resource if it exists, otherwise None.
     pub fn get_resource_path_by_name(&self, backend_name: &str, resource_name: &str) -> Option<std::path::PathBuf> {
         let paths = self.resource_paths.get(backend_name).unwrap();
@@ -108,11 +109,11 @@ impl ResourceManager {
     }
 
     /// Obtains all the resources from a backend.
-    /// ### Arguments
+    /// # Arguments
     ///
     /// * `backend_name` - The name of the backend.
     ///
-    /// ### Returns
+    /// # Returns
     /// A vector with all the resources from the backend if it exists, otherwise None.
     pub fn get_all_resources_by_backend(&self, backend_name: &str) -> Option<&Vec<std::path::PathBuf>> {
         self.resource_paths.get(backend_name)

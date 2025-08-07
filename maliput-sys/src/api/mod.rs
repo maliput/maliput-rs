@@ -164,8 +164,8 @@ pub mod ffi {
         // Segment bindings definitions
         type Segment;
         fn num_lanes(self: &Segment) -> i32;
-        fn junction(self: &Segment) -> *const Junction;
-        fn lane(self: &Segment, index: i32) -> *const Lane;
+        fn junction(self: &Segment) -> Result<*const Junction>;
+        fn lane(self: &Segment, index: i32) -> Result<*const Lane>;
         fn Segment_id(segment: &Segment) -> String;
 
         // Junction bindings definitions
