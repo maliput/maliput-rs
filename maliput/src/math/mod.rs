@@ -230,7 +230,7 @@ impl Matrix3 {
         }
     }
     /// Get the cofactor of the `Matrix3` at the given `row` and `col`.
-    pub fn cofactor(&self, row: u64, col: u64) -> f64 {
+    pub fn cofactor(&self, row: usize, col: usize) -> f64 {
         self.m.cofactor(row, col)
     }
     /// Get the cofactor matrix of the `Matrix3`.
@@ -248,13 +248,13 @@ impl Matrix3 {
         self.m.is_singular()
     }
     /// Get the row at the given `index`.
-    pub fn row(&self, index: u64) -> Vector3 {
+    pub fn row(&self, index: usize) -> Vector3 {
         Vector3 {
             v: maliput_sys::math::ffi::Matrix3_row(&self.m, index),
         }
     }
     /// Get the column at the given `index`.
-    pub fn col(&self, index: u64) -> Vector3 {
+    pub fn col(&self, index: usize) -> Vector3 {
         Vector3 {
             v: maliput_sys::math::ffi::Matrix3_col(&self.m, index),
         }

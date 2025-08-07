@@ -72,11 +72,11 @@ pub mod ffi {
             m21: f64,
             m22: f64,
         ) -> UniquePtr<Matrix3>;
-        fn cofactor(self: &Matrix3, row: u64, col: u64) -> f64;
+        fn cofactor(self: &Matrix3, row: usize, col: usize) -> f64;
         fn determinant(self: &Matrix3) -> f64;
         fn is_singular(self: &Matrix3) -> bool;
-        fn Matrix3_row(m: &Matrix3, index: u64) -> UniquePtr<Vector3>;
-        fn Matrix3_col(m: &Matrix3, index: u64) -> UniquePtr<Vector3>;
+        fn Matrix3_row(m: &Matrix3, index: usize) -> UniquePtr<Vector3>;
+        fn Matrix3_col(m: &Matrix3, index: usize) -> UniquePtr<Vector3>;
         fn Matrix3_cofactor_matrix(m: &Matrix3) -> UniquePtr<Matrix3>;
         fn Matrix3_transpose(m: &Matrix3) -> UniquePtr<Matrix3>;
         fn Matrix3_equals(m: &Matrix3, other: &Matrix3) -> bool;

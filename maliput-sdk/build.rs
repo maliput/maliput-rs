@@ -31,7 +31,8 @@
 use std::env;
 use std::error::Error;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
+use std::process::{Command, Output};
 
 /// Gets the bazel library version.
 ///
@@ -53,7 +54,7 @@ use std::path::PathBuf;
 /// A String containing the bazel library version.
 fn get_bazel_library_version(library_name: &str) -> String {
     // "bazel mod explain" simply lists the packages and their versions imported as bazel modules.
-    let output: std::process::Output = std::process::Command::new("bazel")
+    let output: Output = Command::new("bazel")
         .arg("mod")
         .arg("explain")
         .output()
@@ -80,6 +81,53 @@ fn get_bazel_library_version(library_name: &str) -> String {
     String::from(library_version)
 }
 
+/// Resolve Bazel output path for an external dependency that may be versioned with `~version` or suffixed with `+`.
+///
+/// # Arguments
+/// - `bazel_bin_dir`: Path to `bazel-bin` (e.g., from `$(bazel info bazel-bin)`).
+/// - `subdir`: Subdirectory like "external" or "lib" where the package is located.
+/// - `crate_name`: Name of the external Bazel dependency.
+/// - `version`: Version string, used for `~version` fallback.
+/// - `postfix_path`: Optional extra subpath to append after the package name (e.g., "resources").
+///
+/// # Returns
+/// A full path to the resolved location.
+///
+/// # Panics
+/// Panics if neither format is found.
+fn resolve_bazel_package_path(
+    bazel_bin_dir: &Path,
+    subdir: &str,
+    crate_name: &str,
+    version: &str,
+    postfix_path: Option<&str>,
+) -> PathBuf {
+    let base_path = bazel_bin_dir.join(subdir);
+
+    let try_path = |suffix: String| {
+        let mut path = base_path.join(suffix);
+        if let Some(postfix) = postfix_path {
+            path = path.join(postfix);
+        }
+        path
+    };
+
+    let plus_path = try_path(format!("{}+", crate_name));
+    if plus_path.exists() {
+        return plus_path;
+    }
+
+    let tilde_path = try_path(format!("{}~{}", crate_name, version));
+    if tilde_path.exists() {
+        return tilde_path;
+    }
+
+    panic!(
+        "Could not resolve Bazel path for `{}` using either '+' or '~{}'",
+        crate_name, version
+    );
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rerun-if-changed=src/lib.rs");
     println!("cargo:rerun-if-changed=.bazelrc");
@@ -93,7 +141,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // NUM_JOBS env var is set by cargo to the number of jobs used in the build.
     let jobs = env::var("NUM_JOBS").unwrap().to_string();
     // Bazel build
-    let code = std::process::Command::new("bazel")
+    let code = Command::new("bazel")
         .arg(format!("--output_base={}", bazel_output_base_dir.display()))
         .arg("build")
         .arg(format!(
@@ -110,22 +158,32 @@ fn main() -> Result<(), Box<dyn Error>> {
     let bazel_bin_dir = bazel_output_base_dir.join("bazel-bin");
 
     let maliput_version = get_bazel_library_version("maliput");
-    println!("Detected maliput version: <{}>", maliput_version);
-    let maliput_bin_path = bazel_bin_dir
-        .join("external")
-        .join(format!("maliput~{}", maliput_version));
-    let maliput_malidrive_version = get_bazel_library_version("maliput_malidrive");
-    println!("Detected maliput_malidrive version: <{}>", maliput_malidrive_version);
-    let maliput_malidrive_bin_path = bazel_bin_dir
-        .join("external")
-        .join(format!("maliput_malidrive~{}", maliput_malidrive_version));
+    println!("cargo:info=maliput version: <{}>", maliput_version);
+    let maliput_bin_path = resolve_bazel_package_path(&bazel_bin_dir, "external", "maliput", &maliput_version, None);
 
+    let maliput_malidrive_version = get_bazel_library_version("maliput_malidrive");
+    println!("cargo:info=maliput_malidrive version: <{}>", maliput_malidrive_version);
+    let maliput_malidrive_bin_path = resolve_bazel_package_path(
+        &bazel_bin_dir,
+        "external",
+        "maliput_malidrive",
+        &maliput_malidrive_version,
+        None,
+    );
+
+    println!("cargo:info=maliput_bin_path: {:?}", maliput_bin_path);
+    println!(
+        "cargo:info=maliput_malidrive_bin_path: {:?}",
+        maliput_malidrive_bin_path
+    );
     // ************* maliput header files ************* //
 
     //---Header files---
     let virtual_includes_path = maliput_bin_path.join("_virtual_includes");
+    println!("{:?}", virtual_includes_path);
     let mut virtual_includes = Vec::new();
     for entry in fs::read_dir(virtual_includes_path)? {
+        println!("{:?}", entry);
         let entry = entry?;
         let path = entry.path();
         if path.is_dir() {
@@ -142,10 +200,22 @@ fn main() -> Result<(), Box<dyn Error>> {
     // TODO(francocipollone): For consistency we should also add include paths for maliput_malidrive.
 
     // ************* maliput_malidrive resource files ************* //
-    let maliput_malidrive_resource_path = bazel_bin_dir
-        .join("libmaliput_sdk.so.runfiles")
-        .join(String::from("maliput_malidrive~") + &maliput_malidrive_version)
-        .join("resources");
+    // Set library file name based on OS
+    let lib_dir = if cfg!(target_os = "macos") {
+        "libmaliput_sdk.dylib.runfiles"
+    } else if cfg!(target_os = "linux") {
+        "libmaliput_sdk.so.runfiles"
+    } else {
+        "maliput_sdk.dll.runfiles"
+    };
+
+    let maliput_malidrive_resource_path = resolve_bazel_package_path(
+        &bazel_bin_dir,
+        lib_dir,
+        "maliput_malidrive",
+        &maliput_malidrive_version,
+        Some("resources"),
+    );
 
     // ************* crate output env vars ************* //
 
