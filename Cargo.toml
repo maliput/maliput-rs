@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["maliput", "maliput-sdk", "maliput-sys"]
+members = ["maliput", "maliput-sdk", "maliput-sys", "maliput-viz"]
 
 [workspace.package]
 edition = "2021"
@@ -12,7 +12,9 @@ repository = "https://github.com/maliput/maliput-rs"
 cxx = { version = "1.0.78" }
 cxx-build = { version = "1.0.78" }
 clap = { version = "~4.3" }
+rerun = { version = "=0.23.4" }
 thiserror = { version = "1.0" }
 
+maliput = { version = "0.9", path = "maliput" }
 maliput-sdk = { version = "0.9", path = "maliput-sdk" }
 maliput-sys = { version = "0.9", path = "maliput-sys" }
