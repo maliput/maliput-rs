@@ -5,6 +5,12 @@
         "context": ".."
     },
     "remoteUser": "zen",
+    "containerEnv": {
+      "DISPLAY": "${localEnv:DISPLAY}",
+    },
+    "mounts": [
+      "type=bind,source=/tmp/.X11-unix,target=/tmp/.X11-unix"
+    ],
     "customizations": {
         "vscode": {
             "extensions": [
@@ -20,5 +26,13 @@
                 "ritwickdey.LiveServer"
             ]
         }
-    }
+    },
+    "runArgs": [
+        // "--privileged", // Required for /dev access
+        "--network=host",
+        "--runtime=nvidia", // Use NVIDIA runtime for GPU access
+        "--gpus=all" // Use all available GPUs
+    ],
+    "forwardPorts": [
+    ],
 }
