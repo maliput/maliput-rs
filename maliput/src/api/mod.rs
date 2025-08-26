@@ -92,10 +92,18 @@ impl RoadNetwork {
         for (key, value) in properties.iter() {
             properties_vec.push(format!("{}:{}", key, value));
         }
-        // If MALIPUT_PLUGIN_PATH is not set, provide a default value from the maliput_sdk.
-        if std::env::var_os("MALIPUT_PLUGIN_PATH").is_none() {
-            std::env::set_var("MALIPUT_PLUGIN_PATH", maliput_sdk::get_maliput_malidrive_plugin_path());
-        }
+        // Append the maliput_malidrive plugin path to MALIPUT_PLUGIN_PATH.
+        // If MALIPUT_PLUGIN_PATH is not set, it will be created.
+        let malidrive_plugin_path = maliput_sdk::get_maliput_malidrive_plugin_path();
+        let new_path = match std::env::var_os("MALIPUT_PLUGIN_PATH") {
+            Some(current_path) => {
+                let mut paths = std::env::split_paths(&current_path).collect::<Vec<_>>();
+                paths.push(malidrive_plugin_path);
+                std::env::join_paths(paths).unwrap()
+            }
+            None => maliput_sdk::get_maliput_malidrive_plugin_path().into(),
+        };
+        std::env::set_var("MALIPUT_PLUGIN_PATH", new_path);
         let rn = maliput_sys::plugin::ffi::CreateRoadNetwork(&road_network_loader_id.to_string(), &properties_vec)?;
         Ok(RoadNetwork { rn })
     }
