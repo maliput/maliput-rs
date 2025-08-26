@@ -92,7 +92,10 @@ impl RoadNetwork {
         for (key, value) in properties.iter() {
             properties_vec.push(format!("{}:{}", key, value));
         }
-        std::env::set_var("MALIPUT_PLUGIN_PATH", maliput_sdk::get_maliput_malidrive_plugin_path());
+        // If MALIPUT_PLUGIN_PATH is not set, provide a default value from the maliput_sdk.
+        if std::env::var_os("MALIPUT_PLUGIN_PATH").is_none() {
+            std::env::set_var("MALIPUT_PLUGIN_PATH", maliput_sdk::get_maliput_malidrive_plugin_path());
+        }
         let rn = maliput_sys::plugin::ffi::CreateRoadNetwork(&road_network_loader_id.to_string(), &properties_vec)?;
         Ok(RoadNetwork { rn })
     }
