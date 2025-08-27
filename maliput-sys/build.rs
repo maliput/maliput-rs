@@ -49,22 +49,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rerun-if-changed=src/plugin/plugin.h");
     println!("cargo:rerun-if-changed=src/utility/mod.rs");
     println!("cargo:rerun-if-changed=src/utility/utility.h");
+    // Link to maliput_sdk.so which contains a bundle of all maliput libs.
+    let maliput_sdk_bin_path =
+        PathBuf::from(env::var("DEP_MALIPUT_SDK_BIN_PATH").expect("DEP_MALIPUT_SDK_BIN_PATH not set"));
 
-    let maliput_bin_path =
-        PathBuf::from(env::var("DEP_MALIPUT_SDK_MALIPUT_BIN_PATH").expect("DEP_MALIPUT_SDK_MALIPUT_BIN_PATH not set"));
-
-    println!("cargo:rustc-link-search=native={}", maliput_bin_path.display());
-
-    // Link to all the libraries in the bazel-bin folder.
-    // The order of these is important! Otherwise, we get undefined reference errors.
-    println!("cargo:rustc-link-lib=math");
-    println!("cargo:rustc-link-lib=common");
-    println!("cargo:rustc-link-lib=drake");
-    println!("cargo:rustc-link-lib=geometry_base");
-    println!("cargo:rustc-link-lib=plugin");
-    println!("cargo:rustc-link-lib=utility");
-    println!("cargo:rustc-link-lib=base");
-    println!("cargo:rustc-link-lib=api");
+    println!("cargo:rustc-link-search=native={}", maliput_sdk_bin_path.display());
+    println!("cargo:rustc-link-lib=maliput_sdk");
 
     cxx_build::bridges([
         "src/math/mod.rs",

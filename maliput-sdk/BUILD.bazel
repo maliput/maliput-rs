@@ -7,7 +7,6 @@
 # Libraries
 ###############################################################################
 
-# Dummy binary to force maliput to be downloaded from BCR.
 cc_binary(
     name = "maliput_sdk",
     visibility = ["//visibility:public"],
@@ -20,6 +19,16 @@ cc_binary(
         "@maliput//:geometry_base",
         "@maliput//:plugin",
         "@maliput//:utility",
+    ],
+    linkshared = True,
+    linkstatic = True,
+)
+
+# Dummy binary to force maliput_malidrive to be downloaded from BCR.
+cc_binary(
+    name = "maliput_malidrive_dummy",
+    visibility = ["//visibility:public"],
+    deps = [
         "@maliput_malidrive//:maliput_plugins/libmaliput_malidrive_road_network.so",
     ],
     data = [

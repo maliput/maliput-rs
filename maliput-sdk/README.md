@@ -28,6 +28,7 @@ _Note: What is maliput? Refer to https://maliput.readthedocs.org._
 This package brings maliput-ecosystem and provides the path to where the installation is located.
 
  - For accessing it via `build.rs` file, some env var are provided:
+   - `MALIPUT_SDK_BIN_PATH`: Path to maliput-sdk's bazel binaries.
    - `MALIPUT_SDK_MALIPUT_BIN_PATH`: Path to maliput binaries.
    - `MALIPUT_SDK_MALIPUT_MALIDRIVE_BIN_PATH`: Path to maliput_malidrive binaries.
    - `MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH`: Path to maliput_malidrive road network plugin.

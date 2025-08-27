@@ -202,11 +202,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     // ************* maliput_malidrive resource files ************* //
     // Set library file name based on OS
     let lib_dir = if cfg!(target_os = "macos") {
-        "libmaliput_sdk.dylib.runfiles"
+        "libmaliput_malidrive_dummy.dylib.runfiles"
     } else if cfg!(target_os = "linux") {
-        "libmaliput_sdk.so.runfiles"
+        "libmaliput_malidrive_dummy.so.runfiles"
     } else {
-        "maliput_sdk.dll.runfiles"
+        "maliput_malidrive_dummy.dll.runfiles"
     };
 
     let maliput_malidrive_resource_path = resolve_bazel_package_path(
@@ -237,6 +237,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Environment variable to pass down to dependent crates:
     // See: https://doc.rust-lang.org/cargo/reference/build-scripts.html#the-links-manifest-key
     println!("cargo:root={}", out_dir.display()); //> Accessed as MALIPUT_SDK_ROOT
+    println!("cargo:bin_path={}", bazel_bin_dir.display()); //> Accessed as MALIPUT_SDK_BIN_PATH
     println!("cargo:maliput_bin_path={}", maliput_bin_path.display()); //> Accessed as MALIPUT_SDK_MALIPUT_BIN_PATH
     println!(
         "cargo:maliput_malidrive_bin_path={}",

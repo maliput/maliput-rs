@@ -40,11 +40,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     // We set two arguments: rpath and link-search. The rpath is intended for the final binary to link to the library, and link-search allows Cargo to locate the library.
     //
     // See: https://github.com/rust-lang/cargo/issues/5077
-    let maliput_bin_path =
-        PathBuf::from(env::var("DEP_MALIPUT_SDK_MALIPUT_BIN_PATH").expect("DEP_MALIPUT_SDK_MALIPUT_BIN_PATH not set"));
-
-    println!("cargo:rustc-link-search=native={}", maliput_bin_path.display());
-    println!("cargo:rustc-link-arg=-Wl,-rpath,{}", maliput_bin_path.display());
-
+    let maliput_sdk_out_root = PathBuf::from(env::var("DEP_MALIPUT_SDK_ROOT").expect("DEP_MALIPUT_SDK_ROOT not set"));
+    let maliput_sdk_so_folder = maliput_sdk_out_root.join("bazel_output_base").join("bazel-bin");
+    println!("cargo:rustc-link-search=native={}", maliput_sdk_so_folder.display());
+    println!("cargo:rustc-link-arg=-Wl,-rpath,{}", maliput_sdk_so_folder.display());
     Ok(())
 }
