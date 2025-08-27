@@ -31,7 +31,7 @@
 
 #pragma once
 
-#include <maliput/common/assertion_error.h>
+#include <maliput/common/error.h>
 
 #include <rust/cxx.h>
 
