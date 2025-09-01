@@ -45,8 +45,24 @@ template <typename Try, typename Fail>
 static void trycatch(Try &&func, Fail &&fail) noexcept {
   try {
     func();
+  } catch (const maliput::common::road_network_description_parser_error &e) {
+    fail("maliput::common::road_network_description_parser_error: " + std::string(e.what()));
+  } catch (const maliput::common::road_geometry_construction_error &e) {
+    fail("maliput::common::road_geometry_construction_error: " + std::string(e.what()));
+  } catch (const maliput::common::rulebook_error &e) {
+    fail("maliput::common::rulebook_error: " + std::string(e.what()));
+  } catch (const maliput::common::rule_registry_error &e) {
+    fail("maliput::common::rule_registry_error: " + std::string(e.what()));
+  } catch (const maliput::common::traffic_light_book_error &e) {
+    fail("maliput::common::traffic_light_book_error: " + std::string(e.what()));
+  } catch (const maliput::common::phase_book_error &e) {
+    fail("maliput::common::phase_book_error: " + std::string(e.what()));
+  } catch (const maliput::common::state_provider_error &e) {
+    fail("maliput::common::state_provider_error: " + std::string(e.what()));
   } catch (const maliput::common::assertion_error &e) {
     fail("maliput::common::assertion_error: " + std::string(e.what()));
+  } catch (const maliput::common::maliput_error &e) {
+    fail("maliput::common::maliput_error: " + std::string(e.what()));
   } catch (const std::exception &e) {
     fail("std::exception: " + std::string(e.what()));
   } catch (...) {

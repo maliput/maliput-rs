@@ -31,7 +31,20 @@
 /// Error types for maliput lib.
 #[derive(Debug, PartialEq, Eq, thiserror::Error)]
 pub enum MaliputError {
-    // TODO(francocipollone): Add more specific error types as we handle it from the C++ side.
+    #[error("Maliput Road Network description parser error: {0}")]
+    RoadNetworkDescriptionParserError(String),
+    #[error("Maliput Road Geometry construction error: {0}")]
+    RoadGeometryConstructionError(String),
+    #[error("Maliput Rulebook error: {0}")]
+    RulebookError(String),
+    #[error("Maliput Rule Registry error: {0}")]
+    RuleRegistryError(String),
+    #[error("Maliput Traffic Light book error: {0}")]
+    TrafficLightBookError(String),
+    #[error("Maliput Phase book error: {0}")]
+    PhaseBookError(String),
+    #[error("Maliput State Provider error: {0}")]
+    StateProviderError(String),
     #[error("Maliput assertion error: {0}")]
     AssertionError(String),
     #[error("Maliput OBJ creation error: {0}")]
@@ -43,7 +56,21 @@ pub enum MaliputError {
 impl From<cxx::Exception> for MaliputError {
     fn from(e: cxx::Exception) -> Self {
         let msg = e.to_string();
-        if msg.contains("maliput::common::assertion_error") {
+        if msg.contains("maliput::common::road_network_description_parser_error") {
+            MaliputError::RoadNetworkDescriptionParserError(msg)
+        } else if msg.contains("maliput::common::road_geometry_construction_error") {
+            MaliputError::RoadGeometryConstructionError(msg)
+        } else if msg.contains("maliput::common::rulebook_error") {
+            MaliputError::RulebookError(msg)
+        } else if msg.contains("maliput::common::rule_registry_error") {
+            MaliputError::RuleRegistryError(msg)
+        } else if msg.contains("maliput::common::traffic_light_book_error") {
+            MaliputError::TrafficLightBookError(msg)
+        } else if msg.contains("maliput::common::phase_book_error") {
+            MaliputError::PhaseBookError(msg)
+        } else if msg.contains("maliput::common::state_provider_error") {
+            MaliputError::StateProviderError(msg)
+        } else if msg.contains("maliput::common::assertion_error") {
             MaliputError::AssertionError(msg)
         } else {
             MaliputError::Other(msg)
