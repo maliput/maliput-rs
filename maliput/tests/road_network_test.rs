@@ -83,4 +83,36 @@ mod road_network_test {
             }
         }
     }
+
+    #[test]
+    fn road_network_description_parser_error_test() {
+        let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
+        let xodr_path = format!("{}/tests/data/xodr/IllFormed.xodr", package_location);
+
+        let road_network_properties = HashMap::from([
+            ("road_geometry_id", "my_rg_from_rust"),
+            ("opendrive_file", xodr_path.as_str()),
+            ("linear_tolerance", "0.01"),
+        ]);
+        let rn_res = maliput::api::RoadNetwork::new("maliput_malidrive", &road_network_properties);
+        assert!(
+            rn_res.is_err(),
+            "Expected RoadNetworkDescriptionParserError with IllFormed.xodr"
+        );
+        match rn_res {
+            Ok(_) => panic!("Expected RoadNetwork creation to fail with an ill formed XODR."),
+            Err(e) => {
+                assert!(
+                    e.type_id() == std::any::TypeId::of::<MaliputError>(),
+                    "Expected MaliputError, got: {:?}",
+                    e.type_id()
+                );
+                if let maliput::common::MaliputError::RoadNetworkDescriptionParserError(_) = e {
+                    // This is the expected error type.
+                } else {
+                    panic!("Expected MaliputError::RoadNetworkDescriptionParserError, got: {:?}", e);
+                }
+            }
+        }
+    }
 }
