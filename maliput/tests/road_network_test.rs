@@ -87,7 +87,7 @@ mod road_network_test {
     #[test]
     fn road_network_description_parser_error_test() {
         let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
-        let xodr_path = format!("{}/data/xodr/ArcLane-IllFormed.xodr", package_location);
+        let xodr_path = format!("{}/tests/data/xodr/IllFormed.xodr", package_location);
 
         let road_network_properties = HashMap::from([
             ("road_geometry_id", "my_rg_from_rust"),
@@ -97,7 +97,7 @@ mod road_network_test {
         let rn_res = maliput::api::RoadNetwork::new("maliput_malidrive", &road_network_properties);
         assert!(
             rn_res.is_err(),
-            "Expected RoadNetworkDescriptionParserError with ArcLane-IllFormed.xodr"
+            "Expected RoadNetworkDescriptionParserError with IllFormed.xodr"
         );
         match rn_res {
             Ok(_) => panic!("Expected RoadNetwork creation to fail with an ill formed XODR."),
