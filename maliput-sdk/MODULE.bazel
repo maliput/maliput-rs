@@ -5,9 +5,9 @@ Maliput SDK!
 module(
     name = "maliput_sdk",
     compatibility_level = 1,
-    version = "0.8.0",
+    version = "0.8.1",
 )
 
 bazel_dep(name = "rules_cc", version = "0.0.9")
-bazel_dep(name = "maliput", version = "1.7.0")
-bazel_dep(name = "maliput_malidrive", version = "0.10.0")
+bazel_dep(name = "maliput", version = "1.7.1")
+bazel_dep(name = "maliput_malidrive", version = "0.10.1")
