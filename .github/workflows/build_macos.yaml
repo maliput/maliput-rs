@@ -1,0 +1,40 @@
+name: macOS Build
+
+on:
+  push:
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+env:
+  USE_BAZEL_VERSION: "6.4.0"
+
+jobs:
+  build:
+    runs-on: macos-11
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bazel
+        uses: bazel-contrib/setup-bazel@0.15.0
+        with:
+          bazelisk-cache: true
+          disk-cache: ${{ github.workflow }}
+          repository-cache: true
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.83.0
+
+      - name: Verify Installations
+        run: |
+          echo "--- Bazel Version ---"
+          bazel --version
+          echo "--- Rust Version ---"
+          rustc --version
+          cargo --version
+
+      - name: Build with Cargo
+        run: cargo build --verbose
