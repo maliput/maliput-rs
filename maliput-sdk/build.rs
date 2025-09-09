@@ -148,6 +148,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             "--symlink_prefix={}",
             bazel_output_base_dir.join("bazel-").display()
         ))
+        .arg("--macos_minimum_os=10.15")
         .arg(format!("--jobs={}", jobs))
         .arg("//...")
         .status()
