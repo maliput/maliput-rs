@@ -461,7 +461,7 @@ dependencies = [
 
 [[package]]
 name = "maliput-sdk"
-version = "0.9.0"
+version = "0.9.1"
 
 [[package]]
 name = "maliput-sys"
