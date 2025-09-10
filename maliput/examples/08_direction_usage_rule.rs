@@ -55,6 +55,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ("road_geometry_id", "my_rg_from_rust"),
         ("opendrive_file", xodr_path.as_str()),
         ("linear_tolerance", "0.01"),
+        ("use_userdata_traffic_direction", "false"),
     ]);
 
     let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties)?;
