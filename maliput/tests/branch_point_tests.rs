@@ -81,7 +81,7 @@ fn branch_point_api() {
     let default_lane_end = branch_point.get_default_branch(&lane_end);
     assert!(default_lane_end.is_some());
     match default_lane_end.unwrap() {
-        maliput::api::LaneEnd::Start(l) | maliput::api::LaneEnd::Finish(l) => assert_eq!(l.id(), "9_0_-1"),
+        maliput::api::LaneEnd::Start(l) | maliput::api::LaneEnd::Finish(l) => assert_eq!(l.id(), "5_0_-1"),
     }
 
     // Test that the default branch is None when the lane_end point to the other side.

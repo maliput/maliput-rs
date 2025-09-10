@@ -5,13 +5,16 @@ on:
     branches:
       - main
   pull_request:
+    types: [labeled]
   workflow_dispatch:
 
 env:
   USE_BAZEL_VERSION: "6.4.0"
 
 jobs:
-  build:
+  build_and_test:
+    if: contains(github.event.pull_request.labels.*.name, 'do-macos-build') || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    name: Build & Test
     runs-on: macos-13
     steps:
       - name: Checkout repository
@@ -37,5 +40,6 @@ jobs:
           rustc --version
           cargo --version
 
-      - name: Build with Cargo
-        run: cargo build --verbose
+      - run: cargo check --workspace --all-targets
+      - run: cargo build --workspace --all-targets
+      - run: cargo test --workspace --all-targets
