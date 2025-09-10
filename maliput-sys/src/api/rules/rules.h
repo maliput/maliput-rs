@@ -300,7 +300,7 @@ rust::Vec<rust::String> QueryResults_discrete_value_rules(const QueryResults& qu
   const auto discrete_value_rules_cpp = query_results.discrete_value_rules;
   rust::Vec<rust::String> discrete_value_rules_id;
   discrete_value_rules_id.reserve(discrete_value_rules_cpp.size());
-  for (const auto discrete_value_rule : discrete_value_rules_cpp) {
+  for (const auto& discrete_value_rule : discrete_value_rules_cpp) {
     discrete_value_rules_id.push_back({discrete_value_rule.first.string()});
   }
   return discrete_value_rules_id;
@@ -310,7 +310,7 @@ rust::Vec<rust::String> QueryResults_range_value_rules(const QueryResults& query
   const auto range_value_rules_cpp = query_results.range_value_rules;
   rust::Vec<rust::String> range_value_rules_id;
   range_value_rules_id.reserve(range_value_rules_cpp.size());
-  for (const auto range_value_rule : range_value_rules_cpp) {
+  for (const auto& range_value_rule : range_value_rules_cpp) {
     range_value_rules_id.push_back({range_value_rule.first.string()});
   }
   return range_value_rules_id;
