@@ -11,7 +11,7 @@ env:
   USE_BAZEL_VERSION: "6.4.0"
 
 jobs:
-  build:
+  build_and_test:
     runs-on: macos-13
     steps:
       - name: Checkout repository
@@ -39,3 +39,5 @@ jobs:
 
       - name: Build with Cargo
         run: cargo build --verbose
+      - name: Test
+        run: cargo test --workspace --all-targets
