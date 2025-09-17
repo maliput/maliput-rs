@@ -802,6 +802,47 @@ impl RangeValueRule {
     }
 }
 
+/// Defines a Rule Type.
+///
+/// # RuleType
+///
+/// [RuleType]s provide a way of obtaining a rule type's string defined in
+/// maliput's backend. Since new rule types can be created in a custom manner,
+/// [RuleType] only holds the most common types which are already defined in
+/// the backend.
+pub enum RuleType {
+    DirectionUsage,
+    RightOfWay,
+    VehicleStopInZoneBehavior,
+    SpeedLimit,
+}
+
+impl std::fmt::Display for RuleType {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            Self::DirectionUsage => write!(f, "Direction-Usage Rule Type"),
+            Self::RightOfWay => write!(f, "Right-Of-Way Rule Type"),
+            Self::VehicleStopInZoneBehavior => write!(f, "Vehicle-Stop-In-Zone-Behavior Rule Type"),
+            Self::SpeedLimit => write!(f, "Speed-Limit Rule Type"),
+        }
+    }
+}
+
+impl RuleType {
+    /// Gets the Rule ID for the [RuleType] and `lane_id`.
+    ///
+    /// # Arguments
+    /// - `lane_id` - The lane ID to get the rule ID from.
+    ///
+    /// # Returns
+    /// A rule ID formatted the way the backend defines it.
+    pub fn get_rule_id(&self, lane_id: &str) -> String {
+        // We rely on maliput_malidrive which define the rule id as:
+        // "<rule_type>/<lane_id>"
+        self.to_string() + "/" + lane_id
+    }
+}
+
 /// Defines a base state for a rule.
 ///
 /// # RuleStateBase

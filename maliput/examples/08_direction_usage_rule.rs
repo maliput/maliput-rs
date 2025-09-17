@@ -28,21 +28,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use maliput::common::MaliputError;
-
-fn get_direction_usage_rule_for_lane(
-    lane_id: &str,
-    rulebook: &maliput::api::rules::RoadRulebook,
-) -> Result<maliput::api::rules::DiscreteValueRule, MaliputError> {
-    let direction_usage_rule_type = "Direction-Usage Rule Type";
-    // We rely on maliput_malidrive which define the rule id as:
-    // "<rule_type>/<lane_id>"
-    // And for the Direction Usage Rule Type, it is defined as:
-    // "Direction-Usage Rule Type/<lane_id>"
-    // So we can construct the rule id as follows:
-    let rule_id = direction_usage_rule_type.to_string() + "/" + lane_id;
-    rulebook.get_discrete_value_rule(&rule_id)
-}
+use maliput::api::rules::RuleType;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     use maliput::api::RoadNetwork;
@@ -65,8 +51,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Let's find the direction usage rule for all the lanes
     let lanes = rg.get_lanes();
     for lane in lanes {
+        let rule_type = RuleType::DirectionUsage;
         let lane_id = lane.id();
-        let rule = get_direction_usage_rule_for_lane(&lane_id, &rulebook);
+        let rule = rulebook.get_discrete_value_rule(&rule_type.get_rule_id(&lane_id));
         if let Ok(rule) = rule {
             // Print the DiscreteValueRule for the lane.
             println!("Direction Usage Rule for lane {}:\n{:?}", lane_id, rule);
