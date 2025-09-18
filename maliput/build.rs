@@ -44,5 +44,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     let maliput_sdk_so_folder = maliput_sdk_out_root.join("bazel_output_base").join("bazel-bin");
     println!("cargo:rustc-link-search=native={}", maliput_sdk_so_folder.display());
     println!("cargo:rustc-link-arg=-Wl,-rpath,{}", maliput_sdk_so_folder.display());
+
+    // Environment variable to pass down to dependent crates:
+    // See: https://doc.rust-lang.org/cargo/reference/build-scripts.html#the-links-manifest-key
+    // We forward the same variables we received from maliput-sdk to be used by maliput's dependent crates.
+    // This workaround is needed because:
+    //  - Downstream crates might not have rpath set correctly to find the .so files.
+    //  - Cargo doesn't propagate the crate's environment variables to higher-level crates.
+    println!("cargo:sdk_root_fw={}", maliput_sdk_so_folder.display()); //> Accessed as DEP_MALIPUT_SDK_ROOT_FW
     Ok(())
 }

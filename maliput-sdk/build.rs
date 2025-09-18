@@ -237,17 +237,17 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Environment variable to pass down to dependent crates:
     // See: https://doc.rust-lang.org/cargo/reference/build-scripts.html#the-links-manifest-key
-    println!("cargo:root={}", out_dir.display()); //> Accessed as MALIPUT_SDK_ROOT
-    println!("cargo:bin_path={}", bazel_bin_dir.display()); //> Accessed as MALIPUT_SDK_BIN_PATH
-    println!("cargo:maliput_bin_path={}", maliput_bin_path.display()); //> Accessed as MALIPUT_SDK_MALIPUT_BIN_PATH
+    println!("cargo:root={}", out_dir.display()); //> Accessed as DEP_MALIPUT_SDK_ROOT
+    println!("cargo:bin_path={}", bazel_bin_dir.display()); //> Accessed as DEP_MALIPUT_SDK_BIN_PATH
+    println!("cargo:maliput_bin_path={}", maliput_bin_path.display()); //> Accessed as DEP_MALIPUT_SDK_MALIPUT_BIN_PATH
     println!(
         "cargo:maliput_malidrive_bin_path={}",
         maliput_malidrive_bin_path.display()
-    ); //> Accessed as MALIPUT_SDK_MALIPUT_MALIDRIVE_BIN_PATH
+    ); //> Accessed as DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_BIN_PATH
     println!(
         "cargo:maliput_malidrive_plugin_path={}",
         maliput_malidrive_bin_path.join("maliput_plugins").display()
-    ); //> Accessed as MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH
+    ); //> Accessed as DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH
 
     Ok(())
 }
