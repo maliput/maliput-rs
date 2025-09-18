@@ -13,6 +13,11 @@ license.workspace = true
 repository.workspace = true
 
 build = "build.rs"
+# Dummy `links` value so that we can pass DEP_* environment variables to our
+# dependents.
+# See: https://github.com/rust-lang/cargo/issues/7846
+links = "maliput"
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 clap = { workspace = true, features = ["derive"] }
