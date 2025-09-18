@@ -5,6 +5,12 @@
         "context": ".."
     },
     "remoteUser": "zen",
+    "containerEnv": {
+      "DISPLAY": "${localEnv:DISPLAY}",
+    },
+    "mounts": [
+      "type=bind,source=/tmp/.X11-unix,target=/tmp/.X11-unix",
+    ],
     "customizations": {
         "vscode": {
             "extensions": [
@@ -20,5 +26,16 @@
                 "ritwickdey.LiveServer"
             ]
         }
-    }
+    },
+    "runArgs": [
+        "--runtime=nvidia", // Use NVIDIA runtime for GPU access
+        "--gpus=all" // Use all available GPUs
+    ],
+    // There are two ports used by Rerun:
+    // 9090: This is a web server that serves the frontend for the Rerun application.
+    // 9876: This is the grpc server to transmit info for the items to be drawn.
+    "forwardPorts": [
+        9090,
+        9876
+    ],
 }

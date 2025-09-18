@@ -1,0 +1,18 @@
+[package]
+name = "maliput-viz"
+version = "0.1.0"
+authors = ["Franco Cipollone <franco.c@ekumenlabs.com>"]
+categories = ["simulation"]
+description = "Rust API for maliput"
+documentation = "https://maliput.github.io/maliput-rs/maliput"
+readme = "README.md"
+
+edition.workspace = true
+keywords.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+maliput = { workspace = true }
+thiserror = { workspace = true }
+rerun = { workspace = true, features = ["web_viewer"] }

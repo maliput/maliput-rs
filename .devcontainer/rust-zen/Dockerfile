@@ -74,6 +74,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # python
     python3-dev \
     python3-pip \
+    # Rerun specifically needs libxkbcommon-dev, libxkbcommon-x11-0
+    libx11-dev libxinerama-dev libxkbcommon-dev libgl-dev libxkbcommon-x11-0 x11-apps x11-xserver-utils \
     && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
 RUN pip install \
@@ -115,13 +117,29 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y  --d
     && echo "export PATH=${CARGO_HOME}/bin:\${PATH}" >> /etc/profile
 ENV PATH="$CARGO_HOME/bin/:$PATH"
 
-# The previous command roots permissions in ${CARGO_HOME} and ${RUSTUP_HOME}.
+
+################################################################################
+# Cargo installs
+################################################################################
+RUN cargo install \
+    rerun-cli@0.23.4
+
+
+# The previous commands root permissions in ${CARGO_HOME} and ${RUSTUP_HOME}.
 # Establish wide permissions for user 'zen'. This step takes several minutes.
 
 RUN find ${CARGO_HOME} -type d -exec chmod 777 {} + && \
     find ${CARGO_HOME} -type f -exec chmod a+rw {} + && \
     find ${RUSTUP_HOME} -type d -exec chmod 777 {} + && \
     find ${RUSTUP_HOME} -type f -exec chmod a+rw {} +
+
+
+################################################################################
+# NVIDIA
+################################################################################
+
+ENV NVIDIA_VISIBLE_DEVICES ${NVIDIA_VISIBLE_DEVICES:-all}
+ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics,display,video,utility,compute
 
 ################################################################################
 # Login Shell
