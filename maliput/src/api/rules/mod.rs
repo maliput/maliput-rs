@@ -29,6 +29,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use crate::common::MaliputError;
+use strum_macros::{Display, IntoStaticStr};
 
 /// Interface for accessing the [TrafficLight] in the [super::RoadNetwork]
 pub struct TrafficLightBook<'a> {
@@ -799,6 +800,41 @@ impl RangeValueRule {
                 max: maliput_sys::api::rules::ffi::RangeValueRuleRange_max(r),
             })
             .collect::<Vec<Range>>()
+    }
+}
+
+/// Defines a Rule Type.
+///
+/// # RuleType
+///
+/// [RuleType]s provide a way of obtaining a rule type's string defined in
+/// maliput's backend. Since new rule types can be created in a custom manner,
+/// [RuleType] only holds the most common types which are already defined in
+/// the backend.
+#[derive(Display, IntoStaticStr)]
+pub enum RuleType {
+    #[strum(serialize = "Direction-Usage Rule Type")]
+    DirectionUsage,
+    #[strum(serialize = "Right-Of-Way Rule Type")]
+    RightOfWay,
+    #[strum(serialize = "Vehicle-Stop-In-Zone-Behavior Rule Type")]
+    VehicleStopInZoneBehavior,
+    #[strum(serialize = "Speed-Limit Rule Type")]
+    SpeedLimit,
+}
+
+impl RuleType {
+    /// Gets the Rule ID for the [RuleType] and `lane_id`.
+    ///
+    /// # Arguments
+    /// - `lane_id` - The lane ID to get the rule ID from.
+    ///
+    /// # Returns
+    /// A rule ID formatted the way the backend defines it.
+    pub fn get_rule_id(&self, lane_id: &str) -> String {
+        // We rely on maliput_malidrive which define the rule id as:
+        // "<rule_type>/<lane_id>"
+        self.to_string() + "/" + lane_id
     }
 }
 
