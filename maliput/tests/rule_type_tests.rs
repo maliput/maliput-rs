@@ -52,4 +52,13 @@ fn rule_type_api() {
     assert_eq!(rule_type.get_rule_id("lane_id"), "Speed-Limit Rule Type/lane_id");
     let rule_type = RuleType::DirectionUsage;
     assert_ne!(rule_type.to_string(), "Speed-Limit Rule Type");
+
+    let rule_str: &'static str = RuleType::DirectionUsage.into();
+    assert_eq!(rule_str, "Direction-Usage Rule Type");
+    let rule_str: &'static str = RuleType::RightOfWay.into();
+    assert_eq!(rule_str, "Right-Of-Way Rule Type");
+    let rule_str: &'static str = RuleType::VehicleStopInZoneBehavior.into();
+    assert_eq!(rule_str, "Vehicle-Stop-In-Zone-Behavior Rule Type");
+    let rule_str: &'static str = RuleType::SpeedLimit.into();
+    assert_eq!(rule_str, "Speed-Limit Rule Type");
 }

@@ -29,6 +29,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use crate::common::MaliputError;
+use strum_macros::{Display, IntoStaticStr};
 
 /// Interface for accessing the [TrafficLight] in the [super::RoadNetwork]
 pub struct TrafficLightBook<'a> {
@@ -810,22 +811,16 @@ impl RangeValueRule {
 /// maliput's backend. Since new rule types can be created in a custom manner,
 /// [RuleType] only holds the most common types which are already defined in
 /// the backend.
+#[derive(Display, IntoStaticStr)]
 pub enum RuleType {
+    #[strum(serialize = "Direction-Usage Rule Type")]
     DirectionUsage,
+    #[strum(serialize = "Right-Of-Way Rule Type")]
     RightOfWay,
+    #[strum(serialize = "Vehicle-Stop-In-Zone-Behavior Rule Type")]
     VehicleStopInZoneBehavior,
+    #[strum(serialize = "Speed-Limit Rule Type")]
     SpeedLimit,
-}
-
-impl std::fmt::Display for RuleType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        match self {
-            Self::DirectionUsage => write!(f, "Direction-Usage Rule Type"),
-            Self::RightOfWay => write!(f, "Right-Of-Way Rule Type"),
-            Self::VehicleStopInZoneBehavior => write!(f, "Vehicle-Stop-In-Zone-Behavior Rule Type"),
-            Self::SpeedLimit => write!(f, "Speed-Limit Rule Type"),
-        }
-    }
 }
 
 impl RuleType {
