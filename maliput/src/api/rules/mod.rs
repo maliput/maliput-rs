@@ -560,7 +560,7 @@ impl<'a> RoadRulebook<'a> {
     /// * `rule_id` - The id of the rule.
     ///
     /// # Returns
-    /// The DiscreteValueRule with the given id.
+    /// The DiscreteValueRule with the given id or None if the id is not in the Rulebook.
     pub fn get_discrete_value_rule(&self, rule_id: &String) -> Option<DiscreteValueRule> {
         let discrete_value_rule =
             maliput_sys::api::rules::ffi::RoadRulebook_GetDiscreteValueRule(self.road_rulebook, rule_id);
@@ -575,7 +575,7 @@ impl<'a> RoadRulebook<'a> {
     /// * `rule_id` - The id of the rule.
     ///
     /// # Returns
-    /// The RangeValueRule with the given id.
+    /// The RangeValueRule with the given id or None if the id is not in the Rulebook.
     pub fn get_range_value_rule(&self, rule_id: &String) -> Option<RangeValueRule> {
         let range_value_rule =
             maliput_sys::api::rules::ffi::RoadRulebook_GetRangeValueRule(self.road_rulebook, rule_id);
