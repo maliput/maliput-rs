@@ -135,7 +135,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!();
     // Alternatively, if you know the type of the rule and the lane id, you can use the `get_discrete_value_rule` method to get the rule directly.
     let expected_rule_id = String::from("Direction-Usage Rule Type/1_0_1");
-    let rule = rulebook.get_discrete_value_rule(&expected_rule_id)?;
+    let rule = rulebook.get_discrete_value_rule(&expected_rule_id);
+    assert!(rule.is_some());
+    let rule = rule.unwrap();
     assert_eq!(rule.id(), expected_rule_id);
     assert_eq!(rule.type_id(), "Direction-Usage Rule Type");
     let states = rule.states();

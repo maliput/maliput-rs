@@ -54,7 +54,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let rule_type = RuleType::DirectionUsage;
         let lane_id = lane.id();
         let rule = rulebook.get_discrete_value_rule(&rule_type.get_rule_id(&lane_id));
-        if let Ok(rule) = rule {
+        if let Some(rule) = rule {
             // Print the DiscreteValueRule for the lane.
             println!("Direction Usage Rule for lane {}:\n{:?}", lane_id, rule);
             // Print just the state for better showcase.

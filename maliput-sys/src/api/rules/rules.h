@@ -30,6 +30,7 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 #include <vector>
 
 #include <maliput/api/rules/traffic_lights.h>
@@ -221,7 +222,11 @@ rust::i32 DiscreteValueRuleDiscreteValue_severity(const DiscreteValueRuleDiscret
 }
 
 std::unique_ptr<DiscreteValueRule> RoadRulebook_GetDiscreteValueRule(const RoadRulebook& road_rulebook, const rust::String& id) {
-  return std::make_unique<DiscreteValueRule>(road_rulebook.GetDiscreteValueRule(Rule::Id{std::string(id)}));
+  const std::optional<DiscreteValueRule> rule = road_rulebook.GetDiscreteValueRule(Rule::Id{std::string(id)});
+  if (rule.has_value()) {
+    return std::make_unique<DiscreteValueRule>(rule.value());
+  }
+  return nullptr;
 }
 
 std::unique_ptr<std::vector<RelatedRule>> DiscreteValueRuleDiscreteValue_related_rules(const DiscreteValueRuleDiscreteValue& discrete_value) {
@@ -281,7 +286,11 @@ std::unique_ptr<LaneSRoute> RangeValueRule_zone(const RangeValueRule& rule) {
 }
 
 std::unique_ptr<RangeValueRule> RoadRulebook_GetRangeValueRule(const RoadRulebook& road_rulebook, const rust::String& id) {
-  return std::make_unique<RangeValueRule>(road_rulebook.GetRangeValueRule(Rule::Id{std::string(id)}));
+  const std::optional<RangeValueRule> rule = road_rulebook.GetRangeValueRule(Rule::Id{std::string(id)});
+  if (rule.has_value()) {
+    return std::make_unique<RangeValueRule>(rule.value());
+  }
+  return nullptr;
 }
 
 std::unique_ptr<QueryResults> RoadRulebook_Rules(const RoadRulebook& road_rulebook) {
