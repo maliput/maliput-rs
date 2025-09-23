@@ -44,7 +44,7 @@ fn discrete_value_rule_test_api() {
     let expected_rule_id = String::from("Right-Of-Way Rule Type/WestToEastSouth");
     let expected_type_id = String::from("Right-Of-Way Rule Type");
     let rule = book.get_discrete_value_rule(&expected_rule_id);
-    assert!(rule.is_ok());
+    assert!(rule.is_some());
     let rule = rule.unwrap();
     assert_eq!(rule.id(), expected_rule_id);
     assert_eq!(rule.type_id(), expected_type_id);
@@ -54,7 +54,7 @@ fn discrete_value_rule_test_api() {
 
     let invalid_rule_id = String::from("Invalid Rule Type/InvalidRule");
     let invalid_rule = book.get_discrete_value_rule(&invalid_rule_id);
-    assert!(invalid_rule.is_err());
+    assert!(invalid_rule.is_none());
 
     let states = rule.states();
     assert_eq!(states.len(), 2); // Go and Stop

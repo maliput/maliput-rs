@@ -560,14 +560,14 @@ impl<'a> RoadRulebook<'a> {
     /// * `rule_id` - The id of the rule.
     ///
     /// # Returns
-    /// The DiscreteValueRule with the given id.
-    pub fn get_discrete_value_rule(&self, rule_id: &String) -> Result<DiscreteValueRule, MaliputError> {
-        Ok(DiscreteValueRule {
-            discrete_value_rule: maliput_sys::api::rules::ffi::RoadRulebook_GetDiscreteValueRule(
-                self.road_rulebook,
-                rule_id,
-            )?,
-        })
+    /// The DiscreteValueRule with the given id or None if the id is not in the Rulebook.
+    pub fn get_discrete_value_rule(&self, rule_id: &String) -> Option<DiscreteValueRule> {
+        let discrete_value_rule =
+            maliput_sys::api::rules::ffi::RoadRulebook_GetDiscreteValueRule(self.road_rulebook, rule_id);
+        if discrete_value_rule.is_null() {
+            return None;
+        }
+        Some(DiscreteValueRule { discrete_value_rule })
     }
     /// Returns the RangeValueRule with the specified `id`.
     ///
@@ -575,14 +575,14 @@ impl<'a> RoadRulebook<'a> {
     /// * `rule_id` - The id of the rule.
     ///
     /// # Returns
-    /// The RangeValueRule with the given id.
-    pub fn get_range_value_rule(&self, rule_id: &String) -> Result<RangeValueRule, MaliputError> {
-        Ok(RangeValueRule {
-            range_value_rule: maliput_sys::api::rules::ffi::RoadRulebook_GetRangeValueRule(
-                self.road_rulebook,
-                rule_id,
-            )?,
-        })
+    /// The RangeValueRule with the given id or None if the id is not in the Rulebook.
+    pub fn get_range_value_rule(&self, rule_id: &String) -> Option<RangeValueRule> {
+        let range_value_rule =
+            maliput_sys::api::rules::ffi::RoadRulebook_GetRangeValueRule(self.road_rulebook, rule_id);
+        if range_value_rule.is_null() {
+            return None;
+        }
+        Some(RangeValueRule { range_value_rule })
     }
 
     /// Returns all the rules in the road rulebook.
@@ -639,13 +639,15 @@ impl<'a> RoadRulebook<'a> {
         let range_value_rules_id = maliput_sys::api::rules::ffi::QueryResults_range_value_rules(&query_results_cpp);
         let mut dvr_map = std::collections::HashMap::new();
         for rule_id in discrete_value_rules_id {
-            let rule = self.get_discrete_value_rule(&rule_id)?;
-            dvr_map.insert(rule.id(), rule);
+            if let Some(rule) = self.get_discrete_value_rule(&rule_id) {
+                dvr_map.insert(rule.id(), rule);
+            }
         }
         let mut rvr_map = std::collections::HashMap::new();
         for rule_id in range_value_rules_id {
-            let rule = self.get_range_value_rule(&rule_id)?;
-            rvr_map.insert(rule.id(), rule);
+            if let Some(rule) = self.get_range_value_rule(&rule_id) {
+                rvr_map.insert(rule.id(), rule);
+            }
         }
         Ok(QueryResults {
             discrete_value_rules: dvr_map,

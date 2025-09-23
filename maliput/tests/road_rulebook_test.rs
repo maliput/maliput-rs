@@ -38,23 +38,30 @@ fn road_rulebook_test_api() {
     let road_network = common::create_loop_road_pedestrian_crosswalk_road_network_with_books();
 
     let book = road_network.rulebook();
-    // Test get_discrete_value_rule method.
+    // Test get_discrete_value_rule method for a valid rule.
     let expected_rule_id = String::from("Vehicle-Stop-In-Zone-Behavior Rule Type/WestToEastSouth");
     let expected_type_id = String::from("Vehicle-Stop-In-Zone-Behavior Rule Type");
     let rule = book.get_discrete_value_rule(&expected_rule_id);
-    assert!(rule.is_ok());
+    assert!(rule.is_some());
     let rule = rule.unwrap();
     assert_eq!(rule.id(), expected_rule_id);
     assert_eq!(rule.type_id(), expected_type_id);
 
-    // Test get_range_value_rule method.
+    // Test get_discrete_value_rule method for an invalid rule.
+    let rule = book.get_discrete_value_rule(&"InvalidRule".to_string());
+    assert!(rule.is_none());
+
+    // Test get_range_value_rule method for a valid rule.
     let expected_rule_id = String::from("Speed-Limit Rule Type/1_0_1_1");
     let expected_type_id = String::from("Speed-Limit Rule Type");
     let rule = book.get_range_value_rule(&expected_rule_id);
-    assert!(rule.is_ok());
+    assert!(rule.is_some());
     let rule = rule.unwrap();
     assert_eq!(rule.id(), expected_rule_id);
     assert_eq!(rule.type_id(), expected_type_id);
+    // Test get_range_value_rule method for an invalid rule.
+    let rule = book.get_range_value_rule(&"InvalidRule".to_string());
+    assert!(rule.is_none());
 
     // Test rules method.
     let rules = book.rules();
