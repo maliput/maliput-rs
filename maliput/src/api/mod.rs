@@ -208,10 +208,12 @@ impl<'a> RoadGeometry<'a> {
     pub fn num_branch_points(&self) -> i32 {
         self.rg.num_branch_points()
     }
-    /// Determines the [RoadPosition] corresponding to [InertialPosition] `inertial_position`.
+    /// Determines the [RoadPosition] on the 3D road manifold that corresponds to
+    /// [InertialPosition] `inertial_position`.
     ///
-    /// Returns a RoadPositionResult. Its [RoadPosition] is the point in the
-    /// [RoadGeometry]'s manifold which is, in the `Inertial`-frame, closest to
+    /// The [RoadGeometry]'s manifold is a 3D volume, with each point defined by (s, r, h)
+    /// coordinates. This method returns a [RoadPositionProjection]. Its [RoadPosition] is the
+    /// point in the [RoadGeometry]'s manifold which is, in the `Inertial`-frame, closest to
     /// `inertial_position`. Its InertialPosition is the `Inertial`-frame equivalent of the
     /// [RoadPosition] and its distance is the Cartesian distance from
     /// `inertial_position` to the nearest point.
@@ -242,11 +244,14 @@ impl<'a> RoadGeometry<'a> {
     /// * `inertial_position` - The [InertialPosition] to convert into a [RoadPosition].
     ///
     /// # Return
-    /// A [RoadPositionResult] with the nearest [RoadPosition], the corresponding [InertialPosition]
+    /// A [RoadPositionProjection] with the nearest [RoadPosition], the corresponding [InertialPosition]
     /// to that [RoadPosition] and the distance between the input and output [InertialPosition]s.
-    pub fn to_road_position(&self, inertial_position: &InertialPosition) -> Result<RoadPositionResult, MaliputError> {
+    pub fn to_road_position(
+        &self,
+        inertial_position: &InertialPosition,
+    ) -> Result<RoadPositionProjection, MaliputError> {
         let rpr = maliput_sys::api::ffi::RoadGeometry_ToRoadPosition(self.rg, &inertial_position.ip)?;
-        Ok(RoadPositionResult {
+        Ok(RoadPositionProjection {
             road_position: RoadPosition {
                 rp: maliput_sys::api::ffi::RoadPositionResult_road_position(&rpr),
             },
@@ -272,12 +277,12 @@ impl<'a> RoadGeometry<'a> {
     ///
     /// # Return
     ///
-    /// A vector of [RoadPositionResult]s.
+    /// A vector of [RoadPositionProjection]s.
     pub fn find_road_positions(
         &self,
         _inertial_position: &[InertialPosition],
         _radius: f64,
-    ) -> Result<Vec<RoadPositionResult>, MaliputError> {
+    ) -> Result<Vec<RoadPositionProjection>, MaliputError> {
         Err(MaliputError::Other(
             "find_road_positions is not implemented yet".to_string(),
         ))
@@ -843,7 +848,7 @@ impl<'a> Lane<'a> {
         })
     }
     /// Determines the LanePosition corresponding to InertialPosition `inertial_position`.
-    /// The LanePosition is expected to be contained within the lane's boundaries.
+    /// The LanePosition is expected to be contained within the lane's 3D boundaries (s, r, h).
     /// See [Lane::to_segment_position] method.
     ///
     /// This method guarantees that its result satisfies the condition that
@@ -854,11 +859,14 @@ impl<'a> Lane<'a> {
     /// * `inertial_position` - A [InertialPosition] to get a [LanePosition] from.
     ///
     /// # Return
-    /// A [LanePositionResult] with the closest [LanePosition], the corresponding [InertialPosition] to that [LanePosition]
+    /// A [LanePositionProjection] with the closest [LanePosition], the corresponding [InertialPosition] to that [LanePosition]
     /// and the distance between the input and output [InertialPosition]s.
-    pub fn to_lane_position(&self, inertial_position: &InertialPosition) -> Result<LanePositionResult, MaliputError> {
+    pub fn to_lane_position(
+        &self,
+        inertial_position: &InertialPosition,
+    ) -> Result<LanePositionProjection, MaliputError> {
         let lpr = maliput_sys::api::ffi::Lane_ToLanePosition(self.lane, inertial_position.ip.as_ref().expect(""))?;
-        Ok(LanePositionResult {
+        Ok(LanePositionProjection {
             lane_position: LanePosition {
                 lp: maliput_sys::api::ffi::LanePositionResult_road_position(&lpr),
             },
@@ -869,7 +877,7 @@ impl<'a> Lane<'a> {
         })
     }
     /// Determines the [LanePosition] corresponding to [InertialPosition] `inertial_position`.
-    /// The [LanePosition] is expected to be contained within the segment's boundaries.
+    /// The [LanePosition] is expected to be contained within the segment's 3D boundaries (s, r, h).
     /// See [Lane::to_lane_position] method.
     ///
     /// This method guarantees that its result satisfies the condition that
@@ -880,15 +888,15 @@ impl<'a> Lane<'a> {
     /// * `inertial_position` - A [InertialPosition] to get a SegmentPosition from.
     ///
     /// # Return
-    /// A [LanePositionResult] with the closest [LanePosition] within the segment, the corresponding
+    /// A [LanePositionProjection] with the closest [LanePosition] within the segment, the corresponding
     /// [InertialPosition] to that [LanePosition] and the distance between the input and output
     /// [InertialPosition]s.
     pub fn to_segment_position(
         &self,
         inertial_position: &InertialPosition,
-    ) -> Result<LanePositionResult, MaliputError> {
+    ) -> Result<LanePositionProjection, MaliputError> {
         let spr = maliput_sys::api::ffi::Lane_ToSegmentPosition(self.lane, inertial_position.ip.as_ref().expect(""))?;
-        Ok(LanePositionResult {
+        Ok(LanePositionProjection {
             lane_position: LanePosition {
                 lp: maliput_sys::api::ffi::LanePositionResult_road_position(&spr),
             },
@@ -1294,7 +1302,7 @@ impl RoadPosition {
 /// and the distance between the input `InertialPosition` and the nearest `InertialPosition`.
 ///
 /// This struct is typically used as return type for the methods: [RoadGeometry::to_road_position] and [RoadGeometry::find_road_positions].
-pub struct RoadPositionResult {
+pub struct RoadPositionProjection {
     /// The candidate RoadPosition returned by the query.
     pub road_position: RoadPosition,
     /// The nearest InertialPosition to the candidate RoadPosition.
@@ -1304,10 +1312,14 @@ pub struct RoadPositionResult {
     pub distance: f64,
 }
 
-impl RoadPositionResult {
-    /// Create a new `RoadPositionResult` with the given `road_position`, `nearest_position`, and `distance`.
-    pub fn new(road_position: RoadPosition, nearest_position: InertialPosition, distance: f64) -> RoadPositionResult {
-        RoadPositionResult {
+impl RoadPositionProjection {
+    /// Create a new `RoadPositionProjection` with the given `road_position`, `nearest_position`, and `distance`.
+    pub fn new(
+        road_position: RoadPosition,
+        nearest_position: InertialPosition,
+        distance: f64,
+    ) -> RoadPositionProjection {
+        RoadPositionProjection {
             road_position,
             nearest_position,
             distance,
@@ -1320,7 +1332,7 @@ impl RoadPositionResult {
 /// and the distance between the input `InertialPosition` and the nearest `InertialPosition`.
 ///
 /// This struct is typically used as return type for the methods: [Lane::to_lane_position] and [Lane::to_segment_position].
-pub struct LanePositionResult {
+pub struct LanePositionProjection {
     /// The candidate LanePosition within the Lane' lane-bounds or segment-bounds
     /// depending if [Lane::to_lane_position] or [Lane::to_segment_position] respectively, was called.
     /// The LanePosition is closest to a `inertial_position` supplied to [Lane::to_lane_position]
@@ -1333,10 +1345,14 @@ pub struct LanePositionResult {
     pub distance: f64,
 }
 
-impl LanePositionResult {
-    /// Create a new `LanePositionResult` with the given `lane_position`, `nearest_position`, and `distance`.
-    pub fn new(lane_position: LanePosition, nearest_position: InertialPosition, distance: f64) -> LanePositionResult {
-        LanePositionResult {
+impl LanePositionProjection {
+    /// Create a new `LanePositionProjection` with the given `lane_position`, `nearest_position`, and `distance`.
+    pub fn new(
+        lane_position: LanePosition,
+        nearest_position: InertialPosition,
+        distance: f64,
+    ) -> LanePositionProjection {
+        LanePositionProjection {
             lane_position,
             nearest_position,
             distance,
