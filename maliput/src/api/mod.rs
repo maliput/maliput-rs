@@ -208,10 +208,12 @@ impl<'a> RoadGeometry<'a> {
     pub fn num_branch_points(&self) -> i32 {
         self.rg.num_branch_points()
     }
-    /// Determines the [RoadPosition] corresponding to [InertialPosition] `inertial_position`.
+    /// Determines the [RoadPosition] on the 3D road manifold that corresponds to
+    /// [InertialPosition] `inertial_position`.
     ///
-    /// Returns a RoadPositionResult. Its [RoadPosition] is the point in the
-    /// [RoadGeometry]'s manifold which is, in the `Inertial`-frame, closest to
+    /// The [RoadGeometry]'s manifold is a 3D volume, with each point defined by (s, r, h)
+    /// coordinates. This method returns a [RoadPositionQuery]. Its [RoadPosition] is the
+    /// point in the [RoadGeometry]'s manifold which is, in the `Inertial`-frame, closest to
     /// `inertial_position`. Its InertialPosition is the `Inertial`-frame equivalent of the
     /// [RoadPosition] and its distance is the Cartesian distance from
     /// `inertial_position` to the nearest point.
@@ -242,11 +244,11 @@ impl<'a> RoadGeometry<'a> {
     /// * `inertial_position` - The [InertialPosition] to convert into a [RoadPosition].
     ///
     /// # Return
-    /// A [RoadPositionResult] with the nearest [RoadPosition], the corresponding [InertialPosition]
+    /// A [RoadPositionQuery] with the nearest [RoadPosition], the corresponding [InertialPosition]
     /// to that [RoadPosition] and the distance between the input and output [InertialPosition]s.
-    pub fn to_road_position(&self, inertial_position: &InertialPosition) -> Result<RoadPositionResult, MaliputError> {
+    pub fn to_road_position(&self, inertial_position: &InertialPosition) -> Result<RoadPositionQuery, MaliputError> {
         let rpr = maliput_sys::api::ffi::RoadGeometry_ToRoadPosition(self.rg, &inertial_position.ip)?;
-        Ok(RoadPositionResult {
+        Ok(RoadPositionQuery {
             road_position: RoadPosition {
                 rp: maliput_sys::api::ffi::RoadPositionResult_road_position(&rpr),
             },
@@ -255,6 +257,70 @@ impl<'a> RoadGeometry<'a> {
             },
             distance: maliput_sys::api::ffi::RoadPositionResult_distance(&rpr),
         })
+    }
+
+    /// Determines the [RoadPosition] on the road surface that corresponds to
+    /// [InertialPosition] `inertial_position`.
+    ///
+    /// This method is similar to [RoadGeometry::to_road_position], in a way that it determines if
+    /// `inertial_position` is within the [RoadGeometry]'s 3D volume. If it is, a [RoadPosition] is
+    /// returned where the height `h` is set to 0, effectively placing the point on the road
+    /// surface.
+    ///
+    /// # Arguments
+    /// * `inertial_position` - The [InertialPosition] to convert into a [RoadPosition].
+    ///
+    /// # Return
+    /// The corresponding [RoadPosition] on the road surface or a [MaliputError] if the `inertial_position` is not on the road surface (i.e., the distance is greater than `linear_tolerance`).
+    ///
+    /// # Example
+    ///
+    /// ```rust, no_run
+    /// use maliput::api::{RoadNetwork, InertialPosition};
+    /// use std::collections::HashMap;
+    ///
+    /// let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
+    /// let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
+    /// let road_network_properties = HashMap::from([("road_geometry_id", "my_rg_from_rust"), ("opendrive_file", xodr_path.as_str())]);
+    /// let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties).unwrap();
+    /// let road_geometry = road_network.road_geometry();
+    ///
+    /// // Although this isn't directly on the surface, it is within the RoadGeometry volume.
+    /// let inertial_pos = InertialPosition::new(1.0, 0.0, 1.0);
+    /// let road_pos = road_geometry.to_road_position_surface(&inertial_pos);
+    /// assert!(road_pos.is_ok());
+    /// let road_pos = road_pos.unwrap();
+    /// println!("Road position on surface: s={}, r={}, h={}", road_pos.pos().s(), road_pos.pos().r(), road_pos.pos().h());
+    /// assert_eq!(road_pos.pos().s(), 1.0);
+    /// assert_eq!(road_pos.pos().r(), 0.0);
+    /// assert_eq!(road_pos.pos().h(), 0.0);  // h is set to 0.
+    ///
+    /// // An inertial position that is off the road volume.
+    /// let inertial_pos= InertialPosition::new(1.0, 0.0, 10.0);
+    /// let road_pos= road_geometry.to_road_position_surface(&inertial_pos);
+    /// assert!(road_pos.is_err());
+    /// ```
+    pub fn to_road_position_surface(&self, inertial_position: &InertialPosition) -> Result<RoadPosition, MaliputError> {
+        let rpr = maliput_sys::api::ffi::RoadGeometry_ToRoadPosition(self.rg, &inertial_position.ip)?;
+        let road_position = RoadPosition {
+            rp: maliput_sys::api::ffi::RoadPositionResult_road_position(&rpr),
+        };
+
+        let distance = maliput_sys::api::ffi::RoadPositionResult_distance(&rpr);
+        if distance > self.linear_tolerance() {
+            return Err(MaliputError::Other(format!(
+                "InertialPosition {} does not correspond to a RoadPosition. It is off by {}m to the closest lane {} at {}.",
+                maliput_sys::api::ffi::InertialPosition_to_str(&inertial_position.ip),
+                distance, road_position.lane().id(), road_position.pos())));
+        }
+
+        let lane_position =
+            maliput_sys::api::ffi::LanePosition_new(road_position.pos().s(), road_position.pos().r(), 0.);
+        unsafe {
+            Ok(RoadPosition {
+                rp: maliput_sys::api::ffi::RoadPosition_new(road_position.lane().lane, &lane_position),
+            })
+        }
     }
 
     /// TODO(#197): Implement find_road_positions
@@ -272,12 +338,12 @@ impl<'a> RoadGeometry<'a> {
     ///
     /// # Return
     ///
-    /// A vector of [RoadPositionResult]s.
+    /// A vector of [RoadPositionQuery]s.
     pub fn find_road_positions(
         &self,
         _inertial_position: &[InertialPosition],
         _radius: f64,
-    ) -> Result<Vec<RoadPositionResult>, MaliputError> {
+    ) -> Result<Vec<RoadPositionQuery>, MaliputError> {
         Err(MaliputError::Other(
             "find_road_positions is not implemented yet".to_string(),
         ))
@@ -843,7 +909,7 @@ impl<'a> Lane<'a> {
         })
     }
     /// Determines the LanePosition corresponding to InertialPosition `inertial_position`.
-    /// The LanePosition is expected to be contained within the lane's boundaries.
+    /// The LanePosition is expected to be contained within the lane's 3D boundaries (s, r, h).
     /// See [Lane::to_segment_position] method.
     ///
     /// This method guarantees that its result satisfies the condition that
@@ -854,11 +920,11 @@ impl<'a> Lane<'a> {
     /// * `inertial_position` - A [InertialPosition] to get a [LanePosition] from.
     ///
     /// # Return
-    /// A [LanePositionResult] with the closest [LanePosition], the corresponding [InertialPosition] to that [LanePosition]
+    /// A [LanePositionQuery] with the closest [LanePosition], the corresponding [InertialPosition] to that [LanePosition]
     /// and the distance between the input and output [InertialPosition]s.
-    pub fn to_lane_position(&self, inertial_position: &InertialPosition) -> Result<LanePositionResult, MaliputError> {
+    pub fn to_lane_position(&self, inertial_position: &InertialPosition) -> Result<LanePositionQuery, MaliputError> {
         let lpr = maliput_sys::api::ffi::Lane_ToLanePosition(self.lane, inertial_position.ip.as_ref().expect(""))?;
-        Ok(LanePositionResult {
+        Ok(LanePositionQuery {
             lane_position: LanePosition {
                 lp: maliput_sys::api::ffi::LanePositionResult_road_position(&lpr),
             },
@@ -869,7 +935,7 @@ impl<'a> Lane<'a> {
         })
     }
     /// Determines the [LanePosition] corresponding to [InertialPosition] `inertial_position`.
-    /// The [LanePosition] is expected to be contained within the segment's boundaries.
+    /// The [LanePosition] is expected to be contained within the segment's 3D boundaries (s, r, h).
     /// See [Lane::to_lane_position] method.
     ///
     /// This method guarantees that its result satisfies the condition that
@@ -880,15 +946,12 @@ impl<'a> Lane<'a> {
     /// * `inertial_position` - A [InertialPosition] to get a SegmentPosition from.
     ///
     /// # Return
-    /// A [LanePositionResult] with the closest [LanePosition] within the segment, the corresponding
+    /// A [LanePositionQuery] with the closest [LanePosition] within the segment, the corresponding
     /// [InertialPosition] to that [LanePosition] and the distance between the input and output
     /// [InertialPosition]s.
-    pub fn to_segment_position(
-        &self,
-        inertial_position: &InertialPosition,
-    ) -> Result<LanePositionResult, MaliputError> {
+    pub fn to_segment_position(&self, inertial_position: &InertialPosition) -> Result<LanePositionQuery, MaliputError> {
         let spr = maliput_sys::api::ffi::Lane_ToSegmentPosition(self.lane, inertial_position.ip.as_ref().expect(""))?;
-        Ok(LanePositionResult {
+        Ok(LanePositionQuery {
             lane_position: LanePosition {
                 lp: maliput_sys::api::ffi::LanePositionResult_road_position(&spr),
             },
@@ -1294,7 +1357,7 @@ impl RoadPosition {
 /// and the distance between the input `InertialPosition` and the nearest `InertialPosition`.
 ///
 /// This struct is typically used as return type for the methods: [RoadGeometry::to_road_position] and [RoadGeometry::find_road_positions].
-pub struct RoadPositionResult {
+pub struct RoadPositionQuery {
     /// The candidate RoadPosition returned by the query.
     pub road_position: RoadPosition,
     /// The nearest InertialPosition to the candidate RoadPosition.
@@ -1304,10 +1367,10 @@ pub struct RoadPositionResult {
     pub distance: f64,
 }
 
-impl RoadPositionResult {
-    /// Create a new `RoadPositionResult` with the given `road_position`, `nearest_position`, and `distance`.
-    pub fn new(road_position: RoadPosition, nearest_position: InertialPosition, distance: f64) -> RoadPositionResult {
-        RoadPositionResult {
+impl RoadPositionQuery {
+    /// Create a new `RoadPositionQuery` with the given `road_position`, `nearest_position`, and `distance`.
+    pub fn new(road_position: RoadPosition, nearest_position: InertialPosition, distance: f64) -> RoadPositionQuery {
+        RoadPositionQuery {
             road_position,
             nearest_position,
             distance,
@@ -1320,7 +1383,7 @@ impl RoadPositionResult {
 /// and the distance between the input `InertialPosition` and the nearest `InertialPosition`.
 ///
 /// This struct is typically used as return type for the methods: [Lane::to_lane_position] and [Lane::to_segment_position].
-pub struct LanePositionResult {
+pub struct LanePositionQuery {
     /// The candidate LanePosition within the Lane' lane-bounds or segment-bounds
     /// depending if [Lane::to_lane_position] or [Lane::to_segment_position] respectively, was called.
     /// The LanePosition is closest to a `inertial_position` supplied to [Lane::to_lane_position]
@@ -1333,10 +1396,10 @@ pub struct LanePositionResult {
     pub distance: f64,
 }
 
-impl LanePositionResult {
-    /// Create a new `LanePositionResult` with the given `lane_position`, `nearest_position`, and `distance`.
-    pub fn new(lane_position: LanePosition, nearest_position: InertialPosition, distance: f64) -> LanePositionResult {
-        LanePositionResult {
+impl LanePositionQuery {
+    /// Create a new `LanePositionQuery` with the given `lane_position`, `nearest_position`, and `distance`.
+    pub fn new(lane_position: LanePosition, nearest_position: InertialPosition, distance: f64) -> LanePositionQuery {
+        LanePositionQuery {
             lane_position,
             nearest_position,
             distance,
@@ -2038,6 +2101,34 @@ impl<'a> IntersectionBook<'a> {
 }
 
 mod tests {
+    mod road_geometry {
+        #[test]
+        fn to_road_position_surface_test() {
+            let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
+            let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
+            let road_network_properties = std::collections::HashMap::from([
+                ("road_geometry_id", "my_rg_from_rust"),
+                ("opendrive_file", xodr_path.as_str()),
+            ]);
+            let road_network = crate::api::RoadNetwork::new("maliput_malidrive", &road_network_properties).unwrap();
+            let road_geometry = road_network.road_geometry();
+
+            // Although this isn't directly on the surface, it is within the RoadGeometry volume.
+            let inertial_pos = crate::api::InertialPosition::new(1.0, 0.0, 2.0);
+            let road_pos = road_geometry.to_road_position_surface(&inertial_pos);
+            assert!(road_pos.is_ok());
+            let road_pos = road_pos.unwrap();
+            let tolerance = 1e-3;
+            assert!((road_pos.pos().s() - 1.0).abs() < tolerance);
+            assert!((road_pos.pos().r() - -1.75).abs() < tolerance);
+            assert!((road_pos.pos().h() - 0.0).abs() < tolerance);
+
+            // An inertial position that is off the road volume.
+            let inertial_pos = crate::api::InertialPosition::new(1.0, 0.0, 10.0);
+            let road_pos = road_geometry.to_road_position_surface(&inertial_pos);
+            assert!(road_pos.is_err());
+        }
+    }
     mod lane_position {
         #[test]
         fn lane_position_new() {
