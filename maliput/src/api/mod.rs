@@ -259,6 +259,67 @@ impl<'a> RoadGeometry<'a> {
         })
     }
 
+    /// Determines the [RoadPosition] on the road surface that corresponds to
+    /// [InertialPosition] `inertial_position`.
+    ///
+    /// This method is similar to [RoadGeometry::to_road_position], in a way that it determines if
+    /// `inertial_position` is within the [RoadGeometry]'s 3D volume. If it is, a [RoadPosition] is
+    /// returned where the height `h` is set to 0, effectively placing the point on the road
+    /// surface.
+    ///
+    /// # Arguments
+    /// * `inertial_position` - The [InertialPosition] to convert into a [RoadPosition].
+    ///
+    /// # Return
+    /// The corresponding [RoadPosition] on the road surface or a [MaliputError] if the `inertial_position` is not on the road surface (i.e., the distance is greater than `linear_tolerance`).
+    ///
+    /// # Example
+    ///
+    /// ```rust, no_run
+    /// use maliput::api::{RoadNetwork, InertialPosition};
+    /// use std::collections::HashMap;
+    ///
+    /// let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
+    /// let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
+    /// let road_network_properties = HashMap::from([("road_geometry_id", "my_rg_from_rust"), ("opendrive_file", xodr_path.as_str())]);
+    /// let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties).unwrap();
+    /// let road_geometry = road_network.road_geometry();
+    ///
+    /// // An inertial position that is known to be on the road surface.
+    /// let inertial_pos = InertialPosition::new(1.0, 0.0, 1.0);
+    /// let road_pos = road_geometry.to_road_position_surface(&inertial_pos);
+    /// assert!(road_pos.is_ok());
+    /// let road_pos = road_pos.unwrap();
+    /// println!("Road position on surface: s={}, r={}, h={}", road_pos.pos().s(), road_pos.pos().r(), road_pos.pos().h());
+    /// assert_eq!(road_pos.pos().s(), 1.0);
+    /// assert_eq!(road_pos.pos().r(), 0.0);
+    /// assert_eq!(road_pos.pos().h(), 0.0);
+    ///
+    /// // An inertial position that is off the road volume.
+    /// let inertial_pos= InertialPosition::new(1.0, 0.0, 10.0);
+    /// let road_pos= road_geometry.to_road_position_surface(&inertial_pos);
+    /// assert!(road_pos.is_err());
+    /// ```
+    pub fn to_road_position_surface(&self, inertial_position: &InertialPosition) -> Result<RoadPosition, MaliputError> {
+        let rpr = maliput_sys::api::ffi::RoadGeometry_ToRoadPosition(self.rg, &inertial_position.ip)?;
+        if maliput_sys::api::ffi::RoadPositionResult_distance(&rpr) > self.linear_tolerance() {
+            return Err(MaliputError::Other(format!(
+                "InertialPosition {} does not correspond to a RoadPosition.",
+                maliput_sys::api::ffi::InertialPosition_to_str(&inertial_position.ip)
+            )));
+        }
+        let road_position = RoadPosition {
+            rp: maliput_sys::api::ffi::RoadPositionResult_road_position(&rpr),
+        };
+        let lane_position =
+            maliput_sys::api::ffi::LanePosition_new(road_position.pos().s(), road_position.pos().r(), 0.);
+        unsafe {
+            Ok(RoadPosition {
+                rp: maliput_sys::api::ffi::RoadPosition_new(road_position.lane().lane, &lane_position),
+            })
+        }
+    }
+
     /// TODO(#197): Implement find_road_positions
     /// Obtains all [RoadPosition]s within a radius of the inertial_position.
     ///
@@ -2037,6 +2098,40 @@ impl<'a> IntersectionBook<'a> {
 }
 
 mod tests {
+    mod road_geometry {
+        #[test]
+        fn to_road_position_surface_test() {
+            let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
+            let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
+            let road_network_properties = std::collections::HashMap::from([
+                ("road_geometry_id", "my_rg_from_rust"),
+                ("opendrive_file", xodr_path.as_str()),
+            ]);
+            let road_network = crate::api::RoadNetwork::new("maliput_malidrive", &road_network_properties).unwrap();
+            let road_geometry = road_network.road_geometry();
+
+            // Although this isn't directly on the surface, it is within the RoadGeometry volume.
+            let inertial_pos = crate::api::InertialPosition::new(1.0, 0.0, 2.0);
+            let road_pos = road_geometry.to_road_position_surface(&inertial_pos);
+            assert!(road_pos.is_ok());
+            let road_pos = road_pos.unwrap();
+            println!(
+                "Road position on surface: s={}, r={}, h={}",
+                road_pos.pos().s(),
+                road_pos.pos().r(),
+                road_pos.pos().h()
+            );
+            let tolerance = 1e-3;
+            assert!((road_pos.pos().s() - 1.0).abs() < tolerance);
+            assert!((road_pos.pos().r() - -1.75).abs() < tolerance);
+            assert!((road_pos.pos().h() - 0.0).abs() < tolerance);
+
+            // An inertial position that is off the road volume.
+            let inertial_pos = crate::api::InertialPosition::new(1.0, 0.0, 10.0);
+            let road_pos = road_geometry.to_road_position_surface(&inertial_pos);
+            assert!(road_pos.is_err());
+        }
+    }
     mod lane_position {
         #[test]
         fn lane_position_new() {
