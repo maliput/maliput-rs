@@ -309,9 +309,9 @@ impl<'a> RoadGeometry<'a> {
         let distance = maliput_sys::api::ffi::RoadPositionResult_distance(&rpr);
         if distance > self.linear_tolerance() {
             return Err(MaliputError::Other(format!(
-                "InertialPosition {} does not correspond to a RoadPosition. It is off by {}m to the closest road at {}.",
+                "InertialPosition {} does not correspond to a RoadPosition. It is off by {}m to the closest lane {} at {}.",
                 maliput_sys::api::ffi::InertialPosition_to_str(&inertial_position.ip),
-                distance, road_position.to_inertial_position())));
+                distance, road_position.lane().id(), road_position.pos())));
         }
 
         let lane_position =
