@@ -206,6 +206,10 @@ std::unique_ptr<RoadPositionResult> RoadGeometry_ToRoadPosition(const RoadGeomet
   return std::make_unique<RoadPositionResult>(road_geometry.ToRoadPosition(inertial_pos));
 }
 
+std::unique_ptr<std::vector<RoadPositionResult>> RoadGeometry_FindRoadPositions(const RoadGeometry& road_geometry, const InertialPosition& inertial_pos, double radius) {
+  return std::make_unique<std::vector<RoadPositionResult>>(road_geometry.FindRoadPositions(inertial_pos, radius));
+}
+
 ConstLanePtr RoadGeometry_GetLane(const RoadGeometry& road_geometry, const rust::String& lane_id) {
   return {road_geometry.ById().GetLane(LaneId{std::string(lane_id)})};
 }

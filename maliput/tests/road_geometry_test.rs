@@ -67,6 +67,42 @@ fn to_road_position() {
 }
 
 #[test]
+fn find_road_positions() {
+    let road_network = common::create_t_shape_road_network();
+    let road_geometry = road_network.road_geometry();
+
+    let inertial_pos = maliput::api::InertialPosition::new(10.0, 2.0, 0.0);
+    // A radius large enough to cover all lanes in TShapeRoad.
+    let radius = 1000000.0;
+    let road_positions = road_geometry.find_road_positions(&inertial_pos, radius).unwrap();
+    assert!(!road_positions.is_empty());
+    let lanes = road_geometry.get_lanes();
+    println!("lanes: {}; positions: {}", lanes.len(), road_positions.len());
+    assert!(road_positions.len() == lanes.len());
+
+    let radius = 1.0; // Small radius, should only find the lane it's on.
+    let road_positions = road_geometry.find_road_positions(&inertial_pos, radius);
+    assert!(road_positions.is_ok());
+    let road_positions = road_positions.unwrap();
+    assert_eq!(road_positions.len(), 1);
+    assert_eq!(road_positions[0].road_position.lane().id(), "0_0_1");
+
+    let radius = 3.0; // Medium radius, should get the lane it's on and the one beside it.
+    let road_positions = road_geometry.find_road_positions(&inertial_pos, radius);
+    assert!(road_positions.is_ok());
+    let road_positions = road_positions.unwrap();
+    assert_eq!(road_positions.len(), 2);
+    assert_eq!(road_positions[0].road_position.lane().id(), "0_0_-1");
+    assert_eq!(road_positions[1].road_position.lane().id(), "0_0_1");
+
+    // No road positions expected to be found (very far away).
+    let inertial_pos = maliput::api::InertialPosition::new(1000.0, 1000.0, 1000.0);
+    let radius = 1.0;
+    let rpr = road_geometry.find_road_positions(&inertial_pos, radius).unwrap();
+    assert!(rpr.is_empty());
+}
+
+#[test]
 fn by_index() {
     let road_network = common::create_t_shape_road_network();
     let road_geometry = road_network.road_geometry();
