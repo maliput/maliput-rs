@@ -92,8 +92,9 @@ fn find_road_positions() {
     assert!(road_positions.is_ok());
     let road_positions = road_positions.unwrap();
     assert_eq!(road_positions.len(), 2);
-    assert_eq!(road_positions[0].road_position.lane().id(), "0_0_-1");
-    assert_eq!(road_positions[1].road_position.lane().id(), "0_0_1");
+    let lane_ids: Vec<String> = road_positions.iter().map(|rp| rp.road_position.lane().id()).collect();
+    assert!(lane_ids.contains(&"0_0_-1".to_string()));
+    assert!(lane_ids.contains(&"0_0_1".to_string()));
 
     // No road positions expected to be found (very far away).
     let inertial_pos = maliput::api::InertialPosition::new(1000.0, 1000.0, 1000.0);
