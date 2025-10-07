@@ -323,7 +323,6 @@ impl<'a> RoadGeometry<'a> {
         }
     }
 
-    /// TODO(#197): Implement find_road_positions
     /// Obtains all [RoadPosition]s within a radius of the inertial_position.
     ///
     /// Only Lanes whose segment regions include points that are within radius of
@@ -341,12 +340,22 @@ impl<'a> RoadGeometry<'a> {
     /// A vector of [RoadPositionQuery]s.
     pub fn find_road_positions(
         &self,
-        _inertial_position: &[InertialPosition],
-        _radius: f64,
+        inertial_position: &InertialPosition,
+        radius: f64,
     ) -> Result<Vec<RoadPositionQuery>, MaliputError> {
-        Err(MaliputError::Other(
-            "find_road_positions is not implemented yet".to_string(),
-        ))
+        let positions = maliput_sys::api::ffi::RoadGeometry_FindRoadPositions(self.rg, &inertial_position.ip, radius)?;
+        Ok(positions
+            .iter()
+            .map(|rpr| RoadPositionQuery {
+                road_position: RoadPosition {
+                    rp: maliput_sys::api::ffi::RoadPositionResult_road_position(rpr),
+                },
+                nearest_position: InertialPosition {
+                    ip: maliput_sys::api::ffi::RoadPositionResult_nearest_position(rpr),
+                },
+                distance: maliput_sys::api::ffi::RoadPositionResult_distance(rpr),
+            })
+            .collect())
     }
 
     /// Get the lane matching given `lane_id`.
