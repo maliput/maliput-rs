@@ -186,7 +186,7 @@ pub mod ffi {
         ///
         /// This function is unsafe because it dereferences `lane` pointers.
         unsafe fn RoadPosition_new(lane: *const Lane, lane_pos: &LanePosition) -> UniquePtr<RoadPosition>;
-        fn RoadPosition_ToInertialPosition(road_position: &RoadPosition) -> UniquePtr<InertialPosition>;
+        fn RoadPosition_ToInertialPosition(road_position: &RoadPosition) -> Result<UniquePtr<InertialPosition>>;
         fn RoadPosition_lane(road_position: &RoadPosition) -> *const Lane;
         fn RoadPosition_pos(road_position: &RoadPosition) -> UniquePtr<LanePosition>;
 

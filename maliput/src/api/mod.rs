@@ -1335,10 +1335,10 @@ impl RoadPosition {
     ///
     /// # Returns
     /// An [InertialPosition] corresponding to this `RoadPosition`.
-    pub fn to_inertial_position(&self) -> InertialPosition {
-        InertialPosition {
-            ip: maliput_sys::api::ffi::RoadPosition_ToInertialPosition(&self.rp),
-        }
+    pub fn to_inertial_position(&self) -> Result<InertialPosition, MaliputError> {
+        Ok(InertialPosition {
+            ip: maliput_sys::api::ffi::RoadPosition_ToInertialPosition(&self.rp)?,
+        })
     }
     /// Gets the [Lane] associated with this `RoadPosition`.
     ///

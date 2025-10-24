@@ -44,7 +44,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties)?;
     let road_geometry = road_network.road_geometry();
 
-    // Excercise the RoadGeometry API.
+    // Exercise the RoadGeometry API.
     println!("linear_tolerance: {}", road_geometry.linear_tolerance());
     println!("angular_tolerance: {}", road_geometry.angular_tolerance());
     println!("num_junctions: {}", road_geometry.num_junctions());
@@ -55,5 +55,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     for lane in lanes {
         println!("\tlane id: {}", lane.id());
     }
+
+    let inertial_position = maliput::api::InertialPosition::new(10.0, 0.0, 0.0);
+    let road_position_query = road_geometry.to_road_position(&inertial_position)?;
+    let round_inertial_pos = road_position_query.road_position.to_inertial_position()?;
+    assert!((inertial_position.x() - round_inertial_pos.x()).abs() < road_geometry.linear_tolerance());
+
     Ok(())
 }
