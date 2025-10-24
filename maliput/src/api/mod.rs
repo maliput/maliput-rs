@@ -110,7 +110,7 @@ impl RoadNetwork {
     }
 
     /// Get the `RoadGeometry` of the `RoadNetwork`.
-    pub fn road_geometry(&self) -> RoadGeometry {
+    pub fn road_geometry(&self) -> RoadGeometry<'_> {
         unsafe {
             RoadGeometry {
                 rg: self.rn.road_geometry().as_ref().expect(""),
@@ -118,7 +118,7 @@ impl RoadNetwork {
         }
     }
     /// Get the `IntersectionBook` of the `RoadNetwork`.
-    pub fn intersection_book(&mut self) -> IntersectionBook {
+    pub fn intersection_book(&mut self) -> IntersectionBook<'_> {
         let intersection_book_ffi = self
             .rn
             .as_mut()
@@ -133,7 +133,7 @@ impl RoadNetwork {
         }
     }
     /// Get the `TrafficLightBook` of the `RoadNetwork`.
-    pub fn traffic_light_book(&self) -> rules::TrafficLightBook {
+    pub fn traffic_light_book(&self) -> rules::TrafficLightBook<'_> {
         let traffic_light_book_ffi = self.rn.traffic_light_book();
         rules::TrafficLightBook {
             traffic_light_book: unsafe {
@@ -144,7 +144,7 @@ impl RoadNetwork {
         }
     }
     /// Get the `RoadRulebook` of the `RoadNetwork`.
-    pub fn rulebook(&self) -> rules::RoadRulebook {
+    pub fn rulebook(&self) -> rules::RoadRulebook<'_> {
         let rulebook_ffi = self.rn.rulebook();
         rules::RoadRulebook {
             road_rulebook: unsafe { rulebook_ffi.as_ref().expect("Underlying RoadRulebook is null") },
@@ -367,7 +367,7 @@ impl<'a> RoadGeometry<'a> {
     /// # Return
     /// The lane with the given id.
     /// If no lane is found with the given id, return None.
-    pub fn get_lane(&self, lane_id: &String) -> Option<Lane> {
+    pub fn get_lane(&self, lane_id: &String) -> Option<Lane<'_>> {
         let lane = maliput_sys::api::ffi::RoadGeometry_GetLane(self.rg, lane_id);
         if lane.lane.is_null() {
             return None;
@@ -393,7 +393,7 @@ impl<'a> RoadGeometry<'a> {
     ///    println!("lane_id: {}", lane.id());
     /// }
     /// ```
-    pub fn get_lanes(&self) -> Vec<Lane> {
+    pub fn get_lanes(&self) -> Vec<Lane<'_>> {
         let lanes = maliput_sys::api::ffi::RoadGeometry_GetLanes(self.rg);
         lanes
             .into_iter()
@@ -410,7 +410,7 @@ impl<'a> RoadGeometry<'a> {
     /// # Return
     /// The segment with the given id.
     /// If no segment is found with the given id, return None.
-    pub fn get_segment(&self, segment_id: &String) -> Option<Segment> {
+    pub fn get_segment(&self, segment_id: &String) -> Option<Segment<'_>> {
         let segment = maliput_sys::api::ffi::RoadGeometry_GetSegment(self.rg, segment_id);
         if segment.is_null() {
             return None;
@@ -429,7 +429,7 @@ impl<'a> RoadGeometry<'a> {
     /// # Return
     /// The junction with the given id.
     /// If no junction is found with the given id, return None.
-    pub fn get_junction(&self, junction_id: &String) -> Option<Junction> {
+    pub fn get_junction(&self, junction_id: &String) -> Option<Junction<'_>> {
         let junction = maliput_sys::api::ffi::RoadGeometry_GetJunction(self.rg, junction_id);
         if junction.is_null() {
             return None;
@@ -448,7 +448,7 @@ impl<'a> RoadGeometry<'a> {
     /// # Return
     /// The branch point with the given id.
     /// If no branch point is found with the given id, return None.
-    pub fn get_branch_point(&self, branch_point_id: &String) -> Option<BranchPoint> {
+    pub fn get_branch_point(&self, branch_point_id: &String) -> Option<BranchPoint<'_>> {
         let branch_point = maliput_sys::api::ffi::RoadGeometry_GetBranchPoint(self.rg, branch_point_id);
         if branch_point.is_null() {
             return None;
@@ -845,7 +845,7 @@ impl<'a> Lane<'a> {
     ///
     /// An [`Option<Lane>`] containing the left lane, or `None` if this is the
     /// leftmost lane.
-    pub fn to_left(&self) -> Option<Lane> {
+    pub fn to_left(&self) -> Option<Lane<'_>> {
         let lane = self.lane.to_left();
         if lane.is_null() {
             None
@@ -866,7 +866,7 @@ impl<'a> Lane<'a> {
     ///
     /// An [`Option<Lane>`] containing the right lane, or `None` if this is the
     /// rightmost lane.
-    pub fn to_right(&self) -> Option<Lane> {
+    pub fn to_right(&self) -> Option<Lane<'_>> {
         let lane = self.lane.to_right();
         if lane.is_null() {
             None
@@ -1066,7 +1066,7 @@ impl<'a> Lane<'a> {
     ///
     /// # Return
     /// The lane's [BranchPoint] for the specified end.
-    pub fn get_branch_point(&self, end: &LaneEnd) -> Result<BranchPoint, MaliputError> {
+    pub fn get_branch_point(&self, end: &LaneEnd) -> Result<BranchPoint<'_>, MaliputError> {
         if end != &LaneEnd::Start(self.clone()) && end != &LaneEnd::Finish(self.clone()) {
             return Err(MaliputError::AssertionError(format!(
                 "LaneEnd must be an end of this lane {:?}",
@@ -1090,7 +1090,7 @@ impl<'a> Lane<'a> {
     ///
     /// # Return
     /// A [LaneEndSet] with all the [LaneEnd]s at the same side of the [BranchPoint] at `end`.
-    pub fn get_confluent_branches(&self, end: &LaneEnd) -> Result<LaneEndSet, MaliputError> {
+    pub fn get_confluent_branches(&self, end: &LaneEnd) -> Result<LaneEndSet<'_>, MaliputError> {
         if end != &LaneEnd::Start(self.clone()) && end != &LaneEnd::Finish(self.clone()) {
             return Err(MaliputError::AssertionError(format!(
                 "LaneEnd must be an end of this lane {:?}",
@@ -1113,7 +1113,7 @@ impl<'a> Lane<'a> {
     ///
     /// # Return
     /// A [LaneEndSet] with all the [LaneEnd]s at the opposite side of the [BranchPoint] at `end`.
-    pub fn get_ongoing_branches(&self, end: &LaneEnd) -> Result<LaneEndSet, MaliputError> {
+    pub fn get_ongoing_branches(&self, end: &LaneEnd) -> Result<LaneEndSet<'_>, MaliputError> {
         if end != &LaneEnd::Start(self.clone()) && end != &LaneEnd::Finish(self.clone()) {
             return Err(MaliputError::AssertionError(format!(
                 "LaneEnd must be an end of this lane {:?}",
@@ -1137,7 +1137,7 @@ impl<'a> Lane<'a> {
     /// # Return
     /// An `Option<LaneEnd>` containing the default branch if it exists, or None
     /// if no default branch has been established.
-    pub fn get_default_branch(&self, end: &LaneEnd) -> Option<LaneEnd> {
+    pub fn get_default_branch(&self, end: &LaneEnd) -> Option<LaneEnd<'_>> {
         assert! {
             end == &LaneEnd::Start(self.clone()) || end == &LaneEnd::Finish(self.clone()),
             "LaneEnd must be an end of this lane {:?}",
@@ -1207,7 +1207,7 @@ impl<'a> Segment<'a> {
     /// # Returns
     /// An [`Result<Junction, MaliputError>`] containing the Junction to which this Segment belongs.
     /// If the Segment does not belong to a Junction, an error is returned.
-    pub fn junction(&self) -> Result<Junction, MaliputError> {
+    pub fn junction(&self) -> Result<Junction<'_>, MaliputError> {
         let junction = self.segment.junction()?;
         if junction.is_null() {
             return Err(MaliputError::AssertionError(
@@ -1234,7 +1234,7 @@ impl<'a> Segment<'a> {
     ///
     /// # Returns
     /// A [`Lane`] containing the lane at the given index.
-    pub fn lane(&self, index: i32) -> Result<Lane, MaliputError> {
+    pub fn lane(&self, index: i32) -> Result<Lane<'_>, MaliputError> {
         if index < 0 || index >= self.num_lanes() {
             return Err(MaliputError::AssertionError(format!(
                 "Index {} is out of bounds for Segment with {} lanes",
@@ -1275,7 +1275,7 @@ impl<'a> Junction<'a> {
     ///
     /// # Returns
     /// A [`RoadGeometry`] containing the RoadGeometry to which this Junction belongs.
-    pub fn road_geometry(&self) -> RoadGeometry {
+    pub fn road_geometry(&self) -> RoadGeometry<'_> {
         unsafe {
             RoadGeometry {
                 rg: self.junction.road_geometry().as_ref().expect(""),
@@ -1297,7 +1297,7 @@ impl<'a> Junction<'a> {
     /// # Returns
     /// A [Result<Segment, MaliputError>] containing the segment at the given index.
     /// If the index is out of bounds, an error is returned.
-    pub fn segment(&self, index: i32) -> Result<Segment, MaliputError> {
+    pub fn segment(&self, index: i32) -> Result<Segment<'_>, MaliputError> {
         unsafe {
             Ok(Segment {
                 segment: self.junction.segment(index)?.as_ref().expect(""),
@@ -1344,7 +1344,7 @@ impl RoadPosition {
     ///
     /// # Returns
     /// A [Lane] that this `RoadPosition` is associated with.
-    pub fn lane(&self) -> Lane {
+    pub fn lane(&self) -> Lane<'_> {
         unsafe {
             Lane {
                 lane: maliput_sys::api::ffi::RoadPosition_lane(&self.rp).as_ref().expect(""),
@@ -1812,7 +1812,7 @@ impl LaneEnd<'_> {
     /// # Returns
     /// A reference to the [Lane] associated with this `LaneEnd`.
     /// This will return the Lane for both Start and Finish variants.
-    pub fn lane(&self) -> &Lane {
+    pub fn lane(&self) -> &Lane<'_> {
         match self {
             LaneEnd::Start(lane) => lane,
             LaneEnd::Finish(lane) => lane,
@@ -1876,7 +1876,7 @@ impl<'a> LaneEndSet<'a> {
     /// # Returns
     /// A [Result<LaneEnd, MaliputError>] containing the LaneEnd at the given index.
     /// If the index is out of bounds, an error is returned.
-    pub fn get(&self, index: i32) -> Result<LaneEnd, MaliputError> {
+    pub fn get(&self, index: i32) -> Result<LaneEnd<'_>, MaliputError> {
         let lane_end = self.lane_end_set.get(index)?;
         // Obtain end type and lane reference.
         let is_start = maliput_sys::api::ffi::LaneEnd_is_start(lane_end);
@@ -1897,7 +1897,7 @@ impl<'a> LaneEndSet<'a> {
     /// # Returns
     /// A `HashMap<String, LaneEnd>` where the key is the lane id and
     /// the value is the corresponding LaneEnd.
-    pub fn to_lane_map(&self) -> std::collections::HashMap<String, LaneEnd> {
+    pub fn to_lane_map(&self) -> std::collections::HashMap<String, LaneEnd<'_>> {
         (0..self.size())
             .map(|i| {
                 let end = self.get(i).unwrap();
@@ -1932,7 +1932,7 @@ impl<'a> BranchPoint<'a> {
     ///
     /// # Returns
     /// A [RoadGeometry] containing the RoadGeometry to which this BranchPoint belongs.
-    pub fn road_geometry(&self) -> RoadGeometry {
+    pub fn road_geometry(&self) -> RoadGeometry<'_> {
         unsafe {
             RoadGeometry {
                 rg: self.branch_point.road_geometry().as_ref().expect(""),
@@ -1947,7 +1947,7 @@ impl<'a> BranchPoint<'a> {
     ///
     /// # Return
     /// A [LaneEndSet] of [LaneEnd]s on the same side as the given [LaneEnd].
-    pub fn get_confluent_branches(&self, end: &LaneEnd) -> Result<LaneEndSet, MaliputError> {
+    pub fn get_confluent_branches(&self, end: &LaneEnd) -> Result<LaneEndSet<'_>, MaliputError> {
         let lane_end_set_ptr = self.branch_point.GetConfluentBranches(
             BranchPoint::from_lane_end_to_ffi(end)
                 .as_ref()
@@ -1965,7 +1965,7 @@ impl<'a> BranchPoint<'a> {
     ///
     /// # Return
     /// A [LaneEndSet] of [LaneEnd]s on the opposite side as the given [LaneEnd].
-    pub fn get_ongoing_branches(&self, end: &LaneEnd) -> Result<LaneEndSet, MaliputError> {
+    pub fn get_ongoing_branches(&self, end: &LaneEnd) -> Result<LaneEndSet<'_>, MaliputError> {
         let lane_end_set_ptr = self.branch_point.GetOngoingBranches(
             BranchPoint::from_lane_end_to_ffi(end)
                 .as_ref()
@@ -1989,7 +1989,7 @@ impl<'a> BranchPoint<'a> {
     /// # Returns
     /// An `Option<LaneEnd>` containing the default branch if it exists.
     /// If no default branch exists, it returns None.
-    pub fn get_default_branch(&self, end: &LaneEnd) -> Option<LaneEnd> {
+    pub fn get_default_branch(&self, end: &LaneEnd) -> Option<LaneEnd<'_>> {
         let lane_end = maliput_sys::api::ffi::BranchPoint_GetDefaultBranch(
             self.branch_point,
             BranchPoint::from_lane_end_to_ffi(end)
@@ -2018,7 +2018,7 @@ impl<'a> BranchPoint<'a> {
     ///
     /// # Returns
     /// A [LaneEndSet] containing the LaneEnds on the "A-side" of the BranchPoint.
-    pub fn get_a_side(&self) -> LaneEndSet {
+    pub fn get_a_side(&self) -> LaneEndSet<'_> {
         let lane_end_set_ptr = self.branch_point.GetASide();
         LaneEndSet {
             lane_end_set: unsafe { lane_end_set_ptr.as_ref().expect("Underlying LaneEndSet is null") },
@@ -2029,7 +2029,7 @@ impl<'a> BranchPoint<'a> {
     /// # Returns
     /// A [LaneEndSet] containing the LaneEnds on the "B-side" of the BranchPoint.
     /// This is the opposite side of the "A-side".
-    pub fn get_b_side(&self) -> LaneEndSet {
+    pub fn get_b_side(&self) -> LaneEndSet<'_> {
         let lane_end_set_ptr = self.branch_point.GetBSide();
         LaneEndSet {
             lane_end_set: unsafe { lane_end_set_ptr.as_ref().expect("Underlying LaneEndSet is null") },
@@ -2069,7 +2069,7 @@ impl<'a> IntersectionBook<'a> {
     ///
     /// # Returns
     /// A vector of [Intersection]s containing all Intersections in the book.
-    pub fn get_intersections(&mut self) -> Vec<Intersection> {
+    pub fn get_intersections(&mut self) -> Vec<Intersection<'_>> {
         let book_pin = unsafe { std::pin::Pin::new_unchecked(&mut *self.intersection_book) };
         let intersections_cpp = maliput_sys::api::ffi::IntersectionBook_GetIntersections(book_pin);
         unsafe {
@@ -2094,7 +2094,7 @@ impl<'a> IntersectionBook<'a> {
     ///   * An `Option<Intersection>`
     ///     * Some(Intersection) - The Intersection with the specified id.
     ///     * None - If the Intersection with the specified id does not exist.
-    pub fn get_intersection(&mut self, id: &str) -> Option<Intersection> {
+    pub fn get_intersection(&mut self, id: &str) -> Option<Intersection<'_>> {
         let book_pin = unsafe { std::pin::Pin::new_unchecked(&mut *self.intersection_book) };
         let intersection_option = unsafe {
             maliput_sys::api::ffi::IntersectionBook_GetIntersection(book_pin, &String::from(id))
