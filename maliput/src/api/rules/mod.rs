@@ -41,7 +41,7 @@ impl<'a> TrafficLightBook<'a> {
     ///
     /// # Returns
     /// A vector of [TrafficLight]s
-    pub fn traffic_lights(&self) -> Vec<TrafficLight> {
+    pub fn traffic_lights(&self) -> Vec<TrafficLight<'_>> {
         let traffic_lights_cpp = maliput_sys::api::rules::ffi::TrafficLightBook_TrafficLights(self.traffic_light_book);
         traffic_lights_cpp
             .into_iter()
@@ -59,7 +59,7 @@ impl<'a> TrafficLightBook<'a> {
     /// # Returns
     /// The [TrafficLight] with the given id.
     /// If no [TrafficLight] is found with the given id, return None.
-    pub fn get_traffic_light(&self, id: &String) -> Option<TrafficLight> {
+    pub fn get_traffic_light(&self, id: &String) -> Option<TrafficLight<'_>> {
         let traffic_light = maliput_sys::api::rules::ffi::TrafficLightBook_GetTrafficLight(self.traffic_light_book, id);
         if traffic_light.is_null() {
             return None;
@@ -123,7 +123,7 @@ impl<'a> TrafficLight<'a> {
     /// # Returns
     /// A vector of [BulbGroup]s in the [TrafficLight].
     /// If the [TrafficLight] has no bulb groups, return an empty vector.
-    pub fn bulb_groups(&self) -> Vec<BulbGroup> {
+    pub fn bulb_groups(&self) -> Vec<BulbGroup<'_>> {
         let bulb_groups_cpp = maliput_sys::api::rules::ffi::TrafficLight_bulb_groups(self.traffic_light);
         bulb_groups_cpp
             .into_iter()
@@ -141,7 +141,7 @@ impl<'a> TrafficLight<'a> {
     /// # Returns
     /// The [BulbGroup] with the given id.
     /// If no [BulbGroup] is found with the given id, return None.
-    pub fn get_bulb_group(&self, id: &String) -> Option<BulbGroup> {
+    pub fn get_bulb_group(&self, id: &String) -> Option<BulbGroup<'_>> {
         let bulb_group = maliput_sys::api::rules::ffi::TrafficLight_GetBulbGroup(self.traffic_light, id);
         if bulb_group.is_null() {
             return None;
@@ -307,7 +307,7 @@ impl Bulb<'_> {
     /// # Returns
     /// The parent [BulbGroup] of the bulb.
     /// If the bulb is not part of any group, return None.
-    pub fn bulb_group(&self) -> BulbGroup {
+    pub fn bulb_group(&self) -> BulbGroup<'_> {
         BulbGroup {
             bulb_group: unsafe {
                 maliput_sys::api::rules::ffi::Bulb_bulb_group(self.bulb)
@@ -412,7 +412,7 @@ impl BulbGroup<'_> {
     ///
     /// # Returns
     /// A vector of [Bulb]s in the bulb group.
-    pub fn bulbs(&self) -> Vec<Bulb> {
+    pub fn bulbs(&self) -> Vec<Bulb<'_>> {
         let bulbs_cpp = maliput_sys::api::rules::ffi::BulbGroup_bulbs(self.bulb_group);
         bulbs_cpp
             .into_iter()
@@ -430,7 +430,7 @@ impl BulbGroup<'_> {
     /// # Returns
     /// The [Bulb] with the given id.
     /// If no [Bulb] is found with the given id, return None.
-    pub fn get_bulb(&self, id: &String) -> Option<Bulb> {
+    pub fn get_bulb(&self, id: &String) -> Option<Bulb<'_>> {
         let bulb = maliput_sys::api::rules::ffi::BulbGroup_GetBulb(self.bulb_group, id);
         if bulb.is_null() {
             return None;
@@ -444,7 +444,7 @@ impl BulbGroup<'_> {
     ///
     /// # Returns
     /// The parent [TrafficLight] of the bulb group.
-    pub fn traffic_light(&self) -> TrafficLight {
+    pub fn traffic_light(&self) -> TrafficLight<'_> {
         TrafficLight {
             traffic_light: unsafe {
                 maliput_sys::api::rules::ffi::BulbGroup_traffic_light(self.bulb_group)
