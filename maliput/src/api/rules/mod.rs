@@ -976,3 +976,94 @@ impl Range {
         self.max
     }
 }
+
+/// Defines a phase in a traffic rule system.
+///
+/// A phase represents a specific state or configuration of traffic signals
+/// and semantic rules within a traffic control system. Each phase has a unique
+/// identifier and may include various traffic signal states and rule configurations
+/// that dictate how traffic should behave during that phase.
+pub struct Phase {
+    phase: cxx::UniquePtr<maliput_sys::api::rules::ffi::Phase>,
+}
+
+impl Phase {
+    /// Gets the id of the [Phase].
+    ///
+    /// # Returns
+    /// The id of the [Phase].
+    pub fn id(&self) -> String {
+        maliput_sys::api::rules::ffi::Phase_id(&self.phase)
+    }
+}
+
+/// Defines a ring of phases in a traffic rule system.
+///
+/// A phase ring represents a sequence of phases that a traffic control system
+/// cycles through.
+pub struct PhaseRing {
+    phase_ring: cxx::UniquePtr<maliput_sys::api::rules::ffi::PhaseRing>,
+}
+
+impl PhaseRing {
+    /// Gets the id of the [PhaseRing].
+    ///
+    /// # Returns
+    /// The id of the [PhaseRing].
+    pub fn id(&self) -> String {
+        maliput_sys::api::rules::ffi::PhaseRing_id(&self.phase_ring)
+    }
+
+    /// Gets a [Phase] by its id
+    ///
+    /// # Arguments
+    /// * `id` - The id of the [Phase].
+    /// # Returns
+    /// The [Phase] with the given id.
+    /// If no [Phase] is found with the given id, return None.
+    pub fn get_phase(&self, id: &String) -> Option<Phase> {
+        let phase = maliput_sys::api::rules::ffi::PhaseRing_GetPhase(&self.phase_ring, id);
+        if phase.is_null() {
+            return None;
+        }
+        Some(Phase { phase })
+    }
+
+    /// Returns the ids of all Phases in the PhaseRing.
+    ///
+    /// # Returns
+    /// A vector of strings representing the ids of all Phases in the PhaseRing
+    pub fn phases(&self) -> Vec<String> {
+        maliput_sys::api::rules::ffi::PhaseRing_phases_ids(&self.phase_ring)
+    }
+}
+
+/// Defines a book of phase rings in a traffic rule system.
+pub struct PhaseRingBook<'a> {
+    pub(super) phase_ring_book: &'a maliput_sys::api::rules::ffi::PhaseRingBook,
+}
+
+impl<'a> PhaseRingBook<'a> {
+    /// Returns the ids of all PhaseRings in the PhaseRingBook.
+    ///
+    /// # Returns
+    /// A vector of strings representing the ids of all PhaseRings in the PhaseRingBook
+    pub fn get_phase_rings_ids(&self) -> Vec<String> {
+        maliput_sys::api::rules::ffi::PhaseRingBook_GetPhaseRingsId(self.phase_ring_book)
+    }
+
+    /// Returns the PhaseRing with the specified `id`.
+    ///
+    /// # Arguments
+    /// * `phase_ring_id` - The id of the phase ring.
+    ///
+    /// # Returns
+    /// The PhaseRing with the given id or None if the id is not in the PhaseRingBook.
+    pub fn get_phase_ring(&self, phase_ring_id: &String) -> Option<PhaseRing> {
+        let phase_ring = maliput_sys::api::rules::ffi::PhaseRingBook_GetPhaseRing(self.phase_ring_book, phase_ring_id);
+        if phase_ring.is_null() {
+            return None;
+        }
+        Some(PhaseRing { phase_ring })
+    }
+}

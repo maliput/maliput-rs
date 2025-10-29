@@ -224,5 +224,20 @@ pub mod ffi {
         fn RangeValueRule_type_id(rule: &RangeValueRule) -> String;
         fn RangeValueRule_zone(rule: &RangeValueRule) -> UniquePtr<LaneSRoute>;
         fn states(self: &RangeValueRule) -> &CxxVector<RangeValueRuleRange>;
+
+        // Phase bindings definitions.
+        type Phase;
+        fn Phase_id(phase: &Phase) -> String;
+
+        // PhaseRing bindings definitions.
+        type PhaseRing;
+        fn PhaseRing_id(phase_ring: &PhaseRing) -> String;
+        fn PhaseRing_GetPhase(phase_ring: &PhaseRing, id: &String) -> UniquePtr<Phase>;
+        fn PhaseRing_phases_ids(phase_ring: &PhaseRing) -> Vec<String>;
+
+        // PhaseRingBook bindings definitions.
+        type PhaseRingBook;
+        fn PhaseRingBook_GetPhaseRingsId(book: &PhaseRingBook) -> Vec<String>;
+        fn PhaseRingBook_GetPhaseRing(book: &PhaseRingBook, id: &String) -> UniquePtr<PhaseRing>;
     }
 }

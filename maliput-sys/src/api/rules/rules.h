@@ -33,6 +33,11 @@
 #include <optional>
 #include <vector>
 
+#include <maliput/api/rules/discrete_value_rule.h>
+#include <maliput/api/rules/phase.h>
+#include <maliput/api/rules/phase_ring.h>
+#include <maliput/api/rules/phase_ring_book.h>
+#include <maliput/api/rules/range_value_rule.h>
 #include <maliput/api/rules/traffic_lights.h>
 #include <maliput/api/rules/traffic_light_book.h>
 #include <maliput/math/vector.h>
@@ -323,6 +328,48 @@ rust::Vec<rust::String> QueryResults_range_value_rules(const QueryResults& query
     range_value_rules_id.push_back({range_value_rule.first.string()});
   }
   return range_value_rules_id;
+}
+
+rust::String Phase_id(const Phase& phase) {
+  return phase.id().string();
+}
+
+rust::String PhaseRing_id(const PhaseRing& phase_ring) {
+  return phase_ring.id().string();
+}
+
+std::unique_ptr<Phase> PhaseRing_GetPhase(const PhaseRing& phase_ring, const rust::String& id) {
+  const auto phase = phase_ring.GetPhase(Phase::Id{std::string(id)});
+  if (phase.has_value()) {
+    return std::make_unique<Phase>(phase.value());
+  }
+  return nullptr;
+}
+
+rust::Vec<rust::String> PhaseRing_phases_ids(const PhaseRing& phase_ring) {
+  const auto phases_cpp = phase_ring.phases();
+  rust::Vec<rust::String> phases_ids;
+  for (const auto& phase_pair : phases_cpp) {
+    phases_ids.push_back({phase_pair.first.string()});
+  }
+  return phases_ids;
+}
+
+rust::Vec<rust::String> PhaseRingBook_GetPhaseRingsId(const PhaseRingBook& phase_ring_book) {
+  const auto phase_rings_cpp = phase_ring_book.GetPhaseRings();
+  rust::Vec<rust::String> phase_rings;
+  for (const auto& phase_ring_id : phase_rings_cpp) {
+    phase_rings.push_back({phase_ring_id.string()});
+  }
+  return phase_rings;
+}
+
+std::unique_ptr<PhaseRing> PhaseRingBook_GetPhaseRing(const PhaseRingBook& phase_ring_book, const rust::String& id) {
+  const auto phase_ring = phase_ring_book.GetPhaseRing(PhaseRing::Id{std::string(id)});
+  if (phase_ring.has_value()) {
+    return std::make_unique<PhaseRing>(phase_ring.value());
+  }
+  return nullptr;
 }
 
 }  // namespace rules

@@ -150,6 +150,14 @@ impl RoadNetwork {
             road_rulebook: unsafe { rulebook_ffi.as_ref().expect("Underlying RoadRulebook is null") },
         }
     }
+
+    /// Get the `PhaseRingBook` of the `RoadNetwork`.
+    pub fn phase_ring_book(&self) -> rules::PhaseRingBook<'_> {
+        let phase_ring_book_ffi = self.rn.phase_ring_book();
+        rules::PhaseRingBook {
+            phase_ring_book: unsafe { phase_ring_book_ffi.as_ref().expect("Underlying PhaseRingBook is null") },
+        }
+    }
 }
 
 /// Represents the geometry of a road network.
