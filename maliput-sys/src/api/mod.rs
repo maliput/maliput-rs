@@ -66,6 +66,8 @@ pub mod ffi {
         type RoadRulebook = crate::api::rules::ffi::RoadRulebook;
         #[namespace = "maliput::api::rules"]
         type TrafficLightBook = crate::api::rules::ffi::TrafficLightBook;
+        #[namespace = "maliput::api::rules"]
+        type PhaseRingBook = crate::api::rules::ffi::PhaseRingBook;
 
         #[namespace = "maliput::api"]
         // RoadNetwork bindings definitions.
@@ -74,6 +76,7 @@ pub mod ffi {
         fn intersection_book(self: Pin<&mut RoadNetwork>) -> *mut IntersectionBook;
         fn traffic_light_book(self: &RoadNetwork) -> *const TrafficLightBook;
         fn rulebook(self: &RoadNetwork) -> *const RoadRulebook;
+        fn phase_ring_book(self: &RoadNetwork) -> *const PhaseRingBook;
 
         // RoadGeometry bindings definitions.
         type RoadGeometry;
