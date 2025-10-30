@@ -1032,7 +1032,7 @@ impl PhaseRing {
     /// Returns the ids of all Phases in the PhaseRing.
     ///
     /// # Returns
-    /// A vector of strings representing the ids of all Phases in the PhaseRing
+    /// A vector of strings representing the ids of all Phases in the PhaseRing.
     pub fn phases(&self) -> Vec<String> {
         maliput_sys::api::rules::ffi::PhaseRing_phases_ids(&self.phase_ring)
     }
@@ -1047,7 +1047,7 @@ impl<'a> PhaseRingBook<'a> {
     /// Returns the ids of all PhaseRings in the PhaseRingBook.
     ///
     /// # Returns
-    /// A vector of strings representing the ids of all PhaseRings in the PhaseRingBook
+    /// A vector of strings representing the ids of all PhaseRings in the PhaseRingBook.
     pub fn get_phase_rings_ids(&self) -> Vec<String> {
         maliput_sys::api::rules::ffi::PhaseRingBook_GetPhaseRingsId(self.phase_ring_book)
     }
