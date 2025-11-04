@@ -38,6 +38,7 @@
 #include <maliput/api/rules/phase_ring.h>
 #include <maliput/api/rules/phase_ring_book.h>
 #include <maliput/api/rules/range_value_rule.h>
+#include <maliput/api/rules/rule_registry.h>
 #include <maliput/api/rules/traffic_lights.h>
 #include <maliput/api/rules/traffic_light_book.h>
 #include <maliput/math/vector.h>
@@ -370,6 +371,21 @@ std::unique_ptr<PhaseRing> PhaseRingBook_GetPhaseRing(const PhaseRingBook& phase
     return std::make_unique<PhaseRing>(phase_ring.value());
   }
   return nullptr;
+}
+
+std::unique_ptr<std::vector<DiscreteValueRuleType>> RuleRegistry_DiscreteValueRuleTypes(const RuleRegistry& rule_registry) {
+  const auto discrete_value_rule_types_cpp = rule_registry.DiscreteValueRuleTypes();
+  std::vector<DiscreteValueRuleType> discrete_value_rule_types;
+  discrete_value_rule_types.reserve(discrete_value_rule_types_cpp.size());
+  for (const auto& discrete_value_rule_type : discrete_value_rule_types_cpp) {
+    std::vector<DiscreteValueRuleDiscreteValue> discrete_values;
+    for (const auto& discrete_value : discrete_value_rule_type.second) {
+      discrete_values.push_back(discrete_value);
+    }
+    DiscreteValueRuleType rule_type{discrete_value_rule_type.first.string(), std::make_unique<std::vector<DiscreteValueRuleDiscreteValue>>(std::move(discrete_values))};
+    discrete_value_rule_types.push_back(std::move(rule_type));
+  }
+  return std::make_unique<std::vector<DiscreteValueRuleType>>(std::move(discrete_value_rule_types));
 }
 
 }  // namespace rules

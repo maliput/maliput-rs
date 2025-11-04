@@ -534,6 +534,49 @@ impl UniqueBulbGroupId {
         self.unique_bulb_group_id.string().to_string()
     }
 }
+
+/// Interface for querying types of rules. It includes both Discrete and Range value rules. It
+/// provides a registry of the various rule types, and enables semantic validation when building
+/// rule instances.
+pub struct RuleRegistry<'a> {
+    pub(super) rule_registry: &'a maliput_sys::api::rules::ffi::RuleRegistry,
+}
+
+impl<'a> RuleRegistry<'a> {
+    // pub fn get_types
+    /// Returns all [DiscreteValue]s corresponding to the specified `rule_type_id`.
+    ///
+    /// # Arguments
+    /// * `rule_type_id` - The id of the rule type.
+    ///
+    /// # Returns
+    /// A vector of [DiscreteValue]s or [None] if the `rule_type_id` doesn't match any type id in the [RuleRegistry].
+    pub fn discrete_values_by_type(&self, rule_type_id: String) -> Option<Vec<DiscreteValue>> {
+        let discrete_value_types =
+            maliput_sys::api::rules::ffi::RuleRegistry_DiscreteValueRuleTypes(self.rule_registry);
+        let discrete_value_types = discrete_value_types.as_ref().expect("");
+        discrete_value_types
+            .iter()
+            .find(|dvt| dvt.type_id == rule_type_id)
+            .map(|dvt| {
+                dvt.values
+                    .iter()
+                    .map(|dv| DiscreteValue {
+                        rule_state: RuleStateBase {
+                            severity: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_severity(dv),
+                            related_rules: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_related_rules(
+                                dv,
+                            ),
+                            related_unique_ids:
+                                maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_related_unique_ids(dv),
+                        },
+                        value: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_value(dv),
+                    })
+                    .collect()
+            })
+    }
+}
+
 /// Abstraction for holding the output of [RoadRulebook::rules()] and [RoadRulebook::find_rules()]
 /// methods.
 /// This struct contains a map of [DiscreteValueRule]s and [RangeValueRule]s.

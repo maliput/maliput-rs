@@ -158,6 +158,14 @@ impl RoadNetwork {
             phase_ring_book: unsafe { phase_ring_book_ffi.as_ref().expect("Underlying PhaseRingBook is null") },
         }
     }
+
+    /// Get the `RuleRegistry` of the `RoadNetwork`.
+    pub fn rule_registry(&self) -> rules::RuleRegistry<'_> {
+        let rule_registry_ffi = self.rn.rule_registry();
+        rules::RuleRegistry {
+            rule_registry: unsafe { rule_registry_ffi.as_ref().expect("Underlying RuleRegistry is null") },
+        }
+    }
 }
 
 /// Represents the geometry of a road network.

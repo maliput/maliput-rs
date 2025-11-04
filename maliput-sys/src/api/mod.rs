@@ -31,7 +31,6 @@
 pub mod rules;
 
 #[cxx::bridge(namespace = "maliput::api")]
-#[allow(clippy::needless_lifetimes)] // Remove after rust 1.87 is used. https://github.com/rust-lang/rust-clippy/issues/14441
 #[allow(clippy::missing_safety_doc)]
 pub mod ffi {
     /// Shared struct for `Lane` pointers.
@@ -68,6 +67,8 @@ pub mod ffi {
         type TrafficLightBook = crate::api::rules::ffi::TrafficLightBook;
         #[namespace = "maliput::api::rules"]
         type PhaseRingBook = crate::api::rules::ffi::PhaseRingBook;
+        #[namespace = "maliput::api::rules"]
+        type RuleRegistry = crate::api::rules::ffi::RuleRegistry;
 
         #[namespace = "maliput::api"]
         // RoadNetwork bindings definitions.
@@ -77,6 +78,7 @@ pub mod ffi {
         fn traffic_light_book(self: &RoadNetwork) -> *const TrafficLightBook;
         fn rulebook(self: &RoadNetwork) -> *const RoadRulebook;
         fn phase_ring_book(self: &RoadNetwork) -> *const PhaseRingBook;
+        fn rule_registry(self: &RoadNetwork) -> *const RuleRegistry;
 
         // RoadGeometry bindings definitions.
         type RoadGeometry;
