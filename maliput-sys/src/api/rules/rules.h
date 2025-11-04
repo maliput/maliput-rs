@@ -388,6 +388,21 @@ std::unique_ptr<std::vector<DiscreteValueRuleType>> RuleRegistry_DiscreteValueRu
   return std::make_unique<std::vector<DiscreteValueRuleType>>(std::move(discrete_value_rule_types));
 }
 
+std::unique_ptr<std::vector<RangeValueRuleType>> RuleRegistry_RangeValueRuleTypes(const RuleRegistry& rule_registry) {
+  const auto range_value_rule_types_cpp = rule_registry.RangeValueRuleTypes();
+  std::vector<RangeValueRuleType> range_value_rule_types;
+  range_value_rule_types.reserve(range_value_rule_types_cpp.size());
+  for (const auto& range_value_rule_type : range_value_rule_types_cpp) {
+    std::vector<RangeValueRuleRange> range_values;
+    for (const auto& range_value : range_value_rule_type.second) {
+      range_values.push_back(range_value);
+    }
+    RangeValueRuleType rule_type{range_value_rule_type.first.string(), std::make_unique<std::vector<RangeValueRuleRange>>(std::move(range_values))};
+    range_value_rule_types.push_back(std::move(rule_type));
+  }
+  return std::make_unique<std::vector<RangeValueRuleType>>(std::move(range_value_rule_types));
+}
+
 }  // namespace rules
 }  // namespace api
 }  // namespace maliput

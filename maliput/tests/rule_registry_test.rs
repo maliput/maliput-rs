@@ -27,6 +27,9 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+use maliput::api::rules::RuleType;
+
 mod common;
 
 #[test]
@@ -34,8 +37,21 @@ fn rule_registry_test() {
     let road_network = common::create_loop_road_pedestrian_crosswalk_road_network_with_books();
 
     let rule_registry = road_network.rule_registry();
-    let values = rule_registry.discrete_values_by_type("Right-Of-Way Rule Type".to_string());
-    assert!(values.is_some());
-    let values = values.unwrap();
-    assert!(values.len() > 0);
+    let discrete_value_rule_types = rule_registry.get_discrete_value_rule_types();
+    assert!(discrete_value_rule_types.len() > 0);
+    assert!(discrete_value_rule_types.contains(&RuleType::RightOfWay.to_string()));
+
+    let discrete_values = rule_registry.discrete_values_by_type(discrete_value_rule_types[0].clone());
+    assert!(discrete_values.is_some());
+    let discrete_values = discrete_values.unwrap();
+    assert!(discrete_values.len() > 0);
+
+    let range_value_rule_types = rule_registry.get_range_rule_types();
+    assert!(range_value_rule_types.len() > 0);
+    assert!(range_value_rule_types.contains(&RuleType::SpeedLimit.to_string()));
+
+    let range_values = rule_registry.range_values_by_type(range_value_rule_types[0].clone());
+    assert!(range_values.is_some());
+    let range_values = range_values.unwrap();
+    assert!(range_values.len() > 0);
 }

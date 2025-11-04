@@ -80,6 +80,14 @@ pub mod ffi {
         pub type_id: String,
         pub values: UniquePtr<CxxVector<DiscreteValueRuleDiscreteValue>>,
     }
+    /// Shared struct for pairs in a RangeValueRules collection.
+    ///  - key: Rule type ids.
+    ///  - value: Range Values.
+    /// This is needed because maps can't be bound directly.
+    struct RangeValueRuleType {
+        pub type_id: String,
+        pub values: UniquePtr<CxxVector<RangeValueRuleRange>>,
+    }
 
     /// Shared struct for `LaneSRange` constant reference.
     /// Interestingly this was done at maliput::api module but
@@ -251,5 +259,6 @@ pub mod ffi {
         // RuleRegistry bindings definitions.
         type RuleRegistry;
         fn RuleRegistry_DiscreteValueRuleTypes(registry: &RuleRegistry) -> UniquePtr<CxxVector<DiscreteValueRuleType>>;
+        fn RuleRegistry_RangeValueRuleTypes(registry: &RuleRegistry) -> UniquePtr<CxxVector<RangeValueRuleType>>;
     }
 }

@@ -543,18 +543,36 @@ pub struct RuleRegistry<'a> {
 }
 
 impl<'a> RuleRegistry<'a> {
-    // pub fn get_types
+    /// Returns all [DiscreteValue] rule type IDs.
+    ///
+    /// # Returns
+    /// A vector of [String]s representing rule type IDs that correspond to different
+    /// [DiscreteValue]s in the [RuleRegistry].
+    pub fn get_discrete_value_rule_types(&self) -> Vec<String> {
+        let discrete_value_types =
+            maliput_sys::api::rules::ffi::RuleRegistry_DiscreteValueRuleTypes(self.rule_registry);
+        let discrete_value_types = discrete_value_types
+            .as_ref()
+            .expect("Unable to get underlying discrete value rule types pointer.");
+        discrete_value_types.iter().map(|dvt| dvt.type_id.clone()).collect()
+    }
+
     /// Returns all [DiscreteValue]s corresponding to the specified `rule_type_id`.
+    ///
+    /// This methods works in tandem with [RuleRegistry::get_discrete_value_rule_types].
     ///
     /// # Arguments
     /// * `rule_type_id` - The id of the rule type.
     ///
     /// # Returns
-    /// A vector of [DiscreteValue]s or [None] if the `rule_type_id` doesn't match any type id in the [RuleRegistry].
+    /// A vector of [DiscreteValue]s or [None] if the `rule_type_id` doesn't match any type id in
+    /// the [RuleRegistry].
     pub fn discrete_values_by_type(&self, rule_type_id: String) -> Option<Vec<DiscreteValue>> {
         let discrete_value_types =
             maliput_sys::api::rules::ffi::RuleRegistry_DiscreteValueRuleTypes(self.rule_registry);
-        let discrete_value_types = discrete_value_types.as_ref().expect("");
+        let discrete_value_types = discrete_value_types
+            .as_ref()
+            .expect("Unable to get underlying discrete value rule types pointer.");
         discrete_value_types
             .iter()
             .find(|dvt| dvt.type_id == rule_type_id)
@@ -571,6 +589,56 @@ impl<'a> RuleRegistry<'a> {
                                 maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_related_unique_ids(dv),
                         },
                         value: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_value(dv),
+                    })
+                    .collect()
+            })
+    }
+
+    /// Returns all [Range] rule type IDs.
+    ///
+    /// # Returns
+    /// A vector of [String]s representing rule type IDs that correspond to different [Range]s in
+    /// the [RuleRegistry].
+    pub fn get_range_rule_types(&self) -> Vec<String> {
+        let range_value_types = maliput_sys::api::rules::ffi::RuleRegistry_RangeValueRuleTypes(self.rule_registry);
+        let range_value_types = range_value_types
+            .as_ref()
+            .expect("Unable to get underlying range rule types pointer.");
+        range_value_types.iter().map(|dvt| dvt.type_id.clone()).collect()
+    }
+
+    /// Returns all [Range]s corresponding to the specified `rule_type_id`.
+    ///
+    /// This methods works in tandem with [RuleRegistry::get_range_rule_types].
+    ///
+    /// # Arguments
+    /// * `rule_type_id` - The id of the rule type.
+    ///
+    /// # Returns
+    /// A vector of [Range]s or [None] if the `rule_type_id` doesn't match any type id in the
+    /// [RuleRegistry].
+    pub fn range_values_by_type(&self, rule_type_id: String) -> Option<Vec<Range>> {
+        let range_value_types = maliput_sys::api::rules::ffi::RuleRegistry_RangeValueRuleTypes(self.rule_registry);
+        let range_value_types = range_value_types
+            .as_ref()
+            .expect("Unable to get underlying range rule types pointer.");
+        range_value_types
+            .iter()
+            .find(|dvt| dvt.type_id == rule_type_id)
+            .map(|dvt| {
+                dvt.values
+                    .iter()
+                    .map(|dv| Range {
+                        rule_state: RuleStateBase {
+                            severity: maliput_sys::api::rules::ffi::RangeValueRuleRange_severity(dv),
+                            related_rules: maliput_sys::api::rules::ffi::RangeValueRuleRange_related_rules(dv),
+                            related_unique_ids: maliput_sys::api::rules::ffi::RangeValueRuleRange_related_unique_ids(
+                                dv,
+                            ),
+                        },
+                        description: maliput_sys::api::rules::ffi::RangeValueRuleRange_description(dv),
+                        min: maliput_sys::api::rules::ffi::RangeValueRuleRange_min(dv),
+                        max: maliput_sys::api::rules::ffi::RangeValueRuleRange_max(dv),
                     })
                     .collect()
             })
