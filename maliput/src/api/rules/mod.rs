@@ -541,8 +541,8 @@ pub struct RuleRegistry<'a> {
     pub(super) rule_registry: &'a maliput_sys::api::rules::ffi::RuleRegistry,
 }
 
-/// Represents the value types of rules the [RuleRegistry] can contain.
-pub enum RuleValueTypes {
+/// Represents the rule values the [RuleRegistry] can contain by their Discrete or Range type.
+pub enum RuleValuesByType {
     DiscreteValues(Vec<DiscreteValue>),
     Ranges(Vec<Range>),
 }
@@ -624,12 +624,15 @@ impl<'a> RuleRegistry<'a> {
     /// * `rule_type_id` - The id of the rule type.
     ///
     /// # Returns
-    /// An `Option` containing a [RuleValueTypes] enum with either a vector of [Range]s or a
+    /// An `Option` containing a [RuleValuesByType] enum with either a vector of [Range]s or a
     /// vector of [DiscreteValue]s. Returns `None` if the `rule_type_id` is not found.
-    pub fn get_possible_states_of_rule_type(&self, rule_type_id: String) -> Option<RuleValueTypes> {
+    pub fn get_possible_states_of_rule_type(&self, rule_type_id: String) -> Option<RuleValuesByType> {
         if let Some(ranges) = self.range_values_by_type(rule_type_id.clone()) {
-            Some(RuleValueTypes::Ranges(ranges))
-        } else { self.discrete_values_by_type(rule_type_id).map(RuleValueTypes::DiscreteValues) }
+            Some(RuleValuesByType::Ranges(ranges))
+        } else {
+            self.discrete_values_by_type(rule_type_id)
+                .map(RuleValuesByType::DiscreteValues)
+        }
     }
 }
 
