@@ -62,4 +62,17 @@ fn rule_registry_test() {
     assert!(range_values.is_some());
     let range_values = range_values.unwrap();
     assert!(!range_values.is_empty());
+
+    let rule_value_types = rule_registry.get_possible_states_of_rule_type(RuleType::RightOfWay.to_string());
+    assert!(rule_value_types.is_some());
+    let rule_value_types = rule_value_types.unwrap();
+    assert!(matches!(rule_value_types, RuleValueTypes::DiscreteValues(_)));
+    let rule_value_types = rule_registry.get_possible_states_of_rule_type(RuleType::SpeedLimit.to_string());
+    assert!(rule_value_types.is_some());
+    let rule_value_types = rule_value_types.unwrap();
+    assert!(matches!(rule_value_types, RuleValueTypes::Ranges(_)));
+
+    assert!(rule_registry
+        .get_possible_states_of_rule_type("InvalidRuleType".to_string())
+        .is_none());
 }
