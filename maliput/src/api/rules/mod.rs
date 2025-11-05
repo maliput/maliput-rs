@@ -536,8 +536,7 @@ impl UniqueBulbGroupId {
 }
 
 /// Interface for querying types of rules. It includes both Discrete and Range value rules. It
-/// provides a registry of the various rule types, and enables semantic validation when building
-/// rule instances.
+/// provides a registry of the various rule types.
 pub struct RuleRegistry<'a> {
     pub(super) rule_registry: &'a maliput_sys::api::rules::ffi::RuleRegistry,
 }
@@ -576,22 +575,7 @@ impl<'a> RuleRegistry<'a> {
         discrete_value_types
             .iter()
             .find(|dvt| dvt.type_id == rule_type_id)
-            .map(|dvt| {
-                dvt.values
-                    .iter()
-                    .map(|dv| DiscreteValue {
-                        rule_state: RuleStateBase {
-                            severity: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_severity(dv),
-                            related_rules: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_related_rules(
-                                dv,
-                            ),
-                            related_unique_ids:
-                                maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_related_unique_ids(dv),
-                        },
-                        value: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_value(dv),
-                    })
-                    .collect()
-            })
+            .map(|dvt| discrete_values_from_cxx(&dvt.values))
     }
 
     /// Returns all [Range] rule type IDs.
@@ -604,7 +588,7 @@ impl<'a> RuleRegistry<'a> {
         let range_value_types = range_value_types
             .as_ref()
             .expect("Unable to get underlying range rule types pointer.");
-        range_value_types.iter().map(|dvt| dvt.type_id.clone()).collect()
+        range_value_types.iter().map(|rvt| rvt.type_id.clone()).collect()
     }
 
     /// Returns all [Range]s corresponding to the specified `rule_type_id`.
@@ -624,24 +608,8 @@ impl<'a> RuleRegistry<'a> {
             .expect("Unable to get underlying range rule types pointer.");
         range_value_types
             .iter()
-            .find(|dvt| dvt.type_id == rule_type_id)
-            .map(|dvt| {
-                dvt.values
-                    .iter()
-                    .map(|dv| Range {
-                        rule_state: RuleStateBase {
-                            severity: maliput_sys::api::rules::ffi::RangeValueRuleRange_severity(dv),
-                            related_rules: maliput_sys::api::rules::ffi::RangeValueRuleRange_related_rules(dv),
-                            related_unique_ids: maliput_sys::api::rules::ffi::RangeValueRuleRange_related_unique_ids(
-                                dv,
-                            ),
-                        },
-                        description: maliput_sys::api::rules::ffi::RangeValueRuleRange_description(dv),
-                        min: maliput_sys::api::rules::ffi::RangeValueRuleRange_min(dv),
-                        max: maliput_sys::api::rules::ffi::RangeValueRuleRange_max(dv),
-                    })
-                    .collect()
-            })
+            .find(|rvt| rvt.type_id == rule_type_id)
+            .map(|rvt| range_values_from_cxx(&rvt.values))
     }
 }
 
@@ -818,20 +786,7 @@ impl DiscreteValueRule {
     /// A vector of [DiscreteValue]s representing the states of the rule.
     /// If the rule has no states, an empty vector is returned.
     pub fn states(&self) -> Vec<DiscreteValue> {
-        let states_cpp = &self.discrete_value_rule.states();
-        states_cpp
-            .into_iter()
-            .map(|dv| DiscreteValue {
-                rule_state: RuleStateBase {
-                    severity: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_severity(dv),
-                    related_rules: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_related_rules(dv),
-                    related_unique_ids: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_related_unique_ids(
-                        dv,
-                    ),
-                },
-                value: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_value(dv),
-            })
-            .collect::<Vec<DiscreteValue>>()
+        discrete_values_from_cxx(&self.discrete_value_rule.states())
     }
 }
 
@@ -899,20 +854,7 @@ impl RangeValueRule {
     /// A vector of [Range]s representing the states of the rule.
     /// If the rule has no states, an empty vector is returned.
     pub fn states(&self) -> Vec<Range> {
-        let states_cpp = &self.range_value_rule.states();
-        states_cpp
-            .into_iter()
-            .map(|r| Range {
-                rule_state: RuleStateBase {
-                    severity: maliput_sys::api::rules::ffi::RangeValueRuleRange_severity(r),
-                    related_rules: maliput_sys::api::rules::ffi::RangeValueRuleRange_related_rules(r),
-                    related_unique_ids: maliput_sys::api::rules::ffi::RangeValueRuleRange_related_unique_ids(r),
-                },
-                description: maliput_sys::api::rules::ffi::RangeValueRuleRange_description(r),
-                min: maliput_sys::api::rules::ffi::RangeValueRuleRange_min(r),
-                max: maliput_sys::api::rules::ffi::RangeValueRuleRange_max(r),
-            })
-            .collect::<Vec<Range>>()
+        range_values_from_cxx(&self.range_value_rule.states())
     }
 }
 
@@ -1177,4 +1119,40 @@ impl<'a> PhaseRingBook<'a> {
         }
         Some(PhaseRing { phase_ring })
     }
+}
+
+// Auxiliary method to create a [Vec<Range>] from a [cxx::Vector<RangeValueRuleRange>].
+fn range_values_from_cxx(
+    range_values_cxx: &cxx::Vector<maliput_sys::api::rules::ffi::RangeValueRuleRange>,
+) -> Vec<Range> {
+    range_values_cxx
+        .iter()
+        .map(|range| Range {
+            rule_state: RuleStateBase {
+                severity: maliput_sys::api::rules::ffi::RangeValueRuleRange_severity(range),
+                related_rules: maliput_sys::api::rules::ffi::RangeValueRuleRange_related_rules(range),
+                related_unique_ids: maliput_sys::api::rules::ffi::RangeValueRuleRange_related_unique_ids(range),
+            },
+            description: maliput_sys::api::rules::ffi::RangeValueRuleRange_description(range),
+            min: maliput_sys::api::rules::ffi::RangeValueRuleRange_min(range),
+            max: maliput_sys::api::rules::ffi::RangeValueRuleRange_max(range),
+        })
+        .collect()
+}
+
+// Auxiliary method to create a [Vec<DiscreteValue>] from a [cxx::Vector<DiscreteValueRuleDiscreteValue>].
+fn discrete_values_from_cxx(
+    discrete_values_cxx: &cxx::Vector<maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue>,
+) -> Vec<DiscreteValue> {
+    discrete_values_cxx
+        .iter()
+        .map(|dv| DiscreteValue {
+            rule_state: RuleStateBase {
+                severity: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_severity(dv),
+                related_rules: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_related_rules(dv),
+                related_unique_ids: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_related_unique_ids(dv),
+            },
+            value: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_value(dv),
+        })
+        .collect()
 }
