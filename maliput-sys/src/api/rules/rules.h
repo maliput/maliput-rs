@@ -373,6 +373,14 @@ std::unique_ptr<PhaseRing> PhaseRingBook_GetPhaseRing(const PhaseRingBook& phase
   return nullptr;
 }
 
+std::unique_ptr<PhaseRing> PhaseRingBook_FindPhaseRing(const PhaseRingBook& phase_ring_book, const rust::String& rule_id) {
+  const auto phase_ring = phase_ring_book.FindPhaseRing(Rule::Id{std::string(rule_id)});
+  if (phase_ring.has_value()) {
+    return std::make_unique<PhaseRing>(phase_ring.value());
+  }
+  return nullptr;
+}
+
 std::unique_ptr<std::vector<DiscreteValueRuleType>> RuleRegistry_DiscreteValueRuleTypes(const RuleRegistry& rule_registry) {
   const auto discrete_value_rule_types_cpp = rule_registry.DiscreteValueRuleTypes();
   std::vector<DiscreteValueRuleType> discrete_value_rule_types;

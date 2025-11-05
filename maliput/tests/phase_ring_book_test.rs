@@ -53,4 +53,9 @@ fn phase_ring_book_test() {
     assert!(phase.is_some());
     let phase = phase.unwrap();
     assert_eq!(phase.id(), "AllGoPhase".to_string());
+
+    let phase_ring = phase_ring_book.find_phase_ring(&"Right-Of-Way Rule Type/WestToEastSouth".to_string());
+    assert!(phase_ring.is_some());
+    let phase_ring = phase_ring.unwrap();
+    assert!(!phase_ring.phases().is_empty());
 }
