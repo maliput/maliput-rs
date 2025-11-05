@@ -255,6 +255,7 @@ pub mod ffi {
         type PhaseRingBook;
         fn PhaseRingBook_GetPhaseRingsId(book: &PhaseRingBook) -> Vec<String>;
         fn PhaseRingBook_GetPhaseRing(book: &PhaseRingBook, id: &String) -> UniquePtr<PhaseRing>;
+        fn PhaseRingBook_FindPhaseRing(book: &PhaseRingBook, rule_id: &String) -> UniquePtr<PhaseRing>;
 
         // RuleRegistry bindings definitions.
         type RuleRegistry;
