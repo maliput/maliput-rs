@@ -38,28 +38,28 @@ fn rule_registry_test() {
 
     let rule_registry = road_network.rule_registry();
     let discrete_value_rule_types = rule_registry.get_discrete_value_rule_types();
-    assert!(discrete_value_rule_types.len() > 0);
+    assert!(!discrete_value_rule_types.is_empty());
     assert!(discrete_value_rule_types.contains(&RuleType::RightOfWay.to_string()));
 
     let discrete_values = rule_registry.discrete_values_by_type(discrete_value_rule_types[0].clone());
     assert!(discrete_values.is_some());
     let discrete_values = discrete_values.unwrap();
-    assert!(discrete_values.len() > 0);
+    assert!(!discrete_values.is_empty());
     let discrete_values = rule_registry.discrete_values_by_type(RuleType::RightOfWay.to_string());
     assert!(discrete_values.is_some());
     let discrete_values = discrete_values.unwrap();
-    assert!(discrete_values.len() > 0);
+    assert!(!discrete_values.is_empty());
 
     let range_value_rule_types = rule_registry.get_range_rule_types();
-    assert!(range_value_rule_types.len() > 0);
+    assert!(!range_value_rule_types.is_empty());
     assert!(range_value_rule_types.contains(&RuleType::SpeedLimit.to_string()));
 
     let range_values = rule_registry.range_values_by_type(range_value_rule_types[0].clone());
     assert!(range_values.is_some());
     let range_values = range_values.unwrap();
-    assert!(range_values.len() > 0);
+    assert!(!range_values.is_empty());
     let range_values = rule_registry.range_values_by_type(RuleType::SpeedLimit.to_string());
     assert!(range_values.is_some());
     let range_values = range_values.unwrap();
-    assert!(range_values.len() > 0);
+    assert!(!range_values.is_empty());
 }

@@ -786,7 +786,7 @@ impl DiscreteValueRule {
     /// A vector of [DiscreteValue]s representing the states of the rule.
     /// If the rule has no states, an empty vector is returned.
     pub fn states(&self) -> Vec<DiscreteValue> {
-        discrete_values_from_cxx(&self.discrete_value_rule.states())
+        discrete_values_from_cxx(self.discrete_value_rule.states())
     }
 }
 
@@ -854,7 +854,7 @@ impl RangeValueRule {
     /// A vector of [Range]s representing the states of the rule.
     /// If the rule has no states, an empty vector is returned.
     pub fn states(&self) -> Vec<Range> {
-        range_values_from_cxx(&self.range_value_rule.states())
+        range_values_from_cxx(self.range_value_rule.states())
     }
 }
 
