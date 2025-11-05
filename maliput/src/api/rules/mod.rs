@@ -1142,6 +1142,21 @@ impl<'a> PhaseRingBook<'a> {
         }
         Some(PhaseRing { phase_ring })
     }
+
+    /// Finds the [PhaseRing] that contains the rule with the specified `rule_id`.
+    ///
+    /// # Arguments
+    /// * `rule_id` - The id of the rule.
+    ///
+    /// # Returns
+    /// The [PhaseRing] that contains the rule with the given id or `None` if no [PhaseRing] is found.
+    pub fn find_phase_ring(&self, rule_id: &String) -> Option<PhaseRing> {
+        let phase_ring = maliput_sys::api::rules::ffi::PhaseRingBook_FindPhaseRing(self.phase_ring_book, rule_id);
+        if phase_ring.is_null() {
+            return None;
+        }
+        Some(PhaseRing { phase_ring })
+    }
 }
 
 // Auxiliary method to create a [Vec<Range>] from a [cxx::Vector<RangeValueRuleRange>].
