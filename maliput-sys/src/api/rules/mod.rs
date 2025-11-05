@@ -59,7 +59,7 @@ pub mod ffi {
     /// Shared struct for pairs in a RelatedRules collection.
     ///  - key: Group name of the rules.
     ///  - value: Rule ids.
-    /// This is needed because maps can't be binded directly.
+    /// This is needed because maps can't be bound directly.
     struct RelatedRule {
         pub group_name: String,
         pub rule_ids: Vec<String>,
@@ -67,10 +67,26 @@ pub mod ffi {
     /// Shared struct for pairs in a RelatedRules collection.
     ///  - key: Group name.
     ///  - value: Unique Ids.
-    /// This is needed because maps can't be binded directly.
+    /// This is needed because maps can't be bound directly.
     struct RelatedUniqueId {
         pub group_name: String,
         pub unique_ids: Vec<String>,
+    }
+    /// Shared struct for pairs in a DiscreteValueRules collection.
+    ///  - key: Rule type ids.
+    ///  - value: Discrete Values.
+    /// This is needed because maps can't be bound directly.
+    struct DiscreteValueRuleType {
+        pub type_id: String,
+        pub values: UniquePtr<CxxVector<DiscreteValueRuleDiscreteValue>>,
+    }
+    /// Shared struct for pairs in a RangeValueRules collection.
+    ///  - key: Rule type ids.
+    ///  - value: Range Values.
+    /// This is needed because maps can't be bound directly.
+    struct RangeValueRuleType {
+        pub type_id: String,
+        pub values: UniquePtr<CxxVector<RangeValueRuleRange>>,
     }
 
     /// Shared struct for `LaneSRange` constant reference.
@@ -239,5 +255,10 @@ pub mod ffi {
         type PhaseRingBook;
         fn PhaseRingBook_GetPhaseRingsId(book: &PhaseRingBook) -> Vec<String>;
         fn PhaseRingBook_GetPhaseRing(book: &PhaseRingBook, id: &String) -> UniquePtr<PhaseRing>;
+
+        // RuleRegistry bindings definitions.
+        type RuleRegistry;
+        fn RuleRegistry_DiscreteValueRuleTypes(registry: &RuleRegistry) -> UniquePtr<CxxVector<DiscreteValueRuleType>>;
+        fn RuleRegistry_RangeValueRuleTypes(registry: &RuleRegistry) -> UniquePtr<CxxVector<RangeValueRuleType>>;
     }
 }
