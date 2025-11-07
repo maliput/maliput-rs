@@ -1073,7 +1073,9 @@ impl Phase {
     }
 }
 
-/// Defines a phase that comes after another [Phase] in a [PhaseRing].
+/// Defines a phase that comes after another [Phase].
+/// Used as a return type by:
+///   - [PhaseRing::get_next_phases].
 pub struct NextPhase {
     /// The next phase.
     pub next_phase: Phase,
