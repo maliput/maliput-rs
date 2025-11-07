@@ -1124,6 +1124,16 @@ impl PhaseRing {
         maliput_sys::api::rules::ffi::PhaseRing_phases_ids(&self.phase_ring)
     }
 
+    /// Returns the next phases for a given phase `id`.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the phase to get the next phases from.
+    ///
+    /// # Returns
+    /// A `Result` containing a vector of [NextPhase]s.
+    ///
+    /// # Errors
+    /// Returns a [MaliputError] if the provided `id` is not found in the [PhaseRing].
     pub fn get_next_phases(&self, id: &String) -> Result<Vec<NextPhase>, MaliputError> {
         let next_phases = maliput_sys::api::rules::ffi::PhaseRing_GetNextPhases(&self.phase_ring, id)?;
         Ok(next_phases
