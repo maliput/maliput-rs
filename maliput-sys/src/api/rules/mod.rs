@@ -97,6 +97,11 @@ pub mod ffi {
         pub lane_s_range: &'a LaneSRange,
     }
 
+    /// Shared struct for a `NextPhase` in a `PhaseRing`.
+    ///  - phase_id: ID of the `NextPhase`.
+    ///  - duration_until: Optional field to suggest a default duration of the current `Phase`
+    ///    until the `NextPhase`.
+    /// Redefinition is necessary since std::optional<T> isn't supported.
     struct NextPhase {
         pub phase_id: String,
         pub duration_until: UniquePtr<FloatWrapper>,

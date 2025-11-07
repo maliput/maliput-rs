@@ -1073,6 +1073,7 @@ impl Phase {
     }
 }
 
+/// Defines a phase that comes after another [Phase] in a [PhaseRing].
 pub struct NextPhase {
     /// The next phase.
     pub next_phase: Phase,
