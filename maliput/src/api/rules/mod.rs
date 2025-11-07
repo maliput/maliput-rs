@@ -1073,6 +1073,20 @@ impl Phase {
     }
 }
 
+/// Defines a phase that comes after another [Phase].
+/// Used as a return type by:
+///   - [PhaseRing::get_next_phases].
+pub struct NextPhase {
+    /// The next phase.
+    pub next_phase: Phase,
+    /// The default time before transitioning to the next phase. This is
+    /// relative to when the current phase began. It is just a recommendation,
+    /// the actual duration is determined by the PhaseProvider and may depend on
+    /// events like a vehicle arriving at a left-turn lane or a pedestrian
+    /// hitting a crosswalk button.
+    pub duration_until: Option<f64>,
+}
+
 /// Defines a ring of phases in a traffic rule system.
 ///
 /// A phase ring represents a sequence of phases that a traffic control system
@@ -1111,6 +1125,33 @@ impl PhaseRing {
     /// A vector of strings representing the ids of all Phases in the PhaseRing.
     pub fn phases(&self) -> Vec<String> {
         maliput_sys::api::rules::ffi::PhaseRing_phases_ids(&self.phase_ring)
+    }
+
+    /// Returns the next phases for a given phase `id`.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the phase to get the next phases from.
+    ///
+    /// # Returns
+    /// A `Result` containing a vector of [NextPhase]s.
+    ///
+    /// # Errors
+    /// Returns a [MaliputError] if the provided `id` is not found in the [PhaseRing].
+    pub fn get_next_phases(&self, id: &String) -> Result<Vec<NextPhase>, MaliputError> {
+        let next_phases = maliput_sys::api::rules::ffi::PhaseRing_GetNextPhases(&self.phase_ring, id)?;
+        Ok(next_phases
+            .iter()
+            .map(|np| NextPhase {
+                next_phase: Phase {
+                    phase: maliput_sys::api::rules::ffi::PhaseRing_GetPhase(&self.phase_ring, &np.phase_id),
+                },
+                duration_until: if np.duration_until.is_null() {
+                    None
+                } else {
+                    Some(np.duration_until.value)
+                },
+            })
+            .collect())
     }
 }
 
