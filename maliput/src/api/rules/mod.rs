@@ -28,6 +28,8 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+use std::collections::HashMap;
+
 use crate::common::MaliputError;
 use strum_macros::{Display, IntoStaticStr};
 
@@ -1071,6 +1073,47 @@ impl Phase {
     pub fn id(&self) -> String {
         maliput_sys::api::rules::ffi::Phase_id(&self.phase)
     }
+
+    /// Gets the states of all discrete value rules for this phase.
+    ///
+    /// # Returns
+    /// A `HashMap` where the key is the rule ID (`String`) and the value is the
+    /// [DiscreteValue] state of that rule.
+    pub fn discrete_value_rule_states(&self) -> HashMap<String, DiscreteValue> {
+        let rule_states = maliput_sys::api::rules::ffi::Phase_discrete_value_rule_states(&self.phase);
+        rule_states
+            .iter()
+            .map(|state| {
+                (
+                    state.rule_id.clone(),
+                    discrete_value_from_discrete_value_cxx(&state.state),
+                )
+            })
+            .collect()
+    }
+
+    pub fn bulbs(&self) -> Vec<UniqueBulbId> {
+        let bulbs = maliput_sys::api::rules::ffi::Phase_bulbs(&self.phase);
+        bulbs
+            .iter()
+            .map(|bulb| UniqueBulbId {
+                unique_bulb_id: maliput_sys::api::rules::ffi::ptr_from_unique_bulb_id(bulb),
+            })
+            .collect()
+    }
+
+    pub fn bulb_state(&self, bulb_id: &UniqueBulbId) -> Option<BulbState> {
+        let bulb_state = maliput_sys::api::rules::ffi::Phase_bulb_state(&self.phase, &bulb_id.unique_bulb_id);
+        if bulb_state.is_null() {
+            return None;
+        }
+        Some(match *bulb_state {
+            maliput_sys::api::rules::ffi::BulbState::kOff => BulbState::Off,
+            maliput_sys::api::rules::ffi::BulbState::kOn => BulbState::On,
+            maliput_sys::api::rules::ffi::BulbState::kBlinking => BulbState::Blinking,
+            _ => return None,
+        })
+    }
 }
 
 /// Defines a phase that comes after another [Phase].
@@ -1225,13 +1268,22 @@ fn discrete_values_from_cxx(
 ) -> Vec<DiscreteValue> {
     discrete_values_cxx
         .iter()
-        .map(|dv| DiscreteValue {
-            rule_state: RuleStateBase {
-                severity: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_severity(dv),
-                related_rules: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_related_rules(dv),
-                related_unique_ids: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_related_unique_ids(dv),
-            },
-            value: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_value(dv),
-        })
+        .map(|dv| discrete_value_from_discrete_value_cxx(dv))
         .collect()
+}
+
+// Auxiliary method to create a [DiscreteValue] from a [maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue].
+fn discrete_value_from_discrete_value_cxx(
+    discrete_value: &maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue,
+) -> DiscreteValue {
+    DiscreteValue {
+        rule_state: RuleStateBase {
+            severity: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_severity(discrete_value),
+            related_rules: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_related_rules(discrete_value),
+            related_unique_ids: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_related_unique_ids(
+                discrete_value,
+            ),
+        },
+        value: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_value(discrete_value),
+    }
 }

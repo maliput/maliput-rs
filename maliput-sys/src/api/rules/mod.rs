@@ -80,6 +80,14 @@ pub mod ffi {
         pub type_id: String,
         pub values: UniquePtr<CxxVector<DiscreteValueRuleDiscreteValue>>,
     }
+    /// Shared struct for pairs in a DiscreteValues collection.
+    ///  - key: Rule ids.
+    ///  - value: Discrete Value State.
+    /// This is needed because maps can't be bound directly.
+    struct DiscreteValueRuleState {
+        pub rule_id: String,
+        pub state: UniquePtr<DiscreteValueRuleDiscreteValue>,
+    }
     /// Shared struct for pairs in a RangeValueRules collection.
     ///  - key: Rule type ids.
     ///  - value: Range Values.
@@ -254,6 +262,11 @@ pub mod ffi {
         // Phase bindings definitions.
         type Phase;
         fn Phase_id(phase: &Phase) -> String;
+        fn Phase_discrete_value_rule_states(phase: &Phase) -> UniquePtr<CxxVector<DiscreteValueRuleState>>;
+        fn Phase_bulbs(phase: &Phase) -> UniquePtr<CxxVector<UniqueBulbId>>;
+        fn Phase_bulb_state(phase: &Phase, bulb_id: &UniqueBulbId) -> UniquePtr<BulbState>;
+        // Helper method to implement [Phase_bulbs] API method.
+        fn ptr_from_unique_bulb_id(id: &UniqueBulbId) -> UniquePtr<UniqueBulbId>;
 
         // PhaseRing bindings definitions.
         type PhaseRing;

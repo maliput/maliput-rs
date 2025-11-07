@@ -335,6 +335,42 @@ rust::String Phase_id(const Phase& phase) {
   return phase.id().string();
 }
 
+std::unique_ptr<std::vector<DiscreteValueRuleState>> Phase_discrete_value_rule_states(const Phase& phase) {
+  const auto& discrete_value_rule_states_cpp = phase.discrete_value_rule_states();
+  std::vector<DiscreteValueRuleState> discrete_value_rule_states;
+  discrete_value_rule_states.reserve(discrete_value_rule_states_cpp.size());
+  for (const auto& discrete_value_rule_state_cpp : discrete_value_rule_states_cpp) {
+    DiscreteValueRuleState discrete_value_rule_state{discrete_value_rule_state_cpp.first.string(), std::make_unique<DiscreteValueRuleDiscreteValue>(discrete_value_rule_state_cpp.second)};
+    discrete_value_rule_states.push_back(std::move(discrete_value_rule_state));
+  }
+  return std::make_unique<std::vector<DiscreteValueRuleState>>(std::move(discrete_value_rule_states));
+}
+
+std::unique_ptr<std::vector<UniqueBulbId>> Phase_bulbs(const Phase& phase) {
+  const auto& bulb_states = phase.bulb_states();
+  if (!bulb_states.has_value()) {
+    return nullptr;
+  }
+  std::vector<UniqueBulbId> bulbs;
+  bulbs.reserve(bulb_states.value().size());
+  for (const auto& bulb_state : bulb_states.value()) {
+    bulbs.push_back(bulb_state.first);
+  }
+  return std::make_unique<std::vector<UniqueBulbId>>(std::move(bulbs));
+}
+
+std::unique_ptr<BulbState> Phase_bulb_state(const Phase& phase, const UniqueBulbId& bulb_id) {
+  const auto& bulb_states = phase.bulb_states();
+  if (!bulb_states.has_value()) {
+    return nullptr;
+  }
+  return std::make_unique<BulbState>(bulb_states.value().at(bulb_id));
+}
+
+std::unique_ptr<UniqueBulbId> ptr_from_unique_bulb_id(const UniqueBulbId& unique_bulb_id) {
+  return std::make_unique<UniqueBulbId>(unique_bulb_id);
+}
+
 rust::String PhaseRing_id(const PhaseRing& phase_ring) {
   return phase_ring.id().string();
 }
