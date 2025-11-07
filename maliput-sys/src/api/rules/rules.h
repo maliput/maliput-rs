@@ -356,6 +356,20 @@ rust::Vec<rust::String> PhaseRing_phases_ids(const PhaseRing& phase_ring) {
   return phases_ids;
 }
 
+std::unique_ptr<std::vector<NextPhase>> PhaseRing_GetNextPhases(const PhaseRing& phase_ring, const rust::String& id) {
+  const auto next_phases_cpp = phase_ring.GetNextPhases(Phase::Id{std::string(id)});
+  std::vector<NextPhase> next_phases;
+  next_phases.reserve(next_phases_cpp.size());
+  for (const auto& next_phase_cpp : next_phases_cpp) {
+    std::unique_ptr<FloatWrapper> duration_until = nullptr;
+    if (next_phase_cpp.duration_until.has_value()) {
+      duration_until = std::make_unique<FloatWrapper>(FloatWrapper{next_phase_cpp.duration_until.value()});
+    }
+    next_phases.push_back({next_phase_cpp.id.string(), std::move(duration_until)});
+  }
+  return std::make_unique<std::vector<NextPhase>>(std::move(next_phases));
+}
+
 rust::Vec<rust::String> PhaseRingBook_GetPhaseRingsId(const PhaseRingBook& phase_ring_book) {
   const auto phase_rings_cpp = phase_ring_book.GetPhaseRings();
   rust::Vec<rust::String> phase_rings;

@@ -53,6 +53,19 @@ fn phase_ring_book_test() {
     assert!(phase.is_some());
     let phase = phase.unwrap();
     assert_eq!(phase.id(), "AllGoPhase".to_string());
+    let phase = phase_ring.get_phase(&"UnknownPhase".to_string());
+    assert!(phase.is_none());
+
+    let next_phases = phase_ring.get_next_phases(&"AllGoPhase".to_string());
+    assert!(next_phases.is_ok());
+    let next_phases = next_phases.unwrap();
+    assert_eq!(next_phases.len(), 1);
+    assert_eq!(next_phases[0].next_phase.id(), "AllStopPhase".to_string());
+    assert!(next_phases[0].duration_until.is_some());
+    let duration_until = next_phases[0].duration_until.unwrap();
+    assert_eq!(duration_until, 30.);
+    let next_phases = phase_ring.get_next_phases(&"UnknownPhase".to_string());
+    assert!(next_phases.is_err());
 
     let phase_ring = phase_ring_book.find_phase_ring(&"Right-Of-Way Rule Type/WestToEastSouth".to_string());
     assert!(phase_ring.is_some());

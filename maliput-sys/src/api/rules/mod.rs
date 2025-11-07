@@ -97,6 +97,11 @@ pub mod ffi {
         pub lane_s_range: &'a LaneSRange,
     }
 
+    struct NextPhase {
+        pub phase_id: String,
+        pub duration_until: UniquePtr<FloatWrapper>,
+    }
+
     #[repr(i32)]
     enum BulbColor {
         kRed = 0,
@@ -250,6 +255,7 @@ pub mod ffi {
         fn PhaseRing_id(phase_ring: &PhaseRing) -> String;
         fn PhaseRing_GetPhase(phase_ring: &PhaseRing, id: &String) -> UniquePtr<Phase>;
         fn PhaseRing_phases_ids(phase_ring: &PhaseRing) -> Vec<String>;
+        fn PhaseRing_GetNextPhases(phase_ring: &PhaseRing, id: &String) -> Result<UniquePtr<CxxVector<NextPhase>>>;
 
         // PhaseRingBook bindings definitions.
         type PhaseRingBook;
