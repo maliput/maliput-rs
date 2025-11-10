@@ -71,4 +71,19 @@ fn phase_ring_book_test() {
     assert!(phase_ring.is_some());
     let phase_ring = phase_ring.unwrap();
     assert!(!phase_ring.phases().is_empty());
+
+    let phase = phase_ring.get_phase(&"AllGoPhase".to_string());
+    assert!(phase.is_some());
+    let phase = phase.unwrap();
+    let states = phase.discrete_value_rule_states();
+    assert!(!states.is_empty());
+    let rule_id = "Right-Of-Way Rule Type/WestToEastSouth";
+    assert!(states.contains_key(rule_id));
+    let value = states.get(rule_id);
+    assert!(value.is_some());
+
+    let bulbs = phase.bulbs();
+    assert!(!bulbs.is_empty());
+    let bulb_state = phase.bulb_state(&bulbs[0]);
+    assert!(bulb_state.is_some());
 }

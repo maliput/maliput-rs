@@ -1077,7 +1077,7 @@ impl Phase {
     /// Gets the states of all discrete value rules for this phase.
     ///
     /// # Returns
-    /// A `HashMap` where the key is the rule ID (`String`) and the value is the
+    /// A `HashMap` where the key is the rule ID as a [String] and the value is the
     /// [DiscreteValue] state of that rule.
     pub fn discrete_value_rule_states(&self) -> HashMap<String, DiscreteValue> {
         let rule_states = maliput_sys::api::rules::ffi::Phase_discrete_value_rule_states(&self.phase);
@@ -1092,6 +1092,10 @@ impl Phase {
             .collect()
     }
 
+    /// Obtains all [UniqueBulbId]s in the [Phase].
+    ///
+    /// # Returns
+    /// A vector of [UniqueBulbId].
     pub fn bulbs(&self) -> Vec<UniqueBulbId> {
         let bulbs = maliput_sys::api::rules::ffi::Phase_bulbs(&self.phase);
         bulbs
@@ -1102,6 +1106,13 @@ impl Phase {
             .collect()
     }
 
+    /// Returns the [BulbState] corresponding to a `bulb_id`.
+    ///
+    /// # Arguments
+    /// * `bulb_id` - The [UniqueBulbId] to get the [BulbState] from.
+    ///
+    /// # Returns
+    /// The [BulbState] the `bulb_id` is in, or [None] if the [UniqueBulbId] is not in this [Phase].
     pub fn bulb_state(&self, bulb_id: &UniqueBulbId) -> Option<BulbState> {
         let bulb_state = maliput_sys::api::rules::ffi::Phase_bulb_state(&self.phase, &bulb_id.unique_bulb_id);
         if bulb_state.is_null() {
