@@ -1279,7 +1279,7 @@ fn discrete_values_from_cxx(
 ) -> Vec<DiscreteValue> {
     discrete_values_cxx
         .iter()
-        .map(|dv| discrete_value_from_discrete_value_cxx(dv))
+        .map(discrete_value_from_discrete_value_cxx)
         .collect()
 }
 
