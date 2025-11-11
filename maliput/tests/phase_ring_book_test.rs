@@ -77,6 +77,7 @@ fn phase_ring_book_test() {
     let phase = phase.unwrap();
     let states = phase.discrete_value_rule_states();
     assert!(!states.is_empty());
+    assert_eq!(states.len(), 2);
     let rule_id = "Right-Of-Way Rule Type/WestToEastSouth";
     assert!(states.contains_key(rule_id));
     let value = states.get(rule_id);
