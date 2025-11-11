@@ -346,7 +346,7 @@ std::unique_ptr<std::vector<DiscreteValueRuleState>> Phase_discrete_value_rule_s
   return std::make_unique<std::vector<DiscreteValueRuleState>>(std::move(discrete_value_rule_states));
 }
 
-std::unique_ptr<std::vector<UniqueBulbId>> Phase_bulbs(const Phase& phase) {
+std::unique_ptr<std::vector<UniqueBulbId>> Phase_unique_bulb_ids(const Phase& phase) {
   const auto& bulb_states = phase.bulb_states();
   if (!bulb_states.has_value()) {
     return nullptr;

@@ -1097,11 +1097,11 @@ impl Phase {
     /// # Returns
     /// A vector of [UniqueBulbId].
     pub fn bulbs(&self) -> Vec<UniqueBulbId> {
-        let bulbs = maliput_sys::api::rules::ffi::Phase_bulbs(&self.phase);
-        bulbs
+        let unique_bulb_ids = maliput_sys::api::rules::ffi::Phase_unique_bulb_ids(&self.phase);
+        unique_bulb_ids
             .iter()
-            .map(|bulb| UniqueBulbId {
-                unique_bulb_id: maliput_sys::api::rules::ffi::ptr_from_unique_bulb_id(bulb),
+            .map(|bulb_id| UniqueBulbId {
+                unique_bulb_id: maliput_sys::api::rules::ffi::ptr_from_unique_bulb_id(bulb_id),
             })
             .collect()
     }
@@ -1109,12 +1109,12 @@ impl Phase {
     /// Returns the [BulbState] corresponding to a `bulb_id`.
     ///
     /// # Arguments
-    /// * `bulb_id` - The [UniqueBulbId] to get the [BulbState] from.
+    /// * `unique_bulb_id` - The [UniqueBulbId] to get the [BulbState] from.
     ///
     /// # Returns
-    /// The [BulbState] the `bulb_id` is in, or [None] if the [UniqueBulbId] is not in this [Phase].
-    pub fn bulb_state(&self, bulb_id: &UniqueBulbId) -> Option<BulbState> {
-        let bulb_state = maliput_sys::api::rules::ffi::Phase_bulb_state(&self.phase, &bulb_id.unique_bulb_id);
+    /// The [BulbState] the `unique_bulb_id` is in, or [None] if the [UniqueBulbId] is not in this [Phase].
+    pub fn bulb_state(&self, unique_bulb_id: &UniqueBulbId) -> Option<BulbState> {
+        let bulb_state = maliput_sys::api::rules::ffi::Phase_bulb_state(&self.phase, &unique_bulb_id.unique_bulb_id);
         if bulb_state.is_null() {
             return None;
         }

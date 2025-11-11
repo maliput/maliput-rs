@@ -263,9 +263,9 @@ pub mod ffi {
         type Phase;
         fn Phase_id(phase: &Phase) -> String;
         fn Phase_discrete_value_rule_states(phase: &Phase) -> UniquePtr<CxxVector<DiscreteValueRuleState>>;
-        fn Phase_bulbs(phase: &Phase) -> UniquePtr<CxxVector<UniqueBulbId>>;
+        fn Phase_unique_bulb_ids(phase: &Phase) -> UniquePtr<CxxVector<UniqueBulbId>>;
         fn Phase_bulb_state(phase: &Phase, bulb_id: &UniqueBulbId) -> UniquePtr<BulbState>;
-        // Helper method to implement [Phase_bulbs] API method.
+        // Helper method to implement [Phase_unique_bulb_ids] API method.
         fn ptr_from_unique_bulb_id(id: &UniqueBulbId) -> UniquePtr<UniqueBulbId>;
 
         // PhaseRing bindings definitions.
