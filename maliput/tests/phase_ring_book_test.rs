@@ -83,8 +83,9 @@ fn phase_ring_book_test() {
     let value = states.get(rule_id);
     assert!(value.is_some());
 
-    let bulbs = phase.bulbs();
-    assert!(!bulbs.is_empty());
-    let bulb_state = phase.bulb_state(&bulbs[0]);
+    let bulb_ids = phase.unique_bulb_ids();
+    assert!(!bulb_ids.is_empty());
+    assert_eq!(bulb_ids.len(), 6);
+    let bulb_state = phase.bulb_state(&bulb_ids[0]);
     assert!(bulb_state.is_some());
 }

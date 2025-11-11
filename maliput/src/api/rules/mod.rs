@@ -1096,7 +1096,7 @@ impl Phase {
     ///
     /// # Returns
     /// A vector of [UniqueBulbId].
-    pub fn bulbs(&self) -> Vec<UniqueBulbId> {
+    pub fn unique_bulb_ids(&self) -> Vec<UniqueBulbId> {
         let unique_bulb_ids = maliput_sys::api::rules::ffi::Phase_unique_bulb_ids(&self.phase);
         unique_bulb_ids
             .iter()
