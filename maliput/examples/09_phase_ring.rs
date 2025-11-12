@@ -69,6 +69,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                     for state in &states {
                         println!("\t\t- Discrete Value Rule ID: {}", state.0);
+                        println!("\t\t  Discrete Value Rule Value: {}", state.1.value());
                     }
 
                     println!("\t  Unique Bulb IDs:");
