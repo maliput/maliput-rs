@@ -96,7 +96,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         println!("\t\t  duration until: {}", duration_until);
                     }
                 }
-                println!("");
+                println!();
             }
         }
     }
