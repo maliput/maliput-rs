@@ -1254,6 +1254,37 @@ impl<'a> PhaseRingBook<'a> {
     }
 }
 
+/// Provides the current state of a phase-based system.
+/// It is an enum that can hold different types of state providers.
+pub enum StateProvider {
+    PhaseStateProvider(cxx::UniquePtr<maliput_sys::api::rules::ffi::PhaseStateProvider>),
+}
+
+/// Defines a phase provider.
+///
+/// A phase provider is able to get the current phase from a phase-based system.
+pub struct PhaseProvider<'a> {
+    pub(super) phase_provider: &'a maliput_sys::api::rules::ffi::PhaseProvider,
+}
+
+impl<'a> PhaseProvider<'a> {
+    /// Returns the [StateProvider] for the specified `phase_ring_id`.
+    ///
+    /// # Arguments
+    /// * `phase_ring_id` - The id of the phase ring.
+    ///
+    /// # Returns
+    /// An `Option` containing the [StateProvider] for the given `phase_ring_id`.
+    /// Returns `None` if no phase provider is found for the given id.
+    pub fn get_phase(&self, phase_ring_id: &String) -> Option<StateProvider> {
+        let phase = maliput_sys::api::rules::ffi::PhaseProvider_GetPhase(self.phase_provider, phase_ring_id);
+        if phase.is_null() {
+            return None;
+        }
+        Some(StateProvider::PhaseStateProvider(phase))
+    }
+}
+
 // Auxiliary method to create a [Vec<Range>] from a [cxx::Vector<RangeValueRuleRange>].
 fn range_values_from_cxx(
     range_values_cxx: &cxx::Vector<maliput_sys::api::rules::ffi::RangeValueRuleRange>,

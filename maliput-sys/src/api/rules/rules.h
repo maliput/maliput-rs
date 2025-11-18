@@ -406,6 +406,15 @@ std::unique_ptr<std::vector<NextPhase>> PhaseRing_GetNextPhases(const PhaseRing&
   return std::make_unique<std::vector<NextPhase>>(std::move(next_phases));
 }
 
+std::unique_ptr<PhaseStateProvider> PhaseProvider_GetPhase(const PhaseProvider& phase_provider, const rust::String& phase_ring_id) {
+  const auto phase_ring = phase_provider.GetPhase(PhaseRing::Id{std::string(phase_ring_id)});
+  if (!phase_ring.has_value()) {
+    return nullptr;
+  }
+  std::unique_ptr<PhaseStateProvider> state_provider = std::make_unique<PhaseStateProvider>(std::move(phase_ring.value()));
+  return state_provider;
+}
+
 rust::Vec<rust::String> PhaseRingBook_GetPhaseRingsId(const PhaseRingBook& phase_ring_book) {
   const auto phase_rings_cpp = phase_ring_book.GetPhaseRings();
   rust::Vec<rust::String> phase_rings;

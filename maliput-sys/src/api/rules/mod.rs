@@ -275,6 +275,16 @@ pub mod ffi {
         fn PhaseRing_phases_ids(phase_ring: &PhaseRing) -> Vec<String>;
         fn PhaseRing_GetNextPhases(phase_ring: &PhaseRing, id: &String) -> Result<UniquePtr<CxxVector<NextPhase>>>;
 
+        // StateProviderResult<Phase::Id> bindings definitions.
+        type PhaseStateProvider;
+
+        // PhaseProvider bindings definitions.
+        type PhaseProvider;
+        fn PhaseProvider_GetPhase(
+            phase_provider: &PhaseProvider,
+            phase_ring_id: &String,
+        ) -> UniquePtr<PhaseStateProvider>;
+
         // PhaseRingBook bindings definitions.
         type PhaseRingBook;
         fn PhaseRingBook_GetPhaseRingsId(book: &PhaseRingBook) -> Vec<String>;

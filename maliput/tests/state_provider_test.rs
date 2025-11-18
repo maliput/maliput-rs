@@ -1,6 +1,6 @@
 // BSD 3-Clause License
 //
-// Copyright (c) 2024, Woven by Toyota.
+// Copyright (c) 2025, Woven by Toyota.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,25 +27,18 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#pragma once
-#include <maliput/api/rules/discrete_value_rule.h>
-#include <maliput/api/rules/range_value_rule.h>
-#include <maliput/api/rules/road_rulebook.h>
-#include <maliput/api/rules/phase_provider.h>
 
-#include <memory>
-#include <vector>
+mod common;
 
-namespace maliput {
-namespace api {
-namespace rules {
-
-// Workaround for supporting nested types: https://github.com/dtolnay/cxx/issues/1198
-using DiscreteValueRuleDiscreteValue = DiscreteValueRule::DiscreteValue;
-using RangeValueRuleRange = RangeValueRule::Range;
-using QueryResults = RoadRulebook::QueryResults;
-using PhaseStateProvider = StateProviderResult<Phase::Id>;
-
-}  // namespace rules
-}  // namespace api
-}  // namespace maliput
+#[test]
+fn test_phase_provider() {
+    let mut road_network = common::create_t_shape_road_network_with_books();
+    let phase_ring_book = road_network.phase_ring_book();
+    assert_eq!(phase_ring_book.get_phase_rings_ids().len(), 1);
+    let phase_ring_id = &phase_ring_book.get_phase_rings_ids()[0];
+    let phase_provider = road_network.phase_provider();
+    let state_provider = phase_provider.get_phase(phase_ring_id);
+    assert!(state_provider.is_some());
+    let state_provider = phase_provider.get_phase(&"TIntersectionPhaseRing".to_string());
+    assert!(state_provider.is_some());
+}

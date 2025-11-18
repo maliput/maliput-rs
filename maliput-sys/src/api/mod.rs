@@ -69,6 +69,8 @@ pub mod ffi {
         type PhaseRingBook = crate::api::rules::ffi::PhaseRingBook;
         #[namespace = "maliput::api::rules"]
         type RuleRegistry = crate::api::rules::ffi::RuleRegistry;
+        #[namespace = "maliput::api::rules"]
+        type PhaseProvider = crate::api::rules::ffi::PhaseProvider;
 
         #[namespace = "maliput::api"]
         // RoadNetwork bindings definitions.
@@ -79,6 +81,7 @@ pub mod ffi {
         fn rulebook(self: &RoadNetwork) -> *const RoadRulebook;
         fn phase_ring_book(self: &RoadNetwork) -> *const PhaseRingBook;
         fn rule_registry(self: &RoadNetwork) -> *const RuleRegistry;
+        fn phase_provider(self: Pin<&mut RoadNetwork>) -> *mut PhaseProvider;
 
         // RoadGeometry bindings definitions.
         type RoadGeometry;
