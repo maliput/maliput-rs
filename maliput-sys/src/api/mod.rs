@@ -81,7 +81,7 @@ pub mod ffi {
         fn rulebook(self: &RoadNetwork) -> *const RoadRulebook;
         fn phase_ring_book(self: &RoadNetwork) -> *const PhaseRingBook;
         fn rule_registry(self: &RoadNetwork) -> *const RuleRegistry;
-        fn phase_provider(self: Pin<&mut RoadNetwork>) -> *mut PhaseProvider;
+        fn RoadNetwork_phase_provider(road_network: &RoadNetwork) -> *const PhaseProvider;
 
         // RoadGeometry bindings definitions.
         type RoadGeometry;

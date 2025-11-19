@@ -32,7 +32,7 @@ mod common;
 
 #[test]
 fn test_phase_provider() {
-    let mut road_network = common::create_t_shape_road_network_with_books();
+    let road_network = common::create_t_shape_road_network_with_books();
     let phase_ring_book = road_network.phase_ring_book();
     assert_eq!(phase_ring_book.get_phase_rings_ids().len(), 1);
     let phase_ring_id = &phase_ring_book.get_phase_rings_ids()[0];

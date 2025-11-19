@@ -168,12 +168,8 @@ impl RoadNetwork {
     }
 
     /// Get the `PhaseProvider` of the `RoadNetwork`.
-    pub fn phase_provider(&mut self) -> rules::PhaseProvider<'_> {
-        let phase_provider_ffi = self
-            .rn
-            .as_mut()
-            .expect("Underlying RoadNetwork is null")
-            .phase_provider();
+    pub fn phase_provider(&self) -> rules::PhaseProvider<'_> {
+        let phase_provider_ffi = maliput_sys::api::ffi::RoadNetwork_phase_provider(&self.rn);
         rules::PhaseProvider {
             phase_provider: unsafe { phase_provider_ffi.as_ref().expect("Underlying PhaseProvider is null") },
         }
