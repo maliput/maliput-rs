@@ -1254,7 +1254,7 @@ impl<'a> PhaseRingBook<'a> {
     }
 }
 
-///
+/// Defines a next state of a generic type.
 pub struct NextState<T> {
     /// The next state.
     pub next_state: T,
@@ -1283,7 +1283,7 @@ pub struct PhaseProvider<'a> {
 
 impl<'a> PhaseProvider<'a> {
     /// Returns the [StateProvider] for the specified `phase_ring_id`.
-    /// 
+    ///
     /// The states are represented with Strings containing the IDs of each [Phase].
     ///
     /// # Arguments
