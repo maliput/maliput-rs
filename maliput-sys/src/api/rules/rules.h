@@ -406,13 +406,28 @@ std::unique_ptr<std::vector<NextPhase>> PhaseRing_GetNextPhases(const PhaseRing&
   return std::make_unique<std::vector<NextPhase>>(std::move(next_phases));
 }
 
-std::unique_ptr<PhaseStateProvider> PhaseProvider_GetPhase(const PhaseProvider& phase_provider, const rust::String& phase_ring_id) {
-  const auto phase_ring = phase_provider.GetPhase(PhaseRing::Id{std::string(phase_ring_id)});
-  if (!phase_ring.has_value()) {
+// Returns a Phase ID.
+rust::String PhaseStateProvider_state(const PhaseStateProvider &phase_state_provider) {
+  return rust::String(phase_state_provider.state.string());
+}
+
+std::unique_ptr<NextPhase> PhaseStateProvider_next(const PhaseStateProvider &phase_state_provider) {
+  if (!phase_state_provider.next.has_value()) {
     return nullptr;
   }
-  std::unique_ptr<PhaseStateProvider> state_provider = std::make_unique<PhaseStateProvider>(std::move(phase_ring.value()));
-  return state_provider;
+  std::unique_ptr<FloatWrapper> duration_until = nullptr;
+  if (phase_state_provider.next.value().duration_until.has_value()) {
+    duration_until = std::make_unique<FloatWrapper>(FloatWrapper{ phase_state_provider.next.value().duration_until.value() });
+  }
+  return std::make_unique<NextPhase>(NextPhase { phase_state_provider.next.value().state.string(), std::move(duration_until) });
+}
+
+std::unique_ptr<PhaseStateProvider> PhaseProvider_GetPhase(const PhaseProvider& phase_provider, const rust::String& phase_ring_id) {
+  const auto phase_state = phase_provider.GetPhase(PhaseRing::Id{std::string(phase_ring_id)});
+  if (!phase_state.has_value()) {
+    return nullptr;
+  }
+  return std::make_unique<PhaseStateProvider>(std::move(phase_state.value()));
 }
 
 rust::Vec<rust::String> PhaseRingBook_GetPhaseRingsId(const PhaseRingBook& phase_ring_book) {

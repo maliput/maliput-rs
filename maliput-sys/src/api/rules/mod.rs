@@ -277,6 +277,8 @@ pub mod ffi {
 
         // StateProviderResult<Phase::Id> bindings definitions.
         type PhaseStateProvider;
+        fn PhaseStateProvider_state(phase_state_provider: &PhaseStateProvider) -> String;
+        fn PhaseStateProvider_next(phase_state_provider: &PhaseStateProvider) -> UniquePtr<NextPhase>;
 
         // PhaseProvider bindings definitions.
         type PhaseProvider;
