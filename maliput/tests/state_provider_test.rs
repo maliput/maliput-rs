@@ -41,4 +41,12 @@ fn test_phase_provider() {
     assert!(state_provider.is_some());
     let state_provider = phase_provider.get_phase(&"TIntersectionPhaseRing".to_string());
     assert!(state_provider.is_some());
+    let state_provider = state_provider.unwrap();
+    assert_eq!(state_provider.state, "AllGo".to_string());
+    assert!(state_provider.next.is_some());
+    let next_state = state_provider.next.unwrap();
+    assert_eq!(next_state.next_state, "AllStop".to_string());
+    assert!(next_state.duration_until.is_some());
+    let duration_until = next_state.duration_until.unwrap();
+    assert_eq!(duration_until, 45.);
 }
