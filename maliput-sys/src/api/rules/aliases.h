@@ -44,7 +44,7 @@ namespace rules {
 using DiscreteValueRuleDiscreteValue = DiscreteValueRule::DiscreteValue;
 using RangeValueRuleRange = RangeValueRule::Range;
 using QueryResults = RoadRulebook::QueryResults;
-using PhaseStateProvider = StateProviderResult<Phase::Id>;
+using PhaseStateProviderQuery = StateProviderResult<Phase::Id>;
 
 }  // namespace rules
 }  // namespace api

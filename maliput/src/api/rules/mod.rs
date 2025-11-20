@@ -1267,12 +1267,16 @@ pub struct NextState<T> {
 }
 
 /// Holds the current and possible next state of a system.
-pub struct StateProvider<T> {
+/// It is usually returned by the different types of state providers.
+pub struct StateProviderQuery<T> {
     /// The current state.
     pub state: T,
     /// The next state.
     pub next: Option<NextState<T>>,
 }
+
+/// Alias for the [StateProviderQuery] returned by [PhaseProvider::get_phase].
+type PhaseStateProviderQuery = StateProviderQuery<String>;
 
 /// Defines a phase provider.
 ///
@@ -1282,7 +1286,7 @@ pub struct PhaseProvider<'a> {
 }
 
 impl<'a> PhaseProvider<'a> {
-    /// Returns the [StateProvider] for the specified `phase_ring_id`.
+    /// Returns the [PhaseStateProviderQuery] for the specified `phase_ring_id`.
     ///
     /// The states are represented with Strings containing the IDs of each [Phase].
     ///
@@ -1290,9 +1294,9 @@ impl<'a> PhaseProvider<'a> {
     /// * `phase_ring_id` - The id of the phase ring.
     ///
     /// # Returns
-    /// An `Option` containing the [StateProvider] for the given `phase_ring_id`.
+    /// An `Option` containing the [PhaseStateProviderQuery] for the given `phase_ring_id`.
     /// Returns `None` if no phase provider is found for the given id.
-    pub fn get_phase(&self, phase_ring_id: &String) -> Option<StateProvider<String>> {
+    pub fn get_phase(&self, phase_ring_id: &String) -> Option<PhaseStateProviderQuery> {
         let phase_state = maliput_sys::api::rules::ffi::PhaseProvider_GetPhase(self.phase_provider, phase_ring_id);
         if phase_state.is_null() {
             return None;
@@ -1312,7 +1316,7 @@ impl<'a> PhaseProvider<'a> {
             })
         };
 
-        Some(StateProvider {
+        Some(StateProviderQuery {
             state: maliput_sys::api::rules::ffi::PhaseStateProvider_state(&phase_state),
             next: next_phase,
         })
