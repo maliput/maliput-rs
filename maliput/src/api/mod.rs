@@ -166,6 +166,14 @@ impl RoadNetwork {
             rule_registry: unsafe { rule_registry_ffi.as_ref().expect("Underlying RuleRegistry is null") },
         }
     }
+
+    /// Get the `PhaseProvider` of the `RoadNetwork`.
+    pub fn phase_provider(&self) -> rules::PhaseProvider<'_> {
+        let phase_provider_ffi = maliput_sys::api::ffi::RoadNetwork_phase_provider(&self.rn);
+        rules::PhaseProvider {
+            phase_provider: unsafe { phase_provider_ffi.as_ref().expect("Underlying PhaseProvider is null") },
+        }
+    }
 }
 
 /// Represents the geometry of a road network.

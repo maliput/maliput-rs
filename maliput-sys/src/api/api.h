@@ -55,6 +55,12 @@ namespace api {
 struct ConstLanePtr;
 struct MutIntersectionPtr;
 
+const maliput::api::rules::PhaseProvider* RoadNetwork_phase_provider(const RoadNetwork& road_network) {
+    maliput::api::RoadNetwork* rn = const_cast<RoadNetwork*>(&road_network);
+    maliput::api::rules::PhaseProvider* phase_provider = rn->phase_provider();
+    return phase_provider;
+}
+
 /// Creates a new maliput::api::LanePosition.
 /// Forwads to maliput::api::LanePosition(double s, double r, double h) constructor.
 std::unique_ptr<LanePosition> LanePosition_new(rust::f64 s, rust::f64 r, rust::f64 h) {
