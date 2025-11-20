@@ -1254,6 +1254,75 @@ impl<'a> PhaseRingBook<'a> {
     }
 }
 
+/// Defines a next state of a generic type.
+pub struct NextState<T> {
+    /// The next state.
+    pub next_state: T,
+    /// The default time before transitioning to the next state. This is
+    /// relative to when the current state began. It is just a recommendation,
+    /// the actual duration is determined by the StateProvider and may depend on
+    /// events like a vehicle arriving at a left-turn lane or a pedestrian
+    /// hitting a crosswalk button.
+    pub duration_until: Option<f64>,
+}
+
+/// Holds the current and possible next state of a system.
+/// It is usually returned by the different types of state providers.
+pub struct StateProviderQuery<T> {
+    /// The current state.
+    pub state: T,
+    /// The next state.
+    pub next: Option<NextState<T>>,
+}
+
+/// Alias for the [StateProviderQuery] returned by [PhaseProvider::get_phase].
+type PhaseStateProviderQuery = StateProviderQuery<String>;
+
+/// Defines a phase provider.
+///
+/// A phase provider is able to get the current phase from a phase-based system.
+pub struct PhaseProvider<'a> {
+    pub(super) phase_provider: &'a maliput_sys::api::rules::ffi::PhaseProvider,
+}
+
+impl<'a> PhaseProvider<'a> {
+    /// Returns the [PhaseStateProviderQuery] for the specified `phase_ring_id`.
+    ///
+    /// The states are represented with Strings containing the IDs of each [Phase].
+    ///
+    /// # Arguments
+    /// * `phase_ring_id` - The id of the phase ring.
+    ///
+    /// # Returns
+    /// An `Option` containing the [PhaseStateProviderQuery] for the given `phase_ring_id`.
+    /// Returns `None` if no phase provider is found for the given id.
+    pub fn get_phase(&self, phase_ring_id: &String) -> Option<PhaseStateProviderQuery> {
+        let phase_state = maliput_sys::api::rules::ffi::PhaseProvider_GetPhase(self.phase_provider, phase_ring_id);
+        if phase_state.is_null() {
+            return None;
+        }
+
+        let next_state = maliput_sys::api::rules::ffi::PhaseStateProvider_next(&phase_state);
+        let next_phase = if next_state.is_null() {
+            None
+        } else {
+            Some(NextState {
+                next_state: next_state.phase_id.clone(),
+                duration_until: if next_state.duration_until.is_null() {
+                    None
+                } else {
+                    Some(next_state.duration_until.value)
+                },
+            })
+        };
+
+        Some(StateProviderQuery {
+            state: maliput_sys::api::rules::ffi::PhaseStateProvider_state(&phase_state),
+            next: next_phase,
+        })
+    }
+}
+
 // Auxiliary method to create a [Vec<Range>] from a [cxx::Vector<RangeValueRuleRange>].
 fn range_values_from_cxx(
     range_values_cxx: &cxx::Vector<maliput_sys::api::rules::ffi::RangeValueRuleRange>,
