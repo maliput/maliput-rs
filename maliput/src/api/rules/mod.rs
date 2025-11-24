@@ -1323,17 +1323,36 @@ impl<'a> PhaseProvider<'a> {
     }
 }
 
+/// Defines a [DiscreteValueRule] StateProvider.
 pub struct DiscreteValueRuleStateProvider<'a> {
     pub(super) state_provider: &'a maliput_sys::api::rules::ffi::DiscreteValueRuleStateProvider,
 }
 
 impl<'a> DiscreteValueRuleStateProvider<'a> {
+    /// Gets a state from the provider based on it's `rule_id`.
+    ///
+    /// # Arguments
+    /// * `rule_id` - A Rule ID.
+    ///
+    /// # Returns
+    /// An Option containing the [StateProviderQuery] with a [DiscreteValue] if the `rule_id` matches with any rule.
+    /// Otherwise, None is returned.
     pub fn get_state_by_rule_id(&self, rule_id: &String) -> Option<StateProviderQuery<DiscreteValue>> {
         let query_state =
             maliput_sys::api::rules::ffi::DiscreteValueRuleStateProvider_GetStateById(self.state_provider, rule_id);
         Self::next_state_from_cxx_query(query_state)
     }
 
+    /// Gets a state from the provider if there is a `rule_type` in the received `road_position`.
+    ///
+    /// # Arguments
+    /// * `road_position` - A position in the road geometry.
+    /// * `rule_type` - A Rule Type.
+    /// * `tolerance` - The tolerance in which to look for the Rule of type `rule_type` around the `road_position`.
+    ///
+    /// # Returns
+    /// An Option containing the [StateProviderQuery] with a [DiscreteValue] if `rule_type` matches with any rule's type near `road_position`.
+    /// Otherwise, None is returned.
     pub fn get_state_by_rule_type(
         &self,
         road_position: &RoadPosition,
@@ -1377,17 +1396,36 @@ impl<'a> DiscreteValueRuleStateProvider<'a> {
     }
 }
 
+/// Defines a [RangeValueRule] StateProvider.
 pub struct RangeValueRuleStateProvider<'a> {
     pub(super) state_provider: &'a maliput_sys::api::rules::ffi::RangeValueRuleStateProvider,
 }
 
 impl<'a> RangeValueRuleStateProvider<'a> {
+    /// Gets a state from the provider based on it's `rule_id`.
+    ///
+    /// # Arguments
+    /// * `rule_id` - A Rule ID.
+    ///
+    /// # Returns
+    /// An Option containing the [StateProviderQuery] with a [Range] if the `rule_id` matches with any rule.
+    /// Otherwise, None is returned.
     pub fn get_state_by_rule_id(&self, rule_id: &String) -> Option<StateProviderQuery<Range>> {
         let query_state =
             maliput_sys::api::rules::ffi::RangeValueRuleStateProvider_GetStateById(self.state_provider, rule_id);
         Self::next_state_from_cxx_query(query_state)
     }
 
+    /// Gets a state from the provider if there is a `rule_type` in the received `road_position`.
+    ///
+    /// # Arguments
+    /// * `road_position` - A position in the road geometry.
+    /// * `rule_type` - A Rule Type.
+    /// * `tolerance` - The tolerance in which to look for the Rule of type `rule_type` around the `road_position`.
+    ///
+    /// # Returns
+    /// An Option containing the [StateProviderQuery] with a [Range] if `rule_type` matches with any rule's type near `road_position`.
+    /// Otherwise, None is returned.
     pub fn get_state_by_rule_type(
         &self,
         road_position: &RoadPosition,
