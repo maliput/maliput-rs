@@ -71,6 +71,10 @@ pub mod ffi {
         type RuleRegistry = crate::api::rules::ffi::RuleRegistry;
         #[namespace = "maliput::api::rules"]
         type PhaseProvider = crate::api::rules::ffi::PhaseProvider;
+        #[namespace = "maliput::api::rules"]
+        type DiscreteValueRuleStateProvider = crate::api::rules::ffi::DiscreteValueRuleStateProvider;
+        #[namespace = "maliput::api::rules"]
+        type RangeValueRuleStateProvider = crate::api::rules::ffi::RangeValueRuleStateProvider;
 
         #[namespace = "maliput::api"]
         // RoadNetwork bindings definitions.
@@ -82,6 +86,12 @@ pub mod ffi {
         fn phase_ring_book(self: &RoadNetwork) -> *const PhaseRingBook;
         fn rule_registry(self: &RoadNetwork) -> *const RuleRegistry;
         fn RoadNetwork_phase_provider(road_network: &RoadNetwork) -> *const PhaseProvider;
+        fn RoadNetwork_discrete_value_rule_state_provider(
+            road_network: &RoadNetwork,
+        ) -> *const DiscreteValueRuleStateProvider;
+        fn RoadNetwork_range_value_rule_state_provider(
+            road_network: &RoadNetwork,
+        ) -> *const RangeValueRuleStateProvider;
 
         // RoadGeometry bindings definitions.
         type RoadGeometry;

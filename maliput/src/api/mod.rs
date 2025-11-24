@@ -174,6 +174,30 @@ impl RoadNetwork {
             phase_provider: unsafe { phase_provider_ffi.as_ref().expect("Underlying PhaseProvider is null") },
         }
     }
+
+    /// Get the `DiscreteValueRuleStateProvider` of the `RoadNetwork`.
+    pub fn discrete_value_rule_state_provider(&self) -> rules::DiscreteValueRuleStateProvider<'_> {
+        let state_provider = maliput_sys::api::ffi::RoadNetwork_discrete_value_rule_state_provider(&self.rn);
+        rules::DiscreteValueRuleStateProvider {
+            state_provider: unsafe {
+                state_provider
+                    .as_ref()
+                    .expect("Underlying DiscreteValueRuleStateProvider is null")
+            },
+        }
+    }
+
+    /// Get the `RangeValueRuleStateProvider` of the `RoadNetwork`.
+    pub fn range_value_rule_state_provider(&self) -> rules::RangeValueRuleStateProvider<'_> {
+        let state_provider = maliput_sys::api::ffi::RoadNetwork_range_value_rule_state_provider(&self.rn);
+        rules::RangeValueRuleStateProvider {
+            state_provider: unsafe {
+                state_provider
+                    .as_ref()
+                    .expect("Underlying RangeValueRuleStateProvider is null")
+            },
+        }
+    }
 }
 
 /// Represents the geometry of a road network.

@@ -55,10 +55,25 @@ namespace api {
 struct ConstLanePtr;
 struct MutIntersectionPtr;
 
+/// Gets the `RoadNetowrk`s read-only `PhaseProvider`.
 const maliput::api::rules::PhaseProvider* RoadNetwork_phase_provider(const RoadNetwork& road_network) {
     maliput::api::RoadNetwork* rn = const_cast<RoadNetwork*>(&road_network);
     maliput::api::rules::PhaseProvider* phase_provider = rn->phase_provider();
     return phase_provider;
+}
+
+/// Gets the `RoadNetowrk`s read-only `DiscreteValueRuleStateProvider`.
+const maliput::api::rules::DiscreteValueRuleStateProvider* RoadNetwork_discrete_value_rule_state_provider(const RoadNetwork& road_network) {
+    maliput::api::RoadNetwork* rn = const_cast<RoadNetwork*>(&road_network);
+    maliput::api::rules::DiscreteValueRuleStateProvider* discrete_value_rule_state_provider = rn->discrete_value_rule_state_provider();
+    return discrete_value_rule_state_provider;
+}
+
+/// Gets the `RoadNetowrk`s read-only `RangeValueRuleStateProvider`.
+const maliput::api::rules::RangeValueRuleStateProvider* RoadNetwork_range_value_rule_state_provider(const RoadNetwork& road_network) {
+    maliput::api::RoadNetwork* rn = const_cast<RoadNetwork*>(&road_network);
+    maliput::api::rules::RangeValueRuleStateProvider* range_value_rule_state_provider = rn->range_value_rule_state_provider();
+    return range_value_rule_state_provider;
 }
 
 /// Creates a new maliput::api::LanePosition.
