@@ -30,7 +30,7 @@
 
 use std::collections::HashMap;
 
-use crate::common::MaliputError;
+use crate::{api::RoadPosition, common::MaliputError};
 use strum_macros::{Display, IntoStaticStr};
 
 /// Interface for accessing the [TrafficLight] in the [super::RoadNetwork]
@@ -1323,6 +1323,114 @@ impl<'a> PhaseProvider<'a> {
     }
 }
 
+pub struct DiscreteValueRuleStateProvider<'a> {
+    pub(super) state_provider: &'a maliput_sys::api::rules::ffi::DiscreteValueRuleStateProvider,
+}
+
+impl<'a> DiscreteValueRuleStateProvider<'a> {
+    pub fn get_state_by_rule_id(&self, rule_id: &String) -> Option<StateProviderQuery<DiscreteValue>> {
+        let query_state =
+            maliput_sys::api::rules::ffi::DiscreteValueRuleStateProvider_GetStateById(self.state_provider, rule_id);
+        Self::next_state_from_cxx_query(query_state)
+    }
+
+    pub fn get_state_by_rule_type(
+        &self,
+        road_position: &RoadPosition,
+        rule_type: RuleType,
+        tolerance: f64,
+    ) -> Option<StateProviderQuery<DiscreteValue>> {
+        let query_state = maliput_sys::api::rules::ffi::DiscreteValueRuleStateProvider_GetStateByType(
+            self.state_provider,
+            &road_position.rp,
+            &rule_type.to_string(),
+            tolerance,
+        );
+        Self::next_state_from_cxx_query(query_state)
+    }
+
+    // Internal helper to avoid code duplication.
+    fn next_state_from_cxx_query(
+        query_state: cxx::UniquePtr<maliput_sys::api::rules::ffi::DiscreteValueRuleStateProviderQuery>,
+    ) -> Option<StateProviderQuery<DiscreteValue>> {
+        if query_state.is_null() {
+            return None;
+        }
+        let next_state = maliput_sys::api::rules::ffi::DiscreteValueRuleStateProviderQuery_next(&query_state);
+        Some(StateProviderQuery {
+            state: discrete_value_from_discrete_value_cxx(
+                &maliput_sys::api::rules::ffi::DiscreteValueRuleStateProviderQuery_state(&query_state),
+            ),
+            next: if next_state.is_null() {
+                None
+            } else {
+                Some(NextState {
+                    next_state: discrete_value_from_discrete_value_cxx(&next_state.state),
+                    duration_until: if next_state.duration_until.is_null() {
+                        None
+                    } else {
+                        Some(next_state.duration_until.value)
+                    },
+                })
+            },
+        })
+    }
+}
+
+pub struct RangeValueRuleStateProvider<'a> {
+    pub(super) state_provider: &'a maliput_sys::api::rules::ffi::RangeValueRuleStateProvider,
+}
+
+impl<'a> RangeValueRuleStateProvider<'a> {
+    pub fn get_state_by_rule_id(&self, rule_id: &String) -> Option<StateProviderQuery<Range>> {
+        let query_state =
+            maliput_sys::api::rules::ffi::RangeValueRuleStateProvider_GetStateById(self.state_provider, rule_id);
+        Self::next_state_from_cxx_query(query_state)
+    }
+
+    pub fn get_state_by_rule_type(
+        &self,
+        road_position: &RoadPosition,
+        rule_type: RuleType,
+        tolerance: f64,
+    ) -> Option<StateProviderQuery<Range>> {
+        let query_state = maliput_sys::api::rules::ffi::RangeValueRuleStateProvider_GetStateByType(
+            self.state_provider,
+            &road_position.rp,
+            &rule_type.to_string(),
+            tolerance,
+        );
+        Self::next_state_from_cxx_query(query_state)
+    }
+
+    // Internal helper to avoid code duplication.
+    fn next_state_from_cxx_query(
+        query_state: cxx::UniquePtr<maliput_sys::api::rules::ffi::RangeValueRuleStateProviderQuery>,
+    ) -> Option<StateProviderQuery<Range>> {
+        if query_state.is_null() {
+            return None;
+        }
+        let next_state = maliput_sys::api::rules::ffi::RangeValueRuleStateProviderQuery_next(&query_state);
+        Some(StateProviderQuery {
+            state: range_value_from_range_value_cxx(
+                &maliput_sys::api::rules::ffi::RangeValueRuleStateProviderQuery_state(&query_state),
+            ),
+            next: if next_state.is_null() {
+                None
+            } else {
+                Some(NextState {
+                    next_state: range_value_from_range_value_cxx(&next_state.state),
+                    duration_until: if next_state.duration_until.is_null() {
+                        None
+                    } else {
+                        Some(next_state.duration_until.value)
+                    },
+                })
+            },
+        })
+    }
+}
+
 // Auxiliary method to create a [Vec<Range>] from a [cxx::Vector<RangeValueRuleRange>].
 fn range_values_from_cxx(
     range_values_cxx: &cxx::Vector<maliput_sys::api::rules::ffi::RangeValueRuleRange>,
@@ -1365,5 +1473,19 @@ fn discrete_value_from_discrete_value_cxx(
             ),
         },
         value: maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue_value(discrete_value),
+    }
+}
+
+// Auxiliary method to create a [Range] from a [maliput_sys::api::rules::ffi::RangeValueRuleRange].
+fn range_value_from_range_value_cxx(range: &maliput_sys::api::rules::ffi::RangeValueRuleRange) -> Range {
+    Range {
+        rule_state: RuleStateBase {
+            severity: maliput_sys::api::rules::ffi::RangeValueRuleRange_severity(range),
+            related_rules: maliput_sys::api::rules::ffi::RangeValueRuleRange_related_rules(range),
+            related_unique_ids: maliput_sys::api::rules::ffi::RangeValueRuleRange_related_unique_ids(range),
+        },
+        description: maliput_sys::api::rules::ffi::RangeValueRuleRange_description(range),
+        min: maliput_sys::api::rules::ffi::RangeValueRuleRange_min(range),
+        max: maliput_sys::api::rules::ffi::RangeValueRuleRange_max(range),
     }
 }

@@ -34,10 +34,12 @@
 #include <vector>
 
 #include <maliput/api/rules/discrete_value_rule.h>
+#include <maliput/api/rules/discrete_value_rule_state_provider.h>
 #include <maliput/api/rules/phase.h>
 #include <maliput/api/rules/phase_ring.h>
 #include <maliput/api/rules/phase_ring_book.h>
 #include <maliput/api/rules/range_value_rule.h>
+#include <maliput/api/rules/range_value_rule_state_provider.h>
 #include <maliput/api/rules/rule_registry.h>
 #include <maliput/api/rules/traffic_lights.h>
 #include <maliput/api/rules/traffic_light_book.h>
@@ -483,6 +485,70 @@ std::unique_ptr<std::vector<RangeValueRuleType>> RuleRegistry_RangeValueRuleType
     range_value_rule_types.push_back(std::move(rule_type));
   }
   return std::make_unique<std::vector<RangeValueRuleType>>(std::move(range_value_rule_types));
+}
+
+std::unique_ptr<DiscreteValueRuleStateProviderQuery> DiscreteValueRuleStateProvider_GetStateById(const DiscreteValueRuleStateProvider& state_provider, const rust::String& rule_id) {
+  const auto state = state_provider.GetState(Rule::Id{std::string(rule_id)});
+  if (!state.has_value()) {
+    return nullptr;
+  }
+  return std::make_unique<DiscreteValueRuleStateProviderQuery>(std::move(state.value()));
+}
+
+std::unique_ptr<DiscreteValueRuleStateProviderQuery> DiscreteValueRuleStateProvider_GetStateByType(const DiscreteValueRuleStateProvider& state_provider, const RoadPosition& road_position, const rust::String& rule_type, double tolerance) {
+  const auto state = state_provider.GetState(road_position, Rule::TypeId{std::string(rule_type)}, tolerance);
+  if (!state.has_value()) {
+    return nullptr;
+  }
+  return std::make_unique<DiscreteValueRuleStateProviderQuery>(std::move(state.value()));
+}
+
+std::unique_ptr<RangeValueRuleStateProviderQuery> RangeValueRuleStateProvider_GetStateById(const RangeValueRuleStateProvider& state_provider, const rust::String& rule_id) {
+  const auto state = state_provider.GetState(Rule::Id{std::string(rule_id)});
+  if (!state.has_value()) {
+    return nullptr;
+  }
+  return std::make_unique<RangeValueRuleStateProviderQuery>(std::move(state.value()));
+}
+
+std::unique_ptr<RangeValueRuleStateProviderQuery> RangeValueRuleStateProvider_GetStateByType(const RangeValueRuleStateProvider& state_provider, const RoadPosition& road_position, const rust::String& rule_type, double tolerance) {
+  const auto state = state_provider.GetState(road_position, Rule::TypeId{std::string(rule_type)}, tolerance);
+  if (!state.has_value()) {
+    return nullptr;
+  }
+  return std::make_unique<RangeValueRuleStateProviderQuery>(std::move(state.value()));
+}
+
+std::unique_ptr<DiscreteValueRuleDiscreteValue> DiscreteValueRuleStateProviderQuery_state(const DiscreteValueRuleStateProviderQuery& query) {
+  return std::make_unique<DiscreteValueRuleDiscreteValue>(query.state);
+}
+
+std::unique_ptr<DiscreteValueNextState> DiscreteValueRuleStateProviderQuery_next(const DiscreteValueRuleStateProviderQuery& query) {
+  const auto next = query.next;
+  if (!query.next.has_value()) {
+    return nullptr;
+  }
+  std::unique_ptr<FloatWrapper> duration_until = nullptr;
+  if (query.next.value().duration_until.has_value()) {
+    duration_until = std::make_unique<FloatWrapper>(FloatWrapper{ query.next.value().duration_until.value() });
+  }
+  return std::make_unique<DiscreteValueNextState>(DiscreteValueNextState { std::make_unique<DiscreteValueRuleDiscreteValue>(query.next.value().state), std::move(duration_until) });
+}
+
+std::unique_ptr<RangeValueRuleRange> RangeValueRuleStateProviderQuery_state(const RangeValueRuleStateProviderQuery& query) {
+  return std::make_unique<RangeValueRuleRange>(query.state);
+}
+
+std::unique_ptr<RangeValueNextState> RangeValueRuleStateProviderQuery_next(const RangeValueRuleStateProviderQuery& query) {
+  const auto next = query.next;
+  if (!query.next.has_value()) {
+    return nullptr;
+  }
+  std::unique_ptr<FloatWrapper> duration_until = nullptr;
+  if (query.next.value().duration_until.has_value()) {
+    duration_until = std::make_unique<FloatWrapper>(FloatWrapper{ query.next.value().duration_until.value() });
+  }
+  return std::make_unique<RangeValueNextState>(RangeValueNextState { std::make_unique<RangeValueRuleRange>(query.next.value().state), std::move(duration_until) });
 }
 
 }  // namespace rules
