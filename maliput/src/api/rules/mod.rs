@@ -1323,7 +1323,13 @@ impl<'a> PhaseProvider<'a> {
     }
 }
 
-/// Defines a [DiscreteValueRule] StateProvider.
+/// Provides the dynamic state of [DiscreteValueRule]s.
+///
+/// While a [RoadRulebook] provides the static definitions of rules, a
+/// `DiscreteValueRuleStateProvider` provides the current state of those rules
+/// at runtime. This allows for querying what state a rule is currently in,
+/// which is essential for dynamic systems where rule states can change over
+/// time (e.g., traffic light phases changing).
 pub struct DiscreteValueRuleStateProvider<'a> {
     pub(super) state_provider: &'a maliput_sys::api::rules::ffi::DiscreteValueRuleStateProvider,
 }
@@ -1396,7 +1402,13 @@ impl<'a> DiscreteValueRuleStateProvider<'a> {
     }
 }
 
-/// Defines a [RangeValueRule] StateProvider.
+/// Provides the dynamic state of [RangeValueRule]s.
+///
+/// While a [RoadRulebook] provides the static definitions of rules, a
+/// `RangeValueRuleStateProvider` provides the current state of those rules
+/// at runtime. This allows for querying what state a rule is currently in,
+/// which is essential for dynamic systems where rule states can change over
+/// time (e.g., variable speed limits based on types of roads).
 pub struct RangeValueRuleStateProvider<'a> {
     pub(super) state_provider: &'a maliput_sys::api::rules::ffi::RangeValueRuleStateProvider,
 }

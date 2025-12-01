@@ -94,11 +94,14 @@ fn test_range_value_rule_state_provider() {
     let range_rule_id = "Invalid Rule Type/InvalidID".to_string();
     let range_state_query = range_state_provider.get_state_by_rule_id(&range_rule_id);
     assert!(range_state_query.is_none());
+
+    // A Speed-Limit Rule is created for all roads even if the XODR does not specify them.
     let range_rule_id = "Speed-Limit Rule Type/1_0_1_1".to_string();
     let range_state_query = range_state_provider.get_state_by_rule_id(&range_rule_id);
     assert!(range_state_query.is_some());
     let range_state_query = range_state_query.unwrap();
     assert_eq!(range_state_query.state.min(), 0.);
+    // The default max speed is set at 40km/h, which is 11.11111111111111 m/s.
     assert_eq!(range_state_query.state.max(), 11.11111111111111);
     assert!(range_state_query.next.is_none());
 
