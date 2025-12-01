@@ -353,10 +353,5 @@ pub mod ffi {
             rule_type: &String,
             tolerance: f64,
         ) -> UniquePtr<RangeValueRuleStateProviderQuery>;
-
-        // DiscreteValueRuleState bindings definitions.
-        // type DiscreteValueRuleState;
-        // fn DiscreteValueRuleState_rule_id(state: &DiscreteValueRuleState) -> String;
-        // fn DiscreteValueRuleState_state(state: &DiscreteValueRuleState) -> String;
     }
 }
