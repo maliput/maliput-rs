@@ -333,6 +333,13 @@ pub mod ffi {
         fn Intersection_DiscreteValueRuleStates(
             intersection: &Intersection,
         ) -> UniquePtr<CxxVector<DiscreteValueRuleState>>;
+        fn Intersection_IncludesTrafficLight(intersection: &Intersection, traffic_light_id: &String) -> bool;
+        fn Intersection_IncludesDiscreteValueRule(intersection: &Intersection, rule_id: &String) -> bool;
+        fn Intersection_IncludesInertialPosition(
+            intersection: &Intersection,
+            inertial_position: &InertialPosition,
+            road_geometry: &RoadGeometry,
+        ) -> bool;
 
         // IntersectionBook bindings definitions
         type IntersectionBook;

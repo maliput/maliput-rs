@@ -425,6 +425,18 @@ std::unique_ptr<std::vector<rules::DiscreteValueRuleState>> Intersection_Discret
   return std::make_unique<std::vector<rules::DiscreteValueRuleState>>(std::move(discrete_value_rule_states));
 }
 
+bool Intersection_IncludesTrafficLight(const Intersection& intersection, const rust::String& traffic_light_id) {
+  return intersection.Includes(rules::TrafficLight::Id{std::string(traffic_light_id)});
+}
+
+bool Intersection_IncludesDiscreteValueRule(const Intersection& intersection, const rust::String& rule_id) {
+  return intersection.Includes(rules::DiscreteValueRule::Id{std::string(rule_id)});
+}
+
+bool Intersection_IncludesInertialPosition(const Intersection& intersection, const InertialPosition& inertial_pos, const RoadGeometry& road_geometry) {
+  return intersection.Includes(inertial_pos, &road_geometry);
+}
+
 MutIntersectionPtr IntersectionBook_GetIntersection(IntersectionBook& intersection_book, const rust::String& intersection_id) {
   return {intersection_book.GetIntersection(Intersection::Id{std::string(intersection_id)})};
 }
