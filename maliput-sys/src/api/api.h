@@ -381,36 +381,34 @@ rust::String Intersection_ring_id(const Intersection& intersection) {
   return intersection.ring_id().string();
 }
 
-// std::vector<rules::UniqueBulbId> Intersection_unique_bulb_ids(const Intersection& intersection) {
-//   std::vector<rules::UniqueBulbId> bulb_ids;
-//   const auto bulb_ids_cpp = intersection.bulb_states();
+std::unique_ptr<std::vector<rules::UniqueBulbId>> Intersection_unique_bulb_ids(const Intersection& intersection) {
+  std::vector<rules::UniqueBulbId> bulb_ids;
+  const auto bulb_ids_cpp = intersection.bulb_states();
   
-//   if (!bulb_ids_cpp.has_value()) {
-//     return bulb_ids;
-//   }
+  if (!bulb_ids_cpp.has_value()) {
+    return nullptr;
+  }
   
-//   bulb_ids.reserve(bulb_ids_cpp->size());
-  
-//   for (const auto& bulb_id_pair : bulb_ids_cpp.value()) {
-//     bulb_ids.push_back(bulb_id_pair.first); 
-//   }
+  bulb_ids.reserve(bulb_ids_cpp->size());
 
-//   return bulb_ids;
-// }
+  for (const auto& bulb_id_pair : bulb_ids_cpp.value()) {
+    bulb_ids.push_back(bulb_id_pair.first); 
+  }
 
-std::unique_ptr<std::vector<rules::UniqueBulbState>> Intersection_bulb_states(const Intersection& intersection) {
-  std::vector<rules::UniqueBulbState> bulb_states;
+  return std::make_unique<std::vector<rules::UniqueBulbId>>(std::move(bulb_ids));
+}
+
+std::unique_ptr<rules::BulbState> Intersection_bulb_state(const Intersection& intersection, const rules::UniqueBulbId& bulb_id) {
   const auto bulb_states_cpp = intersection.bulb_states();
   
   if (!bulb_states_cpp.has_value()) {
     return nullptr;
   }
-  for (const auto& bulb_state_cpp : bulb_states_cpp.value()) {
-    rules::UniqueBulbState bulb_state{std::make_unique<rules::UniqueBulbId>(bulb_state_cpp.first), std::make_unique<rules::BulbState>(std::move(bulb_state_cpp.second))};
-    bulb_states.emplace_back(std::move(bulb_state));
+  const auto it = bulb_states_cpp.value().find(bulb_id);
+  if (it == bulb_states_cpp.value().end()) {
+    return nullptr;
   }
-  
-  return std::make_unique<std::vector<rules::UniqueBulbState>>(std::move(bulb_states));
+  return std::make_unique<rules::BulbState>(it->second);
 }
 
 std::unique_ptr<std::vector<rules::DiscreteValueRuleState>> Intersection_DiscreteValueRuleStates(const Intersection& intersection) {

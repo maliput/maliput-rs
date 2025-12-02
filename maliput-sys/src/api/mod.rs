@@ -88,6 +88,8 @@ pub mod ffi {
         type NextPhase = crate::api::rules::ffi::NextPhase;
         #[namespace = "maliput::api::rules"]
         type BulbState = crate::api::rules::ffi::BulbState;
+        #[namespace = "maliput::api::rules"]
+        type UniqueBulbId = crate::api::rules::ffi::UniqueBulbId;
 
         #[namespace = "maliput::api"]
         // RoadNetwork bindings definitions.
@@ -326,16 +328,11 @@ pub mod ffi {
         fn Intersection_SetPhase(intersection: Pin<&mut Intersection>, phase: &Phase, next_phase: &NextPhase);
         fn region(self: &Intersection) -> &CxxVector<LaneSRange>;
         fn Intersection_ring_id(intersection: &Intersection) -> String;
+        fn Intersection_unique_bulb_ids(intersection: &Intersection) -> UniquePtr<CxxVector<UniqueBulbId>>;
+        fn Intersection_bulb_state(intersection: &Intersection, bulb_id: &UniqueBulbId) -> UniquePtr<BulbState>;
         fn Intersection_DiscreteValueRuleStates(
             intersection: &Intersection,
         ) -> UniquePtr<CxxVector<DiscreteValueRuleState>>;
-        // fn Intersection_IncludesTrafficLight(intersection: &Intersection, traffic_light_id: &String) -> bool;
-        // fn Intersection_IncludesDiscreteValueRule(intersection: &Intersection, rule_id: &String) -> bool;
-        // fn Intersection_IncludesInertialPosition(
-        //     intersection: &Intersection,
-        //     inertial_position: &InertialPosition,
-        //     road_geometry: &RoadGeometry,
-        // ) -> bool;
 
         // IntersectionBook bindings definitions
         type IntersectionBook;
