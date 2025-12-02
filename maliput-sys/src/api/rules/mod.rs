@@ -115,6 +115,16 @@ pub mod ffi {
         pub duration_until: UniquePtr<FloatWrapper>,
     }
 
+    struct DiscreteValueNextState {
+        pub state: UniquePtr<DiscreteValueRuleDiscreteValue>,
+        pub duration_until: UniquePtr<FloatWrapper>,
+    }
+
+    struct RangeValueNextState {
+        pub state: UniquePtr<RangeValueRuleRange>,
+        pub duration_until: UniquePtr<FloatWrapper>,
+    }
+
     #[repr(i32)]
     enum BulbColor {
         kRed = 0,
@@ -149,6 +159,8 @@ pub mod ffi {
         type LaneSRange = crate::api::ffi::LaneSRange;
         #[namespace = "maliput::api"]
         type LaneSRoute = crate::api::ffi::LaneSRoute;
+        #[namespace = "maliput::api"]
+        type RoadPosition = crate::api::ffi::RoadPosition;
         #[namespace = "maliput::math"]
         type Vector3 = crate::math::ffi::Vector3;
 
@@ -297,5 +309,49 @@ pub mod ffi {
         type RuleRegistry;
         fn RuleRegistry_DiscreteValueRuleTypes(registry: &RuleRegistry) -> UniquePtr<CxxVector<DiscreteValueRuleType>>;
         fn RuleRegistry_RangeValueRuleTypes(registry: &RuleRegistry) -> UniquePtr<CxxVector<RangeValueRuleType>>;
+
+        // DiscreteValueRuleStateProviderQuery bindings definitions.
+        type DiscreteValueRuleStateProviderQuery;
+        fn DiscreteValueRuleStateProviderQuery_state(
+            state_provider_query: &DiscreteValueRuleStateProviderQuery,
+        ) -> UniquePtr<DiscreteValueRuleDiscreteValue>;
+        fn DiscreteValueRuleStateProviderQuery_next(
+            state_provider_query: &DiscreteValueRuleStateProviderQuery,
+        ) -> UniquePtr<DiscreteValueNextState>;
+
+        // DiscreteValueRuleStateProvider bindings definitions.
+        type DiscreteValueRuleStateProvider;
+        fn DiscreteValueRuleStateProvider_GetStateById(
+            state_provider: &DiscreteValueRuleStateProvider,
+            id: &String,
+        ) -> UniquePtr<DiscreteValueRuleStateProviderQuery>;
+        fn DiscreteValueRuleStateProvider_GetStateByType(
+            state_provider: &DiscreteValueRuleStateProvider,
+            road_position: &RoadPosition,
+            rule_type: &String,
+            tolerance: f64,
+        ) -> UniquePtr<DiscreteValueRuleStateProviderQuery>;
+
+        // RangeValueRuleStateProviderQuery bindings definitions.
+        type RangeValueRuleStateProviderQuery;
+        fn RangeValueRuleStateProviderQuery_state(
+            state_provider_query: &RangeValueRuleStateProviderQuery,
+        ) -> UniquePtr<RangeValueRuleRange>;
+        fn RangeValueRuleStateProviderQuery_next(
+            state_provider_query: &RangeValueRuleStateProviderQuery,
+        ) -> UniquePtr<RangeValueNextState>;
+
+        // RangeValueRuleStateProvider bindings definitions.
+        type RangeValueRuleStateProvider;
+        fn RangeValueRuleStateProvider_GetStateById(
+            state_provider: &RangeValueRuleStateProvider,
+            id: &String,
+        ) -> UniquePtr<RangeValueRuleStateProviderQuery>;
+        fn RangeValueRuleStateProvider_GetStateByType(
+            state_provider: &RangeValueRuleStateProvider,
+            road_position: &RoadPosition,
+            rule_type: &String,
+            tolerance: f64,
+        ) -> UniquePtr<RangeValueRuleStateProviderQuery>;
     }
 }
