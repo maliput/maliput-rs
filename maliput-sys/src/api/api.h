@@ -48,7 +48,6 @@
 #include <rust/cxx.h>
 
 #include "maliput-sys/src/api/mod.rs.h"
-#include "maliput-sys/src/api/rules/rules.h"
 
 namespace maliput {
 namespace api {
@@ -364,9 +363,9 @@ rust::String Intersection_id(const Intersection& intersection) {
   return intersection.id().string();
 }
 
-std::unique_ptr<rules::PhaseStateProviderQuery> Intersection_Phase(const Intersection& intersection) {
+std::unique_ptr<rules::StateProviderResult<rules::Phase::Id>> Intersection_Phase(const Intersection& intersection) {
   const auto phase_state_provider_query = intersection.Phase();
-  return phase_state_provider_query ? std::make_unique<rules::PhaseStateProviderQuery>(*phase_state_provider_query) : nullptr;
+  return phase_state_provider_query ? std::make_unique<rules::StateProviderResult<rules::Phase::Id>>(*phase_state_provider_query) : nullptr;
 }
 
 void Intersection_SetPhase(Intersection& intersection, const rules::Phase& phase, const rules::NextPhase& next_phase) {
