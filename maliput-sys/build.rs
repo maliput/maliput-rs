@@ -38,6 +38,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rerun-if-changed=src/api/mod.rs");
     println!("cargo:rerun-if-changed=src/api/rules/aliases.h");
     println!("cargo:rerun-if-changed=src/api/rules/rules.h");
+    println!("cargo:rerun-if-changed=src/api/rules/rules.cc");
     println!("cargo:rerun-if-changed=src/api/rules/mod.rs");
     println!("cargo:rerun-if-changed=src/common/common.h");
     println!("cargo:rerun-if-changed=src/common/mod.rs");

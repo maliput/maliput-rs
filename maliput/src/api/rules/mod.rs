@@ -105,19 +105,19 @@ impl<'a> TrafficLight<'a> {
     /// Get the position of the [TrafficLight] in the road network.
     ///
     /// # Returns
-    /// An [crate::api::InertialPosition] representing the position of the [TrafficLight] in the road network.
-    pub fn position_road_network(&self) -> crate::api::InertialPosition {
+    /// An [super::InertialPosition] representing the position of the [TrafficLight] in the road network.
+    pub fn position_road_network(&self) -> super::InertialPosition {
         let inertial_position = maliput_sys::api::rules::ffi::TrafficLight_position_road_network(self.traffic_light);
-        crate::api::InertialPosition { ip: inertial_position }
+        super::InertialPosition { ip: inertial_position }
     }
 
     /// Get the orientation of the [TrafficLight] in the road network.
     ///
     /// # Returns
-    /// An [crate::api::Rotation] representing the orientation of the [TrafficLight] in the road network.
-    pub fn orientation_road_network(&self) -> crate::api::Rotation {
+    /// An [super::Rotation] representing the orientation of the [TrafficLight] in the road network.
+    pub fn orientation_road_network(&self) -> super::Rotation {
         let rotation = maliput_sys::api::rules::ffi::TrafficLight_orientation_road_network(self.traffic_light);
-        crate::api::Rotation { r: rotation }
+        super::Rotation { r: rotation }
     }
 
     /// Get the bulb groups of the [TrafficLight].
@@ -235,19 +235,19 @@ impl Bulb<'_> {
     /// Get the position of the [Bulb] in the bulb group.
     ///
     /// # Returns
-    /// An [crate::api::InertialPosition] representing the position of the [Bulb] in the bulb group.
-    pub fn position_bulb_group(&self) -> crate::api::InertialPosition {
+    /// An [super::InertialPosition] representing the position of the [Bulb] in the bulb group.
+    pub fn position_bulb_group(&self) -> super::InertialPosition {
         let inertial_position = maliput_sys::api::rules::ffi::Bulb_position_bulb_group(self.bulb);
-        crate::api::InertialPosition { ip: inertial_position }
+        super::InertialPosition { ip: inertial_position }
     }
 
     /// Get the orientation of the [Bulb] in the bulb group.
     ///
     /// # Returns
-    /// An [crate::api::Rotation] representing the orientation of the [Bulb] in the bulb group.
-    pub fn orientation_bulb_group(&self) -> crate::api::Rotation {
+    /// An [super::Rotation] representing the orientation of the [Bulb] in the bulb group.
+    pub fn orientation_bulb_group(&self) -> super::Rotation {
         let rotation = maliput_sys::api::rules::ffi::Bulb_orientation_bulb_group(self.bulb);
-        crate::api::Rotation { r: rotation }
+        super::Rotation { r: rotation }
     }
 
     /// Returns the arrow's orientation. Only applicable if [Bulb::bulb_type] returns [BulbType::Arrow].
@@ -395,19 +395,19 @@ impl BulbGroup<'_> {
     /// Gets the position of the [BulbGroup] in the traffic light.
     ///
     /// # Returns
-    /// An [crate::api::InertialPosition] representing the position of the [BulbGroup] in the traffic light.
-    pub fn position_traffic_light(&self) -> crate::api::InertialPosition {
+    /// An [super::InertialPosition] representing the position of the [BulbGroup] in the traffic light.
+    pub fn position_traffic_light(&self) -> super::InertialPosition {
         let inertial_position = maliput_sys::api::rules::ffi::BulbGroup_position_traffic_light(self.bulb_group);
-        crate::api::InertialPosition { ip: inertial_position }
+        super::InertialPosition { ip: inertial_position }
     }
 
     /// Gets the orientation of the [BulbGroup] in the traffic light.
     ///
     /// # Returns
-    /// An [crate::api::Rotation] representing the orientation of the [BulbGroup] in the traffic light.
-    pub fn orientation_traffic_light(&self) -> crate::api::Rotation {
+    /// An [super::Rotation] representing the orientation of the [BulbGroup] in the traffic light.
+    pub fn orientation_traffic_light(&self) -> super::Rotation {
         let rotation = maliput_sys::api::rules::ffi::BulbGroup_orientation_traffic_light(self.bulb_group);
-        crate::api::Rotation { r: rotation }
+        super::Rotation { r: rotation }
     }
 
     /// Returns the bulbs in the bulb group.
@@ -464,7 +464,7 @@ impl BulbGroup<'_> {
 /// String representation of this ID is:
 /// "`traffic_light_id().string()`-`bulb_group_id.string()`-`bulb_id.string()`"
 pub struct UniqueBulbId {
-    unique_bulb_id: cxx::UniquePtr<maliput_sys::api::rules::ffi::UniqueBulbId>,
+    pub(crate) unique_bulb_id: cxx::UniquePtr<maliput_sys::api::rules::ffi::UniqueBulbId>,
 }
 
 impl UniqueBulbId {
@@ -797,13 +797,13 @@ impl DiscreteValueRule {
     pub fn type_id(&self) -> String {
         maliput_sys::api::rules::ffi::DiscreteValueRule_type_id(&self.discrete_value_rule)
     }
-    /// Returns a [crate::api::LaneSRoute] that represents the zone that the rule applies to.
+    /// Returns a [super::LaneSRoute] that represents the zone that the rule applies to.
     ///
     /// # Returns
-    /// A [crate::api::LaneSRoute] representing the zone of the rule.
-    pub fn zone(&self) -> crate::api::LaneSRoute {
+    /// A [super::LaneSRoute] representing the zone of the rule.
+    pub fn zone(&self) -> super::LaneSRoute {
         let lane_s_route = maliput_sys::api::rules::ffi::DiscreteValueRule_zone(&self.discrete_value_rule);
-        crate::api::LaneSRoute { lane_s_route }
+        super::LaneSRoute { lane_s_route }
     }
     /// Returns the states of the rule.
     ///
@@ -826,6 +826,15 @@ impl std::fmt::Debug for DiscreteValueRule {
             self.states()
         )
     }
+}
+
+/// Holds a `Rule` ID and the current state of that `Rule`.
+/// It is usually used as a return type for [super::Intersection::discrete_value_rule_states].
+pub struct DiscreteValueRuleState {
+    /// Rule ID.
+    pub rule_id: String,
+    /// Current state of the rule.
+    pub state: DiscreteValue,
 }
 
 /// # Rule
@@ -865,13 +874,13 @@ impl RangeValueRule {
     pub fn type_id(&self) -> String {
         maliput_sys::api::rules::ffi::RangeValueRule_type_id(&self.range_value_rule)
     }
-    /// Returns a [crate::api::LaneSRoute] that represents the zone that the rule applies to.
+    /// Returns a [super::LaneSRoute] that represents the zone that the rule applies to.
     ///
     /// # Returns
-    /// A [crate::api::LaneSRoute] representing the zone of the rule.
-    pub fn zone(&self) -> crate::api::LaneSRoute {
+    /// A [super::LaneSRoute] representing the zone of the rule.
+    pub fn zone(&self) -> super::LaneSRoute {
         let lane_s_route = maliput_sys::api::rules::ffi::RangeValueRule_zone(&self.range_value_rule);
-        crate::api::LaneSRoute { lane_s_route }
+        super::LaneSRoute { lane_s_route }
     }
     /// Returns the states of the rule.
     ///
@@ -1511,7 +1520,7 @@ fn discrete_values_from_cxx(
 }
 
 // Auxiliary method to create a [DiscreteValue] from a [maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue].
-fn discrete_value_from_discrete_value_cxx(
+pub(crate) fn discrete_value_from_discrete_value_cxx(
     discrete_value: &maliput_sys::api::rules::ffi::DiscreteValueRuleDiscreteValue,
 ) -> DiscreteValue {
     DiscreteValue {

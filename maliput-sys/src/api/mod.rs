@@ -75,6 +75,22 @@ pub mod ffi {
         type DiscreteValueRuleStateProvider = crate::api::rules::ffi::DiscreteValueRuleStateProvider;
         #[namespace = "maliput::api::rules"]
         type RangeValueRuleStateProvider = crate::api::rules::ffi::RangeValueRuleStateProvider;
+        #[namespace = "maliput::api::rules"]
+        type PhaseStateProviderQuery = crate::api::rules::ffi::PhaseStateProviderQuery;
+        #[namespace = "maliput::api::rules"]
+        type ConstBulbStateRef<'a> = crate::api::rules::ffi::ConstBulbStateRef<'a>;
+        #[namespace = "maliput::api::rules"]
+        type DiscreteValueRuleDiscreteValue = crate::api::rules::ffi::DiscreteValueRuleDiscreteValue;
+        #[namespace = "maliput::api::rules"]
+        type DiscreteValueRuleState = crate::api::rules::ffi::DiscreteValueRuleState;
+        #[namespace = "maliput::api::rules"]
+        type Phase = crate::api::rules::ffi::Phase;
+        #[namespace = "maliput::api::rules"]
+        type NextPhase = crate::api::rules::ffi::NextPhase;
+        #[namespace = "maliput::api::rules"]
+        type BulbState = crate::api::rules::ffi::BulbState;
+        #[namespace = "maliput::api::rules"]
+        type UniqueBulbId = crate::api::rules::ffi::UniqueBulbId;
 
         #[namespace = "maliput::api"]
         // RoadNetwork bindings definitions.
@@ -309,6 +325,22 @@ pub mod ffi {
         // Intersection bindings definitions
         type Intersection;
         fn Intersection_id(intersection: &Intersection) -> String;
+        fn Intersection_Phase(intersection: &Intersection) -> UniquePtr<PhaseStateProviderQuery>;
+        fn Intersection_SetPhase(intersection: Pin<&mut Intersection>, phase: &Phase, next_phase: &NextPhase);
+        fn region(self: &Intersection) -> &CxxVector<LaneSRange>;
+        fn Intersection_ring_id(intersection: &Intersection) -> String;
+        fn Intersection_unique_bulb_ids(intersection: &Intersection) -> UniquePtr<CxxVector<UniqueBulbId>>;
+        fn Intersection_bulb_state(intersection: &Intersection, bulb_id: &UniqueBulbId) -> UniquePtr<BulbState>;
+        fn Intersection_DiscreteValueRuleStates(
+            intersection: &Intersection,
+        ) -> UniquePtr<CxxVector<DiscreteValueRuleState>>;
+        fn Intersection_IncludesTrafficLight(intersection: &Intersection, traffic_light_id: &String) -> bool;
+        fn Intersection_IncludesDiscreteValueRule(intersection: &Intersection, rule_id: &String) -> bool;
+        fn Intersection_IncludesInertialPosition(
+            intersection: &Intersection,
+            inertial_position: &InertialPosition,
+            road_geometry: &RoadGeometry,
+        ) -> bool;
 
         // IntersectionBook bindings definitions
         type IntersectionBook;

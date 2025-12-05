@@ -213,6 +213,7 @@ pub mod ffi {
         fn UniqueBulbId_traffic_light_id(id: &UniqueBulbId) -> String;
         fn UniqueBulbId_bulb_group_id(id: &UniqueBulbId) -> String;
         fn UniqueBulbId_bulb_id(id: &UniqueBulbId) -> String;
+        fn UniqueBulbId_create_unique_ptr(id: &UniqueBulbId) -> UniquePtr<UniqueBulbId>;
 
         // UniqueBulbGroupId bindings definitions.
         type UniqueBulbGroupId;
