@@ -47,6 +47,10 @@
 
 #include <rust/cxx.h>
 
+// Include the rules module header to get shared struct definitions (NextPhase, DiscreteValueRuleState, etc.)
+// that are re-exported by this module.
+#include "maliput-sys/src/api/rules/mod.rs.h"
+
 #include "maliput-sys/src/api/mod.rs.h"
 
 namespace maliput {
@@ -370,7 +374,7 @@ std::unique_ptr<rules::StateProviderResult<rules::Phase::Id>> Intersection_Phase
 
 void Intersection_SetPhase(Intersection& intersection, const rules::Phase& phase, const rules::NextPhase& next_phase) {
   std::optional<double> duration_until = std::nullopt;
-  if (!next_phase.duration_until) {
+  if (next_phase.duration_until) {
     duration_until = next_phase.duration_until->value;
   }
   intersection.SetPhase(phase.id(), std::make_optional<rules::Phase::Id>(rules::Phase::Id{std::string(next_phase.phase_id)}), duration_until);
@@ -383,15 +387,15 @@ rust::String Intersection_ring_id(const Intersection& intersection) {
 std::unique_ptr<std::vector<rules::UniqueBulbId>> Intersection_unique_bulb_ids(const Intersection& intersection) {
   std::vector<rules::UniqueBulbId> bulb_ids;
   const auto bulb_ids_cpp = intersection.bulb_states();
-  
+
   if (!bulb_ids_cpp.has_value()) {
     return nullptr;
   }
-  
+
   bulb_ids.reserve(bulb_ids_cpp->size());
 
   for (const auto& bulb_id_pair : bulb_ids_cpp.value()) {
-    bulb_ids.push_back(bulb_id_pair.first); 
+    bulb_ids.push_back(bulb_id_pair.first);
   }
 
   return std::make_unique<std::vector<rules::UniqueBulbId>>(std::move(bulb_ids));
@@ -399,7 +403,7 @@ std::unique_ptr<std::vector<rules::UniqueBulbId>> Intersection_unique_bulb_ids(c
 
 std::unique_ptr<rules::BulbState> Intersection_bulb_state(const Intersection& intersection, const rules::UniqueBulbId& bulb_id) {
   const auto bulb_states_cpp = intersection.bulb_states();
-  
+
   if (!bulb_states_cpp.has_value()) {
     return nullptr;
   }
@@ -413,7 +417,7 @@ std::unique_ptr<rules::BulbState> Intersection_bulb_state(const Intersection& in
 std::unique_ptr<std::vector<rules::DiscreteValueRuleState>> Intersection_DiscreteValueRuleStates(const Intersection& intersection) {
   std::vector<rules::DiscreteValueRuleState> discrete_value_rule_states;
   const auto discrete_value_rule_states_cpp = intersection.DiscreteValueRuleStates();
-  
+
   if (!discrete_value_rule_states_cpp.has_value()) {
     return nullptr;
   }
