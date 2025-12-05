@@ -221,6 +221,10 @@ rust::String UniqueBulbGroupId_bulb_group_id(const UniqueBulbGroupId& id) {
   return id.bulb_group_id().string();
 }
 
+std::unique_ptr<UniqueBulbId> UniqueBulbId_create_unique_ptr(const UniqueBulbId& id) {
+  return std::make_unique<UniqueBulbId>(id);
+}
+
 rust::String DiscreteValueRuleDiscreteValue_value(const DiscreteValueRuleDiscreteValue& discrete_value) {
   return rust::String(discrete_value.value);
 }

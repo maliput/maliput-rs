@@ -2105,6 +2105,137 @@ impl<'a> Intersection<'a> {
     pub fn id(&self) -> String {
         maliput_sys::api::ffi::Intersection_id(self.intersection)
     }
+    /// Returns the current `phase` of the [Intersection].
+    ///
+    /// Based on the current `phase`, it returns a [rules::StateProviderQuery] with the phase's ID
+    /// and the next state.
+    ///
+    /// # Returns
+    /// A [rules::StateProviderQuery] for the current [rules::Phase].
+    pub fn phase(&self) -> rules::StateProviderQuery<String> {
+        let query = maliput_sys::api::ffi::Intersection_Phase(self.intersection);
+        let next_state = maliput_sys::api::rules::ffi::PhaseStateProvider_next(&query);
+        let next_state = if next_state.is_null() {
+            None
+        } else {
+            Some(rules::NextState {
+                next_state: next_state.phase_id.clone(),
+                duration_until: if next_state.duration_until.is_null() {
+                    None
+                } else {
+                    Some(next_state.duration_until.value)
+                },
+            })
+        };
+        rules::StateProviderQuery {
+            state: maliput_sys::api::rules::ffi::PhaseStateProvider_state(&query),
+            next: next_state,
+        }
+    }
+    /// Returns the region of the `RoadNetwork` that is considered part of the `Intersection`.
+    ///
+    /// # Returns
+    /// A vector of [LaneSRange]s where the intersection lives.
+    pub fn region(&self) -> Vec<LaneSRange> {
+        self.intersection
+            .region()
+            .iter()
+            .map(|region| LaneSRange {
+                lane_s_range: maliput_sys::api::ffi::LaneSRange_new(
+                    &maliput_sys::api::ffi::LaneSRange_lane_id(region),
+                    &maliput_sys::api::ffi::LaneSRange_s_range(region),
+                ),
+            })
+            .collect::<Vec<LaneSRange>>()
+    }
+    /// Returns the ID of the [rules::PhaseRing] that applies to this intersection.
+    ///
+    /// # Returns
+    /// A `String` with the ID of a [rules::PhaseRing].
+    pub fn phase_ring_id(&self) -> String {
+        maliput_sys::api::ffi::Intersection_ring_id(self.intersection)
+    }
+    pub fn bulb_ids(&self) -> Vec<rules::UniqueBulbId> {
+        maliput_sys::api::ffi::Intersection_unique_bulb_ids(self.intersection)
+            .iter()
+            .map(|unique_bulb_id| rules::UniqueBulbId {
+                unique_bulb_id: maliput_sys::api::rules::ffi::UniqueBulbId_create_unique_ptr(unique_bulb_id),
+            })
+            .collect()
+    }
+    /// Returns the current [rules::BulbState]s within the `Intersection`.
+    ///
+    /// # Returns
+    /// A vector of [rules::BulbState]s.
+    pub fn get_bulb_state(&self, unique_bulb_id: rules::UniqueBulbId) -> Option<rules::BulbState> {
+        let bulb_state =
+            maliput_sys::api::ffi::Intersection_bulb_state(self.intersection, &unique_bulb_id.unique_bulb_id);
+        if bulb_state.is_null() {
+            return None;
+        }
+        match *bulb_state {
+            maliput_sys::api::ffi::BulbState::kOn => Some(rules::BulbState::On),
+            maliput_sys::api::ffi::BulbState::kOff => Some(rules::BulbState::Off),
+            maliput_sys::api::ffi::BulbState::kBlinking => Some(rules::BulbState::Blinking),
+            _ => None,
+        }
+    }
+    /// Returns the current discrete value rule states within the intersection.
+    pub fn discrete_value_rule_states(&self) -> Vec<rules::DiscreteValueRuleState> {
+        maliput_sys::api::ffi::Intersection_DiscreteValueRuleStates(self.intersection)
+            .iter()
+            .map(|dvrs| rules::DiscreteValueRuleState {
+                rule_id: dvrs.rule_id.clone(),
+                state: rules::discrete_value_from_discrete_value_cxx(&dvrs.state),
+            })
+            .collect::<Vec<rules::DiscreteValueRuleState>>()
+    }
+    /// Determines whether the [rules::TrafficLight] is within this [Intersection].
+    ///
+    /// # Arguments
+    /// * `traffic_light_id` - A [rules::TrafficLight] ID.
+    ///
+    /// # Returns
+    /// True when `traffic_light_id` is within this [Intersection].
+    pub fn includes_traffic_light(&self, traffic_light_id: &str) -> bool {
+        maliput_sys::api::ffi::Intersection_IncludesTrafficLight(self.intersection, &traffic_light_id.to_string())
+    }
+    /// Determines whether the [rules::DiscreteValueRule] is within this [Intersection].
+    ///
+    /// # Arguments
+    /// * `rule_id` - A [rules::DiscreteValueRule] ID.
+    ///
+    /// # Returns
+    /// True when `rule_id` is within this [Intersection].
+    pub fn includes_discrete_value_rule(&self, rule_id: &str) -> bool {
+        maliput_sys::api::ffi::Intersection_IncludesDiscreteValueRule(self.intersection, &rule_id.to_string())
+    }
+    /// Determines whether `inertial_position` is within this [Intersection::region].
+    ///
+    /// `inertial_position` is contained if the distance to the closest LanePosition in
+    /// [Intersection::region] is less or equal than the linear tolerance of the `road_geometry`.
+    ///
+    /// # Arguments
+    /// * `inertial_position` -  An [InertialPosition] in the `Inertial`-frame.
+    /// * `road_geometry` - The [RoadGeometry].
+    ///
+    /// # Returns
+    /// True when `inertial_position` is within [Intersection::region]. False otherwise.
+    pub fn includes_inertial_position(
+        &self,
+        inertial_position: &InertialPosition,
+        road_geometry: &RoadGeometry,
+    ) -> bool {
+        maliput_sys::api::ffi::Intersection_IncludesInertialPosition(
+            self.intersection,
+            &maliput_sys::api::ffi::InertialPosition_new(
+                inertial_position.x(),
+                inertial_position.y(),
+                inertial_position.z(),
+            ),
+            road_geometry.rg,
+        )
+    }
 }
 
 /// A book of Intersections.
