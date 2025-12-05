@@ -75,6 +75,7 @@ pub mod ffi {
         type DiscreteValueRuleStateProvider = crate::api::rules::ffi::DiscreteValueRuleStateProvider;
         #[namespace = "maliput::api::rules"]
         type RangeValueRuleStateProvider = crate::api::rules::ffi::RangeValueRuleStateProvider;
+        #[namespace = "maliput::api::rules"]
         type PhaseStateProviderQuery = crate::api::rules::ffi::PhaseStateProviderQuery;
         #[namespace = "maliput::api::rules"]
         type ConstBulbStateRef<'a> = crate::api::rules::ffi::ConstBulbStateRef<'a>;
