@@ -2276,6 +2276,81 @@ impl<'a> IntersectionBook<'a> {
         };
         intersection_option.map(|intersection| Intersection { intersection })
     }
+
+    /// Finds the [Intersection] which contains the `traffic_light_id`.
+    ///
+    /// # Arguments
+    /// * `traffic_light_id` - A String with the ID of a [rules::TrafficLight].
+    ///
+    /// # Returns
+    /// The [Intersection] which contains the `traffic_light_id`.
+    pub fn find_intersection_traffic_light(&self, traffic_light_id: &str) -> Option<Intersection<'_>> {
+        let intersection = maliput_sys::api::ffi::IntersectionBook_FindIntersectionTrafficLight(
+            self.intersection_book,
+            &String::from(traffic_light_id),
+        );
+        if intersection.intersection.is_null() {
+            return None;
+        }
+        unsafe {
+            Some(Intersection {
+                intersection: intersection
+                    .intersection
+                    .as_ref()
+                    .expect("Underlying Intersection is null"),
+            })
+        }
+    }
+
+    /// Finds the [Intersection] which contains the `rule_id`.
+    ///
+    /// # Arguments
+    /// * `rule_id` - A String with the ID of a [rules::DiscreteValueRule].
+    ///
+    /// # Returns
+    /// The [Intersection] which contains the `rule_id`.
+    pub fn find_intersection_discrete_value_rule(&self, rule_id: &str) -> Option<Intersection<'_>> {
+        let intersection = maliput_sys::api::ffi::IntersectionBook_FindIntersectionDiscreteValueRule(
+            self.intersection_book,
+            &String::from(rule_id),
+        );
+        if intersection.intersection.is_null() {
+            return None;
+        }
+        unsafe {
+            Some(Intersection {
+                intersection: intersection
+                    .intersection
+                    .as_ref()
+                    .expect("Underlying Intersection is null"),
+            })
+        }
+    }
+
+    /// Finds the [Intersection] which contains the `inertial_position`.
+    ///
+    /// # Arguments
+    /// * `inertial_position` - An [InertialPosition] to find the [Intersection] for.
+    ///
+    /// # Returns
+    /// The [Intersection] which contains the `inertial_position`.
+    pub fn find_intersection_inertial_position(&self, inertial_position: &InertialPosition) -> Option<Intersection<'_>> {
+        let intersection = maliput_sys::api::ffi::IntersectionBook_FindIntersectionInertialPosition(
+            self.intersection_book,
+            &inertial_position.ip,
+        );
+        if intersection.intersection.is_null() {
+            return None;
+        }
+        unsafe {
+            Some(Intersection {
+                intersection: intersection
+                    .intersection
+                    .as_ref()
+                    .expect("Underlying Intersection is null"),
+            })
+        }
+    }
 }
 
 mod tests {
