@@ -2284,7 +2284,7 @@ impl<'a> IntersectionBook<'a> {
     ///
     /// # Returns
     /// The [Intersection] which contains the `traffic_light_id`.
-    pub fn find_intersection_traffic_light(&self, traffic_light_id: &str) -> Option<Intersection<'_>> {
+    pub fn find_intersection_with_traffic_light(&self, traffic_light_id: &str) -> Option<Intersection<'_>> {
         let intersection = maliput_sys::api::ffi::IntersectionBook_FindIntersectionTrafficLight(
             self.intersection_book,
             &String::from(traffic_light_id),
@@ -2309,7 +2309,7 @@ impl<'a> IntersectionBook<'a> {
     ///
     /// # Returns
     /// The [Intersection] which contains the `rule_id`.
-    pub fn find_intersection_discrete_value_rule(&self, rule_id: &str) -> Option<Intersection<'_>> {
+    pub fn find_intersection_with_discrete_value_rule(&self, rule_id: &str) -> Option<Intersection<'_>> {
         let intersection = maliput_sys::api::ffi::IntersectionBook_FindIntersectionDiscreteValueRule(
             self.intersection_book,
             &String::from(rule_id),
@@ -2334,7 +2334,7 @@ impl<'a> IntersectionBook<'a> {
     ///
     /// # Returns
     /// The [Intersection] which contains the `inertial_position`.
-    pub fn find_intersection_inertial_position(&self, inertial_position: &InertialPosition) -> Option<Intersection<'_>> {
+    pub fn find_intersection_with_inertial_position(&self, inertial_position: &InertialPosition) -> Option<Intersection<'_>> {
         let intersection = maliput_sys::api::ffi::IntersectionBook_FindIntersectionInertialPosition(
             self.intersection_book,
             &inertial_position.ip,
