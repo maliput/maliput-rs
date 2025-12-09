@@ -438,8 +438,7 @@ bool Intersection_IncludesInertialPosition(const Intersection& intersection, con
 }
 
 ConstIntersectionPtr IntersectionBook_GetIntersection(const IntersectionBook& intersection_book, const rust::String& intersection_id) {
-  auto* intersection = const_cast<IntersectionBook&>(intersection_book).GetIntersection(Intersection::Id{std::string(intersection_id)});
-  return {intersection};
+  return {const_cast<IntersectionBook&>(intersection_book).GetIntersection(Intersection::Id{std::string(intersection_id)})};
 }
 
 // IntersectionBook_GetIntersections
@@ -451,6 +450,18 @@ std::unique_ptr<std::vector<ConstIntersectionPtr>> IntersectionBook_GetIntersect
     intersections.push_back(ConstIntersectionPtr{intersection});
   }
   return std::make_unique<std::vector<ConstIntersectionPtr>>(std::move(intersections));
+}
+
+ConstIntersectionPtr IntersectionBook_FindIntersectionTrafficLight(const IntersectionBook& intersection_book, const rust::String& traffic_light_id) {
+  return {const_cast<IntersectionBook&>(intersection_book).FindIntersection(rules::TrafficLight::Id{std::string(traffic_light_id)})};
+}
+
+ConstIntersectionPtr IntersectionBook_FindIntersectionDiscreteValueRule(const IntersectionBook& intersection_book, const rust::String& rule_id) {
+  return {const_cast<IntersectionBook&>(intersection_book).FindIntersection(rules::DiscreteValueRule::Id{std::string(rule_id)})};
+}
+
+ConstIntersectionPtr IntersectionBook_FindIntersectionInertialPosition(const IntersectionBook& intersection_book, const InertialPosition& inertial_pos) {
+  return {const_cast<IntersectionBook&>(intersection_book).FindIntersection(inertial_pos)};
 }
 
 } // namespace api

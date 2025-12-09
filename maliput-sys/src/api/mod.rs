@@ -343,6 +343,18 @@ pub mod ffi {
         type IntersectionBook;
         fn IntersectionBook_GetIntersection(book: &IntersectionBook, id: &String) -> ConstIntersectionPtr;
         fn IntersectionBook_GetIntersections(book: &IntersectionBook) -> UniquePtr<CxxVector<ConstIntersectionPtr>>;
+        fn IntersectionBook_FindIntersectionTrafficLight(
+            book: &IntersectionBook,
+            traffic_light_id: &String,
+        ) -> ConstIntersectionPtr;
+        fn IntersectionBook_FindIntersectionDiscreteValueRule(
+            book: &IntersectionBook,
+            rule_id: &String,
+        ) -> ConstIntersectionPtr;
+        fn IntersectionBook_FindIntersectionInertialPosition(
+            book: &IntersectionBook,
+            inertial_position: &InertialPosition,
+        ) -> ConstIntersectionPtr;
 
     }
     impl UniquePtr<RoadNetwork> {}
