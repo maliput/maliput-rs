@@ -76,7 +76,7 @@ struct DiscreteValueNextState;
 struct RangeValueNextState;
 struct ConstLaneSRangeRef;
 
-// Function declarations - implementations are in rules_impl.cc
+// Function declarations - implementations are in rules.cc
 
 std::unique_ptr<std::vector<ConstTrafficLightPtr>> TrafficLightBook_TrafficLights(const TrafficLightBook& traffic_light_book);
 const TrafficLight* TrafficLightBook_GetTrafficLight(const TrafficLightBook& traffic_light_book, const rust::String& id);

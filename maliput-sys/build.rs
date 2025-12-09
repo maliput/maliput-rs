@@ -65,6 +65,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         "src/plugin/mod.rs",
         "src/common/mod.rs",
     ])
+    .file("src/api/rules/rules.cc")
     .flag_if_supported("-std=c++17")
     .include("src")
     .compile("maliput-sys");
