@@ -57,7 +57,12 @@ namespace maliput {
 namespace api {
 
 struct ConstLanePtr;
-struct MutIntersectionPtr;
+struct ConstIntersectionPtr;
+
+/// Gets the `RoadNetowrk`s read-only `IntersectionBook`.
+const maliput::api::IntersectionBook* RoadNetwork_intersection_book(const RoadNetwork& road_network) {
+    return const_cast<RoadNetwork&>(road_network).intersection_book();
+}
 
 /// Gets the `RoadNetowrk`s read-only `PhaseProvider`.
 const maliput::api::rules::PhaseProvider* RoadNetwork_phase_provider(const RoadNetwork& road_network) {
@@ -372,14 +377,6 @@ std::unique_ptr<rules::StateProviderResult<rules::Phase::Id>> Intersection_Phase
   return phase_state_provider_query ? std::make_unique<rules::StateProviderResult<rules::Phase::Id>>(*phase_state_provider_query) : nullptr;
 }
 
-void Intersection_SetPhase(Intersection& intersection, const rules::Phase& phase, const rules::NextPhase& next_phase) {
-  std::optional<double> duration_until = std::nullopt;
-  if (next_phase.duration_until) {
-    duration_until = next_phase.duration_until->value;
-  }
-  intersection.SetPhase(phase.id(), std::make_optional<rules::Phase::Id>(rules::Phase::Id{std::string(next_phase.phase_id)}), duration_until);
-}
-
 rust::String Intersection_ring_id(const Intersection& intersection) {
   return intersection.ring_id().string();
 }
@@ -440,19 +437,20 @@ bool Intersection_IncludesInertialPosition(const Intersection& intersection, con
   return intersection.Includes(inertial_pos, &road_geometry);
 }
 
-MutIntersectionPtr IntersectionBook_GetIntersection(IntersectionBook& intersection_book, const rust::String& intersection_id) {
-  return {intersection_book.GetIntersection(Intersection::Id{std::string(intersection_id)})};
+ConstIntersectionPtr IntersectionBook_GetIntersection(const IntersectionBook& intersection_book, const rust::String& intersection_id) {
+  auto* intersection = const_cast<IntersectionBook&>(intersection_book).GetIntersection(Intersection::Id{std::string(intersection_id)});
+  return {intersection};
 }
 
 // IntersectionBook_GetIntersections
-std::unique_ptr<std::vector<MutIntersectionPtr>> IntersectionBook_GetIntersections(IntersectionBook& intersection_book) {
-  const auto intersections_cpp = intersection_book.GetIntersections();
-  std::vector<MutIntersectionPtr> intersections;
+std::unique_ptr<std::vector<ConstIntersectionPtr>> IntersectionBook_GetIntersections(const IntersectionBook& intersection_book) {
+  auto intersections_cpp = const_cast<IntersectionBook&>(intersection_book).GetIntersections();
+  std::vector<ConstIntersectionPtr> intersections;
   intersections.reserve(intersections_cpp.size());
   for (const auto& intersection : intersections_cpp) {
-    intersections.push_back(MutIntersectionPtr{intersection});
+    intersections.push_back(ConstIntersectionPtr{intersection});
   }
-  return std::make_unique<std::vector<MutIntersectionPtr>>(std::move(intersections));
+  return std::make_unique<std::vector<ConstIntersectionPtr>>(std::move(intersections));
 }
 
 } // namespace api

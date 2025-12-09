@@ -31,13 +31,13 @@ mod common;
 
 #[test]
 fn intersection_api() {
-    let mut road_network = common::create_t_shape_road_network_with_books();
+    let road_network = common::create_t_shape_road_network_with_books();
     let expected_intersection_id = String::from("TIntersection");
 
     let road_geometry = road_network.road_geometry();
     assert_eq!(road_geometry.id(), "my_rg_from_rust");
 
-    let mut book = road_network.intersection_book();
+    let book = road_network.intersection_book();
     let intersections = book.get_intersections();
     assert_eq!(intersections.len(), 1);
     intersections.iter().for_each(|intersection| {

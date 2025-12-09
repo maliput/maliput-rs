@@ -118,16 +118,12 @@ impl RoadNetwork {
         }
     }
     /// Get the `IntersectionBook` of the `RoadNetwork`.
-    pub fn intersection_book(&mut self) -> IntersectionBook<'_> {
-        let intersection_book_ffi = self
-            .rn
-            .as_mut()
-            .expect("Underlying RoadNetwork is null")
-            .intersection_book();
+    pub fn intersection_book(&self) -> IntersectionBook<'_> {
+        let intersection_book_ffi = maliput_sys::api::ffi::RoadNetwork_intersection_book(&self.rn);
         IntersectionBook {
             intersection_book: unsafe {
                 intersection_book_ffi
-                    .as_mut()
+                    .as_ref()
                     .expect("Underlying IntersectionBook is null")
             },
         }
@@ -2097,7 +2093,7 @@ impl<'a> BranchPoint<'a> {
 /// information and to remove the need for users to query numerous disparate
 /// data structures and state providers.
 pub struct Intersection<'a> {
-    intersection: &'a mut maliput_sys::api::ffi::Intersection,
+    intersection: &'a maliput_sys::api::ffi::Intersection,
 }
 
 impl<'a> Intersection<'a> {
@@ -2240,7 +2236,7 @@ impl<'a> Intersection<'a> {
 
 /// A book of Intersections.
 pub struct IntersectionBook<'a> {
-    intersection_book: &'a mut maliput_sys::api::ffi::IntersectionBook,
+    intersection_book: &'a maliput_sys::api::ffi::IntersectionBook,
 }
 
 impl<'a> IntersectionBook<'a> {
@@ -2248,16 +2244,15 @@ impl<'a> IntersectionBook<'a> {
     ///
     /// # Returns
     /// A vector of [Intersection]s containing all Intersections in the book.
-    pub fn get_intersections(&mut self) -> Vec<Intersection<'_>> {
-        let book_pin = unsafe { std::pin::Pin::new_unchecked(&mut *self.intersection_book) };
-        let intersections_cpp = maliput_sys::api::ffi::IntersectionBook_GetIntersections(book_pin);
+    pub fn get_intersections(&self) -> Vec<Intersection<'_>> {
+        let intersections_cpp = maliput_sys::api::ffi::IntersectionBook_GetIntersections(self.intersection_book);
         unsafe {
             intersections_cpp
                 .into_iter()
                 .map(|intersection| Intersection {
                     intersection: intersection
                         .intersection
-                        .as_mut()
+                        .as_ref()
                         .expect("Underlying Intersection is null"),
                 })
                 .collect::<Vec<Intersection>>()
@@ -2273,19 +2268,13 @@ impl<'a> IntersectionBook<'a> {
     ///   * An `Option<Intersection>`
     ///     * Some(Intersection) - The Intersection with the specified id.
     ///     * None - If the Intersection with the specified id does not exist.
-    pub fn get_intersection(&mut self, id: &str) -> Option<Intersection<'_>> {
-        let book_pin = unsafe { std::pin::Pin::new_unchecked(&mut *self.intersection_book) };
+    pub fn get_intersection(&self, id: &str) -> Option<Intersection<'_>> {
         let intersection_option = unsafe {
-            maliput_sys::api::ffi::IntersectionBook_GetIntersection(book_pin, &String::from(id))
+            maliput_sys::api::ffi::IntersectionBook_GetIntersection(self.intersection_book, &String::from(id))
                 .intersection
-                .as_mut()
+                .as_ref()
         };
-        match &intersection_option {
-            None => None,
-            Some(_) => Some(Intersection {
-                intersection: intersection_option.expect("Underlying Intersection is null"),
-            }),
-        }
+        intersection_option.map(|intersection| Intersection { intersection })
     }
 }
 

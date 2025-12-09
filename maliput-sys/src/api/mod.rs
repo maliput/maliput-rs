@@ -40,8 +40,8 @@ pub mod ffi {
     }
     /// Shared struct for `Intersection` pointers.
     /// This is needed because `*mut Intersection` can't be used directly in the CxxVector collection.
-    struct MutIntersectionPtr {
-        pub intersection: *mut Intersection,
+    struct ConstIntersectionPtr {
+        pub intersection: *const Intersection,
     }
     /// Shared struct for `LaneSRange` references.
     /// This is needed because `&f` can't be used directly in the CxxVector collection.
@@ -78,8 +78,6 @@ pub mod ffi {
         #[namespace = "maliput::api::rules"]
         type PhaseStateProviderQuery = crate::api::rules::ffi::PhaseStateProviderQuery;
         #[namespace = "maliput::api::rules"]
-        type ConstBulbStateRef<'a> = crate::api::rules::ffi::ConstBulbStateRef<'a>;
-        #[namespace = "maliput::api::rules"]
         type DiscreteValueRuleDiscreteValue = crate::api::rules::ffi::DiscreteValueRuleDiscreteValue;
         #[namespace = "maliput::api::rules"]
         type DiscreteValueRuleState = crate::api::rules::ffi::DiscreteValueRuleState;
@@ -96,7 +94,7 @@ pub mod ffi {
         // RoadNetwork bindings definitions.
         type RoadNetwork;
         fn road_geometry(self: &RoadNetwork) -> *const RoadGeometry;
-        fn intersection_book(self: Pin<&mut RoadNetwork>) -> *mut IntersectionBook;
+        fn RoadNetwork_intersection_book(road_network: &RoadNetwork) -> *const IntersectionBook;
         fn traffic_light_book(self: &RoadNetwork) -> *const TrafficLightBook;
         fn rulebook(self: &RoadNetwork) -> *const RoadRulebook;
         fn phase_ring_book(self: &RoadNetwork) -> *const PhaseRingBook;
@@ -326,7 +324,6 @@ pub mod ffi {
         type Intersection;
         fn Intersection_id(intersection: &Intersection) -> String;
         fn Intersection_Phase(intersection: &Intersection) -> UniquePtr<PhaseStateProviderQuery>;
-        fn Intersection_SetPhase(intersection: Pin<&mut Intersection>, phase: &Phase, next_phase: &NextPhase);
         fn region(self: &Intersection) -> &CxxVector<LaneSRange>;
         fn Intersection_ring_id(intersection: &Intersection) -> String;
         fn Intersection_unique_bulb_ids(intersection: &Intersection) -> UniquePtr<CxxVector<UniqueBulbId>>;
@@ -344,10 +341,8 @@ pub mod ffi {
 
         // IntersectionBook bindings definitions
         type IntersectionBook;
-        fn IntersectionBook_GetIntersection(book: Pin<&mut IntersectionBook>, id: &String) -> MutIntersectionPtr;
-        fn IntersectionBook_GetIntersections(
-            book: Pin<&mut IntersectionBook>,
-        ) -> UniquePtr<CxxVector<MutIntersectionPtr>>;
+        fn IntersectionBook_GetIntersection(book: &IntersectionBook, id: &String) -> ConstIntersectionPtr;
+        fn IntersectionBook_GetIntersections(book: &IntersectionBook) -> UniquePtr<CxxVector<ConstIntersectionPtr>>;
 
     }
     impl UniquePtr<RoadNetwork> {}
