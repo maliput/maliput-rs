@@ -46,3 +46,54 @@ fn test_intersection_book_api() {
     let intersection = intersection_book.get_intersection("Invalid Intersection");
     assert!(intersection.is_none());
 }
+
+#[test]
+fn test_intersection_book_find_intersection_api() {
+    use maliput::api::{InertialPosition, LanePosition};
+
+    let road_network = common::create_t_shape_road_network_with_books();
+    let intersection_book = road_network.intersection_book();
+    let intersection = intersection_book.get_intersection("TIntersection").unwrap();
+
+    // Test find_intersection_with_traffic_light()
+    let bulb_ids = intersection.bulb_ids();
+    assert!(!bulb_ids.is_empty());
+    let traffic_light_id = bulb_ids[0].traffic_light_id();
+    let found_intersection = intersection_book.find_intersection_with_traffic_light(&traffic_light_id);
+    assert!(found_intersection.is_some());
+    assert_eq!(found_intersection.unwrap().id(), "TIntersection");
+    let found_intersection = intersection_book.find_intersection_with_traffic_light("EastFacing");
+    assert!(found_intersection.is_some());
+    assert_eq!(found_intersection.unwrap().id(), "TIntersection");
+    let found_intersection = intersection_book.find_intersection_with_traffic_light("InvalidId");
+    assert!(found_intersection.is_none());
+
+    // Test find_intersection_with_discrete_value_rule()
+    let discrete_value_rule_states = intersection.discrete_value_rule_states();
+    assert!(!discrete_value_rule_states.is_empty());
+    let rule_id = &discrete_value_rule_states[0].rule_id;
+    let found_intersection = intersection_book.find_intersection_with_discrete_value_rule(rule_id);
+    assert!(found_intersection.is_some());
+    assert_eq!(found_intersection.unwrap().id(), "TIntersection");
+    let found_intersection =
+        intersection_book.find_intersection_with_discrete_value_rule("Right-Of-Way Rule Type/EastApproach");
+    assert!(found_intersection.is_some());
+    assert_eq!(found_intersection.unwrap().id(), "TIntersection");
+    let found_intersection = intersection_book.find_intersection_with_discrete_value_rule("InvalidId");
+    assert!(found_intersection.is_none());
+
+    // Test find_intersection_with_inertial_position()
+    let road_geometry = road_network.road_geometry();
+    let intersection_lanes_s_ranges = intersection.region();
+    let lane_s_range = &intersection_lanes_s_ranges[0];
+    let lane = road_geometry.get_lane(&lane_s_range.lane_id()).unwrap();
+    let s_range = lane_s_range.s_range();
+    let lane_pos = LanePosition::new((s_range.s0() + s_range.s1()) / 2., 0., 0.);
+    let inertial_pos = lane.to_inertial_position(&lane_pos).unwrap();
+    let found_intersection = intersection_book.find_intersection_with_inertial_position(&inertial_pos);
+    assert!(found_intersection.is_some());
+    assert_eq!(found_intersection.unwrap().id(), "TIntersection");
+    let inertial_pos_outside = InertialPosition::new(1e6, 1e6, 1e6);
+    let found_intersection = intersection_book.find_intersection_with_inertial_position(&inertial_pos_outside);
+    assert!(found_intersection.is_none());
+}
