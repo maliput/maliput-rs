@@ -1,7 +1,10 @@
 [package]
 name = "maliput"
-version = "0.12.0"
-authors = ["Franco Cipollone <franco.c@ekumenlabs.com>"]
+version = "0.13.0"
+authors = [
+  "Franco Cipollone <franco.c@ekumenlabs.com>",
+  "Santiago Lopez <santiago.lopez@ekumenlabs.com>",
+]
 categories = ["simulation"]
 description = "Rust API for maliput"
 documentation = "https://maliput.github.io/maliput-rs/maliput"
