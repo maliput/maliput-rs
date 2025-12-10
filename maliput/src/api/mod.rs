@@ -2334,7 +2334,10 @@ impl<'a> IntersectionBook<'a> {
     ///
     /// # Returns
     /// The [Intersection] which contains the `inertial_position`.
-    pub fn find_intersection_with_inertial_position(&self, inertial_position: &InertialPosition) -> Option<Intersection<'_>> {
+    pub fn find_intersection_with_inertial_position(
+        &self,
+        inertial_position: &InertialPosition,
+    ) -> Option<Intersection<'_>> {
         let intersection = maliput_sys::api::ffi::IntersectionBook_FindIntersectionInertialPosition(
             self.intersection_book,
             &inertial_position.ip,
