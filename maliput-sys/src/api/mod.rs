@@ -40,8 +40,8 @@ pub mod ffi {
     }
     /// Shared struct for `Intersection` pointers.
     /// This is needed because `*mut Intersection` can't be used directly in the CxxVector collection.
-    struct ConstIntersectionPtr {
-        pub intersection: *const Intersection,
+    struct MutIntersectionPtr {
+        pub intersection: *mut Intersection,
     }
     /// Shared struct for `LaneSRange` references.
     /// This is needed because `&f` can't be used directly in the CxxVector collection.
@@ -341,20 +341,20 @@ pub mod ffi {
 
         // IntersectionBook bindings definitions
         type IntersectionBook;
-        fn IntersectionBook_GetIntersection(book: &IntersectionBook, id: &String) -> ConstIntersectionPtr;
-        fn IntersectionBook_GetIntersections(book: &IntersectionBook) -> UniquePtr<CxxVector<ConstIntersectionPtr>>;
+        fn IntersectionBook_GetIntersection(book: &IntersectionBook, id: &String) -> MutIntersectionPtr;
+        fn IntersectionBook_GetIntersections(book: &IntersectionBook) -> UniquePtr<CxxVector<MutIntersectionPtr>>;
         fn IntersectionBook_FindIntersectionTrafficLight(
             book: &IntersectionBook,
             traffic_light_id: &String,
-        ) -> ConstIntersectionPtr;
+        ) -> MutIntersectionPtr;
         fn IntersectionBook_FindIntersectionDiscreteValueRule(
             book: &IntersectionBook,
             rule_id: &String,
-        ) -> ConstIntersectionPtr;
+        ) -> MutIntersectionPtr;
         fn IntersectionBook_FindIntersectionInertialPosition(
             book: &IntersectionBook,
             inertial_position: &InertialPosition,
-        ) -> ConstIntersectionPtr;
+        ) -> MutIntersectionPtr;
 
     }
     impl UniquePtr<RoadNetwork> {}

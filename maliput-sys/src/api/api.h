@@ -57,7 +57,7 @@ namespace maliput {
 namespace api {
 
 struct ConstLanePtr;
-struct ConstIntersectionPtr;
+struct MutIntersectionPtr;
 
 /// Gets the `RoadNetowrk`s read-only `IntersectionBook`.
 const maliput::api::IntersectionBook* RoadNetwork_intersection_book(const RoadNetwork& road_network) {
@@ -437,30 +437,30 @@ bool Intersection_IncludesInertialPosition(const Intersection& intersection, con
   return intersection.Includes(inertial_pos, &road_geometry);
 }
 
-ConstIntersectionPtr IntersectionBook_GetIntersection(const IntersectionBook& intersection_book, const rust::String& intersection_id) {
+MutIntersectionPtr IntersectionBook_GetIntersection(const IntersectionBook& intersection_book, const rust::String& intersection_id) {
   return {const_cast<IntersectionBook&>(intersection_book).GetIntersection(Intersection::Id{std::string(intersection_id)})};
 }
 
 // IntersectionBook_GetIntersections
-std::unique_ptr<std::vector<ConstIntersectionPtr>> IntersectionBook_GetIntersections(const IntersectionBook& intersection_book) {
+std::unique_ptr<std::vector<MutIntersectionPtr>> IntersectionBook_GetIntersections(const IntersectionBook& intersection_book) {
   auto intersections_cpp = const_cast<IntersectionBook&>(intersection_book).GetIntersections();
-  std::vector<ConstIntersectionPtr> intersections;
+  std::vector<MutIntersectionPtr> intersections;
   intersections.reserve(intersections_cpp.size());
   for (const auto& intersection : intersections_cpp) {
-    intersections.push_back(ConstIntersectionPtr{intersection});
+    intersections.push_back(MutIntersectionPtr{intersection});
   }
-  return std::make_unique<std::vector<ConstIntersectionPtr>>(std::move(intersections));
+  return std::make_unique<std::vector<MutIntersectionPtr>>(std::move(intersections));
 }
 
-ConstIntersectionPtr IntersectionBook_FindIntersectionTrafficLight(const IntersectionBook& intersection_book, const rust::String& traffic_light_id) {
+MutIntersectionPtr IntersectionBook_FindIntersectionTrafficLight(const IntersectionBook& intersection_book, const rust::String& traffic_light_id) {
   return {const_cast<IntersectionBook&>(intersection_book).FindIntersection(rules::TrafficLight::Id{std::string(traffic_light_id)})};
 }
 
-ConstIntersectionPtr IntersectionBook_FindIntersectionDiscreteValueRule(const IntersectionBook& intersection_book, const rust::String& rule_id) {
+MutIntersectionPtr IntersectionBook_FindIntersectionDiscreteValueRule(const IntersectionBook& intersection_book, const rust::String& rule_id) {
   return {const_cast<IntersectionBook&>(intersection_book).FindIntersection(rules::DiscreteValueRule::Id{std::string(rule_id)})};
 }
 
-ConstIntersectionPtr IntersectionBook_FindIntersectionInertialPosition(const IntersectionBook& intersection_book, const InertialPosition& inertial_pos) {
+MutIntersectionPtr IntersectionBook_FindIntersectionInertialPosition(const IntersectionBook& intersection_book, const InertialPosition& inertial_pos) {
   return {const_cast<IntersectionBook&>(intersection_book).FindIntersection(inertial_pos)};
 }
 
