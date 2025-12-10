@@ -47,6 +47,10 @@
 
 #include <rust/cxx.h>
 
+// Include the rules module header to get shared struct definitions (NextPhase, DiscreteValueRuleState, etc.)
+// that are re-exported by this module.
+#include "maliput-sys/src/api/rules/mod.rs.h"
+
 #include "maliput-sys/src/api/mod.rs.h"
 
 namespace maliput {
@@ -54,6 +58,11 @@ namespace api {
 
 struct ConstLanePtr;
 struct MutIntersectionPtr;
+
+/// Gets the `RoadNetowrk`s read-only `IntersectionBook`.
+const maliput::api::IntersectionBook* RoadNetwork_intersection_book(const RoadNetwork& road_network) {
+    return const_cast<RoadNetwork&>(road_network).intersection_book();
+}
 
 /// Gets the `RoadNetowrk`s read-only `PhaseProvider`.
 const maliput::api::rules::PhaseProvider* RoadNetwork_phase_provider(const RoadNetwork& road_network) {
@@ -363,19 +372,96 @@ rust::String Intersection_id(const Intersection& intersection) {
   return intersection.id().string();
 }
 
-MutIntersectionPtr IntersectionBook_GetIntersection( IntersectionBook& intersection_book, const rust::String& intersection_id) {
-  return {intersection_book.GetIntersection(Intersection::Id{std::string(intersection_id)})};
+std::unique_ptr<rules::StateProviderResult<rules::Phase::Id>> Intersection_Phase(const Intersection& intersection) {
+  const auto phase_state_provider_query = intersection.Phase();
+  return phase_state_provider_query ? std::make_unique<rules::StateProviderResult<rules::Phase::Id>>(*phase_state_provider_query) : nullptr;
+}
+
+rust::String Intersection_ring_id(const Intersection& intersection) {
+  return intersection.ring_id().string();
+}
+
+std::unique_ptr<std::vector<rules::UniqueBulbId>> Intersection_unique_bulb_ids(const Intersection& intersection) {
+  std::vector<rules::UniqueBulbId> bulb_ids;
+  const auto bulb_ids_cpp = intersection.bulb_states();
+
+  if (!bulb_ids_cpp.has_value()) {
+    return nullptr;
+  }
+
+  bulb_ids.reserve(bulb_ids_cpp->size());
+
+  for (const auto& bulb_id_pair : bulb_ids_cpp.value()) {
+    bulb_ids.push_back(bulb_id_pair.first);
+  }
+
+  return std::make_unique<std::vector<rules::UniqueBulbId>>(std::move(bulb_ids));
+}
+
+std::unique_ptr<rules::BulbState> Intersection_bulb_state(const Intersection& intersection, const rules::UniqueBulbId& bulb_id) {
+  const auto bulb_states_cpp = intersection.bulb_states();
+
+  if (!bulb_states_cpp.has_value()) {
+    return nullptr;
+  }
+  const auto it = bulb_states_cpp.value().find(bulb_id);
+  if (it == bulb_states_cpp.value().end()) {
+    return nullptr;
+  }
+  return std::make_unique<rules::BulbState>(it->second);
+}
+
+std::unique_ptr<std::vector<rules::DiscreteValueRuleState>> Intersection_DiscreteValueRuleStates(const Intersection& intersection) {
+  std::vector<rules::DiscreteValueRuleState> discrete_value_rule_states;
+  const auto discrete_value_rule_states_cpp = intersection.DiscreteValueRuleStates();
+
+  if (!discrete_value_rule_states_cpp.has_value()) {
+    return nullptr;
+  }
+  for (const auto& discrete_value_state : discrete_value_rule_states_cpp.value()) {
+    rules::DiscreteValueRuleState discrete_value_rule_state{discrete_value_state.first.string(), std::make_unique<rules::DiscreteValueRuleDiscreteValue>(discrete_value_state.second)};
+    discrete_value_rule_states.emplace_back(std::move(discrete_value_rule_state));
+  }
+  return std::make_unique<std::vector<rules::DiscreteValueRuleState>>(std::move(discrete_value_rule_states));
+}
+
+bool Intersection_IncludesTrafficLight(const Intersection& intersection, const rust::String& traffic_light_id) {
+  return intersection.Includes(rules::TrafficLight::Id{std::string(traffic_light_id)});
+}
+
+bool Intersection_IncludesDiscreteValueRule(const Intersection& intersection, const rust::String& rule_id) {
+  return intersection.Includes(rules::DiscreteValueRule::Id{std::string(rule_id)});
+}
+
+bool Intersection_IncludesInertialPosition(const Intersection& intersection, const InertialPosition& inertial_pos, const RoadGeometry& road_geometry) {
+  return intersection.Includes(inertial_pos, &road_geometry);
+}
+
+MutIntersectionPtr IntersectionBook_GetIntersection(const IntersectionBook& intersection_book, const rust::String& intersection_id) {
+  return {const_cast<IntersectionBook&>(intersection_book).GetIntersection(Intersection::Id{std::string(intersection_id)})};
 }
 
 // IntersectionBook_GetIntersections
-std::unique_ptr<std::vector<MutIntersectionPtr>> IntersectionBook_GetIntersections(IntersectionBook& intersection_book) {
-  const auto intersections_cpp = intersection_book.GetIntersections();
+std::unique_ptr<std::vector<MutIntersectionPtr>> IntersectionBook_GetIntersections(const IntersectionBook& intersection_book) {
+  auto intersections_cpp = const_cast<IntersectionBook&>(intersection_book).GetIntersections();
   std::vector<MutIntersectionPtr> intersections;
   intersections.reserve(intersections_cpp.size());
   for (const auto& intersection : intersections_cpp) {
     intersections.push_back(MutIntersectionPtr{intersection});
   }
   return std::make_unique<std::vector<MutIntersectionPtr>>(std::move(intersections));
+}
+
+MutIntersectionPtr IntersectionBook_FindIntersectionTrafficLight(const IntersectionBook& intersection_book, const rust::String& traffic_light_id) {
+  return {const_cast<IntersectionBook&>(intersection_book).FindIntersection(rules::TrafficLight::Id{std::string(traffic_light_id)})};
+}
+
+MutIntersectionPtr IntersectionBook_FindIntersectionDiscreteValueRule(const IntersectionBook& intersection_book, const rust::String& rule_id) {
+  return {const_cast<IntersectionBook&>(intersection_book).FindIntersection(rules::DiscreteValueRule::Id{std::string(rule_id)})};
+}
+
+MutIntersectionPtr IntersectionBook_FindIntersectionInertialPosition(const IntersectionBook& intersection_book, const InertialPosition& inertial_pos) {
+  return {const_cast<IntersectionBook&>(intersection_book).FindIntersection(inertial_pos)};
 }
 
 } // namespace api

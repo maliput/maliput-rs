@@ -29,9 +29,9 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 #include <maliput/api/rules/discrete_value_rule.h>
+#include <maliput/api/rules/phase_provider.h>
 #include <maliput/api/rules/range_value_rule.h>
 #include <maliput/api/rules/road_rulebook.h>
-#include <maliput/api/rules/phase_provider.h>
 
 #include <memory>
 #include <vector>
@@ -42,10 +42,10 @@ namespace rules {
 
 // Workaround for supporting nested types: https://github.com/dtolnay/cxx/issues/1198
 using DiscreteValueRuleDiscreteValue = DiscreteValueRule::DiscreteValue;
-using RangeValueRuleRange = RangeValueRule::Range;
-using QueryResults = RoadRulebook::QueryResults;
-using PhaseStateProviderQuery = StateProviderResult<Phase::Id>;
 using DiscreteValueRuleStateProviderQuery = StateProviderResult<DiscreteValueRuleDiscreteValue>;
+using PhaseStateProviderQuery = StateProviderResult<Phase::Id>;
+using QueryResults = RoadRulebook::QueryResults;
+using RangeValueRuleRange = RangeValueRule::Range;
 using RangeValueRuleStateProviderQuery = StateProviderResult<RangeValueRuleRange>;
 
 }  // namespace rules
