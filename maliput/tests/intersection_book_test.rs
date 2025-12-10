@@ -1,6 +1,6 @@
 // BSD 3-Clause License
 //
-// Copyright (c) 2024, Woven by Toyota.
+// Copyright (c) 2025, Woven by Toyota.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,27 +27,22 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 mod common;
 
 #[test]
-fn intersection_api() {
-    let mut road_network = common::create_t_shape_road_network_with_books();
-    let expected_intersection_id = String::from("TIntersection");
-
-    let road_geometry = road_network.road_geometry();
-    assert_eq!(road_geometry.id(), "my_rg_from_rust");
-
-    let mut book = road_network.intersection_book();
-    let intersections = book.get_intersections();
+fn test_intersection_book_api() {
+    let road_network = common::create_t_shape_road_network_with_books();
+    let intersection_book = road_network.intersection_book();
+    let intersections = intersection_book.get_intersections();
+    assert!(!intersections.is_empty());
     assert_eq!(intersections.len(), 1);
-    intersections.iter().for_each(|intersection| {
-        assert_eq!(intersection.id(), expected_intersection_id);
-    });
+    assert_eq!(intersections[0].id(), "TIntersection");
 
-    let intersection = book.get_intersection(&expected_intersection_id);
+    let intersection = intersection_book.get_intersection("TIntersection");
     assert!(intersection.is_some());
-    assert_eq!(intersection.expect("").id(), expected_intersection_id);
+    assert_eq!(intersection.unwrap().id(), "TIntersection");
 
-    let wrong_intersection = book.get_intersection("wrong_id");
-    assert!(wrong_intersection.is_none());
+    let intersection = intersection_book.get_intersection("Invalid Intersection");
+    assert!(intersection.is_none());
 }

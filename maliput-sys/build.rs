@@ -38,6 +38,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rerun-if-changed=src/api/mod.rs");
     println!("cargo:rerun-if-changed=src/api/rules/aliases.h");
     println!("cargo:rerun-if-changed=src/api/rules/rules.h");
+    println!("cargo:rerun-if-changed=src/api/rules/rules.cc");
     println!("cargo:rerun-if-changed=src/api/rules/mod.rs");
     println!("cargo:rerun-if-changed=src/common/common.h");
     println!("cargo:rerun-if-changed=src/common/mod.rs");
@@ -64,6 +65,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         "src/plugin/mod.rs",
         "src/common/mod.rs",
     ])
+    .file("src/api/rules/rules.cc")
     .flag_if_supported("-std=c++17")
     .include("src")
     .compile("maliput-sys");

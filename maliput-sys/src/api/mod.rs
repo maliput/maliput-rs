@@ -75,12 +75,26 @@ pub mod ffi {
         type DiscreteValueRuleStateProvider = crate::api::rules::ffi::DiscreteValueRuleStateProvider;
         #[namespace = "maliput::api::rules"]
         type RangeValueRuleStateProvider = crate::api::rules::ffi::RangeValueRuleStateProvider;
+        #[namespace = "maliput::api::rules"]
+        type PhaseStateProviderQuery = crate::api::rules::ffi::PhaseStateProviderQuery;
+        #[namespace = "maliput::api::rules"]
+        type DiscreteValueRuleDiscreteValue = crate::api::rules::ffi::DiscreteValueRuleDiscreteValue;
+        #[namespace = "maliput::api::rules"]
+        type DiscreteValueRuleState = crate::api::rules::ffi::DiscreteValueRuleState;
+        #[namespace = "maliput::api::rules"]
+        type Phase = crate::api::rules::ffi::Phase;
+        #[namespace = "maliput::api::rules"]
+        type NextPhase = crate::api::rules::ffi::NextPhase;
+        #[namespace = "maliput::api::rules"]
+        type BulbState = crate::api::rules::ffi::BulbState;
+        #[namespace = "maliput::api::rules"]
+        type UniqueBulbId = crate::api::rules::ffi::UniqueBulbId;
 
         #[namespace = "maliput::api"]
         // RoadNetwork bindings definitions.
         type RoadNetwork;
         fn road_geometry(self: &RoadNetwork) -> *const RoadGeometry;
-        fn intersection_book(self: Pin<&mut RoadNetwork>) -> *mut IntersectionBook;
+        fn RoadNetwork_intersection_book(road_network: &RoadNetwork) -> *const IntersectionBook;
         fn traffic_light_book(self: &RoadNetwork) -> *const TrafficLightBook;
         fn rulebook(self: &RoadNetwork) -> *const RoadRulebook;
         fn phase_ring_book(self: &RoadNetwork) -> *const PhaseRingBook;
@@ -309,13 +323,38 @@ pub mod ffi {
         // Intersection bindings definitions
         type Intersection;
         fn Intersection_id(intersection: &Intersection) -> String;
+        fn Intersection_Phase(intersection: &Intersection) -> UniquePtr<PhaseStateProviderQuery>;
+        fn region(self: &Intersection) -> &CxxVector<LaneSRange>;
+        fn Intersection_ring_id(intersection: &Intersection) -> String;
+        fn Intersection_unique_bulb_ids(intersection: &Intersection) -> UniquePtr<CxxVector<UniqueBulbId>>;
+        fn Intersection_bulb_state(intersection: &Intersection, bulb_id: &UniqueBulbId) -> UniquePtr<BulbState>;
+        fn Intersection_DiscreteValueRuleStates(
+            intersection: &Intersection,
+        ) -> UniquePtr<CxxVector<DiscreteValueRuleState>>;
+        fn Intersection_IncludesTrafficLight(intersection: &Intersection, traffic_light_id: &String) -> bool;
+        fn Intersection_IncludesDiscreteValueRule(intersection: &Intersection, rule_id: &String) -> bool;
+        fn Intersection_IncludesInertialPosition(
+            intersection: &Intersection,
+            inertial_position: &InertialPosition,
+            road_geometry: &RoadGeometry,
+        ) -> bool;
 
         // IntersectionBook bindings definitions
         type IntersectionBook;
-        fn IntersectionBook_GetIntersection(book: Pin<&mut IntersectionBook>, id: &String) -> MutIntersectionPtr;
-        fn IntersectionBook_GetIntersections(
-            book: Pin<&mut IntersectionBook>,
-        ) -> UniquePtr<CxxVector<MutIntersectionPtr>>;
+        fn IntersectionBook_GetIntersection(book: &IntersectionBook, id: &String) -> MutIntersectionPtr;
+        fn IntersectionBook_GetIntersections(book: &IntersectionBook) -> UniquePtr<CxxVector<MutIntersectionPtr>>;
+        fn IntersectionBook_FindIntersectionTrafficLight(
+            book: &IntersectionBook,
+            traffic_light_id: &String,
+        ) -> MutIntersectionPtr;
+        fn IntersectionBook_FindIntersectionDiscreteValueRule(
+            book: &IntersectionBook,
+            rule_id: &String,
+        ) -> MutIntersectionPtr;
+        fn IntersectionBook_FindIntersectionInertialPosition(
+            book: &IntersectionBook,
+            inertial_position: &InertialPosition,
+        ) -> MutIntersectionPtr;
 
     }
     impl UniquePtr<RoadNetwork> {}

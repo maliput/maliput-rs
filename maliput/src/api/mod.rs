@@ -118,16 +118,12 @@ impl RoadNetwork {
         }
     }
     /// Get the `IntersectionBook` of the `RoadNetwork`.
-    pub fn intersection_book(&mut self) -> IntersectionBook<'_> {
-        let intersection_book_ffi = self
-            .rn
-            .as_mut()
-            .expect("Underlying RoadNetwork is null")
-            .intersection_book();
+    pub fn intersection_book(&self) -> IntersectionBook<'_> {
+        let intersection_book_ffi = maliput_sys::api::ffi::RoadNetwork_intersection_book(&self.rn);
         IntersectionBook {
             intersection_book: unsafe {
                 intersection_book_ffi
-                    .as_mut()
+                    .as_ref()
                     .expect("Underlying IntersectionBook is null")
             },
         }
@@ -758,6 +754,14 @@ impl std::ops::Mul<f64> for InertialPosition {
     fn mul(self, scalar: f64) -> InertialPosition {
         InertialPosition {
             ip: maliput_sys::api::ffi::InertialPosition_operator_mul_scalar(&self.ip, scalar),
+        }
+    }
+}
+
+impl Clone for InertialPosition {
+    fn clone(&self) -> Self {
+        InertialPosition {
+            ip: maliput_sys::api::ffi::InertialPosition_new(self.x(), self.y(), self.z()),
         }
     }
 }
@@ -2097,7 +2101,7 @@ impl<'a> BranchPoint<'a> {
 /// information and to remove the need for users to query numerous disparate
 /// data structures and state providers.
 pub struct Intersection<'a> {
-    intersection: &'a mut maliput_sys::api::ffi::Intersection,
+    intersection: &'a maliput_sys::api::ffi::Intersection,
 }
 
 impl<'a> Intersection<'a> {
@@ -2105,11 +2109,142 @@ impl<'a> Intersection<'a> {
     pub fn id(&self) -> String {
         maliput_sys::api::ffi::Intersection_id(self.intersection)
     }
+    /// Returns the current `phase` of the [Intersection].
+    ///
+    /// Based on the current `phase`, it returns a [rules::StateProviderQuery] with the phase's ID
+    /// and the next state.
+    ///
+    /// # Returns
+    /// A [rules::StateProviderQuery] for the current [rules::Phase].
+    pub fn phase(&self) -> rules::StateProviderQuery<String> {
+        let query = maliput_sys::api::ffi::Intersection_Phase(self.intersection);
+        let next_state = maliput_sys::api::rules::ffi::PhaseStateProvider_next(&query);
+        let next_state = if next_state.is_null() {
+            None
+        } else {
+            Some(rules::NextState {
+                next_state: next_state.phase_id.clone(),
+                duration_until: if next_state.duration_until.is_null() {
+                    None
+                } else {
+                    Some(next_state.duration_until.value)
+                },
+            })
+        };
+        rules::StateProviderQuery {
+            state: maliput_sys::api::rules::ffi::PhaseStateProvider_state(&query),
+            next: next_state,
+        }
+    }
+    /// Returns the region of the `RoadNetwork` that is considered part of the `Intersection`.
+    ///
+    /// # Returns
+    /// A vector of [LaneSRange]s where the intersection lives.
+    pub fn region(&self) -> Vec<LaneSRange> {
+        self.intersection
+            .region()
+            .iter()
+            .map(|region| LaneSRange {
+                lane_s_range: maliput_sys::api::ffi::LaneSRange_new(
+                    &maliput_sys::api::ffi::LaneSRange_lane_id(region),
+                    &maliput_sys::api::ffi::LaneSRange_s_range(region),
+                ),
+            })
+            .collect::<Vec<LaneSRange>>()
+    }
+    /// Returns the ID of the [rules::PhaseRing] that applies to this intersection.
+    ///
+    /// # Returns
+    /// A `String` with the ID of a [rules::PhaseRing].
+    pub fn phase_ring_id(&self) -> String {
+        maliput_sys::api::ffi::Intersection_ring_id(self.intersection)
+    }
+    pub fn bulb_ids(&self) -> Vec<rules::UniqueBulbId> {
+        maliput_sys::api::ffi::Intersection_unique_bulb_ids(self.intersection)
+            .iter()
+            .map(|unique_bulb_id| rules::UniqueBulbId {
+                unique_bulb_id: maliput_sys::api::rules::ffi::UniqueBulbId_create_unique_ptr(unique_bulb_id),
+            })
+            .collect()
+    }
+    /// Returns the current [rules::BulbState]s within the `Intersection`.
+    ///
+    /// # Returns
+    /// A vector of [rules::BulbState]s.
+    pub fn get_bulb_state(&self, unique_bulb_id: &rules::UniqueBulbId) -> Option<rules::BulbState> {
+        let bulb_state =
+            maliput_sys::api::ffi::Intersection_bulb_state(self.intersection, &unique_bulb_id.unique_bulb_id);
+        if bulb_state.is_null() {
+            return None;
+        }
+        match *bulb_state {
+            maliput_sys::api::ffi::BulbState::kOn => Some(rules::BulbState::On),
+            maliput_sys::api::ffi::BulbState::kOff => Some(rules::BulbState::Off),
+            maliput_sys::api::ffi::BulbState::kBlinking => Some(rules::BulbState::Blinking),
+            _ => None,
+        }
+    }
+    /// Returns the current discrete value rule states within the intersection.
+    pub fn discrete_value_rule_states(&self) -> Vec<rules::DiscreteValueRuleState> {
+        maliput_sys::api::ffi::Intersection_DiscreteValueRuleStates(self.intersection)
+            .iter()
+            .map(|dvrs| rules::DiscreteValueRuleState {
+                rule_id: dvrs.rule_id.clone(),
+                state: rules::discrete_value_from_discrete_value_cxx(&dvrs.state),
+            })
+            .collect::<Vec<rules::DiscreteValueRuleState>>()
+    }
+    /// Determines whether the [rules::TrafficLight] is within this [Intersection].
+    ///
+    /// # Arguments
+    /// * `traffic_light_id` - A [rules::TrafficLight] ID.
+    ///
+    /// # Returns
+    /// True when `traffic_light_id` is within this [Intersection].
+    pub fn includes_traffic_light(&self, traffic_light_id: &str) -> bool {
+        maliput_sys::api::ffi::Intersection_IncludesTrafficLight(self.intersection, &traffic_light_id.to_string())
+    }
+    /// Determines whether the [rules::DiscreteValueRule] is within this [Intersection].
+    ///
+    /// # Arguments
+    /// * `rule_id` - A [rules::DiscreteValueRule] ID.
+    ///
+    /// # Returns
+    /// True when `rule_id` is within this [Intersection].
+    pub fn includes_discrete_value_rule(&self, rule_id: &str) -> bool {
+        maliput_sys::api::ffi::Intersection_IncludesDiscreteValueRule(self.intersection, &rule_id.to_string())
+    }
+    /// Determines whether `inertial_position` is within this [Intersection::region].
+    ///
+    /// `inertial_position` is contained if the distance to the closest LanePosition in
+    /// [Intersection::region] is less or equal than the linear tolerance of the `road_geometry`.
+    ///
+    /// # Arguments
+    /// * `inertial_position` -  An [InertialPosition] in the `Inertial`-frame.
+    /// * `road_geometry` - The [RoadGeometry].
+    ///
+    /// # Returns
+    /// True when `inertial_position` is within [Intersection::region]. False otherwise.
+    pub fn includes_inertial_position(
+        &self,
+        inertial_position: &InertialPosition,
+        road_geometry: &RoadGeometry,
+    ) -> bool {
+        maliput_sys::api::ffi::Intersection_IncludesInertialPosition(
+            self.intersection,
+            &maliput_sys::api::ffi::InertialPosition_new(
+                inertial_position.x(),
+                inertial_position.y(),
+                inertial_position.z(),
+            ),
+            road_geometry.rg,
+        )
+    }
 }
 
 /// A book of Intersections.
 pub struct IntersectionBook<'a> {
-    intersection_book: &'a mut maliput_sys::api::ffi::IntersectionBook,
+    intersection_book: &'a maliput_sys::api::ffi::IntersectionBook,
 }
 
 impl<'a> IntersectionBook<'a> {
@@ -2117,16 +2252,15 @@ impl<'a> IntersectionBook<'a> {
     ///
     /// # Returns
     /// A vector of [Intersection]s containing all Intersections in the book.
-    pub fn get_intersections(&mut self) -> Vec<Intersection<'_>> {
-        let book_pin = unsafe { std::pin::Pin::new_unchecked(&mut *self.intersection_book) };
-        let intersections_cpp = maliput_sys::api::ffi::IntersectionBook_GetIntersections(book_pin);
+    pub fn get_intersections(&self) -> Vec<Intersection<'_>> {
+        let intersections_cpp = maliput_sys::api::ffi::IntersectionBook_GetIntersections(self.intersection_book);
         unsafe {
             intersections_cpp
                 .into_iter()
                 .map(|intersection| Intersection {
                     intersection: intersection
                         .intersection
-                        .as_mut()
+                        .as_ref()
                         .expect("Underlying Intersection is null"),
                 })
                 .collect::<Vec<Intersection>>()
@@ -2142,18 +2276,90 @@ impl<'a> IntersectionBook<'a> {
     ///   * An `Option<Intersection>`
     ///     * Some(Intersection) - The Intersection with the specified id.
     ///     * None - If the Intersection with the specified id does not exist.
-    pub fn get_intersection(&mut self, id: &str) -> Option<Intersection<'_>> {
-        let book_pin = unsafe { std::pin::Pin::new_unchecked(&mut *self.intersection_book) };
+    pub fn get_intersection(&self, id: &str) -> Option<Intersection<'_>> {
         let intersection_option = unsafe {
-            maliput_sys::api::ffi::IntersectionBook_GetIntersection(book_pin, &String::from(id))
+            maliput_sys::api::ffi::IntersectionBook_GetIntersection(self.intersection_book, &String::from(id))
                 .intersection
-                .as_mut()
+                .as_ref()
         };
-        match &intersection_option {
-            None => None,
-            Some(_) => Some(Intersection {
-                intersection: intersection_option.expect("Underlying Intersection is null"),
-            }),
+        intersection_option.map(|intersection| Intersection { intersection })
+    }
+
+    /// Finds the [Intersection] which contains the `traffic_light_id`.
+    ///
+    /// # Arguments
+    /// * `traffic_light_id` - A String with the ID of a [rules::TrafficLight].
+    ///
+    /// # Returns
+    /// The [Intersection] which contains the `traffic_light_id`.
+    pub fn find_intersection_with_traffic_light(&self, traffic_light_id: &str) -> Option<Intersection<'_>> {
+        let intersection = maliput_sys::api::ffi::IntersectionBook_FindIntersectionTrafficLight(
+            self.intersection_book,
+            &String::from(traffic_light_id),
+        );
+        if intersection.intersection.is_null() {
+            return None;
+        }
+        unsafe {
+            Some(Intersection {
+                intersection: intersection
+                    .intersection
+                    .as_ref()
+                    .expect("Underlying Intersection is null"),
+            })
+        }
+    }
+
+    /// Finds the [Intersection] which contains the `rule_id`.
+    ///
+    /// # Arguments
+    /// * `rule_id` - A String with the ID of a [rules::DiscreteValueRule].
+    ///
+    /// # Returns
+    /// The [Intersection] which contains the `rule_id`.
+    pub fn find_intersection_with_discrete_value_rule(&self, rule_id: &str) -> Option<Intersection<'_>> {
+        let intersection = maliput_sys::api::ffi::IntersectionBook_FindIntersectionDiscreteValueRule(
+            self.intersection_book,
+            &String::from(rule_id),
+        );
+        if intersection.intersection.is_null() {
+            return None;
+        }
+        unsafe {
+            Some(Intersection {
+                intersection: intersection
+                    .intersection
+                    .as_ref()
+                    .expect("Underlying Intersection is null"),
+            })
+        }
+    }
+
+    /// Finds the [Intersection] which contains the `inertial_position`.
+    ///
+    /// # Arguments
+    /// * `inertial_position` - An [InertialPosition] to find the [Intersection] for.
+    ///
+    /// # Returns
+    /// The [Intersection] which contains the `inertial_position`.
+    pub fn find_intersection_with_inertial_position(
+        &self,
+        inertial_position: &InertialPosition,
+    ) -> Option<Intersection<'_>> {
+        let intersection = maliput_sys::api::ffi::IntersectionBook_FindIntersectionInertialPosition(
+            self.intersection_book,
+            &inertial_position.ip,
+        );
+        if intersection.intersection.is_null() {
+            return None;
+        }
+        unsafe {
+            Some(Intersection {
+                intersection: intersection
+                    .intersection
+                    .as_ref()
+                    .expect("Underlying Intersection is null"),
+            })
         }
     }
 }
