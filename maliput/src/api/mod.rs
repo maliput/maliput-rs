@@ -758,6 +758,14 @@ impl std::ops::Mul<f64> for InertialPosition {
     }
 }
 
+impl Clone for InertialPosition {
+    fn clone(&self) -> Self {
+        InertialPosition {
+            ip: maliput_sys::api::ffi::InertialPosition_new(self.x(), self.y(), self.z()),
+        }
+    }
+}
+
 /// Bounds in the lateral dimension (r component) of a `Lane`-frame, consisting
 /// of a pair of minimum and maximum r value.  The bounds must straddle r = 0,
 /// i.e., the minimum must be <= 0 and the maximum must be >= 0.
@@ -2163,7 +2171,7 @@ impl<'a> Intersection<'a> {
     ///
     /// # Returns
     /// A vector of [rules::BulbState]s.
-    pub fn get_bulb_state(&self, unique_bulb_id: rules::UniqueBulbId) -> Option<rules::BulbState> {
+    pub fn get_bulb_state(&self, unique_bulb_id: &rules::UniqueBulbId) -> Option<rules::BulbState> {
         let bulb_state =
             maliput_sys::api::ffi::Intersection_bulb_state(self.intersection, &unique_bulb_id.unique_bulb_id);
         if bulb_state.is_null() {
