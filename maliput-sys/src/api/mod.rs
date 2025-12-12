@@ -114,6 +114,7 @@ pub mod ffi {
         fn linear_tolerance(self: &RoadGeometry) -> f64;
         fn angular_tolerance(self: &RoadGeometry) -> f64;
         fn num_branch_points(self: &RoadGeometry) -> i32;
+        fn junction(self: &RoadGeometry, index: i32) -> Result<*const Junction>;
         fn RoadGeometry_ToRoadPosition(
             rg: &RoadGeometry,
             inertial_position: &InertialPosition,
@@ -127,6 +128,7 @@ pub mod ffi {
         fn RoadGeometry_GetLanes(rg: &RoadGeometry) -> UniquePtr<CxxVector<ConstLanePtr>>;
         fn RoadGeometry_GetSegment(rg: &RoadGeometry, segment_id: &String) -> *const Segment;
         fn RoadGeometry_GetJunction(rg: &RoadGeometry, junction_id: &String) -> *const Junction;
+        // fn RoadGeometry_GetJunctionByIndex(rg: &RoadGeometry, index: i32) -> *const Junction;
         fn RoadGeometry_GetBranchPoint(rg: &RoadGeometry, branch_point_id: &String) -> *const BranchPoint;
         fn RoadGeometry_BackendCustomCommand(rg: &RoadGeometry, command: &String) -> Result<String>;
         fn RoadGeometry_GeoReferenceInfo(rg: &RoadGeometry) -> String;

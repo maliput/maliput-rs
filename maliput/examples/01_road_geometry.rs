@@ -49,6 +49,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("angular_tolerance: {}", road_geometry.angular_tolerance());
     println!("num_junctions: {}", road_geometry.num_junctions());
 
+    // Verify junctions / segments / lanes can be accessed.
+    for i in 0..road_geometry.num_junctions() {
+        let junction = road_geometry.junction(i).unwrap();
+        println!(" junction id: {}", junction.id());
+        for j in 0..junction.num_segments() {
+            let segment = junction.segment(j).unwrap();
+            println!("\tsegment id: {}", segment.id());
+            for k in 0..segment.num_lanes() {
+                let lane = segment.lane(k).unwrap();
+                println!("\t\tlane id: {}", lane.id());
+            }
+        }
+    }
+
+    // All the lanes can be obtained from RoadGeometry directly.
     let lanes = road_geometry.get_lanes();
     println!("num_lanes: {}", lanes.len());
     println!("lanes: ");
