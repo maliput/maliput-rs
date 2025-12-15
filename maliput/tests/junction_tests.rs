@@ -41,6 +41,9 @@ fn junction_api() {
     assert_eq!(num_segments, 1);
     let segment = junction.segment(0).unwrap();
     assert_eq!(segment.id(), String::from("0_0"));
+    // Test road_geometry.junction
+    let junction_by_index = road_geometry.junction(0).unwrap();
+    assert_eq!(junction_by_index.id(), junction_id);
     // Testing invalid ids.
     let invalid_junction_id = String::from("invalid_id");
     let invalid_junction = road_geometry.get_junction(&invalid_junction_id);

@@ -465,6 +465,27 @@ impl<'a> RoadGeometry<'a> {
             })
         }
     }
+    /// Get the junction at the given index.
+    /// The index is in the range [0, num_junctions).
+    ///
+    /// # Arguments
+    /// * `index` - The index of the junction.
+    ///
+    /// # Return
+    /// The junction at the given index.
+    /// If no junction is found at the given index, return None.
+    pub fn junction(&self, index: i32) -> Option<Junction<'_>> {
+        let junction = self.rg.junction(index).ok()?;
+        if junction.is_null() {
+            return None;
+        }
+        unsafe {
+            Some(Junction {
+                junction: junction.as_ref().expect(""),
+            })
+        }
+    }
+
     /// Get the junction matching given `junction_id`.
     ///
     /// # Arguments

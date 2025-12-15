@@ -114,6 +114,7 @@ pub mod ffi {
         fn linear_tolerance(self: &RoadGeometry) -> f64;
         fn angular_tolerance(self: &RoadGeometry) -> f64;
         fn num_branch_points(self: &RoadGeometry) -> i32;
+        fn junction(self: &RoadGeometry, index: i32) -> Result<*const Junction>;
         fn RoadGeometry_ToRoadPosition(
             rg: &RoadGeometry,
             inertial_position: &InertialPosition,
