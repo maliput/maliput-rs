@@ -49,6 +49,38 @@ pub mod ffi {
         pub lane_s_range: &'a LaneSRange,
     }
 
+    /// Shared enum representing different types of lanes.
+    /// This is needed to access the enum variant from Rust API since the C++ enum has an opaque implementation.
+    /// The order of these variants must match with the order of the enum class defined in maliput C++ API.
+    #[repr(u32)]
+    pub enum LaneType {
+        kUnknown,
+        kDriving,
+        kTurn,
+        kHov,
+        kBus,
+        kTaxi,
+        kEmergency,
+        kShoulder,
+        kBiking,
+        kWalking,
+        kParking,
+        kStop,
+        kBorder,
+        kCurb,
+        kMedian,
+        kRestricted,
+        kConstruction,
+        kRail,
+        kEntry,
+        kExit,
+        kOnRamp,
+        kOffRamp,
+        kConnectingRamp,
+        kSlipLane,
+        kVirtual,
+    }
+
     unsafe extern "C++" {
         include!("api/api.h");
         include!("cxx_utils/error_handling.h");
@@ -198,6 +230,8 @@ pub mod ffi {
             rho_v: f64,
             eta_v: f64,
         ) -> UniquePtr<LanePosition>;
+        type LaneType;
+        fn Lane_type(lane: &Lane) -> LaneType;
 
         // Segment bindings definitions
         type Segment;
