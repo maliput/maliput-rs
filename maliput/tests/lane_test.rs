@@ -34,7 +34,7 @@ fn lane_api() {
     let tolerance = 1e-10;
     let inertial_pos = maliput::api::InertialPosition::new(5.0, 1.75, 0.0);
     let expected_lane_id = String::from("0_0_1");
-    let road_network = common::create_t_shape_road_network();
+    let road_network = common::create_t_shape_road_network(true);
     let road_geometry = road_network.road_geometry();
 
     let road_position_result = road_geometry.to_road_position(&inertial_pos).unwrap();
@@ -105,7 +105,7 @@ fn lane_api() {
 
 #[test]
 fn lane_end_api_test() {
-    let road_network = common::create_t_shape_road_network();
+    let road_network = common::create_t_shape_road_network(true);
     let road_geometry = road_network.road_geometry();
 
     let lane_id = String::from("0_0_1");

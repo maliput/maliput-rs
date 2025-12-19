@@ -31,14 +31,14 @@ mod common;
 
 #[test]
 fn id() {
-    let road_network = common::create_t_shape_road_network();
+    let road_network = common::create_t_shape_road_network(true);
     let road_geometry = road_network.road_geometry();
     assert_eq!(road_geometry.id(), "my_rg_from_rust");
 }
 
 #[test]
 fn tolerances() {
-    let road_network = common::create_t_shape_road_network();
+    let road_network = common::create_t_shape_road_network(true);
     let road_geometry = road_network.road_geometry();
     assert_eq!(road_geometry.linear_tolerance(), 0.01);
     assert_eq!(road_geometry.angular_tolerance(), 0.01);
@@ -49,7 +49,7 @@ fn to_road_position() {
     let expected_nearest_position = maliput::api::InertialPosition::new(5.0, 1.75, 0.0);
     let expected_lane_position = maliput::api::LanePosition::new(5.0, 0.0, 0.0);
     let expected_lane_id = String::from("0_0_1");
-    let road_network = common::create_t_shape_road_network();
+    let road_network = common::create_t_shape_road_network(true);
     let road_geometry = road_network.road_geometry();
 
     let road_position_result = road_geometry.to_road_position(&expected_nearest_position).unwrap();
@@ -68,7 +68,7 @@ fn to_road_position() {
 
 #[test]
 fn find_road_positions() {
-    let road_network = common::create_t_shape_road_network();
+    let road_network = common::create_t_shape_road_network(true);
     let road_geometry = road_network.road_geometry();
 
     let inertial_pos = maliput::api::InertialPosition::new(10.0, 2.0, 0.0);
@@ -105,7 +105,7 @@ fn find_road_positions() {
 
 #[test]
 fn by_index() {
-    let road_network = common::create_t_shape_road_network();
+    let road_network = common::create_t_shape_road_network(true);
     let road_geometry = road_network.road_geometry();
     let lane_id = String::from("0_0_1");
     let lane = road_geometry.get_lane(&lane_id);

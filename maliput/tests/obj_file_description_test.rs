@@ -4,7 +4,7 @@ use maliput::utility::{generate_obj_file, get_obj_description_from_road_network,
 
 #[test]
 fn generate_obj_file_test() {
-    let road_network = common::create_t_shape_road_network();
+    let road_network = common::create_t_shape_road_network(true);
     let features = ObjFeatures {
         max_grid_unit: 1.0,
         min_grid_resolution: 5.0,
@@ -36,7 +36,7 @@ fn generate_obj_file_test() {
 
 #[test]
 fn get_obj_description_from_road_network_test() {
-    let road_network = common::create_t_shape_road_network();
+    let road_network = common::create_t_shape_road_network(true);
     let features = ObjFeatures {
         max_grid_unit: 1.0,
         min_grid_resolution: 5.0,

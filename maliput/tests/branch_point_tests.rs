@@ -31,7 +31,7 @@ mod common;
 
 #[test]
 fn branch_point_api() {
-    let road_network = common::create_t_shape_road_network();
+    let road_network = common::create_t_shape_road_network(true);
     let road_geometry = road_network.road_geometry();
 
     // Testing valid branch point id.

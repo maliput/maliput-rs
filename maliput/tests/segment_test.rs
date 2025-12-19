@@ -31,7 +31,7 @@ mod common;
 
 #[test]
 fn segment_api() {
-    let road_network = common::create_t_shape_road_network();
+    let road_network = common::create_t_shape_road_network(true);
     let road_geometry = road_network.road_geometry();
 
     let segment_id = String::from("0_0");

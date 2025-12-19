@@ -32,15 +32,21 @@ use maliput::{api::RoadNetwork, ResourceManager};
 use std::collections::HashMap;
 
 #[allow(dead_code)]
-pub fn create_t_shape_road_network() -> RoadNetwork {
+pub fn create_t_shape_road_network(omit_non_drivable_lanes: bool) -> RoadNetwork {
     // Get location of odr resources
     let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
     let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
+
+    let omit_non_drivable_lanes = match omit_non_drivable_lanes {
+        false => "false",
+        true => "true",
+    };
 
     let road_network_properties = HashMap::from([
         ("road_geometry_id", "my_rg_from_rust"),
         ("opendrive_file", xodr_path.as_str()),
         ("linear_tolerance", "0.01"),
+        ("omit_nondrivable_lanes", omit_non_drivable_lanes),
     ]);
     let rn_res = RoadNetwork::new("maliput_malidrive", &road_network_properties);
     assert!(
