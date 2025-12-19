@@ -101,6 +101,22 @@ fn lane_api() {
     let expected_derivatives = maliput::api::LanePosition::new(1., 0., 0.);
     let lane_frame_derivatives = lane.eval_motion_derivatives(&maliput::api::LanePosition::new(0., 0., 0.), &velocity);
     assert_eq!(expected_derivatives, lane_frame_derivatives);
+
+    let lane = road_geometry.get_lane(&"0_0_0".to_string());
+    assert!(lane.is_none());
+
+    // Lane Type
+    let road_network = common::create_t_shape_road_network(false);
+    let road_geometry = road_network.road_geometry();
+    let lane = road_geometry.get_lane(&"0_0_4".to_string());
+    let lane_type = lane.unwrap().lane_type();
+    assert_eq!(lane_type, maliput::api::LaneType::Walking);
+    let lane = road_geometry.get_lane(&"0_0_2".to_string());
+    let lane_type = lane.unwrap().lane_type();
+    assert_eq!(lane_type, maliput::api::LaneType::Shoulder);
+    let lane = road_geometry.get_lane(&"0_0_1".to_string());
+    let lane_type = lane.unwrap().lane_type();
+    assert_eq!(lane_type, maliput::api::LaneType::Driving);
 }
 
 #[test]
