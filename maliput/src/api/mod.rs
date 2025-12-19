@@ -1306,7 +1306,7 @@ impl<'a> Lane<'a> {
     ///
     /// # Returns
     /// The [LaneType] of the [Lane].
-    pub fn get_type(&self) -> LaneType {
+    pub fn lane_type(&self) -> LaneType {
         let lane_type = maliput_sys::api::ffi::Lane_type(self.lane);
         match lane_type {
             maliput_sys::api::ffi::LaneType::kDriving => LaneType::Driving,
