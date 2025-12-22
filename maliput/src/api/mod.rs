@@ -2476,6 +2476,217 @@ impl<'a> IntersectionBook<'a> {
     }
 }
 
+pub struct LaneMarkingLine {
+    /// Length of the visible (painted) part of each dash [m].
+    /// For solid lines, this should be 0 (value is ignored).
+    pub length: f64,
+
+    /// Length of the gap between visible parts [m].
+    /// For solid lines, this should be 0.
+    pub space: f64,
+
+    /// Width of this line [m].
+    pub width: f64,
+
+    /// Lateral offset from the lane boundary [m].
+    /// Positive values offset in the positive r-direction (towards the lane's
+    /// left edge when facing the positive s-direction).
+    /// This allows positioning multiple lines relative to each other.
+    pub r_offset: f64,
+
+    /// Color of this specific line.
+    /// If set to kUnknown, the parent LaneMarking's color should be used.
+    pub color: LaneMarkingColor,
+}
+
+impl<'a> LaneMarkingLine {
+    /// Creates a new LaneMarkingLine.
+    pub fn new(length: f64, space: f64, width: f64, r_offset: f64, color: LaneMarkingColor) -> LaneMarkingLine {
+        LaneMarkingLine {
+            length,
+            space,
+            width,
+            r_offset,
+            color,
+        }
+    }
+}
+
+/// LaneMarking classification options.
+///
+/// LaneMarkingType defines types of lane markings on the road.
+#[derive(strum_macros::Display, Debug, Copy, Clone, PartialEq, Eq)]
+pub enum LaneMarkingType {
+    Unknown,
+    None,
+    Solid,
+    Broken,
+    SolidSolid,
+    SolidBroken,
+    BrokenSolid,
+    BrokenBroken,
+    BottsDots,
+    Grass,
+    Curb,
+    Edge,
+}
+
+#[derive(strum_macros::Display, Debug, Copy, Clone, PartialEq, Eq)]
+pub enum LaneMarkingWeight {
+    Unknown,
+    Standard,
+    Bold,
+}
+
+#[derive(strum_macros::Display, Debug, Copy, Clone, PartialEq, Eq)]
+pub enum LaneMarkingColor {
+    Unknown,
+    White,
+    Yellow,
+    Orange,
+    Red,
+    Blue,
+    Green,
+    Violet,
+}
+
+#[derive(strum_macros::Display, Debug, Copy, Clone, PartialEq, Eq)]
+pub enum LaneChangePermission {
+    Unknown,
+    Allowed,
+    ToLeft,
+    ToRight,
+    Prohibited,
+}
+
+/// Describes the complete lane marking at a lane boundary.
+///
+/// A LaneMarking describes all properties of the road marking at a lane's
+/// boundary. The marking can vary along the lane's s-coordinate, so this
+/// structure represents the marking for a specific s-range.
+///
+/// **Simple markings:** For single-line markings (e.g., a solid white edge line),
+/// the `type`, `color`, `width`, and `weight` fields are sufficient. The `lines`
+/// vector can be left empty.
+///
+/// **Complex markings:** For compound markings (e.g., double lines with different
+/// patterns like `kSolidBroken`), the `lines` vector provides detailed information
+/// about each component line. When `lines` is non-empty, the individual line
+/// definitions take precedence for geometry and per-line colors. The top-level
+/// `type`, `color`, and `width` fields remain useful as summary/fallback values.
+pub struct LaneMarking<'a> {
+    lane_marking: &'a maliput_sys::api::ffi::LaneMarking,
+}
+
+impl<'a> LaneMarking<'a> {
+    /// Returns the total width of the marking.
+    pub fn width(&self) -> f64 {
+        maliput_sys::api::ffi::LaneMarking_width(self.lane_marking)
+    }
+
+    /// Returns the total height of the marking.
+    pub fn height(&self) -> f64 {
+        maliput_sys::api::ffi::LaneMarking_height(self.lane_marking)
+    }
+
+    /// Returns the marking material.
+    ///
+    /// # Returns
+    /// A [String] describing the marking material.
+    pub fn material(&self) -> String {
+        maliput_sys::api::ffi::LaneMarking_material(self.lane_marking)
+    }
+
+    /// Returns the type of marking.
+    ///
+    /// # Returns
+    /// A [LaneMarkingType] representing the pattern or type of marking.
+    pub fn get_type(&self) -> LaneMarkingType {
+        let marking_type = maliput_sys::api::ffi::LaneMarking_type(self.lane_marking);
+        match marking_type {
+            maliput_sys::api::ffi::LaneMarkingType::kUnknown => LaneMarkingType::Unknown,
+            maliput_sys::api::ffi::LaneMarkingType::kNone => LaneMarkingType::None,
+            maliput_sys::api::ffi::LaneMarkingType::kSolid => LaneMarkingType::Solid,
+            maliput_sys::api::ffi::LaneMarkingType::kBroken => LaneMarkingType::Broken,
+            maliput_sys::api::ffi::LaneMarkingType::kSolidSolid => LaneMarkingType::SolidSolid,
+            maliput_sys::api::ffi::LaneMarkingType::kSolidBroken => LaneMarkingType::SolidBroken,
+            maliput_sys::api::ffi::LaneMarkingType::kBrokenSolid => LaneMarkingType::BrokenSolid,
+            maliput_sys::api::ffi::LaneMarkingType::kBrokenBroken => LaneMarkingType::BrokenBroken,
+            maliput_sys::api::ffi::LaneMarkingType::kBottsDots => LaneMarkingType::BottsDots,
+            maliput_sys::api::ffi::LaneMarkingType::kGrass => LaneMarkingType::Grass,
+            maliput_sys::api::ffi::LaneMarkingType::kCurb => LaneMarkingType::Curb,
+            maliput_sys::api::ffi::LaneMarkingType::kEdge => LaneMarkingType::Edge,
+            _ => LaneMarkingType::Unknown,
+        }
+    }
+
+    /// Returns the visual weight or thickness type of the marking.
+    ///
+    /// # Returns
+    /// A [LaneMarkingWeight] that indicates the type of visual weight of the marking.
+    pub fn weight(&self) -> LaneMarkingWeight {
+        let marking_weight = maliput_sys::api::ffi::LaneMarking_weight(self.lane_marking);
+        match marking_weight {
+            maliput_sys::api::ffi::LaneMarkingWeight::kUnknown => LaneMarkingWeight::Unknown,
+            maliput_sys::api::ffi::LaneMarkingWeight::kStandard => LaneMarkingWeight::Standard,
+            maliput_sys::api::ffi::LaneMarkingWeight::kBold => LaneMarkingWeight::Bold,
+            _ => LaneMarkingWeight::Unknown,
+        }
+    }
+    pub fn color(&self) -> LaneMarkingColor {
+        self.get_marking_color(maliput_sys::api::ffi::LaneMarking_color(self.lane_marking))
+    }
+
+    /// Returns the type of lane change the marking allows.
+    ///
+    /// # Returns
+    /// A [LaneChangePermission] that indicates the type of lane change that is allowed.
+    pub fn lane_change(&self) -> LaneChangePermission {
+        let lane_change = maliput_sys::api::ffi::LaneMarking_lane_change(self.lane_marking);
+        match lane_change {
+            maliput_sys::api::ffi::LaneChangePermission::kUnknown => LaneChangePermission::Unknown,
+            maliput_sys::api::ffi::LaneChangePermission::kAllowed => LaneChangePermission::Allowed,
+            maliput_sys::api::ffi::LaneChangePermission::kToLeft => LaneChangePermission::ToLeft,
+            maliput_sys::api::ffi::LaneChangePermission::kToRight => LaneChangePermission::ToRight,
+            maliput_sys::api::ffi::LaneChangePermission::kProhibited => LaneChangePermission::Prohibited,
+            _ => LaneChangePermission::Unknown,
+        }
+    }
+
+    /// Returns all lines in the LaneMarking.
+    ///
+    /// # Returns
+    /// A vector of [LaneMarkingLine]s.
+    pub fn lines(&self) -> Vec<LaneMarkingLine> {
+        let lines = maliput_sys::api::ffi::LaneMarking_lines(self.lane_marking);
+        lines
+            .into_iter()
+            .map(|line| LaneMarkingLine {
+                length: maliput_sys::api::ffi::LaneMarkingLine_length(line),
+                space: maliput_sys::api::ffi::LaneMarkingLine_space(line),
+                width: maliput_sys::api::ffi::LaneMarkingLine_width(line),
+                r_offset: maliput_sys::api::ffi::LaneMarkingLine_r_offset(line),
+                color: self.get_marking_color(maliput_sys::api::ffi::LaneMarkingLine_color(line)),
+            })
+            .collect::<Vec<LaneMarkingLine>>()
+    }
+
+    // Private helper to get marking color and avoid code duplication.
+    fn get_marking_color(&self, color: maliput_sys::api::ffi::LaneMarkingColor) -> LaneMarkingColor {
+        match color {
+            maliput_sys::api::ffi::LaneMarkingColor::kUnknown => LaneMarkingColor::Unknown,
+            maliput_sys::api::ffi::LaneMarkingColor::kWhite => LaneMarkingColor::White,
+            maliput_sys::api::ffi::LaneMarkingColor::kYellow => LaneMarkingColor::Yellow,
+            maliput_sys::api::ffi::LaneMarkingColor::kOrange => LaneMarkingColor::Orange,
+            maliput_sys::api::ffi::LaneMarkingColor::kRed => LaneMarkingColor::Red,
+            maliput_sys::api::ffi::LaneMarkingColor::kBlue => LaneMarkingColor::Blue,
+            maliput_sys::api::ffi::LaneMarkingColor::kGreen => LaneMarkingColor::Green,
+            maliput_sys::api::ffi::LaneMarkingColor::kViolet => LaneMarkingColor::Violet,
+            _ => LaneMarkingColor::Unknown,
+        }
+    }
+}
+
 mod tests {
     mod road_geometry {
         #[test]
