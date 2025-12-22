@@ -188,6 +188,10 @@ std::unique_ptr<LanePosition> Lane_EvalMotionDerivatives(const Lane& lane, const
   return std::make_unique<LanePosition>(lane.EvalMotionDerivatives(lane_position, IsoLaneVelocity{sigma_v, rho_v, eta_v}));
 }
 
+LaneType Lane_type(const Lane& lane) {
+  return lane.type();
+}
+
 std::unique_ptr<RoadPosition> RoadPosition_new(const Lane* lane, const LanePosition& pos) {
   return std::make_unique<RoadPosition>(lane, pos);
 }

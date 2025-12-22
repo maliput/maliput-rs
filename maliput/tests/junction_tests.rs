@@ -31,7 +31,7 @@ mod common;
 
 #[test]
 fn junction_api() {
-    let road_network = common::create_t_shape_road_network();
+    let road_network = common::create_t_shape_road_network(true);
     let road_geometry = road_network.road_geometry();
     let junction_id = String::from("0_0");
     let junction = road_geometry.get_junction(&junction_id).unwrap();

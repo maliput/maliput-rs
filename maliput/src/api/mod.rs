@@ -872,6 +872,63 @@ impl IsoLaneVelocity {
     }
 }
 
+/// Lane classification options.
+///
+/// LaneType defines the intended use of a lane.
+#[derive(strum_macros::Display, Debug, Copy, Clone, PartialEq, Eq)]
+pub enum LaneType {
+    /// Default state.
+    Unknown,
+    /// Standard driving lane.
+    Driving,
+    /// Turn available.
+    Turn,
+    /// High Occupancy Vehicle lane (+2 passengers).
+    Hov,
+    /// Bus only.
+    Bus,
+    /// Taxi only.
+    Taxi,
+    /// Emergency vehicles only (fire, ambulance, police).
+    Emergency,
+    /// Soft border at the edge of the road.
+    Shoulder,
+    /// Reserved for cyclists.
+    Biking,
+    /// Sidewalks / Crosswalks.
+    Walking,
+    /// Lane with parking spaces.
+    Parking,
+    /// Hard shoulder / Emergency stop.
+    Stop,
+    /// Hard border at the edge of the road.
+    Border,
+    /// Curb stones.
+    Curb,
+    /// Sits between driving lanes that lead in opposite directions.
+    Median,
+    /// Generic restricted (use if HOV/Bus/Emergency don't fit).
+    Restricted,
+    /// Road works.
+    Construction,
+    /// Trains/Trams.
+    Rail,
+    /// Merge into main road.
+    Entry,
+    /// Exit from the main road.
+    Exit,
+    /// Ramp leading to a motorway.
+    OnRamp,
+    /// Ramp leading away from a motorway.
+    OffRamp,
+    // Ramp that connects two motorways.
+    ConnectingRamp,
+    /// Change roads without driving into the main intersection.
+    SlipLane,
+    /// Intersection crossings with no physical markings.
+    Virtual,
+}
+
 /// A Lane represents a lane of travel in a road network.  A Lane defines
 /// a curvilinear coordinate system covering the road surface, with a
 /// longitudinal 's' coordinate that expresses the arc-length along a
@@ -1244,6 +1301,40 @@ impl<'a> Lane<'a> {
     /// A boolean indicating whether the `Lane` contains the `LanePosition`.
     pub fn contains(&self, lane_position: &LanePosition) -> bool {
         self.lane.Contains(lane_position.lp.as_ref().expect(""))
+    }
+    /// Returns the [LaneType] of the [Lane].
+    ///
+    /// # Returns
+    /// The [LaneType] of the [Lane].
+    pub fn lane_type(&self) -> LaneType {
+        let lane_type = maliput_sys::api::ffi::Lane_type(self.lane);
+        match lane_type {
+            maliput_sys::api::ffi::LaneType::kDriving => LaneType::Driving,
+            maliput_sys::api::ffi::LaneType::kTurn => LaneType::Turn,
+            maliput_sys::api::ffi::LaneType::kHov => LaneType::Hov,
+            maliput_sys::api::ffi::LaneType::kBus => LaneType::Bus,
+            maliput_sys::api::ffi::LaneType::kTaxi => LaneType::Taxi,
+            maliput_sys::api::ffi::LaneType::kEmergency => LaneType::Emergency,
+            maliput_sys::api::ffi::LaneType::kShoulder => LaneType::Shoulder,
+            maliput_sys::api::ffi::LaneType::kBiking => LaneType::Biking,
+            maliput_sys::api::ffi::LaneType::kWalking => LaneType::Walking,
+            maliput_sys::api::ffi::LaneType::kParking => LaneType::Parking,
+            maliput_sys::api::ffi::LaneType::kStop => LaneType::Stop,
+            maliput_sys::api::ffi::LaneType::kBorder => LaneType::Border,
+            maliput_sys::api::ffi::LaneType::kCurb => LaneType::Curb,
+            maliput_sys::api::ffi::LaneType::kMedian => LaneType::Median,
+            maliput_sys::api::ffi::LaneType::kRestricted => LaneType::Restricted,
+            maliput_sys::api::ffi::LaneType::kConstruction => LaneType::Construction,
+            maliput_sys::api::ffi::LaneType::kRail => LaneType::Rail,
+            maliput_sys::api::ffi::LaneType::kEntry => LaneType::Entry,
+            maliput_sys::api::ffi::LaneType::kExit => LaneType::Exit,
+            maliput_sys::api::ffi::LaneType::kOnRamp => LaneType::OnRamp,
+            maliput_sys::api::ffi::LaneType::kOffRamp => LaneType::OffRamp,
+            maliput_sys::api::ffi::LaneType::kConnectingRamp => LaneType::ConnectingRamp,
+            maliput_sys::api::ffi::LaneType::kSlipLane => LaneType::SlipLane,
+            maliput_sys::api::ffi::LaneType::kVirtual => LaneType::Virtual,
+            _ => LaneType::Unknown,
+        }
     }
 }
 
