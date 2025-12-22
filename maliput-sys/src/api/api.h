@@ -469,6 +469,34 @@ MutIntersectionPtr IntersectionBook_FindIntersectionInertialPosition(const Inter
   return {const_cast<IntersectionBook&>(intersection_book).FindIntersection(inertial_pos)};
 }
 
+// @defgroup LaneMarkingLine helpers.
+// @{
+
+double LaneMarkingLine_length(const LaneMarkingLine& lane_marking_line) {
+  return lane_marking_line.length;
+}
+
+double LaneMarkingLine_space(const LaneMarkingLine& lane_marking_line) {
+  return lane_marking_line.space;
+}
+
+double LaneMarkingLine_width(const LaneMarkingLine& lane_marking_line) {
+  return lane_marking_line.width;
+}
+
+double LaneMarkingLine_r_offset(const LaneMarkingLine& lane_marking_line) {
+  return lane_marking_line.r_offset;
+}
+
+LaneMarkingColor LaneMarkingLine_color(const LaneMarkingLine& lane_marking_line) {
+  return lane_marking_line.color;
+}
+
+// @}
+
+// @defgroup LaneMarking helpers.
+// @{
+
 double LaneMarking_width(const LaneMarking& lane_marking) {
   return lane_marking.width;
 }
@@ -505,6 +533,8 @@ std::unique_ptr<std::vector<LaneMarkingLine>> LaneMarking_lines(const LaneMarkin
   }
   return std::make_unique<std::vector<LaneMarkingLine>>(std::move(lines));
 }
+
+// @}
 
 } // namespace api
 } // namespace maliput

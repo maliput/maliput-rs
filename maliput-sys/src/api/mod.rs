@@ -449,6 +449,12 @@ pub mod ffi {
 
         // LaneMarkingLine bindings definitions
         type LaneMarkingLine;
+        fn LaneMarkingLine_length(lane_marking_line: &LaneMarkingLine) -> f64;
+        fn LaneMarkingLine_space(lane_marking_line: &LaneMarkingLine) -> f64;
+        fn LaneMarkingLine_width(lane_marking_line: &LaneMarkingLine) -> f64;
+        fn LaneMarkingLine_r_offset(lane_marking_line: &LaneMarkingLine) -> f64;
+        type LaneMarkingColor;
+        fn LaneMarkingLine_color(lane_marking_line: &LaneMarkingLine) -> LaneMarkingColor;
 
         // LaneMarking bindings definitions
         type LaneMarking;
@@ -459,7 +465,6 @@ pub mod ffi {
         fn LaneMarking_type(lane_marking: &LaneMarking) -> LaneMarkingType;
         type LaneMarkingWeight;
         fn LaneMarking_weight(lane_marking: &LaneMarking) -> LaneMarkingWeight;
-        type LaneMarkingColor;
         fn LaneMarking_color(lane_marking: &LaneMarking) -> LaneMarkingColor;
         type LaneChangePermission;
         fn LaneMarking_lane_change(lane_marking: &LaneMarking) -> LaneChangePermission;
