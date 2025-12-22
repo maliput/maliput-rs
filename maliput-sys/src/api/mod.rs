@@ -81,6 +81,62 @@ pub mod ffi {
         kVirtual,
     }
 
+    /// Shared enum representing different types of lane markings.
+    /// This is needed to access the enum variant from Rust API since the C++ enum has an opaque implementation.
+    /// The order of these variants must match with the order of the enum class defined in maliput C++ API.
+    #[repr(u32)]
+    pub enum LaneMarkingType {
+        kUnknown,
+        kNone,
+        kSolid,
+        kBroken,
+        kSolidSolid,
+        kSolidBroken,
+        kBrokenSolid,
+        kBrokenBroken,
+        kBottsDots,
+        kGrass,
+        kCurb,
+        kEdge,
+    }
+
+    /// Shared enum representing different weights of lane markings.
+    /// This is needed to access the enum variant from Rust API since the C++ enum has an opaque implementation.
+    /// The order of these variants must match with the order of the enum class defined in maliput C++ API.
+    #[repr(u32)]
+    pub enum LaneMarkingWeight {
+        kUnknown,
+        kStandard,
+        kBold,
+    }
+
+    /// Shared enum representing different colors of lane markings.
+    /// This is needed to access the enum variant from Rust API since the C++ enum has an opaque implementation.
+    /// The order of these variants must match with the order of the enum class defined in maliput C++ API.
+    #[repr(u32)]
+    pub enum LaneMarkingColor {
+        kUnknown,
+        kWhite,
+        kYellow,
+        kOrange,
+        kRed,
+        kBlue,
+        kGreen,
+        kViolet,
+    }
+
+    /// Shared enum representing different weights of lane markings.
+    /// This is needed to access the enum variant from Rust API since the C++ enum has an opaque implementation.
+    /// The order of these variants must match with the order of the enum class defined in maliput C++ API.
+    #[repr(u32)]
+    pub enum LaneChangePermission {
+        kUnknown,
+        kAllowed,
+        kToLeft,
+        kToRight,
+        kProhibited,
+    }
+
     unsafe extern "C++" {
         include!("api/api.h");
         include!("cxx_utils/error_handling.h");
@@ -391,6 +447,23 @@ pub mod ffi {
             inertial_position: &InertialPosition,
         ) -> MutIntersectionPtr;
 
+        // LaneMarkingLine bindings definitions
+        type LaneMarkingLine;
+
+        // LaneMarking bindings definitions
+        type LaneMarking;
+        fn LaneMarking_width(lane_marking: &LaneMarking) -> f64;
+        fn LaneMarking_height(lane_marking: &LaneMarking) -> f64;
+        fn LaneMarking_material(lane_marking: &LaneMarking) -> String;
+        type LaneMarkingType;
+        fn LaneMarking_type(lane_marking: &LaneMarking) -> LaneMarkingType;
+        type LaneMarkingWeight;
+        fn LaneMarking_weight(lane_marking: &LaneMarking) -> LaneMarkingWeight;
+        type LaneMarkingColor;
+        fn LaneMarking_color(lane_marking: &LaneMarking) -> LaneMarkingColor;
+        type LaneChangePermission;
+        fn LaneMarking_lane_change(lane_marking: &LaneMarking) -> LaneChangePermission;
+        fn LaneMarking_lines(lane_marking: &LaneMarking) -> UniquePtr<CxxVector<LaneMarkingLine>>;
     }
     impl UniquePtr<RoadNetwork> {}
     impl UniquePtr<LanePosition> {}
