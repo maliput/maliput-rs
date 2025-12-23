@@ -288,6 +288,8 @@ pub mod ffi {
         ) -> UniquePtr<LanePosition>;
         type LaneType;
         fn Lane_type(lane: &Lane) -> LaneType;
+        fn left_boundary(self: &Lane) -> Result<*const LaneBoundary>;
+        fn right_boundary(self: &Lane) -> Result<*const LaneBoundary>;
 
         // Segment bindings definitions
         type Segment;
