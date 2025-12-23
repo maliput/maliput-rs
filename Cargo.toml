@@ -16,5 +16,5 @@ strum = { version = "0.27" }
 strum_macros = { version = "0.27" }
 thiserror = { version = "1.0" }
 
-maliput-sdk = { version = "0.12", path = "maliput-sdk" }
-maliput-sys = { version = "0.14", path = "maliput-sys" }
+maliput-sdk = { version = "0.13", path = "maliput-sdk" }
+maliput-sys = { version = "0.15", path = "maliput-sys" }
