@@ -295,6 +295,8 @@ pub mod ffi {
         fn junction(self: &Segment) -> Result<*const Junction>;
         fn lane(self: &Segment, index: i32) -> Result<*const Lane>;
         fn Segment_id(segment: &Segment) -> String;
+        fn num_boundaries(self: &Segment) -> i32;
+        fn boundary(self: &Segment, index: i32) -> Result<*const LaneBoundary>;
 
         // Junction bindings definitions
         type Junction;
