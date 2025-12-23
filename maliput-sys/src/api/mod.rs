@@ -288,6 +288,8 @@ pub mod ffi {
         ) -> UniquePtr<LanePosition>;
         type LaneType;
         fn Lane_type(lane: &Lane) -> LaneType;
+        fn left_boundary(self: &Lane) -> Result<*const LaneBoundary>;
+        fn right_boundary(self: &Lane) -> Result<*const LaneBoundary>;
 
         // Segment bindings definitions
         type Segment;
@@ -295,6 +297,8 @@ pub mod ffi {
         fn junction(self: &Segment) -> Result<*const Junction>;
         fn lane(self: &Segment, index: i32) -> Result<*const Lane>;
         fn Segment_id(segment: &Segment) -> String;
+        fn num_boundaries(self: &Segment) -> i32;
+        fn boundary(self: &Segment, index: i32) -> Result<*const LaneBoundary>;
 
         // Junction bindings definitions
         type Junction;
@@ -469,6 +473,27 @@ pub mod ffi {
         type LaneChangePermission;
         fn LaneMarking_lane_change(lane_marking: &LaneMarking) -> LaneChangePermission;
         fn LaneMarking_lines(lane_marking: &LaneMarking) -> UniquePtr<CxxVector<LaneMarkingLine>>;
+
+        // LaneMarkingResult bindings definitions
+        type LaneMarkingResult;
+        fn LaneMarkingResult_marking(lane_marking_result: &LaneMarkingResult) -> UniquePtr<LaneMarking>;
+        fn LaneMarkingResult_s_start(lane_marking_result: &LaneMarkingResult) -> f64;
+        fn LaneMarkingResult_s_end(lane_marking_result: &LaneMarkingResult) -> f64;
+
+        // LaneBoundary bindings definitions
+        type LaneBoundary;
+        fn index(self: &LaneBoundary) -> i32;
+        fn lane_to_left(self: &LaneBoundary) -> *const Lane;
+        fn lane_to_right(self: &LaneBoundary) -> *const Lane;
+        fn segment(self: &LaneBoundary) -> *const Segment;
+        fn LaneBoundary_id(lane_boundary: &LaneBoundary) -> String;
+        fn LaneBoundary_GetMarking(lane_boundary: &LaneBoundary, s: f64) -> UniquePtr<LaneMarkingResult>;
+        fn LaneBoundary_GetMarkings(lane_boundary: &LaneBoundary) -> UniquePtr<CxxVector<LaneMarkingResult>>;
+        fn LaneBoundary_GetMarkingsByRange(
+            lane_boundary: &LaneBoundary,
+            s_start: f64,
+            s_end: f64,
+        ) -> UniquePtr<CxxVector<LaneMarkingResult>>;
     }
     impl UniquePtr<RoadNetwork> {}
     impl UniquePtr<LanePosition> {}

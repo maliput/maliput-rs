@@ -39,6 +39,7 @@
 #include <maliput/api/intersection_book.h>
 #include <maliput/api/junction.h>
 #include <maliput/api/lane.h>
+#include <maliput/api/lane_boundary.h>
 #include <maliput/api/lane_data.h>
 #include <maliput/api/lane_marking.h>
 #include <maliput/api/road_network.h>
@@ -494,6 +495,23 @@ LaneMarkingColor LaneMarkingLine_color(const LaneMarkingLine& lane_marking_line)
 
 // @}
 
+// @defgroup LaneMarkingResult helpers.
+// @{
+
+std::unique_ptr<LaneMarking> LaneMarkingResult_marking(const LaneMarkingResult& lane_marking_result) {
+  return std::make_unique<LaneMarking>(lane_marking_result.marking);
+}
+
+double LaneMarkingResult_s_start(const LaneMarkingResult& lane_marking_result) {
+  return lane_marking_result.s_start;
+}
+
+double LaneMarkingResult_s_end(const LaneMarkingResult& lane_marking_result) {
+  return lane_marking_result.s_end;
+}
+
+// @}
+
 // @defgroup LaneMarking helpers.
 // @{
 
@@ -532,6 +550,43 @@ std::unique_ptr<std::vector<LaneMarkingLine>> LaneMarking_lines(const LaneMarkin
     lines.push_back(line);
   }
   return std::make_unique<std::vector<LaneMarkingLine>>(std::move(lines));
+}
+
+// @}
+
+// @defgroup LaneBoundary helpers.
+// @{
+
+rust::String LaneBoundary_id(const LaneBoundary& lane_boundary) {
+  return lane_boundary.id().string();
+}
+
+std::unique_ptr<LaneMarkingResult> LaneBoundary_GetMarking(const LaneBoundary& lane_boundary, double s) {
+  const auto marking = lane_boundary.GetMarking(s);
+  if (!marking.has_value()) {
+    return nullptr;
+  }
+  return std::make_unique<LaneMarkingResult>(marking.value());
+}
+
+std::unique_ptr<std::vector<LaneMarkingResult>> LaneBoundary_GetMarkings(const LaneBoundary& lane_boundary) {
+  std::vector<LaneMarkingResult> markings;
+  const auto markings_cpp = lane_boundary.GetMarkings();
+  markings.reserve(markings_cpp.size());
+  for (const auto& marking : markings_cpp) {
+    markings.emplace_back(marking);
+  }
+  return std::make_unique<std::vector<LaneMarkingResult>>(std::move(markings));
+}
+
+std::unique_ptr<std::vector<LaneMarkingResult>> LaneBoundary_GetMarkingsByRange(const LaneBoundary& lane_boundary, double s_start, double s_end) {
+  std::vector<LaneMarkingResult> markings;
+  const auto markings_cpp = lane_boundary.GetMarkings(s_start, s_end);
+  markings.reserve(markings_cpp.size());
+  for (const auto& marking : markings_cpp) {
+    markings.emplace_back(marking);
+  }
+  return std::make_unique<std::vector<LaneMarkingResult>>(std::move(markings));
 }
 
 // @}
