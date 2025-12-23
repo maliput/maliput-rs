@@ -40,6 +40,7 @@
 #include <maliput/api/junction.h>
 #include <maliput/api/lane.h>
 #include <maliput/api/lane_data.h>
+#include <maliput/api/lane_marking.h>
 #include <maliput/api/road_network.h>
 #include <maliput/api/road_geometry.h>
 #include <maliput/api/regions.h>
@@ -467,6 +468,73 @@ MutIntersectionPtr IntersectionBook_FindIntersectionDiscreteValueRule(const Inte
 MutIntersectionPtr IntersectionBook_FindIntersectionInertialPosition(const IntersectionBook& intersection_book, const InertialPosition& inertial_pos) {
   return {const_cast<IntersectionBook&>(intersection_book).FindIntersection(inertial_pos)};
 }
+
+// @defgroup LaneMarkingLine helpers.
+// @{
+
+double LaneMarkingLine_length(const LaneMarkingLine& lane_marking_line) {
+  return lane_marking_line.length;
+}
+
+double LaneMarkingLine_space(const LaneMarkingLine& lane_marking_line) {
+  return lane_marking_line.space;
+}
+
+double LaneMarkingLine_width(const LaneMarkingLine& lane_marking_line) {
+  return lane_marking_line.width;
+}
+
+double LaneMarkingLine_r_offset(const LaneMarkingLine& lane_marking_line) {
+  return lane_marking_line.r_offset;
+}
+
+LaneMarkingColor LaneMarkingLine_color(const LaneMarkingLine& lane_marking_line) {
+  return lane_marking_line.color;
+}
+
+// @}
+
+// @defgroup LaneMarking helpers.
+// @{
+
+double LaneMarking_width(const LaneMarking& lane_marking) {
+  return lane_marking.width;
+}
+
+double LaneMarking_height(const LaneMarking& lane_marking) {
+  return lane_marking.height;
+}
+
+rust::String LaneMarking_material(const LaneMarking& lane_marking) {
+  return lane_marking.material;
+}
+
+LaneMarkingType LaneMarking_type(const LaneMarking& lane_marking) {
+  return lane_marking.type;
+}
+
+LaneMarkingWeight LaneMarking_weight(const LaneMarking& lane_marking) {
+  return lane_marking.weight;
+}
+
+LaneMarkingColor LaneMarking_color(const LaneMarking& lane_marking) {
+  return lane_marking.color;
+}
+
+LaneChangePermission LaneMarking_lane_change(const LaneMarking& lane_marking) {
+  return lane_marking.lane_change;
+}
+
+std::unique_ptr<std::vector<LaneMarkingLine>> LaneMarking_lines(const LaneMarking& lane_marking) {
+  std::vector<LaneMarkingLine> lines;
+  lines.reserve(lane_marking.lines.size());
+  for (const auto& line : lane_marking.lines) {
+    lines.push_back(line);
+  }
+  return std::make_unique<std::vector<LaneMarkingLine>>(std::move(lines));
+}
+
+// @}
 
 } // namespace api
 } // namespace maliput
