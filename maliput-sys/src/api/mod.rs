@@ -469,6 +469,22 @@ pub mod ffi {
         type LaneChangePermission;
         fn LaneMarking_lane_change(lane_marking: &LaneMarking) -> LaneChangePermission;
         fn LaneMarking_lines(lane_marking: &LaneMarking) -> UniquePtr<CxxVector<LaneMarkingLine>>;
+
+        // LaneBoundary bindings definitions
+        type LaneBoundary;
+        fn index(self: &LaneBoundary) -> i32;
+        fn lane_to_left(self: &LaneBoundary) -> *const Lane;
+        fn lane_to_right(self: &LaneBoundary) -> *const Lane;
+        fn segment(self: &LaneBoundary) -> *const Segment;
+        fn LaneBoundary_id(lane_boundary: &LaneBoundary) -> String;
+        type LaneMarkingResult;
+        fn LaneBoundary_GetMarking(lane_boundary: &LaneBoundary, s: f64) -> UniquePtr<LaneMarkingResult>;
+        fn LaneBoundary_GetMarkings(lane_boundary: &LaneBoundary) -> UniquePtr<CxxVector<LaneMarkingResult>>;
+        fn LaneBoundary_GetMarkingsByRange(
+            lane_boundary: &LaneBoundary,
+            s_start: f64,
+            s_end: f64,
+        ) -> UniquePtr<CxxVector<LaneMarkingResult>>;
     }
     impl UniquePtr<RoadNetwork> {}
     impl UniquePtr<LanePosition> {}
