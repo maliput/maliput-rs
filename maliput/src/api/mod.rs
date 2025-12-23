@@ -1336,6 +1336,34 @@ impl<'a> Lane<'a> {
             _ => LaneType::Unknown,
         }
     }
+
+    /// Returns the boundary at the left of the lane.
+    pub fn left_boundary(&self) -> Result<LaneBoundary<'_>, MaliputError> {
+        let lane_boundary = self.lane.left_boundary()?;
+        if lane_boundary.is_null() {
+            return Err(MaliputError::AssertionError(
+                "Lane does not have a left boundary".to_string(),
+            ));
+        }
+
+        Ok(LaneBoundary {
+            lane_boundary: unsafe { lane_boundary.as_ref().expect("") },
+        })
+    }
+
+    /// Returns the boundary at the right of the lane.
+    pub fn right_boundary(&self) -> Result<LaneBoundary<'_>, MaliputError> {
+        let lane_boundary = self.lane.right_boundary()?;
+        if lane_boundary.is_null() {
+            return Err(MaliputError::AssertionError(
+                "Lane does not have a right boundary".to_string(),
+            ));
+        }
+
+        Ok(LaneBoundary {
+            lane_boundary: unsafe { lane_boundary.as_ref().expect("") },
+        })
+    }
 }
 
 /// Copy trait for Lane.
@@ -1412,6 +1440,30 @@ impl<'a> Segment<'a> {
                 lane: lane.as_ref().expect(""),
             })
         }
+    }
+
+    /// Returns the amount of boundaries in the segment.
+    pub fn num_boundaries(&self) -> i32 {
+        self.segment.num_boundaries()
+    }
+
+    /// Returns the [LaneBoundary] that matches the index.
+    ///
+    /// # Arguments
+    /// * `index` - The index of the boundary. See [LaneBoundary] for more info about indexes.
+    ///
+    /// # Returns
+    /// The [LaneBoundary] at the given index.
+    pub fn boundary(&self, index: i32) -> Result<LaneBoundary<'_>, MaliputError> {
+        let lane_boundary = self.segment.boundary(index)?;
+        if lane_boundary.is_null() {
+            return Err(MaliputError::AssertionError(
+                "Segment does not have a boundary".to_string(),
+            ));
+        }
+        Ok(LaneBoundary {
+            lane_boundary: unsafe { lane_boundary.as_ref().expect("") },
+        })
     }
 }
 
@@ -2575,19 +2627,19 @@ pub enum LaneChangePermission {
 /// about each component line. When `lines` is non-empty, the individual line
 /// definitions take precedence for geometry and per-line colors. The top-level
 /// `type`, `color`, and `width` fields remain useful as summary/fallback values.
-pub struct LaneMarking<'a> {
-    lane_marking: &'a maliput_sys::api::ffi::LaneMarking,
+pub struct LaneMarking {
+    lane_marking: cxx::UniquePtr<maliput_sys::api::ffi::LaneMarking>,
 }
 
-impl<'a> LaneMarking<'a> {
+impl LaneMarking {
     /// Returns the total width of the marking.
     pub fn width(&self) -> f64 {
-        maliput_sys::api::ffi::LaneMarking_width(self.lane_marking)
+        maliput_sys::api::ffi::LaneMarking_width(&self.lane_marking)
     }
 
     /// Returns the total height of the marking.
     pub fn height(&self) -> f64 {
-        maliput_sys::api::ffi::LaneMarking_height(self.lane_marking)
+        maliput_sys::api::ffi::LaneMarking_height(&self.lane_marking)
     }
 
     /// Returns the marking material.
@@ -2595,7 +2647,7 @@ impl<'a> LaneMarking<'a> {
     /// # Returns
     /// A [String] describing the marking material.
     pub fn material(&self) -> String {
-        maliput_sys::api::ffi::LaneMarking_material(self.lane_marking)
+        maliput_sys::api::ffi::LaneMarking_material(&self.lane_marking)
     }
 
     /// Returns the type of marking.
@@ -2603,7 +2655,7 @@ impl<'a> LaneMarking<'a> {
     /// # Returns
     /// A [LaneMarkingType] representing the pattern or type of marking.
     pub fn get_type(&self) -> LaneMarkingType {
-        let marking_type = maliput_sys::api::ffi::LaneMarking_type(self.lane_marking);
+        let marking_type = maliput_sys::api::ffi::LaneMarking_type(&self.lane_marking);
         match marking_type {
             maliput_sys::api::ffi::LaneMarkingType::kUnknown => LaneMarkingType::Unknown,
             maliput_sys::api::ffi::LaneMarkingType::kNone => LaneMarkingType::None,
@@ -2626,7 +2678,7 @@ impl<'a> LaneMarking<'a> {
     /// # Returns
     /// A [LaneMarkingWeight] that indicates the type of visual weight of the marking.
     pub fn weight(&self) -> LaneMarkingWeight {
-        let marking_weight = maliput_sys::api::ffi::LaneMarking_weight(self.lane_marking);
+        let marking_weight = maliput_sys::api::ffi::LaneMarking_weight(&self.lane_marking);
         match marking_weight {
             maliput_sys::api::ffi::LaneMarkingWeight::kUnknown => LaneMarkingWeight::Unknown,
             maliput_sys::api::ffi::LaneMarkingWeight::kStandard => LaneMarkingWeight::Standard,
@@ -2635,7 +2687,7 @@ impl<'a> LaneMarking<'a> {
         }
     }
     pub fn color(&self) -> LaneMarkingColor {
-        self.get_marking_color(maliput_sys::api::ffi::LaneMarking_color(self.lane_marking))
+        self.get_marking_color(maliput_sys::api::ffi::LaneMarking_color(&self.lane_marking))
     }
 
     /// Returns the type of lane change the marking allows.
@@ -2643,7 +2695,7 @@ impl<'a> LaneMarking<'a> {
     /// # Returns
     /// A [LaneChangePermission] that indicates the type of lane change that is allowed.
     pub fn lane_change(&self) -> LaneChangePermission {
-        let lane_change = maliput_sys::api::ffi::LaneMarking_lane_change(self.lane_marking);
+        let lane_change = maliput_sys::api::ffi::LaneMarking_lane_change(&self.lane_marking);
         match lane_change {
             maliput_sys::api::ffi::LaneChangePermission::kUnknown => LaneChangePermission::Unknown,
             maliput_sys::api::ffi::LaneChangePermission::kAllowed => LaneChangePermission::Allowed,
@@ -2659,7 +2711,7 @@ impl<'a> LaneMarking<'a> {
     /// # Returns
     /// A vector of [LaneMarkingLine]s.
     pub fn lines(&self) -> Vec<LaneMarkingLine> {
-        let lines = maliput_sys::api::ffi::LaneMarking_lines(self.lane_marking);
+        let lines = maliput_sys::api::ffi::LaneMarking_lines(&self.lane_marking);
         lines
             .into_iter()
             .map(|line| LaneMarkingLine {
@@ -2686,6 +2738,23 @@ impl<'a> LaneMarking<'a> {
             _ => LaneMarkingColor::Unknown,
         }
     }
+}
+
+/// The result of querying a [LaneMarking] at a specific position or range.
+/// This structure pairs a [LaneMarking] with the s-range over which it is valid.
+/// Lane markings can change along the lane (e.g., solid to broken at an
+/// intersection approach), so the validity range is essential.
+///
+/// The range uses half-open interval semantics: `[s_start, s_end)`.
+pub struct LaneMarkingQuery {
+    /// LaneMarking description.
+    pub lane_marking: LaneMarking,
+    /// Start s-coordinate where the marking begins
+    /// This is relative to the lane's s-coordinate system..
+    pub s_start: f64,
+    /// End s-coordinate where the marking ends.
+    /// This is relative to the lane's s-coordinate system.
+    pub s_end: f64,
 }
 
 /// Represents a boundary between adjacent lanes or at the edge of a Segment.
@@ -2790,7 +2859,67 @@ impl<'a> LaneBoundary<'a> {
         })
     }
 
-    
+    /// Gets the lane marking at a specific s-coordinate along this boundary.
+    ///
+    /// # Arguments
+    /// * `s` - The s-coordinate along the boundary (in the lane coordinate system).
+    ///   Typically in the range [0, segment_length].
+    ///
+    /// # Returns
+    /// A [LaneMarkingQuery] at the specified position, including the marking details and the
+    /// s-range over which it is valid, or `None` if no marking information is available at that location.
+    pub fn get_marking(&self, s: f64) -> Option<LaneMarkingQuery> {
+        let lane_marking_query = maliput_sys::api::ffi::LaneBoundary_GetMarking(self.lane_boundary, s);
+        if lane_marking_query.is_null() {
+            return None;
+        }
+        Some(self.create_lane_marking_query(&lane_marking_query))
+    }
+
+    /// Gets all lane markings along this boundary.
+    ///
+    /// # Returns
+    /// A vector of [LaneMarkingQuery], each describing a marking and the s-range over which it is valid.
+    /// The queried results are ordered by increasing s_start. If no markings are available, returns an empty vector.
+    pub fn get_markings(&self) -> Vec<LaneMarkingQuery> {
+        let lane_marking_queries = maliput_sys::api::ffi::LaneBoundary_GetMarkings(self.lane_boundary);
+        lane_marking_queries
+            .into_iter()
+            .map(|lane_marking_query| self.create_lane_marking_query(lane_marking_query))
+            .collect::<Vec<LaneMarkingQuery>>()
+    }
+
+    /// Gets lane markings within a specified s-range.
+    ///
+    /// # Arguments
+    /// * `s_start` - Start of the s-range to query.
+    /// * `s_end` - End of the s-range to query.
+    ///
+    /// # Returns
+    /// A vector of [LaneMarkingQuery] for markings that overlap with the specified range. Queried results are ordered by increasing `s_start`.
+    /// If no markings are available in the range, returns an empty vector.
+    pub fn get_markings_by_range(&self, s_start: f64, s_end: f64) -> Vec<LaneMarkingQuery> {
+        let lane_marking_queries =
+            maliput_sys::api::ffi::LaneBoundary_GetMarkingsByRange(self.lane_boundary, s_start, s_end);
+        lane_marking_queries
+            .into_iter()
+            .map(|lane_marking_query| self.create_lane_marking_query(lane_marking_query))
+            .collect::<Vec<LaneMarkingQuery>>()
+    }
+
+    // Private helper to create a LaneMarkingQuery.
+    fn create_lane_marking_query(
+        &self,
+        lane_marking_query: &maliput_sys::api::ffi::LaneMarkingResult,
+    ) -> LaneMarkingQuery {
+        LaneMarkingQuery {
+            lane_marking: LaneMarking {
+                lane_marking: maliput_sys::api::ffi::LaneMarkingResult_marking(lane_marking_query),
+            },
+            s_start: maliput_sys::api::ffi::LaneMarkingResult_s_start(lane_marking_query),
+            s_end: maliput_sys::api::ffi::LaneMarkingResult_s_end(lane_marking_query),
+        }
+    }
 }
 
 mod tests {
