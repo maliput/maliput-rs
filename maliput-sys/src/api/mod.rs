@@ -474,6 +474,12 @@ pub mod ffi {
         fn LaneMarking_lane_change(lane_marking: &LaneMarking) -> LaneChangePermission;
         fn LaneMarking_lines(lane_marking: &LaneMarking) -> UniquePtr<CxxVector<LaneMarkingLine>>;
 
+        // LaneMarkingResult bindings definitions
+        type LaneMarkingResult;
+        fn LaneMarkingResult_marking(lane_marking_result: &LaneMarkingResult) -> UniquePtr<LaneMarking>;
+        fn LaneMarkingResult_s_start(lane_marking_result: &LaneMarkingResult) -> f64;
+        fn LaneMarkingResult_s_end(lane_marking_result: &LaneMarkingResult) -> f64;
+
         // LaneBoundary bindings definitions
         type LaneBoundary;
         fn index(self: &LaneBoundary) -> i32;
@@ -481,7 +487,6 @@ pub mod ffi {
         fn lane_to_right(self: &LaneBoundary) -> *const Lane;
         fn segment(self: &LaneBoundary) -> *const Segment;
         fn LaneBoundary_id(lane_boundary: &LaneBoundary) -> String;
-        type LaneMarkingResult;
         fn LaneBoundary_GetMarking(lane_boundary: &LaneBoundary, s: f64) -> UniquePtr<LaneMarkingResult>;
         fn LaneBoundary_GetMarkings(lane_boundary: &LaneBoundary) -> UniquePtr<CxxVector<LaneMarkingResult>>;
         fn LaneBoundary_GetMarkingsByRange(

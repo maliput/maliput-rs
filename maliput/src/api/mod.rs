@@ -2476,6 +2476,7 @@ impl<'a> IntersectionBook<'a> {
     }
 }
 
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct LaneMarkingLine {
     /// Length of the visible (painted) part of each dash.
     /// For solid lines, this should be 0 (value is ignored).
@@ -2685,6 +2686,111 @@ impl<'a> LaneMarking<'a> {
             _ => LaneMarkingColor::Unknown,
         }
     }
+}
+
+/// Represents a boundary between adjacent lanes or at the edge of a Segment.
+///
+/// A [LaneBoundary] is owned by a [Segment] and serves as the interface between
+/// two adjacent lanes, or between a lane and the segment edge. For a [Segment]
+/// with N lanes, there are N+1 boundaries:
+///
+/// ```text
+///                                                        +r direction
+///                                                      <─────────────
+///   Boundary N    ...    Boundary 2    Boundary 1    Boundary 0
+///      |                     |             |             |
+///      | Lane N-1  |   ...   |   Lane 1    |   Lane 0    |
+///      |                     |             |             |
+///  (left edge)                                     (right edge)
+/// ```
+///
+/// Where:
+/// - Boundary 0 is the right edge (minimum r coordinate).
+/// - Boundary N is the left edge (maximum r coordinate).
+/// - Boundaries are indexed with increasing r direction.
+///
+/// Each [LaneBoundary] provides:
+/// - Reference to the lane on its left (if any).
+/// - Reference to the lane on its right (if any).
+/// - Query methods for lane markings at specific s-coordinates.
+///
+/// The design ensures that adjacent lanes share the same boundary object,
+/// avoiding redundancy and ensuring consistency. For example, [Lane] 1's right
+/// boundary is the same object as [Lane] 0's left boundary (Boundary 1).
+pub struct LaneBoundary<'a> {
+    lane_boundary: &'a maliput_sys::api::ffi::LaneBoundary,
+}
+
+impl<'a> LaneBoundary<'a> {
+    /// Returns the ID of the [LaneBoundary].
+    /// The ID is a unique identifier for the [LaneBoundary] within the Segment.
+    ///
+    /// # Returns
+    /// A `String` containing the ID of the [LaneBoundary].
+    pub fn id(&self) -> String {
+        maliput_sys::api::ffi::LaneBoundary_id(self.lane_boundary)
+    }
+
+    /// Returns the segment that contains this [LaneBoundary].
+    ///
+    /// # Returns
+    /// An `Option<Segment>` containing a reference to the [Segment] if it exists,
+    /// or `None` if the [LaneBoundary] is not associated with a segment.
+    pub fn segment(&self) -> Option<Segment<'a>> {
+        let segment = self.lane_boundary.segment();
+        if segment.is_null() {
+            return None;
+        }
+        Some(unsafe {
+            Segment {
+                segment: segment.as_ref().expect(""),
+            }
+        })
+    }
+
+    /// Returns the index of this boundary within the parent [Segment].
+    ///
+    /// Boundaries are indexed from 0 (rightmost, minimum r) to num_lanes()
+    /// (leftmost, maximum r).
+    pub fn index(&self) -> i32 {
+        self.lane_boundary.index()
+    }
+
+    /// Returns the [Lane] immediately to the left of this boundary (increasing r direction).
+    ///
+    /// # Returns
+    /// An `Option<Lane>` containing the lane to the left, or `None` if this is
+    /// the leftmost boundary of the [Segment].
+    pub fn lane_to_left(&self) -> Option<Lane<'a>> {
+        let lane = self.lane_boundary.lane_to_left();
+        if lane.is_null() {
+            return None;
+        }
+        Some(unsafe {
+            Lane {
+                lane: lane.as_ref().expect("Lane pointer from lane_to_left is null"),
+            }
+        })
+    }
+
+    /// Returns the [Lane] immediately to the right of this boundary (decreasing r direction).
+    ///
+    /// # Returns
+    /// An `Option<Lane>` containing the lane to the right, or `None` if this is
+    /// the rightmost boundary of the Segment.
+    pub fn lane_to_right(&self) -> Option<Lane<'a>> {
+        let lane = self.lane_boundary.lane_to_right();
+        if lane.is_null() {
+            return None;
+        }
+        Some(unsafe {
+            Lane {
+                lane: lane.as_ref().expect("Lane pointer from lane_to_right is null"),
+            }
+        })
+    }
+
+    
 }
 
 mod tests {

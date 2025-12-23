@@ -495,6 +495,23 @@ LaneMarkingColor LaneMarkingLine_color(const LaneMarkingLine& lane_marking_line)
 
 // @}
 
+// @defgroup LaneMarkingResult helpers.
+// @{
+
+std::unique_ptr<LaneMarking> LaneMarkingResult_marking(const LaneMarkingResult& lane_marking_result) {
+  return std::make_unique<LaneMarking>(lane_marking_result.marking);
+}
+
+double LaneMarkingResult_s_start(const LaneMarkingResult& lane_marking_result) {
+  return lane_marking_result.s_start;
+}
+
+double LaneMarkingResult_s_end(const LaneMarkingResult& lane_marking_result) {
+  return lane_marking_result.s_end;
+}
+
+// @}
+
 // @defgroup LaneMarking helpers.
 // @{
 
