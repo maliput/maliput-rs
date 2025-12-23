@@ -2477,18 +2477,18 @@ impl<'a> IntersectionBook<'a> {
 }
 
 pub struct LaneMarkingLine {
-    /// Length of the visible (painted) part of each dash [m].
+    /// Length of the visible (painted) part of each dash.
     /// For solid lines, this should be 0 (value is ignored).
     pub length: f64,
 
-    /// Length of the gap between visible parts [m].
+    /// Length of the gap between visible parts.
     /// For solid lines, this should be 0.
     pub space: f64,
 
     /// Width of this line [m].
     pub width: f64,
 
-    /// Lateral offset from the lane boundary [m].
+    /// Lateral offset from the lane boundary.
     /// Positive values offset in the positive r-direction (towards the lane's
     /// left edge when facing the positive s-direction).
     /// This allows positioning multiple lines relative to each other.
@@ -2499,7 +2499,7 @@ pub struct LaneMarkingLine {
     pub color: LaneMarkingColor,
 }
 
-impl<'a> LaneMarkingLine {
+impl LaneMarkingLine {
     /// Creates a new LaneMarkingLine.
     pub fn new(length: f64, space: f64, width: f64, r_offset: f64, color: LaneMarkingColor) -> LaneMarkingLine {
         LaneMarkingLine {

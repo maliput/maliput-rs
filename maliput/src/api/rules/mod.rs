@@ -1285,7 +1285,7 @@ pub struct StateProviderQuery<T> {
 }
 
 /// Alias for the [StateProviderQuery] returned by [PhaseProvider::get_phase].
-type PhaseStateProviderQuery = StateProviderQuery<String>;
+pub type PhaseStateProviderQuery = StateProviderQuery<String>;
 
 /// Defines a phase provider.
 ///
