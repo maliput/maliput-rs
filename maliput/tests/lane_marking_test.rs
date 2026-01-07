@@ -77,13 +77,12 @@ fn lane_marking_type_api() {
 
     assert_eq!(right_marking.get_type(), LaneMarkingType::SolidSolid);
 
-    // let left_boundary = lane.left_boundary().unwrap();
-    // let left_markings = left_boundary.get_markings();
-    // let left_marking = &left_markings[0].lane_marking;
+    let left_boundary = lane.left_boundary().unwrap();
+    let left_markings = left_boundary.get_markings();
+    let left_marking = &left_markings[0].lane_marking;
 
-    // TODO(Santoi): I think this should be Solid, but test says it is None. We should check this.
-    // let marking_type = left_marking.get_type();
-    // assert_eq!(marking_type, LaneMarkingType::Solid);
+    let marking_type = left_marking.get_type();
+    assert_eq!(marking_type, LaneMarkingType::Solid);
 }
 
 #[test]
