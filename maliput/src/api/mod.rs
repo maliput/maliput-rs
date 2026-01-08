@@ -1447,6 +1447,19 @@ impl<'a> Segment<'a> {
         self.segment.num_boundaries()
     }
 
+    /// Returns a Vec with all [LaneBoundary]s in the segment, which can be iterated.
+    ///
+    /// # Returns
+    /// A Vec with all lane boundaries in the segment.
+    pub fn boundaries(&self) -> Result<Vec<LaneBoundary<'_>>, MaliputError> {
+        let mut boundaries = vec![];
+        for i in 0..self.num_boundaries() {
+            let boundary = self.boundary(i)?;
+            boundaries.push(boundary);
+        }
+        Ok(boundaries)
+    }
+
     /// Returns the [LaneBoundary] that matches the index.
     ///
     /// # Arguments
