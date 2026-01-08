@@ -43,6 +43,8 @@ enum MaliputQuery {
     PrintAllLanes,
     GetNumberOfLanes,
     GetTotalLengthOfTheRoadGeometry,
+    GetLinearTolerance,
+    GetAngularTolerance,
     GetLaneLength(String),
     GetLaneBounds(String, f64),                                           // lane_id, s
     GetSegmentBounds(String, f64),                                        // lane_id, s
@@ -134,6 +136,8 @@ impl From<Vec<&str>> for MaliputQuery {
             ["PrintAllLanes"] => MaliputQuery::PrintAllLanes,
             ["GetNumberOfLanes"] => MaliputQuery::GetNumberOfLanes,
             ["GetTotalLengthOfTheRoadGeometry"] => MaliputQuery::GetTotalLengthOfTheRoadGeometry,
+            ["GetLinearTolerance"] => MaliputQuery::GetLinearTolerance,
+            ["GetAngularTolerance"] => MaliputQuery::GetAngularTolerance,
             ["GetLaneLength", lane_id] => MaliputQuery::GetLaneLength(lane_id.to_string()),
             ["GetLaneBounds", lane_id, s] => MaliputQuery::GetLaneBounds(lane_id.to_string(), s.parse().unwrap()),
             ["GetSegmentBounds", lane_id, s] => MaliputQuery::GetSegmentBounds(lane_id.to_string(), s.parse().unwrap()),
@@ -243,14 +247,16 @@ impl MaliputQuery {
         println!("\t\t1. PrintAllLanes");
         println!("\t\t2. GetNumberOfLanes");
         println!("\t\t3. GetTotalLengthOfTheRoadGeometry");
-        println!("\t\t4. GetLaneLength <lane_id>");
-        println!("\t\t5. GetLaneBounds <lane_id> <s>");
-        println!("\t\t6. GetSegmentBounds <lane_id> <s>");
-        println!("\t\t7. ToRoadPosition <x> <y> <z>");
-        println!("\t\t8. ToLanePosition <lane_id> <x> <y> <z>");
-        println!("\t\t9. ToSegmentPosition <lane_id> <x> <y> <z>");
-        println!("\t\t10 ToInertialPosition <lane_id> <s> <r> <h>");
-        println!("\t\t11. GetOrientation <lane_id> <s> <r> <h>");
+        println!("\t\t4. GetLinearTolerance");
+        println!("\t\t5. GetAngularTolerance");
+        println!("\t\t6. GetLaneLength <lane_id>");
+        println!("\t\t7. GetLaneBounds <lane_id> <s>");
+        println!("\t\t8. GetSegmentBounds <lane_id> <s>");
+        println!("\t\t9. ToRoadPosition <x> <y> <z>");
+        println!("\t\t10. ToLanePosition <lane_id> <x> <y> <z>");
+        println!("\t\t11. ToSegmentPosition <lane_id> <x> <y> <z>");
+        println!("\t\t12. ToInertialPosition <lane_id> <s> <r> <h>");
+        println!("\t\t13. GetOrientation <lane_id> <s> <r> <h>");
         println!("\t* Commands particular to maliput_malidrive / OpenDRIVE specification:");
         println!("\t\t1. OpenScenarioRoadPositionToMaliputRoadPosition <xodr_road_id> <xodr_s> <xodr_t>");
         println!(
@@ -306,6 +312,19 @@ impl<'a> RoadNetworkQuery<'a> {
                 total_length,
                 lanes_num,
                 total_length / lanes_num as f64);
+            }
+            MaliputQuery::GetLinearTolerance => {
+                let linear_tolerance = rg.linear_tolerance();
+                print_elapsed_time(start_time);
+                println!("-> Linear tolerance of the road geometry: {} meters", linear_tolerance);
+            }
+            MaliputQuery::GetAngularTolerance => {
+                let angular_tolerance = rg.angular_tolerance();
+                print_elapsed_time(start_time);
+                println!(
+                    "-> Angular tolerance of the road geometry: {} radians",
+                    angular_tolerance
+                );
             }
             MaliputQuery::GetLaneLength(lane_id) => {
                 if let Some(lane) = rg.get_lane(&lane_id) {
