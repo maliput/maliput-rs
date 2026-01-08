@@ -68,6 +68,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         marking.lane_marking.lane_change().to_string()
                     );
                 }
+
                 // Get markings by s.
                 let marking = boundary.get_marking(10.);
                 println!("\t\tQuerying marking at s = 10 ...");
@@ -77,6 +78,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 } else {
                     println!("\t\tNo marking at s = 10");
                 }
+
                 // Get markings in s-range.
                 let markings = boundary.get_markings_by_range(7., 13.);
                 println!("\t\tQuerying markings in s-range [7; 13] ...");
@@ -86,6 +88,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 for marking in markings {
                     println!("\t\t- Marking s-range: [{:.2}; {:.2}]", marking.s_start, marking.s_end);
                 }
+
+                // Access the lanes on the sides of a boundary.
+                println!("\t\tQuerying lanes on the left and right of the boundary:");
                 let lane_to_left = boundary.lane_to_left();
                 if lane_to_left.is_some() {
                     println!("\t\t- Lane to the left: {}", lane_to_left.unwrap().id());
