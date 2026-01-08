@@ -34,7 +34,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Get location of odr resources
     let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
-    let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
+    let xodr_path = format!("{}/data/xodr/TwoWayRoadWithDoubleYellowCurve.xodr", package_location);
 
     let road_network_properties = HashMap::from([
         ("road_geometry_id", "my_rg_from_rust"),
