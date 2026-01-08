@@ -57,23 +57,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 for marking in boundary.get_markings() {
                     println!("\t\t- Marking");
                     println!("\t\t    s-range: [{:.2}; {:.2}]", marking.s_start, marking.s_end);
-                    println!("\t\t    type: {}", marking.lane_marking.get_type().to_string());
-                    println!("\t\t    color: {}", marking.lane_marking.color().to_string());
+                    println!("\t\t    type: {}", marking.lane_marking.get_type());
+                    println!("\t\t    color: {}", marking.lane_marking.color());
                     println!("\t\t    material: {}", marking.lane_marking.material());
                     println!("\t\t    width: {:.2}", marking.lane_marking.width());
                     println!("\t\t    height: {:.2}", marking.lane_marking.height());
-                    println!("\t\t    weight: {}", marking.lane_marking.weight().to_string());
-                    println!(
-                        "\t\t    lane change permission: {}",
-                        marking.lane_marking.lane_change().to_string()
-                    );
+                    println!("\t\t    weight: {}", marking.lane_marking.weight());
+                    println!("\t\t    lane change permission: {}", marking.lane_marking.lane_change());
                 }
 
                 // Get markings by s.
                 let marking = boundary.get_marking(10.);
                 println!("\t\tQuerying marking at s = 10 ...");
-                if marking.is_some() {
-                    let marking = marking.unwrap();
+                if let Some(marking) = marking {
                     println!("\t\t- Marking s-range: [{:.2}; {:.2}]", marking.s_start, marking.s_end);
                 } else {
                     println!("\t\tNo marking at s = 10");
@@ -92,12 +88,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 // Access the lanes on the sides of a boundary.
                 println!("\t\tQuerying lanes on the left and right of the boundary:");
                 let lane_to_left = boundary.lane_to_left();
-                if lane_to_left.is_some() {
-                    println!("\t\t- Lane to the left: {}", lane_to_left.unwrap().id());
+                if let Some(lane_to_left) = lane_to_left {
+                    println!("\t\t- Lane to the left: {}", lane_to_left.id());
                 }
                 let lane_to_right = boundary.lane_to_right();
-                if lane_to_right.is_some() {
-                    println!("\t\t- Lane to the right: {}", lane_to_right.unwrap().id());
+                if let Some(lane_to_right) = lane_to_right {
+                    println!("\t\t- Lane to the right: {}", lane_to_right.id());
                 }
             }
         }
