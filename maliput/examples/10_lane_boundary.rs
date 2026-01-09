@@ -70,7 +70,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 let marking = boundary.get_marking(10.);
                 println!("\t\tQuerying marking at s = 10 ...");
                 if let Some(marking) = marking {
-                    println!("\t\t- Marking s-range: [{:.2}; {:.2}]", marking.s_start, marking.s_end);
+                    println!("\t\t- Marking");
+                    println!("\t\t    s-range: [{:.2}; {:.2}]", marking.s_start, marking.s_end);
+                    println!("\t\t    type: {}", marking.lane_marking.get_type());
                 } else {
                     println!("\t\tNo marking at s = 10");
                 }
@@ -82,7 +84,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     println!("\t\tNo markings in s-range [7; 13]");
                 }
                 for marking in markings {
-                    println!("\t\t- Marking s-range: [{:.2}; {:.2}]", marking.s_start, marking.s_end);
+                    println!("\t\t- Marking");
+                    println!("\t\t    s-range: [{:.2}; {:.2}]", marking.s_start, marking.s_end);
+                    println!("\t\t    type: {}", marking.lane_marking.get_type());
                 }
 
                 // Access the lanes on the sides of a boundary.
