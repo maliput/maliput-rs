@@ -2551,7 +2551,7 @@ pub struct LaneMarkingLine {
     /// For solid lines, this should be 0.
     pub space: f64,
 
-    /// Width of this line.
+    /// Width of this line, in meters.
     pub width: f64,
 
     /// Lateral offset from the lane boundary.
