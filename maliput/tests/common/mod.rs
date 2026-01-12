@@ -45,7 +45,8 @@ pub fn create_t_shape_road_network(omit_non_drivable_lanes: bool) -> RoadNetwork
     let road_network_properties = HashMap::from([
         ("road_geometry_id", "my_rg_from_rust"),
         ("opendrive_file", xodr_path.as_str()),
-        ("linear_tolerance", "0.01"),
+        ("angular_tolerance", "0.001"),
+        ("linear_tolerance", "0.001"),
         ("omit_nondrivable_lanes", omit_non_drivable_lanes),
     ]);
     let rn_res = RoadNetwork::new("maliput_malidrive", &road_network_properties);

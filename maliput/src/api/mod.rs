@@ -1026,6 +1026,30 @@ impl<'a> Lane<'a> {
             r: maliput_sys::api::ffi::Lane_GetOrientation(self.lane, lane_position.lp.as_ref().expect(""))?,
         })
     }
+
+    /// Returns the signed Euclidean curvature at the given [LanePosition].
+    ///
+    /// The Euclidean curvature magnitude is defined as the reciprocal of the radius
+    /// of the osculating circle at a given point on the curve: $|\kappa| = 1/R$.
+    ///
+    /// The sign convention follows the right-hand rule with respect to the lane's
+    /// `h`-axis (vertical/normal direction):
+    /// - **Positive curvature**: The path curves to the left (toward +r direction),
+    ///   i.e., counter-clockwise when viewed from above.
+    /// - **Negative curvature**: The path curves to the right (toward -r direction),
+    ///   i.e., clockwise when viewed from above.
+    ///
+    /// # Arguments
+    /// * `lane_position` - A [LanePosition]. The `s` component must be in domain
+    ///   `[0, Lane::length()]`. The `r` and `h` components are used to determine
+    ///   the curvature at the corresponding offset from the centerline.
+    ///
+    /// # Returns
+    /// The signed Euclidean curvature (1/m) at the given position.
+    pub fn get_curvature(&self, lane_position: &LanePosition) -> Result<f64, MaliputError> {
+        Ok(self.lane.GetCurvature(lane_position.lp.as_ref().expect(""))?)
+    }
+
     /// # Brief
     /// Get the [InertialPosition] of the [Lane] at the given [LanePosition].
     ///

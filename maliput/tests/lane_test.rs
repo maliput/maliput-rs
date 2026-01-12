@@ -138,3 +138,70 @@ fn lane_end_api_test() {
         maliput::api::LaneEnd::Finish(lane) => assert_eq!(lane.id(), lane_id),
     }
 }
+
+#[test]
+fn lane_curvature_test() {
+    let tolerance = 1e-6;
+    let road_network = common::create_t_shape_road_network(true);
+    let road_geometry = road_network.road_geometry();
+    // Straight lane segment
+    let lane = road_geometry.get_lane(&"0_0_1".to_string()).unwrap();
+    let lane_position = maliput::api::LanePosition::new(5.0, 0.0, 0.0);
+    let expected_curvature = 0.0; // Curvature for straight lane is 0.0
+    let curvature_result = lane.get_curvature(&lane_position).unwrap();
+    assert!((curvature_result - expected_curvature).abs() < tolerance);
+
+    // Curved lane segment to the right
+    let lane = road_geometry.get_lane(&"9_0_-1".to_string()).unwrap();
+    let expected_curvature_at_left_border = -2.5436419971059765e-1; // Obtained from OpenDRIVE reference values.
+    let s_position = lane.length() / 2.0;
+    // Calculate curvature at left border
+    let lane_position_at_left_border =
+        maliput::api::LanePosition::new(s_position, lane.lane_bounds(s_position).unwrap().max(), 0.0);
+    let curvature_at_left_border = lane.get_curvature(&lane_position_at_left_border).unwrap();
+    assert!((curvature_at_left_border - expected_curvature_at_left_border).abs() < tolerance);
+    // Calculate curvature at center using left border curvature and lane width.
+    let lane_width = lane.lane_bounds(s_position).unwrap().max() - lane.lane_bounds(s_position).unwrap().min(); // Calculate lane width. Should match 3.5 from OpenDRIVE file.
+    let lane_position_at_center = maliput::api::LanePosition::new(s_position, 0.0, 0.0);
+    let curvature_at_center = lane.get_curvature(&lane_position_at_center).unwrap();
+    // Verify center curvature can derive left border curvature using the offset formula.
+    // The formula κ(r + Δr) = κ(r) / (1 + κ(r) * Δr) uses an inverted sign convention
+    // where negative Δr means moving to the left (+r direction in lane frame).
+    // From center (r=0) to left border (r=+1.75): use Δr = -lane_width/2
+    let calculated_left_border_curvature = curvature_at_center / (1.0 + curvature_at_center * (-lane_width / 2.0));
+    assert!((curvature_at_left_border - calculated_left_border_curvature).abs() < tolerance);
+    // Calculate curvature at right border using center curvature.
+    // From center (r=0) to right border (r=-1.75): use Δr = +lane_width/2 (inverted sign convention)
+    let expected_curvature_at_right_border = curvature_at_center / (1.0 + curvature_at_center * (lane_width / 2.0));
+    let lane_position_at_right_border =
+        maliput::api::LanePosition::new(s_position, lane.lane_bounds(s_position).unwrap().min(), 0.0);
+    let curvature_at_right_border = lane.get_curvature(&lane_position_at_right_border).unwrap();
+    assert!((curvature_at_right_border - expected_curvature_at_right_border).abs() < tolerance);
+
+    // Curved lane segment to the left
+    let lane = road_geometry.get_lane(&"8_0_-1".to_string()).unwrap();
+    let expected_curvature_at_left_border = 2.5436419971059815e-1; // Obtained from OpenDRIVE reference values.
+    let s_position = lane.length() / 2.0;
+    // Calculate curvature at left border
+    let lane_position_at_left_border =
+        maliput::api::LanePosition::new(s_position, lane.lane_bounds(s_position).unwrap().max(), 0.0);
+    let curvature_at_left_border = lane.get_curvature(&lane_position_at_left_border).unwrap();
+    assert!((curvature_at_left_border - expected_curvature_at_left_border).abs() < tolerance);
+    // Calculate curvature at center using left border curvature and lane width.
+    let lane_width = lane.lane_bounds(s_position).unwrap().max() - lane.lane_bounds(s_position).unwrap().min();
+    let lane_position_at_center = maliput::api::LanePosition::new(s_position, 0.0, 0.0);
+    let curvature_at_center = lane.get_curvature(&lane_position_at_center).unwrap();
+    // Verify center curvature can derive left border curvature using the offset formula.
+    // The formula κ(r + Δr) = κ(r) / (1 + κ(r) * Δr) uses an inverted sign convention
+    // where negative Δr means moving to the left (+r direction in lane frame).
+    // From center (r=0) to left border (r=+1.75): use Δr = -lane_width/2
+    let calculated_left_border_curvature = curvature_at_center / (1.0 + curvature_at_center * (-lane_width / 2.0));
+    assert!((curvature_at_left_border - calculated_left_border_curvature).abs() < tolerance);
+    // Calculate curvature at right border using center curvature.
+    // From center (r=0) to right border (r=-1.75): use Δr = +lane_width/2 (inverted sign convention)
+    let expected_curvature_at_right_border = curvature_at_center / (1.0 + curvature_at_center * (lane_width / 2.0));
+    let lane_position_at_right_border =
+        maliput::api::LanePosition::new(s_position, lane.lane_bounds(s_position).unwrap().min(), 0.0);
+    let curvature_at_right_border = lane.get_curvature(&lane_position_at_right_border).unwrap();
+    assert!((curvature_at_right_border - expected_curvature_at_right_border).abs() < tolerance);
+}
