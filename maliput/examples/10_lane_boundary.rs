@@ -39,7 +39,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let road_network_properties = HashMap::from([
         ("road_geometry_id", "my_rg_from_rust"),
         ("opendrive_file", xodr_path.as_str()),
-        ("omit-nondrivable-lanes", "false"),
+        ("omit_nondrivable_lanes", "false"),
     ]);
 
     let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties)?;
