@@ -1,6 +1,6 @@
 [package]
 name = "maliput-sys"
-version = "0.15.0"
+version = "0.16.0"
 authors = [
   "Franco Cipollone <franco.c@ekumenlabs.com>",
   "Santiago Lopez <santiago.lopez@ekumenlabs.com>",
