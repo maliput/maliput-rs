@@ -40,8 +40,8 @@ fn id() {
 fn tolerances() {
     let road_network = common::create_t_shape_road_network(true);
     let road_geometry = road_network.road_geometry();
-    assert_eq!(road_geometry.linear_tolerance(), 0.01);
-    assert_eq!(road_geometry.angular_tolerance(), 0.01);
+    assert_eq!(road_geometry.linear_tolerance(), 0.001);
+    assert_eq!(road_geometry.angular_tolerance(), 0.001);
 }
 
 #[test]
