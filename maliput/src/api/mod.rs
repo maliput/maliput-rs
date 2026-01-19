@@ -547,6 +547,24 @@ impl<'a> RoadGeometry<'a> {
     pub fn geo_reference_info(&self) -> String {
         maliput_sys::api::ffi::RoadGeometry_GeoReferenceInfo(self.rg)
     }
+
+    /// Get the boundary matching given `boundary_id`.
+    ///
+    /// # Arguments
+    /// * `boundary_id` - The ID of the boundary.
+    ///
+    /// # Return
+    /// The lane boundary with the given ID.
+    /// If no lane boundary is found with the given ID, return None.
+    pub fn get_boundary(&self, boundary_id: &String) -> Option<LaneBoundary<'_>> {
+        let boundary = maliput_sys::api::ffi::RoadGeometry_GetLaneBoundary(self.rg, boundary_id);
+        if boundary.is_null() {
+            return None;
+        }
+        Some(LaneBoundary {
+            lane_boundary: unsafe { boundary.as_ref().expect("") },
+        })
+    }
 }
 
 /// A 3-dimensional position in a `Lane`-frame, consisting of three components:

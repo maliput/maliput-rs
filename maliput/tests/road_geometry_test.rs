@@ -126,6 +126,15 @@ fn by_index() {
     let junction_id = String::from("0_0");
     let junction = road_geometry.get_junction(&junction_id).unwrap();
     assert_eq!(junction.id(), "0_0");
+
+    let boundary_id = String::from("0_0_boundary_0");
+    let boundary = road_geometry.get_boundary(&boundary_id);
+    assert!(boundary.is_some());
+    let boundary = boundary.unwrap();
+    assert_eq!(boundary.id(), "0_0_boundary_0");
+    let boundary_id = String::from("invalid boundary ID");
+    let boundary = road_geometry.get_boundary(&boundary_id);
+    assert!(boundary.is_none());
 }
 
 #[test]

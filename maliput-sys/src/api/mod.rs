@@ -219,6 +219,7 @@ pub mod ffi {
         fn RoadGeometry_GetBranchPoint(rg: &RoadGeometry, branch_point_id: &String) -> *const BranchPoint;
         fn RoadGeometry_BackendCustomCommand(rg: &RoadGeometry, command: &String) -> Result<String>;
         fn RoadGeometry_GeoReferenceInfo(rg: &RoadGeometry) -> String;
+        fn RoadGeometry_GetLaneBoundary(rg: &RoadGeometry, lane_boundary_id: &String) -> *const LaneBoundary;
         // LanePosition bindings definitions.
         type LanePosition;
         fn LanePosition_new(s: f64, r: f64, h: f64) -> UniquePtr<LanePosition>;
