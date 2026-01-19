@@ -113,5 +113,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("\t- Right boundary ID: {}", boundary.id());
     }
 
+    println!("\n\nAccessing boundaries by ID.");
+    for i in 0..road_geometry.num_junctions() {
+        let junction = road_geometry.junction(i).unwrap();
+        for j in 0..junction.num_segments() {
+            let segment = junction.segment(j).unwrap();
+            for k in 0..segment.num_boundaries() {
+                if let Some(boundary) = road_geometry.get_boundary(&format!("{}_boundary_{}", segment.id(), k)) {
+                    println!("- Boundary ID: {}", boundary.id());
+                }
+            }
+        }
+    }
+
     Ok(())
 }
