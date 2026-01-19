@@ -280,6 +280,10 @@ rust::String RoadGeometry_GeoReferenceInfo(const RoadGeometry& road_geometry) {
   return road_geometry.GeoReferenceInfo();
 }
 
+const LaneBoundary* RoadGeometry_GetLaneBoundary(const RoadGeometry& road_geometry, const rust::String& boundary_id) {
+  return road_geometry.ById().GetLaneBoundary(LaneBoundary::Id{std::string(boundary_id)});
+}
+
 std::unique_ptr<Rotation> Rotation_new() {
   return std::make_unique<Rotation>();
 }
