@@ -25,6 +25,7 @@ build --verbose_failures
 
 build --cxxopt="-std=c++17"
 build --cxxopt="-Werror"
+build --cxxopt="-Wno-deprecated-declarations"
 build --cxxopt=-include --cxxopt=cstdint
 
 # Silence compiler warnings for external dependencies.
