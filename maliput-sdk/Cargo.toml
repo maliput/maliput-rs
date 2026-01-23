@@ -1,6 +1,6 @@
 [package]
 name = "maliput-sdk"
-version = "0.16.0"
+version = "0.17.0"
 authors = ["Franco Cipollone <franco.c@ekumenlabs.com>"]
 categories = ["external-ffi-bindings", "simulation"]
 description = "Vendor for maliput libraries."

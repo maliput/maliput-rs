@@ -20,5 +20,11 @@
                 "ritwickdey.LiveServer"
             ]
         }
-    }
+    },
+    // Uncomment the following lines to mount maliput and maliput_malidrive source code
+    // Adjust the paths according to your local setup
+    //  "mounts": [
+    //    "source=${localEnv:HOME}/dev/road_networks/maliput_ws/src/maliput,target=/workspaces/maliput/maliput,type=bind,consistency=cached",
+    //    "source=${localEnv:HOME}/dev/road_networks/maliput_ws/src/maliput_malidrive,target=/workspaces/maliput/maliput_malidrive,type=bind,consistency=cached"
+    // ]
 }
