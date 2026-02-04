@@ -465,6 +465,23 @@ impl<'a> RoadGeometry<'a> {
             })
         }
     }
+
+    /// Returns a Vec with all [Junction]s in the RoadGeometry, which can be iterated.
+    ///
+    /// # Returns
+    /// A Vec with all junction in the road geometry.
+    pub fn get_juntions(&self) -> Result<Vec<Junction<'_>>, MaliputError> {
+        let mut junctions = vec![];
+        for i in 0..self.num_junctions() {
+            if let Some(junction) = self.junction(i) {
+                junctions.push(junction);
+            } else {
+                return Err(MaliputError::Other(format!("No junction found at index {}", i)));
+            };
+        }
+        Ok(junctions)
+    }
+
     /// Get the junction at the given index.
     /// The index is in the range [0, num_junctions).
     ///
@@ -1574,6 +1591,19 @@ impl<'a> Junction<'a> {
                 segment: self.junction.segment(index)?.as_ref().expect(""),
             })
         }
+    }
+
+    /// Returns a Vec with all [Segment]s in the Junction, which can be iterated.
+    ///
+    /// # Returns
+    /// A Vec with all segments in the junction.
+    pub fn get_segments(&self) -> Result<Vec<Segment<'_>>, MaliputError> {
+        let mut segments = vec![];
+        for i in 0..self.num_segments() {
+            let segment = self.segment(i)?;
+            segments.push(segment);
+        }
+        Ok(segments)
     }
 }
 
