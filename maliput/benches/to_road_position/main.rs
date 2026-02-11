@@ -30,7 +30,7 @@
 
 use criterion::{criterion_group, criterion_main, Criterion};
 
-use maliput::api::RoadNetwork;
+use maliput::api::{RoadNetwork, RoadNetworkBackend};
 use std::collections::HashMap;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
@@ -43,7 +43,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         ("opendrive_file", xodr_path.as_str()),
         ("linear_tolerance", "0.01"),
     ]);
-    let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties).unwrap();
+    let road_network = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &road_network_properties).unwrap();
     let road_geometry = road_network.road_geometry();
     let inertial_pos = maliput::api::InertialPosition::new(5.0, 1.75, 0.0);
 

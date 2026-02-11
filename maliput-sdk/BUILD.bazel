@@ -7,11 +7,19 @@
 # Libraries
 ###############################################################################
 
-# Import the pre-built shared library
+# Import the pre-built shared library from maliput_malidrive. This allows us to link against it in the maliput_sdk binary.
 cc_import(
     name = "malidrive_plugin",
     # Path to the .so file relative to this BUILD file
     shared_library = "@maliput_malidrive//:maliput_plugins/libmaliput_malidrive_road_network.so",
+    visibility = ["//visibility:public"],
+)
+
+# Import the pre-built shared library from maliput_geopackage. This allows us to link against it in the maliput_sdk binary.
+cc_import(
+    name = "geopackage_plugin",
+    # Path to the .so file relative to this BUILD file
+    shared_library = "@maliput_geopackage//:maliput_plugins/libmaliput_geopackage_road_network.so",
     visibility = ["//visibility:public"],
 )
 
@@ -28,6 +36,7 @@ cc_binary(
         "@maliput//:plugin",
         "@maliput//:utility",
         ":malidrive_plugin",
+        ":geopackage_plugin",
     ],
     linkshared = True,
     linkstatic = True,
@@ -46,3 +55,5 @@ cc_binary(
     linkshared = True,
     linkstatic = False
 )
+
+# For maliput_geopackage, we don't need the resources, so we can just link against the .so file without a dummy binary.

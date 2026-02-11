@@ -172,10 +172,27 @@ fn main() -> Result<(), Box<dyn Error>> {
         None,
     );
 
+    let maliput_geopackage_version = get_bazel_library_version("maliput_geopackage");
+    println!(
+        "cargo:info=maliput_geopackage version: <{}>",
+        maliput_geopackage_version
+    );
+    let maliput_geopackage_bin_path = resolve_bazel_package_path(
+        &bazel_bin_dir,
+        "external",
+        "maliput_geopackage",
+        &maliput_geopackage_version,
+        None,
+    );
+
     println!("cargo:info=maliput_bin_path: {:?}", maliput_bin_path);
     println!(
         "cargo:info=maliput_malidrive_bin_path: {:?}",
         maliput_malidrive_bin_path
+    );
+    println!(
+        "cargo:info=maliput_geopackage_bin_path: {:?}",
+        maliput_geopackage_bin_path
     );
     // ************* maliput header files ************* //
 
@@ -234,6 +251,14 @@ fn main() -> Result<(), Box<dyn Error>> {
         "cargo:rustc-env=MALIPUT_MALIDRIVE_RESOURCE_PATH={}",
         maliput_malidrive_resource_path.display()
     );
+    println!(
+        "cargo:rustc-env=MALIPUT_GEOPACKAGE_BIN_PATH={}",
+        maliput_geopackage_bin_path.display()
+    );
+    println!(
+        "cargo:rustc-env=MALIPUT_GEOPACKAGE_PLUGIN_PATH={}",
+        maliput_geopackage_bin_path.join("maliput_plugins").display()
+    );
 
     // Environment variable to pass down to dependent crates:
     // See: https://doc.rust-lang.org/cargo/reference/build-scripts.html#the-links-manifest-key
@@ -248,6 +273,14 @@ fn main() -> Result<(), Box<dyn Error>> {
         "cargo:maliput_malidrive_plugin_path={}",
         maliput_malidrive_bin_path.join("maliput_plugins").display()
     ); //> Accessed as DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH
+    println!(
+        "cargo:maliput_geopackage_bin_path={}",
+        maliput_geopackage_bin_path.display()
+    ); //> Accessed as DEP_MALIPUT_SDK_MALIPUT_GEOPACKAGE_BIN_PATH
+    println!(
+        "cargo:maliput_geopackage_plugin_path={}",
+        maliput_geopackage_bin_path.join("maliput_plugins").display()
+    ); //> Accessed as DEP_MALIPUT_SDK_MALIPUT_GEOPACKAGE_PLUGIN_PATH
 
     Ok(())
 }

@@ -31,7 +31,7 @@
 use maliput::api::rules::BulbState;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    use maliput::api::RoadNetwork;
+    use maliput::api::{RoadNetwork, RoadNetworkBackend};
     use std::collections::HashMap;
 
     // Get location of odr resources
@@ -49,7 +49,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ("linear_tolerance", "0.01"),
     ]);
 
-    let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties)?;
+    let road_network = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &road_network_properties)?;
 
     let phase_ring_book = road_network.phase_ring_book();
     let phase_ring_ids = phase_ring_book.get_phase_rings_ids();

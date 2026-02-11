@@ -28,13 +28,14 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-//! A command line tool to query a road network built from an OpenDRIVE file.
+//! A command line tool to query a road network built from a road network file.
 //!
 //! e.g: cargo run --bin maliput_query -- maliput/data/xodr/ArcLane.xodr
+//! e.g: cargo run --bin maliput_query -- --backend maliput_geopackage path/to/file.gpkg
 
 use clap::Parser;
 
-use maliput::api::{LanePosition, RoadNetwork};
+use maliput::api::{LanePosition, RoadNetwork, RoadNetworkBackend};
 use maliput::common::MaliputError;
 use std::collections::HashMap;
 
@@ -594,7 +595,12 @@ impl<'a> RoadNetworkQuery<'a> {
 #[derive(Parser, Debug)]
 #[command(author, version, about)]
 struct Args {
-    road_network_xodr_file_path: String,
+    /// Path to the road network file (e.g., .xodr for maliput_malidrive, .gpkg for maliput_geopackage).
+    road_network_file_path: String,
+
+    /// The maliput backend to use for loading the road network.
+    #[arg(short, long, default_value_t = RoadNetworkBackend::MaliputMalidrive)]
+    backend: RoadNetworkBackend,
 
     /// Tolerance indicates the precision of the geometry being built in order
     /// to make G1 continuity guarantees. A value of 0.5 is high. Ideally,
@@ -618,11 +624,11 @@ struct Args {
     set_log_level: maliput::common::LogLevel,
 }
 
-// Parses the OpenDRIVE file path from the command line arguments.
+// Parses the road network file path from the command line arguments.
 //  - if this is a relative path, it will be resolved against the current working directory.
 //  - if this is an absolute path, it will be used as is.
 use std::path::PathBuf;
-fn parse_xodr_file_path(path: &str) -> PathBuf {
+fn parse_file_path(path: &str) -> PathBuf {
     let mut path_buf = PathBuf::from(path);
     if !path_buf.is_absolute() {
         // If the path is relative, resolve it against the current working directory.
@@ -635,34 +641,42 @@ fn parse_xodr_file_path(path: &str) -> PathBuf {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Welcome to maliput_query app:");
-    println!("\t* This application allows you to query a road network built from an OpenDRIVE file.");
-    println!("\t* Usage: maliput_query <XODR_FILE_PATH> [OPTIONS]");
+    println!("\t* This application allows you to query a road network built from a road network file.");
+    println!("\t* Usage: maliput_query <ROAD_NETWORK_FILE_PATH> [OPTIONS]");
     println!();
     let args = Args::parse();
 
     // Configuration for the road network.
-    let xodr_path = parse_xodr_file_path(args.road_network_xodr_file_path.as_str());
+    let file_path = parse_file_path(args.road_network_file_path.as_str());
     let linear_tolerance: String = args.linear_tolerance.to_string();
     let max_linear_tolerance = args.max_linear_tolerance;
     let angular_tolerance = args.angular_tolerance.to_string();
     let omit_non_drivable_lanes = if args.allow_non_drivable_lanes { "false" } else { "true" };
     let parallel_builder_policy = !args.disable_parallel_builder_policy;
 
+    // Build backend-specific road network properties.
     let mut road_network_properties = HashMap::from([
         ("road_geometry_id", "maliput_query_rg"),
-        ("opendrive_file", xodr_path.to_str().unwrap()),
         ("linear_tolerance", linear_tolerance.as_str()),
-        ("omit_nondrivable_lanes", omit_non_drivable_lanes),
         ("angular_tolerance", angular_tolerance.as_str()),
-        (
-            "build_policy",
-            if parallel_builder_policy {
-                "parallel"
-            } else {
-                "sequential"
-            },
-        ),
     ]);
+    match args.backend {
+        RoadNetworkBackend::MaliputMalidrive => {
+            road_network_properties.insert("opendrive_file", file_path.to_str().unwrap());
+            road_network_properties.insert("omit_nondrivable_lanes", omit_non_drivable_lanes);
+            road_network_properties.insert(
+                "build_policy",
+                if parallel_builder_policy {
+                    "parallel"
+                } else {
+                    "sequential"
+                },
+            );
+        }
+        RoadNetworkBackend::MaliputGeopackage => {
+            road_network_properties.insert("gpkg_file", file_path.to_str().unwrap());
+        }
+    }
     let max_linear_tolerance_str;
     if let Some(max_tolerance) = max_linear_tolerance {
         max_linear_tolerance_str = max_tolerance.to_string();
@@ -675,13 +689,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("-> Road network builder options: {:?}", road_network_properties);
     println!("->");
     println!(
-        "-> Building Maliput Road Network from OpenDRIVE file: {}",
-        xodr_path.display()
+        "-> Building Maliput Road Network using backend '{}' from file: {}",
+        args.backend,
+        file_path.display()
     );
-    println!("-> This may take a while, depending on the size of the OpenDRIVE file and the complexity of the road network...");
+    println!("-> This may take a while, depending on the size of the file and the complexity of the road network...");
     println!("-> ...");
     let now = std::time::Instant::now();
-    let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties)?;
+    let road_network = RoadNetwork::new(args.backend, &road_network_properties)?;
     let elapsed = now.elapsed();
     println!("-> Road network loaded in {:.2?}.", elapsed);
 

@@ -36,6 +36,62 @@ use crate::math::Vector3;
 
 pub mod rules;
 
+/// Enumerates the available maliput road network backends.
+///
+/// Each variant corresponds to a plugin that implements the `RoadNetworkLoader` interface.
+/// The string representation matches the plugin ID expected by the C++ `MaliputPluginManager`.
+///
+/// # Example
+///
+/// ```rust
+/// use maliput::api::RoadNetworkBackend;
+///
+/// let backend = RoadNetworkBackend::MaliputMalidrive;
+/// assert_eq!(backend.as_str(), "maliput_malidrive");
+/// assert_eq!(backend.to_string(), "maliput_malidrive");
+///
+/// let backend: RoadNetworkBackend = "maliput_geopackage".parse().unwrap();
+/// assert_eq!(backend, RoadNetworkBackend::MaliputGeopackage);
+/// ```
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RoadNetworkBackend {
+    /// The `maliput_malidrive` backend. Loads road networks from OpenDRIVE (`.xodr`) files.
+    MaliputMalidrive,
+    /// The `maliput_geopackage` backend. Loads road networks from GeoPackage (`.gpkg`) files.
+    MaliputGeopackage,
+}
+
+impl RoadNetworkBackend {
+    /// Returns the plugin ID string for this backend.
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            RoadNetworkBackend::MaliputMalidrive => "maliput_malidrive",
+            RoadNetworkBackend::MaliputGeopackage => "maliput_geopackage",
+        }
+    }
+}
+
+impl std::fmt::Display for RoadNetworkBackend {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.as_str())
+    }
+}
+
+impl std::str::FromStr for RoadNetworkBackend {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "maliput_malidrive" => Ok(RoadNetworkBackend::MaliputMalidrive),
+            "maliput_geopackage" => Ok(RoadNetworkBackend::MaliputGeopackage),
+            _ => Err(format!(
+                "Unknown backend '{}'. Available backends: maliput_malidrive, maliput_geopackage",
+                s
+            )),
+        }
+    }
+}
+
 /// Represents a complete Maliput road network.
 ///
 /// A `RoadNetwork` is the main entry point for interacting with a road map in Maliput.
@@ -55,27 +111,27 @@ pub mod rules;
 /// # Example
 ///
 /// ```rust, no_run
-/// use maliput::api::RoadNetwork;
+/// use maliput::api::{RoadNetwork, RoadNetworkBackend};
 /// use std::collections::HashMap;
 ///
-/// // Properties to load an OpenDRIVE file using the "maliput_malidrive" backend.
+/// // Properties to load an OpenDRIVE file using the maliput_malidrive backend.
 /// let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
 /// let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
 /// let road_network_properties = HashMap::from([("road_geometry_id", "my_rg_from_rust"), ("opendrive_file", xodr_path.as_str())]);
 ///
-/// // Create the RoadNetwork by specifying the loader ID and properties.
-/// let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties).unwrap();
+/// // Create the RoadNetwork by specifying the backend and properties.
+/// let road_network = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &road_network_properties).unwrap();
 /// ```
 pub struct RoadNetwork {
     pub(crate) rn: cxx::UniquePtr<maliput_sys::api::ffi::RoadNetwork>,
 }
 
 impl RoadNetwork {
-    /// Create a new `RoadNetwork` with the given `road_network_loader_id` and `properties`.
+    /// Create a new `RoadNetwork` with the given `backend` and `properties`.
     ///
     /// # Arguments
     ///
-    /// * `road_network_loader_id` - The id of the road network loader. It identifies the backend to be used (e.g., "maliput_malidrive").
+    /// * `backend` - The backend to use for loading the road network. See [`RoadNetworkBackend`].
     /// * `properties` - The properties of the road network.
     ///
     /// # Details
@@ -84,7 +140,7 @@ impl RoadNetwork {
     /// # Returns
     /// A result containing the `RoadNetwork` or a `MaliputError` if the creation fails.
     pub fn new(
-        road_network_loader_id: &str,
+        backend: RoadNetworkBackend,
         properties: &std::collections::HashMap<&str, &str>,
     ) -> Result<RoadNetwork, MaliputError> {
         // Translate the properties to ffi types
@@ -95,17 +151,24 @@ impl RoadNetwork {
         // If MALIPUT_PLUGIN_PATH is not set, it will be created.
         let new_path = match std::env::var_os("MALIPUT_PLUGIN_PATH") {
             Some(current_path) => {
-                // Add the maliput_malidrive plugin path obtained from maliput_sdk to MALIPUT_PLUGIN_PATH.
-                // This is added first in the list as the plugins are loaded sequentally and we
-                // want this to be used only when no others are present. (typically in dev mode).
-                let mut new_paths = vec![maliput_sdk::get_maliput_malidrive_plugin_path()];
+                // Add the plugin paths obtained from maliput_sdk to MALIPUT_PLUGIN_PATH.
+                // These are added first in the list as the plugins are loaded sequentially and we
+                // want these to be used only when no others are present. (typically in dev mode).
+                let mut new_paths = vec![
+                    maliput_sdk::get_maliput_malidrive_plugin_path(),
+                    maliput_sdk::get_maliput_geopackage_plugin_path(),
+                ];
                 new_paths.extend(std::env::split_paths(&current_path).collect::<Vec<_>>());
                 std::env::join_paths(new_paths).unwrap()
             }
-            None => maliput_sdk::get_maliput_malidrive_plugin_path().into(),
+            None => std::env::join_paths([
+                maliput_sdk::get_maliput_malidrive_plugin_path(),
+                maliput_sdk::get_maliput_geopackage_plugin_path(),
+            ])
+            .unwrap(),
         };
         std::env::set_var("MALIPUT_PLUGIN_PATH", new_path);
-        let rn = maliput_sys::plugin::ffi::CreateRoadNetwork(&road_network_loader_id.to_string(), &properties_vec)?;
+        let rn = maliput_sys::plugin::ffi::CreateRoadNetwork(&backend.as_str().to_string(), &properties_vec)?;
         Ok(RoadNetwork { rn })
     }
 
@@ -214,13 +277,13 @@ impl RoadNetwork {
 /// # Example of obtaining a `RoadGeometry`
 ///
 /// ```rust, no_run
-/// use maliput::api::RoadNetwork;
+/// use maliput::api::{RoadNetwork, RoadNetworkBackend};
 /// use std::collections::HashMap;
 ///
 /// let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
 /// let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
 /// let road_network_properties = HashMap::from([("road_geometry_id", "my_rg_from_rust"), ("opendrive_file", xodr_path.as_str())]);
-/// let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties).unwrap();
+/// let road_network = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &road_network_properties).unwrap();
 /// let road_geometry = road_network.road_geometry();
 /// println!("RoadGeometry ID: {}", road_geometry.id());
 /// ```
@@ -321,13 +384,13 @@ impl<'a> RoadGeometry<'a> {
     /// # Example
     ///
     /// ```rust, no_run
-    /// use maliput::api::{RoadNetwork, InertialPosition};
+    /// use maliput::api::{RoadNetwork, RoadNetworkBackend, InertialPosition};
     /// use std::collections::HashMap;
     ///
     /// let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
     /// let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
     /// let road_network_properties = HashMap::from([("road_geometry_id", "my_rg_from_rust"), ("opendrive_file", xodr_path.as_str())]);
-    /// let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties).unwrap();
+    /// let road_network = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &road_network_properties).unwrap();
     /// let road_geometry = road_network.road_geometry();
     ///
     /// // Although this isn't directly on the surface, it is within the RoadGeometry volume.
@@ -424,13 +487,13 @@ impl<'a> RoadGeometry<'a> {
     /// Returns a vector of `Lane`.
     /// # Example
     /// ```rust, no_run
-    /// use maliput::api::RoadNetwork;
+    /// use maliput::api::{RoadNetwork, RoadNetworkBackend};
     /// use std::collections::HashMap;
     ///
     /// let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
     /// let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
     /// let road_network_properties = HashMap::from([("road_geometry_id", "my_rg_from_rust"), ("opendrive_file", xodr_path.as_str())]);
-    /// let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties).unwrap();
+    /// let road_network = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &road_network_properties).unwrap();
     /// let road_geometry = road_network.road_geometry();
     /// let lanes = road_geometry.get_lanes();
     /// for lane in lanes {
@@ -3017,7 +3080,11 @@ mod tests {
                 ("road_geometry_id", "my_rg_from_rust"),
                 ("opendrive_file", xodr_path.as_str()),
             ]);
-            let road_network = crate::api::RoadNetwork::new("maliput_malidrive", &road_network_properties).unwrap();
+            let road_network = crate::api::RoadNetwork::new(
+                crate::api::RoadNetworkBackend::MaliputMalidrive,
+                &road_network_properties,
+            )
+            .unwrap();
             let road_geometry = road_network.road_geometry();
 
             // Although this isn't directly on the surface, it is within the RoadGeometry volume.

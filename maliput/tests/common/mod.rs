@@ -28,7 +28,10 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use maliput::{api::RoadNetwork, ResourceManager};
+use maliput::{
+    api::{RoadNetwork, RoadNetworkBackend},
+    ResourceManager,
+};
 use std::collections::HashMap;
 
 #[allow(dead_code)]
@@ -49,7 +52,7 @@ pub fn create_t_shape_road_network(omit_non_drivable_lanes: bool) -> RoadNetwork
         ("linear_tolerance", "0.001"),
         ("omit_nondrivable_lanes", omit_non_drivable_lanes),
     ]);
-    let rn_res = RoadNetwork::new("maliput_malidrive", &road_network_properties);
+    let rn_res = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &road_network_properties);
     assert!(
         rn_res.is_ok(),
         "Expected RoadNetwork to be created successfully with TShapeRoad.xodr"
@@ -68,7 +71,7 @@ pub fn create_arc_lane_road_network() -> RoadNetwork {
         ("opendrive_file", xodr_path.as_str()),
         ("linear_tolerance", "0.01"),
     ]);
-    let rn_res = RoadNetwork::new("maliput_malidrive", &road_network_properties);
+    let rn_res = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &road_network_properties);
     assert!(
         rn_res.is_ok(),
         "Expected RoadNetwork to be created successfully with ArcLane.xodr"
@@ -87,7 +90,7 @@ pub fn create_town_01_road_network() -> RoadNetwork {
         ("opendrive_file", xodr_path.as_str()),
         ("linear_tolerance", "0.01"),
     ]);
-    let rn_res = RoadNetwork::new("maliput_malidrive", &road_network_properties);
+    let rn_res = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &road_network_properties);
     assert!(
         rn_res.is_ok(),
         "Expected RoadNetwork to be created successfully with Town01.xodr"
@@ -114,7 +117,7 @@ pub fn create_t_shape_road_network_with_books() -> RoadNetwork {
         ("intersection_book", t_shape_books_path.to_str().unwrap()),
         ("linear_tolerance", "0.01"),
     ]);
-    let rn_res = RoadNetwork::new("maliput_malidrive", &road_network_properties);
+    let rn_res = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &road_network_properties);
     assert!(
         rn_res.is_ok(),
         "Expected RoadNetwork to be created successfully with TShapeRoad.xodr and books"
@@ -160,7 +163,7 @@ pub fn create_loop_road_pedestrian_crosswalk_road_network_with_books() -> RoadNe
         ),
         ("linear_tolerance", "0.01"),
     ]);
-    let rn_res = RoadNetwork::new("maliput_malidrive", &road_network_properties);
+    let rn_res = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &road_network_properties);
     assert!(
         rn_res.is_ok(),
         "Expected RoadNetwork to be created successfully with LoopRoadPedestrianCrosswalk.xodr and books"

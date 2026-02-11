@@ -43,7 +43,10 @@ mod road_network_test {
             ("opendrive_file", xodr_path.as_str()),
             ("linear_tolerance", "0.01"),
         ]);
-        let rn_res = maliput::api::RoadNetwork::new("maliput_malidrive", &road_network_properties);
+        let rn_res = maliput::api::RoadNetwork::new(
+            maliput::api::RoadNetworkBackend::MaliputMalidrive,
+            &road_network_properties,
+        );
         assert!(
             rn_res.is_ok(),
             "Expected RoadNetwork to be created successfully with TShapeRoad.xodr"
@@ -57,7 +60,7 @@ mod road_network_test {
     fn road_network_new_error() {
         let invalid_xodr_path = "/hopefully/this/path/does/not/exist.xodr";
         let road_network = maliput::api::RoadNetwork::new(
-            "maliput_malidrive",
+            maliput::api::RoadNetworkBackend::MaliputMalidrive,
             &HashMap::from([
                 ("road_geometry_id", "my_rg_from_rust"),
                 ("opendrive_file", invalid_xodr_path),
@@ -94,7 +97,10 @@ mod road_network_test {
             ("opendrive_file", xodr_path.as_str()),
             ("linear_tolerance", "0.01"),
         ]);
-        let rn_res = maliput::api::RoadNetwork::new("maliput_malidrive", &road_network_properties);
+        let rn_res = maliput::api::RoadNetwork::new(
+            maliput::api::RoadNetworkBackend::MaliputMalidrive,
+            &road_network_properties,
+        );
         assert!(
             rn_res.is_err(),
             "Expected RoadNetworkDescriptionParserError with IllFormed.xodr"

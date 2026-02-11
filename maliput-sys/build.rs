@@ -75,11 +75,14 @@ fn main() -> Result<(), Box<dyn Error>> {
             .expect("DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH not set"),
     );
 
-    // Environment variables are available from within binaries and tests in the crate.
-    println!(
-        "cargo:rustc-env=MALIPUT_PLUGIN_PATH={}",
-        maliput_malidrive_plugin_path.display()
+    let maliput_geopackage_plugin_path = PathBuf::from(
+        env::var("DEP_MALIPUT_SDK_MALIPUT_GEOPACKAGE_PLUGIN_PATH")
+            .expect("DEP_MALIPUT_SDK_MALIPUT_GEOPACKAGE_PLUGIN_PATH not set"),
     );
+
+    // Environment variables are available from within binaries and tests in the crate.
+    let plugin_path = std::env::join_paths([&maliput_malidrive_plugin_path, &maliput_geopackage_plugin_path]).unwrap();
+    println!("cargo:rustc-env=MALIPUT_PLUGIN_PATH={}", plugin_path.to_string_lossy());
 
     Ok(())
 }
