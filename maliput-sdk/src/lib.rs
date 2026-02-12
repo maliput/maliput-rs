@@ -40,6 +40,10 @@ pub fn sdk_libraries() -> Vec<(String, PathBuf)> {
             "maliput_malidrive".to_string(),
             PathBuf::from(env!("MALIPUT_MALIDRIVE_BIN_PATH")),
         ),
+        (
+            "maliput_geopackage".to_string(),
+            PathBuf::from(env!("MALIPUT_GEOPACKAGE_BIN_PATH")),
+        ),
     ]
 }
 
@@ -54,4 +58,9 @@ pub fn sdk_resources() -> Vec<(String, PathBuf)> {
 /// Returns the path to the maliput_malidrive plugin.
 pub fn get_maliput_malidrive_plugin_path() -> PathBuf {
     PathBuf::from(env!("MALIPUT_MALIDRIVE_PLUGIN_PATH"))
+}
+
+/// Returns the path to the maliput_geopackage plugin.
+pub fn get_maliput_geopackage_plugin_path() -> PathBuf {
+    PathBuf::from(env!("MALIPUT_GEOPACKAGE_PLUGIN_PATH"))
 }

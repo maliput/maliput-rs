@@ -36,12 +36,12 @@ fn get_road_network_properties(xodr_path: &str) -> HashMap<&str, &str> {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    use maliput::api::RoadNetwork;
+    use maliput::api::{RoadNetwork, RoadNetworkBackend};
 
     // Use a wrong xodr_path
     let invalid_xodr_path = "/hopefully/this/path/does/not/exist.xodr";
     let road_network_properties = get_road_network_properties(invalid_xodr_path);
-    let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties);
+    let road_network = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &road_network_properties);
     assert!(
         road_network.is_err(),
         "Expected an error when creating RoadNetwork with an invalid xodr_path"
@@ -67,7 +67,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let package_location = std::env::var("CARGO_MANIFEST_DIR")?;
     let xodr_path = format!("{}/data/xodr/TShapeRoad.xodr", package_location);
     let road_network_properties = get_road_network_properties(xodr_path.as_str());
-    let road_network_result = RoadNetwork::new("maliput_malidrive", &road_network_properties);
+    let road_network_result = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &road_network_properties);
     assert!(
         road_network_result.is_ok(),
         "Expected RoadNetwork to be created successfully with a valid xodr_path"

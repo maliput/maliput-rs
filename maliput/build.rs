@@ -57,6 +57,19 @@ fn main() -> Result<(), Box<dyn Error>> {
         maliput_malidrive_plugin_path.display()
     );
 
+    let maliput_geopackage_plugin_path = PathBuf::from(
+        env::var("DEP_MALIPUT_SDK_MALIPUT_GEOPACKAGE_PLUGIN_PATH")
+            .expect("DEP_MALIPUT_SDK_MALIPUT_GEOPACKAGE_PLUGIN_PATH not set"),
+    );
+    println!(
+        "cargo:rustc-link-search=native={}",
+        maliput_geopackage_plugin_path.display()
+    );
+    println!(
+        "cargo:rustc-link-arg=-Wl,-rpath,{}",
+        maliput_geopackage_plugin_path.display()
+    );
+
     // Environment variable to pass down to dependent crates:
     // See: https://doc.rust-lang.org/cargo/reference/build-scripts.html#the-links-manifest-key
     // We forward the same variables we received from maliput-sdk to be used by maliput's dependent crates.
@@ -68,5 +81,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         "cargo:sdk_malidrive_plugin_path={}",
         maliput_malidrive_plugin_path.display()
     ); //> Accessed as DEP_MALIPUT_SDK_MALIDRIVE_PLUGIN_PATH
+    println!(
+        "cargo:sdk_geopackage_plugin_path={}",
+        maliput_geopackage_plugin_path.display()
+    ); //> Accessed as DEP_MALIPUT_SDK_GEOPACKAGE_PLUGIN_PATH
     Ok(())
 }
