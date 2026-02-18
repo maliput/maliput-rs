@@ -144,8 +144,27 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Forward number of jobs used in cargo build execution to the bazel build.
     // NUM_JOBS env var is set by cargo to the number of jobs used in the build.
     let jobs = env::var("NUM_JOBS").unwrap().to_string();
+
+    // Determine the SDK variant name based on enabled backend features.
+    let sdk_lib_name = match (malidrive_enabled, geopackage_enabled) {
+        (true, true) => "maliput_sdk",
+        (true, false) => "maliput_sdk_malidrive",
+        (false, true) => "maliput_sdk_geopackage",
+        (false, false) => {
+            panic!("At least one backend feature must be enabled (maliput_malidrive or maliput_geopackage)")
+        }
+    };
+
+    // Determine which Bazel targets to build based on enabled features.
+    let sdk_target = format!("//:{}", sdk_lib_name);
+    let mut bazel_targets: Vec<&str> = vec![&sdk_target];
+    if malidrive_enabled {
+        bazel_targets.push("//:maliput_malidrive_dummy");
+    }
+
     // Bazel build
-    let code = Command::new("bazel")
+    let mut bazel_cmd = Command::new("bazel");
+    bazel_cmd
         .arg(format!("--output_base={}", bazel_output_base_dir.display()))
         .arg("build")
         .arg(format!(
@@ -153,10 +172,11 @@ fn main() -> Result<(), Box<dyn Error>> {
             bazel_output_base_dir.join("bazel-").display()
         ))
         .arg("--macos_minimum_os=10.15")
-        .arg(format!("--jobs={}", jobs))
-        .arg("//...")
-        .status()
-        .expect("Failed to generate build script");
+        .arg(format!("--jobs={}", jobs));
+    for target in &bazel_targets {
+        bazel_cmd.arg(*target);
+    }
+    let code = bazel_cmd.status().expect("Failed to generate build script");
     if code.code() != Some(0) {
         panic!("Failed to generate build script");
     }
@@ -290,6 +310,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:root={}", out_dir.display()); //> Accessed as DEP_MALIPUT_SDK_ROOT
     println!("cargo:bin_path={}", bazel_bin_dir.display()); //> Accessed as DEP_MALIPUT_SDK_BIN_PATH
     println!("cargo:maliput_bin_path={}", maliput_bin_path.display()); //> Accessed as DEP_MALIPUT_SDK_MALIPUT_BIN_PATH
+
+    // Export the SDK shared library name to dependent crates.
+    println!("cargo:sdk_lib_name={}", sdk_lib_name); //> Accessed as DEP_MALIPUT_SDK_SDK_LIB_NAME
 
     Ok(())
 }

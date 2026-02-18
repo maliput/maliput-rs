@@ -50,12 +50,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rerun-if-changed=src/plugin/plugin.h");
     println!("cargo:rerun-if-changed=src/utility/mod.rs");
     println!("cargo:rerun-if-changed=src/utility/utility.h");
-    // Link to maliput_sdk.so which contains a bundle of all maliput libs.
+    // Link to the maliput_sdk shared library. The library name depends on the enabled backends.
     let maliput_sdk_bin_path =
         PathBuf::from(env::var("DEP_MALIPUT_SDK_BIN_PATH").expect("DEP_MALIPUT_SDK_BIN_PATH not set"));
+    let maliput_sdk_lib_name = env::var("DEP_MALIPUT_SDK_SDK_LIB_NAME").expect("DEP_MALIPUT_SDK_SDK_LIB_NAME not set");
 
     println!("cargo:rustc-link-search=native={}", maliput_sdk_bin_path.display());
-    println!("cargo:rustc-link-lib=maliput_sdk");
+    println!("cargo:rustc-link-lib={}", maliput_sdk_lib_name);
 
     cxx_build::bridges([
         "src/math/mod.rs",
