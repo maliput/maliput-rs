@@ -47,49 +47,19 @@ pub mod rules;
 /// use maliput::api::RoadNetworkBackend;
 ///
 /// let backend = RoadNetworkBackend::MaliputMalidrive;
-/// assert_eq!(backend.as_str(), "maliput_malidrive");
 /// assert_eq!(backend.to_string(), "maliput_malidrive");
 ///
 /// let backend: RoadNetworkBackend = "maliput_geopackage".parse().unwrap();
 /// assert_eq!(backend, RoadNetworkBackend::MaliputGeopackage);
 /// ```
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, strum_macros::Display, strum_macros::EnumString)]
 pub enum RoadNetworkBackend {
     /// The `maliput_malidrive` backend. Loads road networks from OpenDRIVE (`.xodr`) files.
+    #[strum(serialize = "maliput_malidrive")]
     MaliputMalidrive,
     /// The `maliput_geopackage` backend. Loads road networks from GeoPackage (`.gpkg`) files.
+    #[strum(serialize = "maliput_geopackage")]
     MaliputGeopackage,
-}
-
-impl RoadNetworkBackend {
-    /// Returns the plugin ID string for this backend.
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            RoadNetworkBackend::MaliputMalidrive => "maliput_malidrive",
-            RoadNetworkBackend::MaliputGeopackage => "maliput_geopackage",
-        }
-    }
-}
-
-impl std::fmt::Display for RoadNetworkBackend {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
-}
-
-impl std::str::FromStr for RoadNetworkBackend {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "maliput_malidrive" => Ok(RoadNetworkBackend::MaliputMalidrive),
-            "maliput_geopackage" => Ok(RoadNetworkBackend::MaliputGeopackage),
-            _ => Err(format!(
-                "Unknown backend '{}'. Available backends: maliput_malidrive, maliput_geopackage",
-                s
-            )),
-        }
-    }
 }
 
 /// Represents a complete Maliput road network.
@@ -168,7 +138,7 @@ impl RoadNetwork {
             .unwrap(),
         };
         std::env::set_var("MALIPUT_PLUGIN_PATH", new_path);
-        let rn = maliput_sys::plugin::ffi::CreateRoadNetwork(&backend.as_str().to_string(), &properties_vec)?;
+        let rn = maliput_sys::plugin::ffi::CreateRoadNetwork(&backend.to_string(), &properties_vec)?;
         Ok(RoadNetwork { rn })
     }
 
