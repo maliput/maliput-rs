@@ -16,14 +16,6 @@ repos:
         language: system
         types: [rust]
         args: ["--all", "--", "--check"]
-      - id: cargo-check
-        name: cargo check
-        description: Check the package for errors.
-        entry: cargo check
-        args: ["--workspace", "--all-targets"]
-        language: system
-        types: [rust]
-        pass_filenames: false
       - id: clippy
         name: clippy
         description: Lint rust sources
