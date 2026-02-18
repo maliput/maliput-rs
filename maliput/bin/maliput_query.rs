@@ -599,7 +599,13 @@ struct Args {
     road_network_file_path: String,
 
     /// The maliput backend to use for loading the road network.
+    #[cfg(feature = "maliput_malidrive")]
     #[arg(short, long, default_value_t = RoadNetworkBackend::MaliputMalidrive)]
+    backend: RoadNetworkBackend,
+
+    /// The maliput backend to use for loading the road network.
+    #[cfg(all(not(feature = "maliput_malidrive"), feature = "maliput_geopackage"))]
+    #[arg(short, long, default_value_t = RoadNetworkBackend::MaliputGeopackage)]
     backend: RoadNetworkBackend,
 
     /// Tolerance indicates the precision of the geometry being built in order
@@ -651,8 +657,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let linear_tolerance: String = args.linear_tolerance.to_string();
     let max_linear_tolerance = args.max_linear_tolerance;
     let angular_tolerance = args.angular_tolerance.to_string();
-    let omit_non_drivable_lanes = if args.allow_non_drivable_lanes { "false" } else { "true" };
-    let parallel_builder_policy = !args.disable_parallel_builder_policy;
 
     // Build backend-specific road network properties.
     let mut road_network_properties = HashMap::from([
@@ -661,7 +665,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ("angular_tolerance", angular_tolerance.as_str()),
     ]);
     match args.backend {
+        #[cfg(feature = "maliput_malidrive")]
         RoadNetworkBackend::MaliputMalidrive => {
+            let omit_non_drivable_lanes = if args.allow_non_drivable_lanes { "false" } else { "true" };
+            let parallel_builder_policy = !args.disable_parallel_builder_policy;
             road_network_properties.insert("opendrive_file", file_path.to_str().unwrap());
             road_network_properties.insert("omit_nondrivable_lanes", omit_non_drivable_lanes);
             road_network_properties.insert(
@@ -673,6 +680,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 },
             );
         }
+        #[cfg(feature = "maliput_geopackage")]
         RoadNetworkBackend::MaliputGeopackage => {
             road_network_properties.insert("gpkg_file", file_path.to_str().unwrap());
         }

@@ -41,6 +41,10 @@ pub mod rules;
 /// Each variant corresponds to a plugin that implements the `RoadNetworkLoader` interface.
 /// The string representation matches the plugin ID expected by the C++ `MaliputPluginManager`.
 ///
+/// Which variants are available depends on the enabled features:
+/// - `maliput_malidrive` (default): Enables the `MaliputMalidrive` variant.
+/// - `maliput_geopackage` (opt-in): Enables the `MaliputGeopackage` variant.
+///
 /// # Example
 ///
 /// ```rust
@@ -48,16 +52,15 @@ pub mod rules;
 ///
 /// let backend = RoadNetworkBackend::MaliputMalidrive;
 /// assert_eq!(backend.to_string(), "maliput_malidrive");
-///
-/// let backend: RoadNetworkBackend = "maliput_geopackage".parse().unwrap();
-/// assert_eq!(backend, RoadNetworkBackend::MaliputGeopackage);
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, strum_macros::Display, strum_macros::EnumString)]
 pub enum RoadNetworkBackend {
     /// The `maliput_malidrive` backend. Loads road networks from OpenDRIVE (`.xodr`) files.
+    #[cfg(feature = "maliput_malidrive")]
     #[strum(serialize = "maliput_malidrive")]
     MaliputMalidrive,
     /// The `maliput_geopackage` backend. Loads road networks from GeoPackage (`.gpkg`) files.
+    #[cfg(feature = "maliput_geopackage")]
     #[strum(serialize = "maliput_geopackage")]
     MaliputGeopackage,
 }
@@ -109,6 +112,7 @@ impl RoadNetwork {
     ///
     /// # Returns
     /// A result containing the `RoadNetwork` or a `MaliputError` if the creation fails.
+    #[allow(clippy::vec_init_then_push)]
     pub fn new(
         backend: RoadNetworkBackend,
         properties: &std::collections::HashMap<&str, &str>,
@@ -124,18 +128,22 @@ impl RoadNetwork {
                 // Add the plugin paths obtained from maliput_sdk to MALIPUT_PLUGIN_PATH.
                 // These are added first in the list as the plugins are loaded sequentially and we
                 // want these to be used only when no others are present. (typically in dev mode).
-                let mut new_paths = vec![
-                    maliput_sdk::get_maliput_malidrive_plugin_path(),
-                    maliput_sdk::get_maliput_geopackage_plugin_path(),
-                ];
+                let mut new_paths = vec![];
+                #[cfg(feature = "maliput_malidrive")]
+                new_paths.push(maliput_sdk::get_maliput_malidrive_plugin_path());
+                #[cfg(feature = "maliput_geopackage")]
+                new_paths.push(maliput_sdk::get_maliput_geopackage_plugin_path());
                 new_paths.extend(std::env::split_paths(&current_path).collect::<Vec<_>>());
                 std::env::join_paths(new_paths).unwrap()
             }
-            None => std::env::join_paths([
-                maliput_sdk::get_maliput_malidrive_plugin_path(),
-                maliput_sdk::get_maliput_geopackage_plugin_path(),
-            ])
-            .unwrap(),
+            None => {
+                let mut paths = vec![];
+                #[cfg(feature = "maliput_malidrive")]
+                paths.push(maliput_sdk::get_maliput_malidrive_plugin_path());
+                #[cfg(feature = "maliput_geopackage")]
+                paths.push(maliput_sdk::get_maliput_geopackage_plugin_path());
+                std::env::join_paths(paths).unwrap()
+            }
         };
         std::env::set_var("MALIPUT_PLUGIN_PATH", new_path);
         let rn = maliput_sys::plugin::ffi::CreateRoadNetwork(&backend.to_string(), &properties_vec)?;

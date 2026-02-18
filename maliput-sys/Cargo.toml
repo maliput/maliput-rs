@@ -17,6 +17,12 @@ repository.workspace = true
 
 build = "build.rs"
 
+[features]
+default = ["maliput_malidrive"]
+all = ["maliput_malidrive", "maliput_geopackage"]
+maliput_malidrive = ["maliput-sdk/maliput_malidrive"]
+maliput_geopackage = ["maliput-sdk/maliput_geopackage"]
+
 [dependencies]
 cxx = { workspace = true }
 maliput-sdk = { workspace = true }

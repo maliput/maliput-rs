@@ -70,19 +70,22 @@ fn main() -> Result<(), Box<dyn Error>> {
     .include("src")
     .compile("maliput-sys");
 
-    let maliput_malidrive_plugin_path = PathBuf::from(
-        env::var("DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH")
-            .expect("DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH not set"),
-    );
+    // Build the plugin path from the enabled backends.
+    let mut plugin_paths: Vec<PathBuf> = Vec::new();
 
-    let maliput_geopackage_plugin_path = PathBuf::from(
-        env::var("DEP_MALIPUT_SDK_MALIPUT_GEOPACKAGE_PLUGIN_PATH")
-            .expect("DEP_MALIPUT_SDK_MALIPUT_GEOPACKAGE_PLUGIN_PATH not set"),
-    );
+    if let Ok(malidrive_plugin_path) = env::var("DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH") {
+        plugin_paths.push(PathBuf::from(malidrive_plugin_path));
+    }
 
-    // Environment variables are available from within binaries and tests in the crate.
-    let plugin_path = std::env::join_paths([&maliput_malidrive_plugin_path, &maliput_geopackage_plugin_path]).unwrap();
-    println!("cargo:rustc-env=MALIPUT_PLUGIN_PATH={}", plugin_path.to_string_lossy());
+    if let Ok(geopackage_plugin_path) = env::var("DEP_MALIPUT_SDK_MALIPUT_GEOPACKAGE_PLUGIN_PATH") {
+        plugin_paths.push(PathBuf::from(geopackage_plugin_path));
+    }
+
+    if !plugin_paths.is_empty() {
+        let plugin_path = std::env::join_paths(&plugin_paths).unwrap();
+        // Environment variables are available from within binaries and tests in the crate.
+        println!("cargo:rustc-env=MALIPUT_PLUGIN_PATH={}", plugin_path.to_string_lossy());
+    }
 
     Ok(())
 }
