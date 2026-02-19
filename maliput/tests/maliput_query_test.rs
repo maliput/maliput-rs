@@ -65,7 +65,7 @@ fn help_flag_shows_usage() {
         .assert()
         .success()
         .stdout(predicate::str::contains("Usage"))
-        .stdout(predicate::str::contains("ROAD_NETWORK_XODR_FILE_PATH"));
+        .stdout(predicate::str::contains("ROAD_NETWORK_FILE_PATH"));
 }
 
 #[test]
@@ -274,4 +274,37 @@ fn disable_parallel_builder_policy_flag_is_applied() {
         .assert()
         .success()
         .stdout(predicate::str::contains("\"build_policy\": \"sequential\""));
+}
+
+// ── Backend feature validation ──────────────────────────────────────────────
+
+/// Verify that the number of plugins loaded at runtime matches the enabled
+/// backend features.
+///
+/// - Default build (`maliput_malidrive` only): expects 1 plugin.
+/// - All features (`maliput_malidrive` + `maliput_geopackage`): expects 2 plugins.
+///
+/// CI runs tests with both configurations, so both branches are exercised.
+#[test]
+fn loaded_plugins_match_enabled_features() {
+    let xodr = xodr_path("TShapeRoad.xodr");
+
+    // Determine the expected plugin count based on compile-time features.
+    let mut expected_plugins: u32 = 0;
+    #[cfg(feature = "maliput_malidrive")]
+    {
+        expected_plugins += 1;
+    }
+    #[cfg(feature = "maliput_geopackage")]
+    {
+        expected_plugins += 1;
+    }
+
+    let expected_msg = format!("Number of plugins loaded: {}", expected_plugins);
+    maliput_query_cmd()
+        .args([&xodr, "--set-log-level", "trace"])
+        .write_stdin("exit\n")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(expected_msg));
 }

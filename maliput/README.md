@@ -14,6 +14,28 @@ _Note: What is maliput? Refer to https://maliput.readthedocs.org._
 
 `maliput` provides a Rust API implemented on top of FFI bindings provided by [`maliput-sys`](https://crates.io/crates/maliput-sys) package.
 
+## Features
+
+Backends are exposed as Cargo features:
+
+| Feature | Default | Description |
+|---------|---------|-------------|
+| `maliput_malidrive` | ✅ | OpenDRIVE (`.xodr`) backend |
+| `maliput_geopackage` | ❌ | GeoPackage (`.gpkg`) backend |
+| `all` | ❌ | Enables both backends |
+
+Only `RoadNetworkBackend` variants for enabled features are available. With default features, only `MaliputMalidrive` is compiled in.
+
+```sh
+# Default (maliput_malidrive only)
+cargo build
+
+# Both backends
+cargo build --features all
+
+# Only maliput_geopackage
+cargo build --no-default-features --features maliput_geopackage
+```
 
 ## Usage
 
@@ -52,13 +74,13 @@ _Note: What is maliput? Refer to https://maliput.readthedocs.org._
 
 ## Apps
 
- - `maliput_query`: A command-line tool for interactively querying a road network. It loads a road network from an OpenDRIVE file and provides a set of commands to inspect its geometric properties and perform coordinate transformations.
+ - `maliput_query`: A command-line tool for interactively querying a road network. It loads a road network using the available backends (depending on enabled features) and provides a set of commands to inspect its geometric properties and perform coordinate transformations.
 
    To run the application:
    ```bash
-   cargo run --bin maliput_query -- <path_to_xodr_file>
+   cargo run --bin maliput_query -- <path_to_file>
    ```
-   For example, using one of the provided XODR files:
+   For example, using one of the provided XODR files (requires `maliput_malidrive` feature, enabled by default):
    ```bash
    cargo run --bin maliput_query -- data/xodr/TShapeRoad.xodr
    ```
