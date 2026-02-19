@@ -20,21 +20,51 @@ _Note: What is maliput? Refer to https://maliput.readthedocs.org._
 
 | BCR Module | Current version |
 |------------|---------|
-| [maliput](https://registry.bazel.build/modules/maliput)    | 1.13.1 |
+| [maliput](https://registry.bazel.build/modules/maliput)    | 1.13.2 |
 | [maliput_malidrive](https://registry.bazel.build/modules/maliput_malidrive) | 0.18.0 |
+| [maliput_geopackage](https://registry.bazel.build/modules/maliput_geopackage) | 0.0.1 |
+
+## Features
+
+Backends are exposed as Cargo features:
+
+| Feature | Default | Description |
+|---------|---------|-------------|
+| `maliput_malidrive` | ✅ | OpenDRIVE (`.xodr`) backend |
+| `maliput_geopackage` | ❌ | GeoPackage (`.gpkg`) backend |
+| `all` | ❌ | Enables both backends |
+
+```sh
+# Default (maliput_malidrive only)
+cargo build
+
+# Both backends
+cargo build --features all
+
+# Only maliput_geopackage
+cargo build --no-default-features --features maliput_geopackage
+```
 
 ## Usage
 
-This package brings maliput-ecosystem and provides the path to where the installation is located.
+This package brings the maliput ecosystem and provides the path to where the installation is located.
 
- - For accessing it via `build.rs` file, some env var are provided:
-   - `MALIPUT_SDK_BIN_PATH`: Path to maliput-sdk's bazel binaries.
-   - `MALIPUT_SDK_MALIPUT_BIN_PATH`: Path to maliput binaries.
-   - `MALIPUT_SDK_MALIPUT_MALIDRIVE_BIN_PATH`: Path to maliput_malidrive binaries.
-   - `MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH`: Path to maliput_malidrive road network plugin.
+ - For accessing it via `build.rs` file, some env vars are provided (always available):
+   - `DEP_MALIPUT_SDK_BIN_PATH`: Path to maliput-sdk's bazel binaries.
+   - `DEP_MALIPUT_SDK_MALIPUT_BIN_PATH`: Path to maliput binaries.
+   - `DEP_MALIPUT_SDK_ROOT`: Path to the build output root.
+   - `DEP_MALIPUT_SDK_SDK_LIB_NAME`: Name of the SDK shared library (varies by features).
+ - Conditional on `maliput_malidrive` feature:
+   - `DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_BIN_PATH`: Path to maliput_malidrive binaries.
+   - `DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH`: Path to maliput_malidrive road network plugin.
+ - Conditional on `maliput_geopackage` feature:
+   - `DEP_MALIPUT_SDK_MALIPUT_GEOPACKAGE_BIN_PATH`: Path to maliput_geopackage binaries.
+   - `DEP_MALIPUT_SDK_MALIPUT_GEOPACKAGE_PLUGIN_PATH`: Path to maliput_geopackage road network plugin.
  - For accessing it via a library:
-   - `maliput-sdk::sdk_libraries`
-   - `maliput-sdk::get_maliput_malidrive_plugin_path`
+   - `maliput_sdk::sdk_libraries` — Returns vendored library paths.
+   - `maliput_sdk::sdk_resources` — Returns vendored resource paths.
+   - `maliput_sdk::get_maliput_malidrive_plugin_path` — _(requires feature `maliput_malidrive`)_
+   - `maliput_sdk::get_maliput_geopackage_plugin_path` — _(requires feature `maliput_geopackage`)_
 
 ## Executables
 

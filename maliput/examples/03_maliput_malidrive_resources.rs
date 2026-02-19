@@ -29,7 +29,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    use maliput::api::RoadNetwork;
+    use maliput::api::{RoadNetwork, RoadNetworkBackend};
     use std::collections::HashMap;
 
     // The ResourceManager is a convenient method for getting the path to the resources of the backends.
@@ -45,7 +45,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ("opendrive_file", town_xodr_path.to_str().unwrap()),
     ]);
 
-    let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties)?;
+    let road_network = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &road_network_properties)?;
     let road_geometry = road_network.road_geometry();
 
     // Exercise the RoadGeometry API.

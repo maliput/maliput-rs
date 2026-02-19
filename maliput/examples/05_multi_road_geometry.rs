@@ -31,7 +31,7 @@
 use maliput::api::RoadGeometry;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    use maliput::api::RoadNetwork;
+    use maliput::api::{RoadNetwork, RoadNetworkBackend};
     use std::collections::HashMap;
 
     // Get location of odr resources
@@ -48,8 +48,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ("opendrive_file", xodr_path_town_01.as_str()),
     ]);
 
-    let road_network_1 = RoadNetwork::new("maliput_malidrive", &road_network_properties_rg_1)?;
-    let road_network_2 = RoadNetwork::new("maliput_malidrive", &road_network_properties_2)?;
+    let road_network_1 = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &road_network_properties_rg_1)?;
+    let road_network_2 = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &road_network_properties_2)?;
     let road_geometry_1 = road_network_1.road_geometry();
     let road_geometry_2 = road_network_2.road_geometry();
 

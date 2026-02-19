@@ -49,3 +49,5 @@ jobs:
           cache-on-failure: true
       - run: cargo build --workspace --all-targets
       - run: cargo test --workspace --all-targets
+      - name: Test with all features
+        run: cargo test --workspace --all-targets --all-features

@@ -34,24 +34,40 @@ use std::path::PathBuf;
 
 /// Returns a map of libraries here vendored and the directories to search for the binaries.
 pub fn sdk_libraries() -> Vec<(String, PathBuf)> {
-    vec![
-        ("maliput".to_string(), PathBuf::from(env!("MALIPUT_BIN_PATH"))),
-        (
-            "maliput_malidrive".to_string(),
-            PathBuf::from(env!("MALIPUT_MALIDRIVE_BIN_PATH")),
-        ),
-    ]
+    let mut libs = vec![("maliput".to_string(), PathBuf::from(env!("MALIPUT_BIN_PATH")))];
+    #[cfg(feature = "maliput_malidrive")]
+    libs.push((
+        "maliput_malidrive".to_string(),
+        PathBuf::from(env!("MALIPUT_MALIDRIVE_BIN_PATH")),
+    ));
+    #[cfg(feature = "maliput_geopackage")]
+    libs.push((
+        "maliput_geopackage".to_string(),
+        PathBuf::from(env!("MALIPUT_GEOPACKAGE_BIN_PATH")),
+    ));
+    libs
 }
 
 /// Returns a map of resources here vendored and the directories to search for the resources.
+#[allow(clippy::vec_init_then_push)]
 pub fn sdk_resources() -> Vec<(String, PathBuf)> {
-    vec![(
+    let mut resources = vec![];
+    #[cfg(feature = "maliput_malidrive")]
+    resources.push((
         "maliput_malidrive".to_string(),
         PathBuf::from(env!("MALIPUT_MALIDRIVE_RESOURCE_PATH")),
-    )]
+    ));
+    resources
 }
 
 /// Returns the path to the maliput_malidrive plugin.
+#[cfg(feature = "maliput_malidrive")]
 pub fn get_maliput_malidrive_plugin_path() -> PathBuf {
     PathBuf::from(env!("MALIPUT_MALIDRIVE_PLUGIN_PATH"))
+}
+
+/// Returns the path to the maliput_geopackage plugin.
+#[cfg(feature = "maliput_geopackage")]
+pub fn get_maliput_geopackage_plugin_path() -> PathBuf {
+    PathBuf::from(env!("MALIPUT_GEOPACKAGE_PLUGIN_PATH"))
 }

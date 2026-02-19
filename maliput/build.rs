@@ -44,18 +44,24 @@ fn main() -> Result<(), Box<dyn Error>> {
     let maliput_sdk_so_folder = maliput_sdk_out_root.join("bazel_output_base").join("bazel-bin");
     println!("cargo:rustc-link-search=native={}", maliput_sdk_so_folder.display());
     println!("cargo:rustc-link-arg=-Wl,-rpath,{}", maliput_sdk_so_folder.display());
-    let maliput_malidrive_plugin_path = PathBuf::from(
-        env::var("DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH")
-            .expect("DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH not set"),
-    );
-    println!(
-        "cargo:rustc-link-search=native={}",
-        maliput_malidrive_plugin_path.display()
-    );
-    println!(
-        "cargo:rustc-link-arg=-Wl,-rpath,{}",
-        maliput_malidrive_plugin_path.display()
-    );
+
+    // Conditionally link maliput_malidrive plugin path.
+    if let Ok(maliput_malidrive_plugin_path) = env::var("DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH") {
+        let malidrive_path = PathBuf::from(maliput_malidrive_plugin_path);
+        println!("cargo:rustc-link-search=native={}", malidrive_path.display());
+        println!("cargo:rustc-link-arg=-Wl,-rpath,{}", malidrive_path.display());
+        println!("cargo:sdk_malidrive_plugin_path={}", malidrive_path.display());
+        //> Accessed as DEP_MALIPUT_SDK_MALIDRIVE_PLUGIN_PATH
+    }
+
+    // Conditionally link maliput_geopackage plugin path.
+    if let Ok(maliput_geopackage_plugin_path) = env::var("DEP_MALIPUT_SDK_MALIPUT_GEOPACKAGE_PLUGIN_PATH") {
+        let geopackage_path = PathBuf::from(maliput_geopackage_plugin_path);
+        println!("cargo:rustc-link-search=native={}", geopackage_path.display());
+        println!("cargo:rustc-link-arg=-Wl,-rpath,{}", geopackage_path.display());
+        println!("cargo:sdk_geopackage_plugin_path={}", geopackage_path.display());
+        //> Accessed as DEP_MALIPUT_SDK_GEOPACKAGE_PLUGIN_PATH
+    }
 
     // Environment variable to pass down to dependent crates:
     // See: https://doc.rust-lang.org/cargo/reference/build-scripts.html#the-links-manifest-key
@@ -64,9 +70,5 @@ fn main() -> Result<(), Box<dyn Error>> {
     //  - Downstream crates might not have rpath set correctly to find the .so files.
     //  - Cargo doesn't propagate the crate's environment variables to higher-level crates.
     println!("cargo:sdk_root_fw={}", maliput_sdk_so_folder.display()); //> Accessed as DEP_MALIPUT_SDK_ROOT_FW
-    println!(
-        "cargo:sdk_malidrive_plugin_path={}",
-        maliput_malidrive_plugin_path.display()
-    ); //> Accessed as DEP_MALIPUT_SDK_MALIDRIVE_PLUGIN_PATH
     Ok(())
 }
