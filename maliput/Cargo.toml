@@ -38,6 +38,9 @@ strum_macros = { workspace = true }
 thiserror = { workspace = true }
 
 [dev-dependencies]
+assert_cmd = "2.0"
+predicates = "3.0"
+regex = "1.10"
 criterion = { version = "0.4", features = ["html_reports"] }
 
 [[bin]]
