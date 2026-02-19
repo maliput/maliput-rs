@@ -23,18 +23,41 @@ cc_import(
     visibility = ["//visibility:public"],
 )
 
+# Core maliput dependencies shared by all maliput_sdk variants.
+_MALIPUT_CORE_DEPS = [
+    "@maliput//:api",
+    "@maliput//:base",
+    "@maliput//:common",
+    "@maliput//:drake",
+    "@maliput//:math",
+    "@maliput//:geometry_base",
+    "@maliput//:plugin",
+    "@maliput//:utility",
+]
+
+# maliput_sdk with only maliput_malidrive backend.
+cc_binary(
+    name = "maliput_sdk_malidrive",
+    visibility = ["//visibility:public"],
+    deps = _MALIPUT_CORE_DEPS + [":malidrive_plugin"],
+    linkshared = True,
+    linkstatic = True,
+)
+
+# maliput_sdk with only maliput_geopackage backend.
+cc_binary(
+    name = "maliput_sdk_geopackage",
+    visibility = ["//visibility:public"],
+    deps = _MALIPUT_CORE_DEPS + [":geopackage_plugin"],
+    linkshared = True,
+    linkstatic = True,
+)
+
+# maliput_sdk with all backends.
 cc_binary(
     name = "maliput_sdk",
     visibility = ["//visibility:public"],
-    deps = [
-        "@maliput//:api",
-        "@maliput//:base",
-        "@maliput//:common",
-        "@maliput//:drake",
-        "@maliput//:math",
-        "@maliput//:geometry_base",
-        "@maliput//:plugin",
-        "@maliput//:utility",
+    deps = _MALIPUT_CORE_DEPS + [
         ":malidrive_plugin",
         ":geopackage_plugin",
     ],

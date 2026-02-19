@@ -137,11 +137,34 @@ fn main() -> Result<(), Box<dyn Error>> {
     let bazel_output_base_dir = out_dir.join("bazel_output_base");
     fs::create_dir_all(&bazel_output_base_dir)?;
 
+    // Propagate feature flags as cfg for use in lib.rs
+    let malidrive_enabled = env::var("CARGO_FEATURE_MALIPUT_MALIDRIVE").is_ok();
+    let geopackage_enabled = env::var("CARGO_FEATURE_MALIPUT_GEOPACKAGE").is_ok();
+
     // Forward number of jobs used in cargo build execution to the bazel build.
     // NUM_JOBS env var is set by cargo to the number of jobs used in the build.
     let jobs = env::var("NUM_JOBS").unwrap().to_string();
+
+    // Determine the SDK variant name based on enabled backend features.
+    let sdk_lib_name = match (malidrive_enabled, geopackage_enabled) {
+        (true, true) => "maliput_sdk",
+        (true, false) => "maliput_sdk_malidrive",
+        (false, true) => "maliput_sdk_geopackage",
+        (false, false) => {
+            panic!("At least one backend feature must be enabled (maliput_malidrive or maliput_geopackage)")
+        }
+    };
+
+    // Determine which Bazel targets to build based on enabled features.
+    let sdk_target = format!("//:{}", sdk_lib_name);
+    let mut bazel_targets: Vec<&str> = vec![&sdk_target];
+    if malidrive_enabled {
+        bazel_targets.push("//:maliput_malidrive_dummy");
+    }
+
     // Bazel build
-    let code = Command::new("bazel")
+    let mut bazel_cmd = Command::new("bazel");
+    bazel_cmd
         .arg(format!("--output_base={}", bazel_output_base_dir.display()))
         .arg("build")
         .arg(format!(
@@ -149,10 +172,11 @@ fn main() -> Result<(), Box<dyn Error>> {
             bazel_output_base_dir.join("bazel-").display()
         ))
         .arg("--macos_minimum_os=10.15")
-        .arg(format!("--jobs={}", jobs))
-        .arg("//...")
-        .status()
-        .expect("Failed to generate build script");
+        .arg(format!("--jobs={}", jobs));
+    for target in &bazel_targets {
+        bazel_cmd.arg(*target);
+    }
+    let code = bazel_cmd.status().expect("Failed to generate build script");
     if code.code() != Some(0) {
         panic!("Failed to generate build script");
     }
@@ -162,38 +186,42 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:info=maliput version: <{}>", maliput_version);
     let maliput_bin_path = resolve_bazel_package_path(&bazel_bin_dir, "external", "maliput", &maliput_version, None);
 
-    let maliput_malidrive_version = get_bazel_library_version("maliput_malidrive");
-    println!("cargo:info=maliput_malidrive version: <{}>", maliput_malidrive_version);
-    let maliput_malidrive_bin_path = resolve_bazel_package_path(
-        &bazel_bin_dir,
-        "external",
-        "maliput_malidrive",
-        &maliput_malidrive_version,
-        None,
-    );
+    // ---- maliput_malidrive (conditional on feature) ----
+    let maliput_malidrive_bin_path = if malidrive_enabled {
+        let maliput_malidrive_version = get_bazel_library_version("maliput_malidrive");
+        println!("cargo:info=maliput_malidrive version: <{}>", maliput_malidrive_version);
+        let path = resolve_bazel_package_path(
+            &bazel_bin_dir,
+            "external",
+            "maliput_malidrive",
+            &maliput_malidrive_version,
+            None,
+        );
+        println!("cargo:info=maliput_malidrive_bin_path: {:?}", path);
+        Some((path, maliput_malidrive_version))
+    } else {
+        None
+    };
 
-    let maliput_geopackage_version = get_bazel_library_version("maliput_geopackage");
-    println!(
-        "cargo:info=maliput_geopackage version: <{}>",
-        maliput_geopackage_version
-    );
-    let maliput_geopackage_bin_path = resolve_bazel_package_path(
-        &bazel_bin_dir,
-        "external",
-        "maliput_geopackage",
-        &maliput_geopackage_version,
-        None,
-    );
-
-    println!("cargo:info=maliput_bin_path: {:?}", maliput_bin_path);
-    println!(
-        "cargo:info=maliput_malidrive_bin_path: {:?}",
-        maliput_malidrive_bin_path
-    );
-    println!(
-        "cargo:info=maliput_geopackage_bin_path: {:?}",
-        maliput_geopackage_bin_path
-    );
+    // ---- maliput_geopackage (conditional on feature) ----
+    let maliput_geopackage_bin_path = if geopackage_enabled {
+        let maliput_geopackage_version = get_bazel_library_version("maliput_geopackage");
+        println!(
+            "cargo:info=maliput_geopackage version: <{}>",
+            maliput_geopackage_version
+        );
+        let path = resolve_bazel_package_path(
+            &bazel_bin_dir,
+            "external",
+            "maliput_geopackage",
+            &maliput_geopackage_version,
+            None,
+        );
+        println!("cargo:info=maliput_geopackage_bin_path: {:?}", path);
+        Some(path)
+    } else {
+        None
+    };
     // ************* maliput header files ************* //
 
     //---Header files---
@@ -218,69 +246,73 @@ fn main() -> Result<(), Box<dyn Error>> {
     // TODO(francocipollone): For consistency we should also add include paths for maliput_malidrive.
 
     // ************* maliput_malidrive resource files ************* //
-    // Set library file name based on OS
-    let lib_dir = if cfg!(target_os = "macos") {
-        "libmaliput_malidrive_dummy.dylib.runfiles"
-    } else if cfg!(target_os = "linux") {
-        "libmaliput_malidrive_dummy.so.runfiles"
-    } else {
-        "maliput_malidrive_dummy.dll.runfiles"
-    };
+    if let Some((ref malidrive_path, ref malidrive_version)) = maliput_malidrive_bin_path {
+        // Set library file name based on OS
+        let lib_dir = if cfg!(target_os = "macos") {
+            "libmaliput_malidrive_dummy.dylib.runfiles"
+        } else if cfg!(target_os = "linux") {
+            "libmaliput_malidrive_dummy.so.runfiles"
+        } else {
+            "maliput_malidrive_dummy.dll.runfiles"
+        };
 
-    let maliput_malidrive_resource_path = resolve_bazel_package_path(
-        &bazel_bin_dir,
-        lib_dir,
-        "maliput_malidrive",
-        &maliput_malidrive_version,
-        Some("resources"),
-    );
+        let maliput_malidrive_resource_path = resolve_bazel_package_path(
+            &bazel_bin_dir,
+            lib_dir,
+            "maliput_malidrive",
+            malidrive_version,
+            Some("resources"),
+        );
+
+        println!(
+            "cargo:rustc-env=MALIPUT_MALIDRIVE_BIN_PATH={}",
+            malidrive_path.display()
+        );
+        println!(
+            "cargo:rustc-env=MALIPUT_MALIDRIVE_PLUGIN_PATH={}",
+            malidrive_path.join("maliput_plugins").display()
+        );
+        println!(
+            "cargo:rustc-env=MALIPUT_MALIDRIVE_RESOURCE_PATH={}",
+            maliput_malidrive_resource_path.display()
+        );
+        println!("cargo:maliput_malidrive_bin_path={}", malidrive_path.display()); //> Accessed as DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_BIN_PATH
+        println!(
+            "cargo:maliput_malidrive_plugin_path={}",
+            malidrive_path.join("maliput_plugins").display()
+        ); //> Accessed as DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH
+    }
+
+    // ************* maliput_geopackage env vars ************* //
+    if let Some(ref geopackage_path) = maliput_geopackage_bin_path {
+        println!(
+            "cargo:rustc-env=MALIPUT_GEOPACKAGE_BIN_PATH={}",
+            geopackage_path.display()
+        );
+        println!(
+            "cargo:rustc-env=MALIPUT_GEOPACKAGE_PLUGIN_PATH={}",
+            geopackage_path.join("maliput_plugins").display()
+        );
+        println!("cargo:maliput_geopackage_bin_path={}", geopackage_path.display()); //> Accessed as DEP_MALIPUT_SDK_MALIPUT_GEOPACKAGE_BIN_PATH
+        println!(
+            "cargo:maliput_geopackage_plugin_path={}",
+            geopackage_path.join("maliput_plugins").display()
+        ); //> Accessed as DEP_MALIPUT_SDK_MALIPUT_GEOPACKAGE_PLUGIN_PATH
+    }
 
     // ************* crate output env vars ************* //
 
     // Environment variable to pass down to this crate:
     println!("cargo:rustc-env=MALIPUT_BIN_PATH={}", maliput_bin_path.display());
-    println!(
-        "cargo:rustc-env=MALIPUT_MALIDRIVE_BIN_PATH={}",
-        maliput_malidrive_bin_path.display()
-    );
-    println!(
-        "cargo:rustc-env=MALIPUT_MALIDRIVE_PLUGIN_PATH={}",
-        maliput_malidrive_bin_path.join("maliput_plugins").display()
-    );
-    println!(
-        "cargo:rustc-env=MALIPUT_MALIDRIVE_RESOURCE_PATH={}",
-        maliput_malidrive_resource_path.display()
-    );
-    println!(
-        "cargo:rustc-env=MALIPUT_GEOPACKAGE_BIN_PATH={}",
-        maliput_geopackage_bin_path.display()
-    );
-    println!(
-        "cargo:rustc-env=MALIPUT_GEOPACKAGE_PLUGIN_PATH={}",
-        maliput_geopackage_bin_path.join("maliput_plugins").display()
-    );
 
     // Environment variable to pass down to dependent crates:
     // See: https://doc.rust-lang.org/cargo/reference/build-scripts.html#the-links-manifest-key
     println!("cargo:root={}", out_dir.display()); //> Accessed as DEP_MALIPUT_SDK_ROOT
     println!("cargo:bin_path={}", bazel_bin_dir.display()); //> Accessed as DEP_MALIPUT_SDK_BIN_PATH
     println!("cargo:maliput_bin_path={}", maliput_bin_path.display()); //> Accessed as DEP_MALIPUT_SDK_MALIPUT_BIN_PATH
-    println!(
-        "cargo:maliput_malidrive_bin_path={}",
-        maliput_malidrive_bin_path.display()
-    ); //> Accessed as DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_BIN_PATH
-    println!(
-        "cargo:maliput_malidrive_plugin_path={}",
-        maliput_malidrive_bin_path.join("maliput_plugins").display()
-    ); //> Accessed as DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH
-    println!(
-        "cargo:maliput_geopackage_bin_path={}",
-        maliput_geopackage_bin_path.display()
-    ); //> Accessed as DEP_MALIPUT_SDK_MALIPUT_GEOPACKAGE_BIN_PATH
-    println!(
-        "cargo:maliput_geopackage_plugin_path={}",
-        maliput_geopackage_bin_path.join("maliput_plugins").display()
-    ); //> Accessed as DEP_MALIPUT_SDK_MALIPUT_GEOPACKAGE_PLUGIN_PATH
+
+    // Export the SDK shared library name to dependent crates.
+    println!("cargo:sdk_lib_name={}", sdk_lib_name); //> Accessed as DEP_MALIPUT_SDK_SDK_LIB_NAME
 
     Ok(())
 }
