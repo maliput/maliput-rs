@@ -130,6 +130,7 @@ impl ResourceManager {
 mod tests {
 
     #[test]
+    #[cfg(feature = "maliput_malidrive")]
     fn test_maliput_malidrive_resources() {
         let resource_manager = crate::ResourceManager::new();
 
@@ -148,7 +149,6 @@ mod tests {
         assert!(all_resources_in_wrong_backend.is_none());
 
         let all_resources = resource_manager.get_all_resources();
-        // There is only one backend supported at the moment.
-        assert_eq!(all_resources.len(), 1);
+        assert!(all_resources.contains_key("maliput_malidrive"));
     }
 }

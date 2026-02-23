@@ -29,6 +29,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #[cfg(test)]
+#[cfg(feature = "maliput_malidrive")]
 mod plugin_tests {
     use maliput_sys::plugin::ffi::CreateRoadNetwork;
     use std::any::Any;

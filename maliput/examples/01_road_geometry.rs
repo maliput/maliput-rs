@@ -29,7 +29,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    use maliput::api::RoadNetwork;
+    use maliput::api::{RoadNetwork, RoadNetworkBackend};
     use std::collections::HashMap;
 
     // Get location of odr resources
@@ -41,7 +41,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ("opendrive_file", xodr_path.as_str()),
     ]);
 
-    let road_network = RoadNetwork::new("maliput_malidrive", &road_network_properties)?;
+    let road_network = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &road_network_properties)?;
     let road_geometry = road_network.road_geometry();
 
     // Exercise the RoadGeometry API.

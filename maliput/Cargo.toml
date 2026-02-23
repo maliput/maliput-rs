@@ -22,6 +22,12 @@ build = "build.rs"
 links = "maliput"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+default = ["maliput_malidrive"]
+all = ["maliput_malidrive", "maliput_geopackage"]
+maliput_malidrive = ["maliput-sys/maliput_malidrive", "maliput-sdk/maliput_malidrive"]
+maliput_geopackage = ["maliput-sys/maliput_geopackage", "maliput-sdk/maliput_geopackage"]
+
 [dependencies]
 clap = { workspace = true, features = ["derive"] }
 cxx = { workspace = true }
