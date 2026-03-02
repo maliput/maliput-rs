@@ -5,7 +5,7 @@ permissions: write-all
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}-rust-ci
-  BAZEL_VERSION: "6.4.0"
+  BAZEL_VERSION: "7.5.0"
   RUSTC_VERSION: "1.83.0"
 
 on:

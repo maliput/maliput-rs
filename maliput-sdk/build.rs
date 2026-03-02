@@ -122,9 +122,14 @@ fn resolve_bazel_package_path(
         return tilde_path;
     }
 
+    let tilde_only_path = try_path(format!("{}~", crate_name));
+    if tilde_only_path.exists() {
+        return tilde_only_path;
+    }   
+
     panic!(
-        "Could not resolve Bazel path for `{}` using either '+' or '~{}'",
-        crate_name, version
+        "Could not resolve Bazel path for `{}` using either '+', '~{}' or '{}~'",
+        crate_name, version, crate_name
     );
 }
 
