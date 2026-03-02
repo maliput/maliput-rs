@@ -7,7 +7,7 @@
 # Libraries
 ###############################################################################
 
-# Import the pre-built shared library
+# Import the pre-built shared library from maliput_malidrive. This allows us to link against it in the maliput_sdk binary.
 cc_import(
     name = "malidrive_plugin",
     # Path to the .so file relative to this BUILD file
@@ -15,19 +15,51 @@ cc_import(
     visibility = ["//visibility:public"],
 )
 
+# Import the pre-built shared library from maliput_geopackage. This allows us to link against it in the maliput_sdk binary.
+cc_import(
+    name = "geopackage_plugin",
+    # Path to the .so file relative to this BUILD file
+    shared_library = "@maliput_geopackage//:maliput_plugins/libmaliput_geopackage_road_network.so",
+    visibility = ["//visibility:public"],
+)
+
+# Core maliput dependencies shared by all maliput_sdk variants.
+_MALIPUT_CORE_DEPS = [
+    "@maliput//:api",
+    "@maliput//:base",
+    "@maliput//:common",
+    "@maliput//:drake",
+    "@maliput//:math",
+    "@maliput//:geometry_base",
+    "@maliput//:plugin",
+    "@maliput//:utility",
+]
+
+# maliput_sdk with only maliput_malidrive backend.
+cc_binary(
+    name = "maliput_sdk_malidrive",
+    visibility = ["//visibility:public"],
+    deps = _MALIPUT_CORE_DEPS + [":malidrive_plugin"],
+    linkshared = True,
+    linkstatic = True,
+)
+
+# maliput_sdk with only maliput_geopackage backend.
+cc_binary(
+    name = "maliput_sdk_geopackage",
+    visibility = ["//visibility:public"],
+    deps = _MALIPUT_CORE_DEPS + [":geopackage_plugin"],
+    linkshared = True,
+    linkstatic = True,
+)
+
+# maliput_sdk with all backends.
 cc_binary(
     name = "maliput_sdk",
     visibility = ["//visibility:public"],
-    deps = [
-        "@maliput//:api",
-        "@maliput//:base",
-        "@maliput//:common",
-        "@maliput//:drake",
-        "@maliput//:math",
-        "@maliput//:geometry_base",
-        "@maliput//:plugin",
-        "@maliput//:utility",
+    deps = _MALIPUT_CORE_DEPS + [
         ":malidrive_plugin",
+        ":geopackage_plugin",
     ],
     linkshared = True,
     linkstatic = True,
@@ -46,3 +78,5 @@ cc_binary(
     linkshared = True,
     linkstatic = False
 )
+
+# For maliput_geopackage, we don't need the resources, so we can just link against the .so file without a dummy binary.

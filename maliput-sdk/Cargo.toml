@@ -19,6 +19,12 @@ build = "build.rs"
 links = "maliput-sdk"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+default = ["maliput_malidrive"]
+all = ["maliput_malidrive", "maliput_geopackage"]
+maliput_malidrive = []
+maliput_geopackage = []
+
 [dependencies]
 
 [build-dependencies]

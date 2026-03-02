@@ -11,7 +11,7 @@ repository = "https://github.com/maliput/maliput-rs"
 [workspace.dependencies]
 cxx = { version = "1.0.187" }
 cxx-build = { version = "1.0.187" }
-clap = { version = "~4.3" }
+clap = { version = "4.3" }
 strum = { version = "0.27" }
 strum_macros = { version = "0.27" }
 thiserror = { version = "1.0" }

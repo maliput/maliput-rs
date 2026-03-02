@@ -188,3 +188,15 @@ fn geo_reference_info_empty() {
     let actual_geo_ref = road_geometry.geo_reference_info();
     assert_eq!(actual_geo_ref, expected_geo_ref);
 }
+
+#[test]
+fn junctions() {
+    let road_network = common::create_t_shape_road_network(false);
+    let road_geometry = road_network.road_geometry();
+    let junctions = road_geometry.get_juntions().unwrap();
+    assert_eq!(junctions.len(), road_geometry.num_junctions() as usize);
+    for (i, junction) in junctions.iter().enumerate() {
+        let junction_by_index = road_geometry.junction(i as i32).unwrap();
+        assert_eq!(junction.id(), junction_by_index.id());
+    }
+}

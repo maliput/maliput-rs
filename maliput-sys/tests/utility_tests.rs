@@ -29,6 +29,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #[cfg(test)]
+#[cfg(feature = "maliput_malidrive")]
 mod utility_test {
     mod generate_obj_file_test {
         use cxx::UniquePtr;

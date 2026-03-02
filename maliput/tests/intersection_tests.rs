@@ -68,7 +68,9 @@ fn intersection_api() {
     // Test region()
     let region = intersection.region();
     assert_eq!(region.len(), 2);
-    assert_eq!(region[0].lane_id(), String::from("1_0_1"));
+    let mut region_lane_ids: Vec<String> = region.iter().map(|r| r.lane_id()).collect();
+    region_lane_ids.sort();
+    assert_eq!(region_lane_ids, vec!["0_0_-1", "1_0_1"]);
 
     // Test phase_ring_id()
     assert_eq!(intersection.phase_ring_id(), "TIntersectionPhaseRing");

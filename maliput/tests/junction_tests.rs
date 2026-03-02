@@ -50,4 +50,6 @@ fn junction_api() {
     assert!(invalid_junction.is_none());
     let invalid_segment = junction.segment(100);
     assert!(invalid_segment.is_err());
+    let segments = junction.get_segments().unwrap();
+    assert_eq!(segments.len(), num_segments as usize);
 }

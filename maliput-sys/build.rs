@@ -50,12 +50,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rerun-if-changed=src/plugin/plugin.h");
     println!("cargo:rerun-if-changed=src/utility/mod.rs");
     println!("cargo:rerun-if-changed=src/utility/utility.h");
-    // Link to maliput_sdk.so which contains a bundle of all maliput libs.
+    // Link to the maliput_sdk shared library. The library name depends on the enabled backends.
     let maliput_sdk_bin_path =
         PathBuf::from(env::var("DEP_MALIPUT_SDK_BIN_PATH").expect("DEP_MALIPUT_SDK_BIN_PATH not set"));
+    let maliput_sdk_lib_name = env::var("DEP_MALIPUT_SDK_SDK_LIB_NAME").expect("DEP_MALIPUT_SDK_SDK_LIB_NAME not set");
 
     println!("cargo:rustc-link-search=native={}", maliput_sdk_bin_path.display());
-    println!("cargo:rustc-link-lib=maliput_sdk");
+    println!("cargo:rustc-link-lib={}", maliput_sdk_lib_name);
 
     cxx_build::bridges([
         "src/math/mod.rs",
@@ -70,16 +71,22 @@ fn main() -> Result<(), Box<dyn Error>> {
     .include("src")
     .compile("maliput-sys");
 
-    let maliput_malidrive_plugin_path = PathBuf::from(
-        env::var("DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH")
-            .expect("DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH not set"),
-    );
+    // Build the plugin path from the enabled backends.
+    let mut plugin_paths: Vec<PathBuf> = Vec::new();
 
-    // Environment variables are available from within binaries and tests in the crate.
-    println!(
-        "cargo:rustc-env=MALIPUT_PLUGIN_PATH={}",
-        maliput_malidrive_plugin_path.display()
-    );
+    if let Ok(malidrive_plugin_path) = env::var("DEP_MALIPUT_SDK_MALIPUT_MALIDRIVE_PLUGIN_PATH") {
+        plugin_paths.push(PathBuf::from(malidrive_plugin_path));
+    }
+
+    if let Ok(geopackage_plugin_path) = env::var("DEP_MALIPUT_SDK_MALIPUT_GEOPACKAGE_PLUGIN_PATH") {
+        plugin_paths.push(PathBuf::from(geopackage_plugin_path));
+    }
+
+    if !plugin_paths.is_empty() {
+        let plugin_path = std::env::join_paths(&plugin_paths).unwrap();
+        // Environment variables are available from within binaries and tests in the crate.
+        println!("cargo:rustc-env=MALIPUT_PLUGIN_PATH={}", plugin_path.to_string_lossy());
+    }
 
     Ok(())
 }
