@@ -12,7 +12,7 @@ _Note: What is maliput? Refer to https://maliput.readthedocs.org._
 ## Prerequisites
 
 * OS: Ubuntu 20.04
-* Bazel 6.4.0
+* Bazel 7.5.0
 
 ## Description
 
