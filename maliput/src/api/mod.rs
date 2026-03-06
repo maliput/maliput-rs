@@ -444,6 +444,48 @@ impl<'a> RoadGeometry<'a> {
             .collect())
     }
 
+    /// Finds all [RoadPosition]s within a 2D radius of the given (x, y) inertial coordinates.
+    ///
+    /// Unlike [`find_road_positions`](Self::find_road_positions), this method uses only the X and Y
+    /// components for distance filtering (2D planar distance). The Z coordinate of the returned
+    /// nearest positions is computed from the road surface (i.e., the point on the road at h=0).
+    ///
+    /// This is useful for mapping 2D trajectories onto the road network, where the caller
+    /// has (x, y) coordinates but not the elevation.
+    ///
+    /// # Arguments
+    ///
+    /// * `x` - The x-coordinate in the Inertial frame.
+    /// * `y` - The y-coordinate in the Inertial frame.
+    /// * `radius` - The 2D search radius (in meters). Only results within this planar distance are returned.
+    ///
+    /// # Return
+    ///
+    /// A vector of [RoadPositionQuery]s sorted by ascending distance (nearest first) where:
+    ///  * `road_position.pos.h()` is 0 (on the road surface).
+    ///  * `nearest_position` contains the full 3D inertial position on the road surface.
+    ///  * `distance` is the 2D planar distance between (x, y) and the nearest point.
+    pub fn find_surface_road_positions_at_xy(
+        &self,
+        x: f64,
+        y: f64,
+        radius: f64,
+    ) -> Result<Vec<RoadPositionQuery>, MaliputError> {
+        let positions = maliput_sys::api::ffi::RoadGeometry_FindSurfaceRoadPositionsAtXY(self.rg, x, y, radius)?;
+        Ok(positions
+            .iter()
+            .map(|rpr| RoadPositionQuery {
+                road_position: RoadPosition {
+                    rp: maliput_sys::api::ffi::RoadPositionResult_road_position(rpr),
+                },
+                nearest_position: InertialPosition {
+                    ip: maliput_sys::api::ffi::RoadPositionResult_nearest_position(rpr),
+                },
+                distance: maliput_sys::api::ffi::RoadPositionResult_distance(rpr),
+            })
+            .collect())
+    }
+
     /// Get the lane matching given `lane_id`.
     ///
     /// # Arguments

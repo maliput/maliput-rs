@@ -104,6 +104,33 @@ fn find_road_positions() {
 }
 
 #[test]
+fn find_surface_road_positions_at_xy() {
+    let road_network = common::create_t_shape_road_network(true);
+    let road_geometry = road_network.road_geometry();
+
+    let x = 10.0;
+    let y = 2.0;
+    // A radius large enough to cover all lanes in TShapeRoad.
+    let radius = 1000000.0;
+    let road_positions = road_geometry.find_surface_road_positions_at_xy(x, y, radius).unwrap();
+    assert!(!road_positions.is_empty());
+    let lanes = road_geometry.get_lanes();
+    assert!(road_positions.len() == lanes.len());
+
+    let radius = 1.0; // Small radius, should only find the lane it's on.
+    let road_positions = road_geometry.find_surface_road_positions_at_xy(x, y, radius).unwrap();
+    assert_eq!(road_positions.len(), 1);
+    assert_eq!(road_positions[0].road_position.lane().id(), "0_0_1");
+
+    // No road positions expected to be found (very far away).
+    let x = 1000.0;
+    let y = 1000.0;
+    let radius = 1.0;
+    let rpr = road_geometry.find_surface_road_positions_at_xy(x, y, radius).unwrap();
+    assert!(rpr.is_empty());
+}
+
+#[test]
 fn by_index() {
     let road_network = common::create_t_shape_road_network(true);
     let road_geometry = road_network.road_geometry();

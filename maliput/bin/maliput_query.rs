@@ -50,6 +50,7 @@ enum MaliputQuery {
     GetLaneBounds(String, f64),                                           // lane_id, s
     GetSegmentBounds(String, f64),                                        // lane_id, s
     ToRoadPosition(f64, f64, f64),                                        // x, y, z
+    FindSurfaceRoadPositionsAtXY(f64, f64, f64),                          // x, y, radius
     ToLanePosition(String, f64, f64, f64),                                // lane_id, x, y, z
     ToSegmentPosition(String, f64, f64, f64),                             // lane_id, x, y, z
     ToInertialPosition(String, f64, f64, f64),                            // lane_id, s, r, h
@@ -145,6 +146,11 @@ impl From<Vec<&str>> for MaliputQuery {
             ["ToRoadPosition", x, y, z] => {
                 MaliputQuery::ToRoadPosition(x.parse().unwrap(), y.parse().unwrap(), z.parse().unwrap())
             }
+            ["FindSurfaceRoadPositionsAtXY", x, y, radius] => MaliputQuery::FindSurfaceRoadPositionsAtXY(
+                x.parse().unwrap(),
+                y.parse().unwrap(),
+                radius.parse().unwrap(),
+            ),
             ["ToLanePosition", lane_id, x, y, z] => MaliputQuery::ToLanePosition(
                 lane_id.to_string(),
                 x.parse().unwrap(),
@@ -258,6 +264,7 @@ impl MaliputQuery {
         println!("\t\t11. ToSegmentPosition <lane_id> <x> <y> <z>");
         println!("\t\t12. ToInertialPosition <lane_id> <s> <r> <h>");
         println!("\t\t13. GetOrientation <lane_id> <s> <r> <h>");
+        println!("\t\t14. FindSurfaceRoadPositionsAtXY <x> <y> <radius>");
         println!("\t* Commands particular to maliput_malidrive / OpenDRIVE specification:");
         println!("\t\t1. OpenScenarioRoadPositionToMaliputRoadPosition <xodr_road_id> <xodr_s> <xodr_t>");
         println!(
@@ -377,6 +384,21 @@ impl<'a> RoadNetworkQuery<'a> {
                 println!("\t\t* inertial_position: {}", road_position_result.nearest_position);
                 println!("\t* Distance:");
                 println!("\t\t* distance: {}", road_position_result.distance);
+            }
+            MaliputQuery::FindSurfaceRoadPositionsAtXY(x, y, radius) => {
+                let road_positions = rg.find_surface_road_positions_at_xy(x, y, radius)?;
+                print_elapsed_time(start_time);
+                println!(
+                    "-> FindSurfaceRoadPositionsAtXY Result: {} positions found.",
+                    road_positions.len()
+                );
+                for (i, rpr) in road_positions.iter().enumerate() {
+                    println!("\t* Result #{}:", i);
+                    println!("\t\t* lane_id: {}", rpr.road_position.lane().id());
+                    println!("\t\t* lane_position: {}", rpr.road_position.pos());
+                    println!("\t\t* nearest_position: {}", rpr.nearest_position);
+                    println!("\t\t* distance: {}", rpr.distance);
+                }
             }
             MaliputQuery::ToLanePosition(lane_id, x, y, z) => {
                 if let Some(lane) = rg.get_lane(&lane_id) {
