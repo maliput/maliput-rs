@@ -23,6 +23,7 @@ Backends are exposed as Cargo features:
 | `maliput_malidrive` | ✅ | OpenDRIVE (`.xodr`) backend |
 | `maliput_geopackage` | ❌ | GeoPackage (`.gpkg`) backend |
 | `all` | ❌ | Enables both backends |
+| `tui` | ❌ | Enables the `maliput_query` TUI binary (adds `ratatui` and `crossterm` deps) |
 
 Only `RoadNetworkBackend` variants for enabled features are available. With default features, only `MaliputMalidrive` is compiled in.
 
@@ -74,15 +75,30 @@ cargo build --no-default-features --features maliput_geopackage
 
 ## Apps
 
- - `maliput_query`: A command-line tool for interactively querying a road network. It loads a road network using the available backends (depending on enabled features) and provides a set of commands to inspect its geometric properties and perform coordinate transformations.
+ - `maliput_query`: An interactive TUI (Terminal User Interface) tool for querying a road network. It loads a road network using the available backends (depending on enabled features) and provides a set of commands to inspect its geometric properties and perform coordinate transformations.
 
-   To run the application:
+   > **Note:** This binary requires the `tui` feature. Without it, `cargo build` and `cargo install` will silently skip the binary.
+
+   ### Running from source
+
    ```bash
-   cargo run --bin maliput_query -- <path_to_file>
+   cargo run --bin maliput_query --features tui -- <path_to_file>
    ```
+
    For example, using one of the provided XODR files (requires `maliput_malidrive` feature, enabled by default):
    ```bash
-   cargo run --bin maliput_query -- data/xodr/TShapeRoad.xodr
+   cargo run --bin maliput_query --features tui -- data/xodr/TShapeRoad.xodr
+   ```
+
+   ### Installing from crates.io
+
+   ```bash
+   cargo install maliput --features tui
+   ```
+
+   After installation, run directly:
+   ```bash
+   maliput_query <path_to_file>
    ```
 
 ## Examples

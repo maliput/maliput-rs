@@ -28,13 +28,19 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-//! Integration tests for the `maliput_query` binary.
+//! Integration tests for the `maliput_query` tool.
 //!
-//! These tests run the compiled binary as a subprocess and verify its
-//! stdout/stderr output and exit code for various scenarios.
+//! The binary uses a ratatui TUI, so interactive stdin/stdout testing is not
+//! possible.  CLI-level tests (help, version, bad args) are gated behind
+//! `#[cfg(feature = "tui")]` because the binary requires that feature.
+//!
+//! Query-level tests exercise the same maliput API that the TUI calls
+//! internally, verifying the results directly through the library.
 
-use assert_cmd::Command;
-use predicates::prelude::*;
+mod common;
+
+use maliput::api::{InertialPosition, RoadNetwork, RoadNetworkBackend};
+use std::collections::HashMap;
 
 /// Helper: get the path to a test xodr file shipped with the crate.
 fn xodr_path(name: &str) -> String {
@@ -42,269 +48,212 @@ fn xodr_path(name: &str) -> String {
     format!("{}/data/xodr/{}", manifest_dir, name)
 }
 
-/// Helper: build a `Command` for the `maliput_query` binary.
-#[allow(deprecated)]
-fn maliput_query_cmd() -> Command {
-    Command::cargo_bin("maliput_query").expect("binary maliput_query should be built")
+// ═══════════════════════════════════════════════════════════════════════════
+//  CLI argument validation (requires the `tui` feature so the binary exists)
+// ═══════════════════════════════════════════════════════════════════════════
+
+#[cfg(feature = "tui")]
+mod cli {
+    use assert_cmd::Command;
+    use predicates::prelude::*;
+
+    /// Helper: build a `Command` for the `maliput_query` binary.
+    #[allow(deprecated)]
+    fn maliput_query_cmd() -> Command {
+        Command::cargo_bin("maliput_query").expect("binary maliput_query should be built")
+    }
+
+    #[test]
+    fn no_args_shows_error() {
+        maliput_query_cmd()
+            .assert()
+            .failure()
+            .stderr(predicate::str::contains("Usage"));
+    }
+
+    #[test]
+    fn help_flag_shows_usage() {
+        maliput_query_cmd()
+            .arg("--help")
+            .assert()
+            .success()
+            .stdout(predicate::str::contains("Usage"))
+            .stdout(predicate::str::contains("ROAD_NETWORK_FILE_PATH"));
+    }
+
+    #[test]
+    fn version_flag() {
+        maliput_query_cmd()
+            .arg("--version")
+            .assert()
+            .success()
+            .stdout(predicate::str::is_empty().not());
+    }
+
+    #[test]
+    fn invalid_file_path_fails() {
+        maliput_query_cmd()
+            .arg("/nonexistent/path/fake.xodr")
+            .assert()
+            .failure();
+    }
 }
 
-// ── CLI argument validation ─────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+//  Query-level tests — exercise the maliput API the TUI relies on
+// ═══════════════════════════════════════════════════════════════════════════
 
 #[test]
-fn no_args_shows_error() {
-    maliput_query_cmd()
-        .assert()
-        .failure()
-        .stderr(predicate::str::contains("Usage"));
+fn loads_road_network() {
+    let rn = common::create_t_shape_road_network(true);
+    let rg = rn.road_geometry();
+    assert!(!rg.id().is_empty(), "Road geometry should have an id");
+    assert!(
+        !rg.get_lanes().is_empty(),
+        "Road geometry should have at least one lane"
+    );
 }
-
-#[test]
-fn help_flag_shows_usage() {
-    maliput_query_cmd()
-        .arg("--help")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("Usage"))
-        .stdout(predicate::str::contains("ROAD_NETWORK_FILE_PATH"));
-}
-
-#[test]
-fn version_flag() {
-    maliput_query_cmd()
-        .arg("--version")
-        .assert()
-        .success()
-        .stdout(predicate::str::is_empty().not());
-}
-
-// ── Road network loading ────────────────────────────────────────────────────
-
-#[test]
-fn loads_road_network_and_responds_to_exit() {
-    let xodr = xodr_path("TShapeRoad.xodr");
-    maliput_query_cmd()
-        .arg(&xodr)
-        .write_stdin("exit\n")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("Road network loaded"))
-        .stdout(predicate::str::contains("Available commands"));
-}
-
-#[test]
-fn invalid_file_path_fails() {
-    maliput_query_cmd()
-        .arg("/nonexistent/path/fake.xodr")
-        .write_stdin("exit\n")
-        .assert()
-        .failure();
-}
-
-// ── Query commands via stdin ────────────────────────────────────────────────
 
 #[test]
 fn get_number_of_lanes() {
-    let xodr = xodr_path("TShapeRoad.xodr");
-    maliput_query_cmd()
-        .arg(&xodr)
-        .write_stdin("GetNumberOfLanes\nexit\n")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("Number of lanes:"));
+    let rn = common::create_t_shape_road_network(true);
+    let rg = rn.road_geometry();
+    let num_lanes = rg.get_lanes().len();
+    assert!(num_lanes > 0, "Expected at least one lane");
 }
 
 #[test]
 fn get_linear_tolerance() {
-    let xodr = xodr_path("TShapeRoad.xodr");
-    maliput_query_cmd()
-        .arg(&xodr)
-        .write_stdin("GetLinearTolerance\nexit\n")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("Linear tolerance"));
+    let rn = common::create_t_shape_road_network(true);
+    let rg = rn.road_geometry();
+    let tol = rg.linear_tolerance();
+    assert!(tol > 0.0, "Linear tolerance should be positive");
 }
 
 #[test]
 fn get_angular_tolerance() {
-    let xodr = xodr_path("TShapeRoad.xodr");
-    maliput_query_cmd()
-        .arg(&xodr)
-        .write_stdin("GetAngularTolerance\nexit\n")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("Angular tolerance"));
+    let rn = common::create_t_shape_road_network(true);
+    let rg = rn.road_geometry();
+    let tol = rg.angular_tolerance();
+    assert!(tol > 0.0, "Angular tolerance should be positive");
 }
 
 #[test]
 fn get_total_length() {
-    let xodr = xodr_path("TShapeRoad.xodr");
-    maliput_query_cmd()
-        .arg(&xodr)
-        .write_stdin("GetTotalLengthOfTheRoadGeometry\nexit\n")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("Total length of the road geometry"));
+    let rn = common::create_t_shape_road_network(true);
+    let rg = rn.road_geometry();
+    let lanes = rg.get_lanes();
+    let total: f64 = lanes.iter().map(|l| l.length()).sum();
+    assert!(total > 0.0, "Total lane length should be positive");
 }
 
 #[test]
 fn print_all_lanes() {
-    let xodr = xodr_path("TShapeRoad.xodr");
-    maliput_query_cmd()
-        .arg(&xodr)
-        .write_stdin("PrintAllLanes\nexit\n")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("All lanes in the road geometry"));
+    let rn = common::create_t_shape_road_network(true);
+    let rg = rn.road_geometry();
+    let lanes = rg.get_lanes();
+    for lane in &lanes {
+        assert!(!lane.id().is_empty(), "Lane should have an id");
+        assert!(lane.length() > 0.0, "Lane should have positive length");
+    }
 }
 
 #[test]
 fn to_road_position() {
-    let xodr = xodr_path("TShapeRoad.xodr");
-    maliput_query_cmd()
-        .arg(&xodr)
-        .write_stdin("ToRoadPosition 0 0 0\nexit\n")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("Road Position Result"));
-}
-
-#[test]
-fn invalid_query_shows_available_commands() {
-    let xodr = xodr_path("TShapeRoad.xodr");
-    maliput_query_cmd()
-        .arg(&xodr)
-        .write_stdin("FooBarBaz\nexit\n")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("Invalid query command"))
-        .stdout(predicate::str::contains("Available commands"));
-}
-
-// ── CLI options ─────────────────────────────────────────────────────────────
-
-#[test]
-fn custom_linear_tolerance() {
-    let xodr = xodr_path("TShapeRoad.xodr");
-    maliput_query_cmd()
-        .args([&xodr, "--linear-tolerance", "0.5"])
-        .write_stdin("GetLinearTolerance\nexit\n")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("0.5"));
+    let rn = common::create_t_shape_road_network(true);
+    let rg = rn.road_geometry();
+    let result = rg
+        .to_road_position(&InertialPosition::new(0.0, 0.0, 0.0))
+        .expect("to_road_position should succeed");
+    assert!(
+        !result.road_position.lane().id().is_empty(),
+        "Result should have a lane id"
+    );
+    assert!(result.distance >= 0.0, "Distance should be non-negative");
 }
 
 #[test]
 fn multiple_queries_in_sequence() {
+    let rn = common::create_t_shape_road_network(true);
+    let rg = rn.road_geometry();
+
+    // Query 1: number of lanes
+    let num_lanes = rg.get_lanes().len();
+    assert!(num_lanes > 0);
+
+    // Query 2: linear tolerance
+    let lin_tol = rg.linear_tolerance();
+    assert!(lin_tol > 0.0);
+
+    // Query 3: angular tolerance
+    let ang_tol = rg.angular_tolerance();
+    assert!(ang_tol > 0.0);
+}
+
+// ── CLI options (verified at the library level) ─────────────────────────────
+
+#[test]
+fn custom_linear_tolerance() {
     let xodr = xodr_path("TShapeRoad.xodr");
-    maliput_query_cmd()
-        .arg(&xodr)
-        .write_stdin("GetNumberOfLanes\nGetLinearTolerance\nGetAngularTolerance\nexit\n")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("Number of lanes"))
-        .stdout(predicate::str::contains("Linear tolerance"))
-        .stdout(predicate::str::contains("Angular tolerance"));
+    let props = HashMap::from([
+        ("road_geometry_id", "custom_tol_rg"),
+        ("opendrive_file", xodr.as_str()),
+        ("linear_tolerance", "0.5"),
+    ]);
+    let rn = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &props).expect("should load road network");
+    let rg = rn.road_geometry();
+    assert!(
+        (rg.linear_tolerance() - 0.5).abs() < 1e-9,
+        "Linear tolerance should be 0.5, got {}",
+        rg.linear_tolerance()
+    );
 }
 
 #[test]
 fn allow_non_drivable_lanes_flag_is_applied() {
-    let xodr = xodr_path("TShapeRoad.xodr");
+    // Default: non-drivable lanes are omitted.
+    let rn_default = common::create_t_shape_road_network(true);
+    let default_count = rn_default.road_geometry().get_lanes().len();
 
-    // Default: non-drivable lanes are omitted (omit_nondrivable_lanes = "true").
-    let default_output = maliput_query_cmd()
-        .arg(&xodr)
-        .write_stdin("GetNumberOfLanes\nexit\n")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("\"omit_nondrivable_lanes\": \"true\""))
-        .get_output()
-        .stdout
-        .clone();
-    let default_stdout = String::from_utf8(default_output).unwrap();
-
-    // With --allow-non-drivable-lanes: omit_nondrivable_lanes = "false", so more lanes are included.
-    let with_flag_output = maliput_query_cmd()
-        .args([&xodr, "--allow-non-drivable-lanes"])
-        .write_stdin("GetNumberOfLanes\nexit\n")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("\"omit_nondrivable_lanes\": \"false\""))
-        .get_output()
-        .stdout
-        .clone();
-    let with_flag_stdout = String::from_utf8(with_flag_output).unwrap();
-
-    // Extract the lane count from each run.
-    let re = regex::Regex::new(r"Number of lanes:\s*(\d+)").unwrap();
-    let default_count: u32 = re
-        .captures(&default_stdout)
-        .expect("should find lane count in default output")[1]
-        .parse()
-        .unwrap();
-    let with_flag_count: u32 = re
-        .captures(&with_flag_stdout)
-        .expect("should find lane count in --allow-non-drivable-lanes output")[1]
-        .parse()
-        .unwrap();
+    // With non-drivable lanes included.
+    let rn_all = common::create_t_shape_road_network(false);
+    let all_count = rn_all.road_geometry().get_lanes().len();
 
     assert!(
-        with_flag_count > default_count,
-        "With --allow-non-drivable-lanes the lane count ({}) should be greater than the default ({})",
-        with_flag_count,
+        all_count > default_count,
+        "Including non-drivable lanes ({}) should yield more lanes than the default ({})",
+        all_count,
         default_count
     );
 }
 
 #[test]
-fn disable_parallel_builder_policy_flag_is_applied() {
+fn sequential_build_policy_produces_same_road_network() {
     let xodr = xodr_path("TShapeRoad.xodr");
 
-    // Default: parallel build policy.
-    maliput_query_cmd()
-        .arg(&xodr)
-        .write_stdin("exit\n")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("\"build_policy\": \"parallel\""));
+    // Parallel builder.
+    let props_parallel = HashMap::from([
+        ("road_geometry_id", "parallel_rg"),
+        ("opendrive_file", xodr.as_str()),
+        ("linear_tolerance", "0.001"),
+        ("build_policy", "parallel"),
+    ]);
+    let rn_parallel =
+        RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &props_parallel).expect("parallel build should succeed");
 
-    // With --disable-parallel-builder-policy: sequential build policy.
-    maliput_query_cmd()
-        .args([&xodr, "--disable-parallel-builder-policy"])
-        .write_stdin("exit\n")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("\"build_policy\": \"sequential\""));
-}
+    // Sequential builder.
+    let props_sequential = HashMap::from([
+        ("road_geometry_id", "sequential_rg"),
+        ("opendrive_file", xodr.as_str()),
+        ("linear_tolerance", "0.001"),
+        ("build_policy", "sequential"),
+    ]);
+    let rn_sequential = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &props_sequential)
+        .expect("sequential build should succeed");
 
-// ── Backend feature validation ──────────────────────────────────────────────
-
-/// Verify that the number of plugins loaded at runtime matches the enabled
-/// backend features.
-///
-/// - Default build (`maliput_malidrive` only): expects 1 plugin.
-/// - All features (`maliput_malidrive` + `maliput_geopackage`): expects 2 plugins.
-///
-/// CI runs tests with both configurations, so both branches are exercised.
-#[test]
-fn loaded_plugins_match_enabled_features() {
-    let xodr = xodr_path("TShapeRoad.xodr");
-
-    // Determine the expected plugin count based on compile-time features.
-    let mut expected_plugins: u32 = 0;
-    #[cfg(feature = "maliput_malidrive")]
-    {
-        expected_plugins += 1;
-    }
-    #[cfg(feature = "maliput_geopackage")]
-    {
-        expected_plugins += 1;
-    }
-
-    let expected_msg = format!("Number of plugins loaded: {}", expected_plugins);
-    maliput_query_cmd()
-        .args([&xodr, "--set-log-level", "trace"])
-        .write_stdin("exit\n")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains(expected_msg));
+    assert_eq!(
+        rn_parallel.road_geometry().get_lanes().len(),
+        rn_sequential.road_geometry().get_lanes().len(),
+        "Parallel and sequential builders should produce the same number of lanes"
+    );
 }
