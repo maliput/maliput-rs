@@ -212,6 +212,12 @@ pub mod ffi {
             inertial_position: &InertialPosition,
             radius: f64,
         ) -> Result<UniquePtr<CxxVector<RoadPositionResult>>>;
+        fn RoadGeometry_FindSurfaceRoadPositionsAtXY(
+            rg: &RoadGeometry,
+            x: f64,
+            y: f64,
+            radius: f64,
+        ) -> Result<UniquePtr<CxxVector<RoadPositionResult>>>;
         fn RoadGeometry_GetLane(rg: &RoadGeometry, lane_id: &String) -> ConstLanePtr;
         fn RoadGeometry_GetLanes(rg: &RoadGeometry) -> UniquePtr<CxxVector<ConstLanePtr>>;
         fn RoadGeometry_GetSegment(rg: &RoadGeometry, segment_id: &String) -> *const Segment;
