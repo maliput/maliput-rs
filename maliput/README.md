@@ -92,12 +92,22 @@ cargo build --no-default-features --features maliput_geopackage
     cargo run --example 01_road_geometry
     ```
 
+ - Load `maliput::api::RoadNetwork` from a GeoPackage file and perform basic Road Geometry queries.
+   ```bash
+   cargo run --example 12_geopackage_road_geometry --features maliput_geopackage
+   ```
+
 ## Benches
 
  - Evaluate the execution of `maliput::api::RoadGeometry::to_road_position` method.
     ```bash
     cargo bench to_road_position
     ```
+
+ - Evaluate the execution of `maliput::api::RoadGeometry::to_road_position` method using the GeoPackage backend.
+   ```bash
+   cargo bench to_road_position_geopackage --features maliput_geopackage
+   ```
 
 ## License
 

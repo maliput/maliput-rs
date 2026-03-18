@@ -54,3 +54,7 @@ harness = false
 [[bench]]
 name = "backend_custom_command"
 harness = false
+
+[[bench]]
+name = "to_road_position_geopackage"
+harness = false
