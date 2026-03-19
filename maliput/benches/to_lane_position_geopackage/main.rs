@@ -49,18 +49,19 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let road_network = RoadNetwork::new(RoadNetworkBackend::MaliputGeopackage, &road_network_properties).unwrap();
     let road_geometry = road_network.road_geometry();
     let inertial_pos = maliput::api::InertialPosition::new(5.0, 1.75, 0.0);
+    let lane_id = road_geometry.to_road_position(&inertial_pos).unwrap().road_position.lane().id();
+    let lane = road_geometry.get_lane(&lane_id).unwrap();
 
-    c.bench_function("RoadGeometry::to_road_position (geopackage)", |b| {
+    c.bench_function("Lane::to_lane_position (geopackage)", |b| {
         b.iter(|| {
-            let _road_position_result = road_geometry.to_road_position(&inertial_pos);
+            let _lane_position_result = lane.to_lane_position(&inertial_pos);
         })
     });
 }
 
 #[cfg(not(feature = "maliput_geopackage"))]
 pub fn criterion_benchmark(c: &mut Criterion) {
-    // Keep the bench target buildable when maliput_geopackage is disabled.
-    c.bench_function("RoadGeometry::to_road_position (geopackage feature disabled)", |b| {
+    c.bench_function("Lane::to_lane_position (geopackage feature disabled)", |b| {
         b.iter(|| {
             let _ = 0;
         })

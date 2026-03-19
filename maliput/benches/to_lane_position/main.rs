@@ -30,39 +30,28 @@
 
 use criterion::{criterion_group, criterion_main, Criterion};
 
-#[cfg(feature = "maliput_geopackage")]
 use maliput::api::{RoadNetwork, RoadNetworkBackend};
-#[cfg(feature = "maliput_geopackage")]
 use std::collections::HashMap;
 
-#[cfg(feature = "maliput_geopackage")]
 pub fn criterion_benchmark(c: &mut Criterion) {
-    // Get location of gpkg resources.
+    // Get location of odr resources.
     let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
-    let gpkg_path = format!("{}/data/gpkg/Town01.gpkg", package_location);
+    let xodr_path = format!("{}/data/xodr/Town01.xodr", package_location);
 
     let road_network_properties = HashMap::from([
         ("road_geometry_id", "my_rg_from_rust"),
-        ("gpkg_file", gpkg_path.as_str()),
+        ("opendrive_file", xodr_path.as_str()),
         ("linear_tolerance", "0.01"),
     ]);
-    let road_network = RoadNetwork::new(RoadNetworkBackend::MaliputGeopackage, &road_network_properties).unwrap();
+    let road_network = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &road_network_properties).unwrap();
     let road_geometry = road_network.road_geometry();
     let inertial_pos = maliput::api::InertialPosition::new(5.0, 1.75, 0.0);
+    let lane_id = road_geometry.to_road_position(&inertial_pos).unwrap().road_position.lane().id();
+    let lane = road_geometry.get_lane(&lane_id).unwrap();
 
-    c.bench_function("RoadGeometry::to_road_position (geopackage)", |b| {
+    c.bench_function("Lane::to_lane_position", |b| {
         b.iter(|| {
-            let _road_position_result = road_geometry.to_road_position(&inertial_pos);
-        })
-    });
-}
-
-#[cfg(not(feature = "maliput_geopackage"))]
-pub fn criterion_benchmark(c: &mut Criterion) {
-    // Keep the bench target buildable when maliput_geopackage is disabled.
-    c.bench_function("RoadGeometry::to_road_position (geopackage feature disabled)", |b| {
-        b.iter(|| {
-            let _ = 0;
+            let _lane_position_result = lane.to_lane_position(&inertial_pos);
         })
     });
 }

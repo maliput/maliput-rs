@@ -104,10 +104,20 @@ cargo build --no-default-features --features maliput_geopackage
     cargo bench to_road_position
     ```
 
+ - Evaluate the execution of `maliput::api::Lane::to_lane_position` method.
+   ```bash
+   cargo bench to_lane_position
+   ```
+
  - Evaluate the execution of `maliput::api::RoadGeometry::to_road_position` method using the GeoPackage backend.
    ```bash
    cargo bench to_road_position_geopackage --features maliput_geopackage
    ```
+
+ - Evaluate the execution of `maliput::api::Lane::to_lane_position` method using the GeoPackage backend.
+  ```bash
+  cargo bench to_lane_position_geopackage --features maliput_geopackage
+  ```
 
 ## License
 
