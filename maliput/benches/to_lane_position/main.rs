@@ -46,7 +46,12 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let road_network = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &road_network_properties).unwrap();
     let road_geometry = road_network.road_geometry();
     let inertial_pos = maliput::api::InertialPosition::new(5.0, 1.75, 0.0);
-    let lane_id = road_geometry.to_road_position(&inertial_pos).unwrap().road_position.lane().id();
+    let lane_id = road_geometry
+        .to_road_position(&inertial_pos)
+        .unwrap()
+        .road_position
+        .lane()
+        .id();
     let lane = road_geometry.get_lane(&lane_id).unwrap();
 
     c.bench_function("Lane::to_lane_position", |b| {
