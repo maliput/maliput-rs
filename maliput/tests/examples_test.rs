@@ -107,3 +107,9 @@ fn example_10_lane_boundary() {
 fn example_11_lane_boundary_complex_marking() {
     run_example("11_lane_boundary_complex_marking");
 }
+
+#[cfg(feature = "maliput_geopackage")]
+#[test]
+fn example_12_geopackage_road_geometry() {
+    run_example("12_geopackage_road_geometry");
+}

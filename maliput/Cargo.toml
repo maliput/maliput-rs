@@ -52,5 +52,17 @@ name = "to_road_position"
 harness = false
 
 [[bench]]
+name = "to_lane_position"
+harness = false
+
+[[bench]]
 name = "backend_custom_command"
+harness = false
+
+[[bench]]
+name = "to_road_position_geopackage"
+harness = false
+
+[[bench]]
+name = "to_lane_position_geopackage"
 harness = false
