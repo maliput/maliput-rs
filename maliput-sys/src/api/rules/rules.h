@@ -80,12 +80,14 @@ struct ConstLaneSRangeRef;
 
 std::unique_ptr<std::vector<ConstTrafficLightPtr>> TrafficLightBook_TrafficLights(const TrafficLightBook& traffic_light_book);
 const TrafficLight* TrafficLightBook_GetTrafficLight(const TrafficLightBook& traffic_light_book, const rust::String& id);
+std::unique_ptr<std::vector<ConstTrafficLightPtr>> TrafficLightBook_FindByLane(const TrafficLightBook& traffic_light_book, const rust::String& lane_id);
 
 rust::String TrafficLight_id(const TrafficLight& traffic_light);
 std::unique_ptr<maliput::api::InertialPosition> TrafficLight_position_road_network(const TrafficLight& traffic_light);
 std::unique_ptr<maliput::api::Rotation> TrafficLight_orientation_road_network(const TrafficLight& traffic_light);
 std::unique_ptr<std::vector<ConstBulbGroupPtr>> TrafficLight_bulb_groups(const TrafficLight& traffic_light);
 const BulbGroup* TrafficLight_GetBulbGroup(const TrafficLight& traffic_light, const rust::String& id);
+rust::Vec<rust::String> TrafficLight_related_lanes(const TrafficLight& traffic_light);
 
 std::unique_ptr<UniqueBulbId> Bulb_unique_id(const Bulb& bulb);
 rust::String Bulb_id(const Bulb& bulb);

@@ -79,6 +79,18 @@ const TrafficLight* TrafficLightBook_GetTrafficLight(const TrafficLightBook& tra
   return traffic_light_book.GetTrafficLight(TrafficLight::Id{std::string(id)});
 }
 
+std::unique_ptr<std::vector<ConstTrafficLightPtr>> TrafficLightBook_FindByLane(
+    const TrafficLightBook& traffic_light_book, const rust::String& lane_id) {
+  const auto traffic_lights_cpp =
+      traffic_light_book.FindByLane(maliput::api::LaneId{std::string(lane_id)});
+  std::vector<ConstTrafficLightPtr> traffic_lights;
+  traffic_lights.reserve(traffic_lights_cpp.size());
+  for (const auto traffic_light : traffic_lights_cpp) {
+    traffic_lights.push_back({traffic_light});
+  }
+  return std::make_unique<std::vector<ConstTrafficLightPtr>>(std::move(traffic_lights));
+}
+
 rust::String TrafficLight_id(const TrafficLight& traffic_light) {
   return traffic_light.id().string();
 }
@@ -103,6 +115,14 @@ std::unique_ptr<std::vector<ConstBulbGroupPtr>> TrafficLight_bulb_groups(const T
 
 const BulbGroup* TrafficLight_GetBulbGroup(const TrafficLight& traffic_light, const rust::String& id) {
   return traffic_light.GetBulbGroup(BulbGroup::Id{std::string(id)});
+}
+
+rust::Vec<rust::String> TrafficLight_related_lanes(const TrafficLight& traffic_light) {
+  rust::Vec<rust::String> lane_ids;
+  for (const auto& lane_id : traffic_light.related_lanes()) {
+    lane_ids.push_back(lane_id.string());
+  }
+  return lane_ids;
 }
 
 std::unique_ptr<UniqueBulbId> Bulb_unique_id(const Bulb& bulb) {

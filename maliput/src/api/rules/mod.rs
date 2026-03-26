@@ -74,6 +74,25 @@ impl<'a> TrafficLightBook<'a> {
             },
         })
     }
+
+    /// Gets all [TrafficLight]s whose `related_lanes()` includes the given lane ID.
+    ///
+    /// # Arguments
+    /// * `lane_id` - The lane ID to look up.
+    ///
+    /// # Returns
+    /// A vector of [TrafficLight]s associated with the given lane.
+    /// Returns an empty vector if no traffic lights are associated with the lane.
+    pub fn find_by_lane(&self, lane_id: &String) -> Vec<TrafficLight<'_>> {
+        let traffic_lights_cpp =
+            maliput_sys::api::rules::ffi::TrafficLightBook_FindByLane(self.traffic_light_book, lane_id);
+        traffic_lights_cpp
+            .into_iter()
+            .map(|tl| TrafficLight {
+                traffic_light: unsafe { tl.traffic_light.as_ref().expect("TrafficLight pointer is null") },
+            })
+            .collect::<Vec<TrafficLight>>()
+    }
 }
 
 /// Models a traffic light. A traffic light is a physical signaling device
@@ -155,6 +174,14 @@ impl<'a> TrafficLight<'a> {
                     .expect("Unable to get underlying bulb group pointer")
             },
         })
+    }
+
+    /// Get the lane IDs that this traffic light is physically relevant to.
+    ///
+    /// # Returns
+    /// A vector of lane ID strings.
+    pub fn related_lanes(&self) -> Vec<String> {
+        maliput_sys::api::rules::ffi::TrafficLight_related_lanes(self.traffic_light)
     }
 }
 
