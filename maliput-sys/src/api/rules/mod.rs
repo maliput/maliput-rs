@@ -168,6 +168,7 @@ pub mod ffi {
         type TrafficLightBook;
         fn TrafficLightBook_TrafficLights(book: &TrafficLightBook) -> UniquePtr<CxxVector<ConstTrafficLightPtr>>;
         fn TrafficLightBook_GetTrafficLight(book: &TrafficLightBook, id: &String) -> *const TrafficLight;
+        fn TrafficLightBook_FindByLane(book: &TrafficLightBook, lane_id: &String) -> UniquePtr<CxxVector<ConstTrafficLightPtr>>;
 
         // TrafficLight bindings definitions.
         type TrafficLight;
@@ -176,6 +177,7 @@ pub mod ffi {
         fn TrafficLight_orientation_road_network(traffic_light: &TrafficLight) -> UniquePtr<Rotation>;
         fn TrafficLight_bulb_groups(traffic_light: &TrafficLight) -> UniquePtr<CxxVector<ConstBulbGroupPtr>>;
         fn TrafficLight_GetBulbGroup(traffic_light: &TrafficLight, id: &String) -> *const BulbGroup;
+        fn TrafficLight_related_lanes(traffic_light: &TrafficLight) -> Vec<String>;
 
         type BulbColor;
         type BulbState;
