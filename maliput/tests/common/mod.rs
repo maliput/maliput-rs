@@ -129,7 +129,10 @@ pub fn create_t_shape_road_network_with_books() -> RoadNetwork {
 pub fn create_two_roads_with_traffic_lights_network() -> RoadNetwork {
     let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
     let xodr_path = format!("{}/tests/data/xodr/TwoRoadsWithTrafficLights.xodr", package_location);
-    let db_path = format!("{}/tests/data/traffic_signal_db/TrafficSignalDatabase.yaml", package_location);
+    let db_path = format!(
+        "{}/tests/data/traffic_signal_db/TrafficSignalDatabase.yaml",
+        package_location
+    );
 
     let road_network_properties = HashMap::from([
         ("road_geometry_id", "two_roads_with_traffic_lights"),
