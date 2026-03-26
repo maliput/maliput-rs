@@ -20,9 +20,9 @@ _Note: What is maliput? Refer to https://maliput.readthedocs.org._
 
 | BCR Module | Current version |
 |------------|---------|
-| [maliput](https://registry.bazel.build/modules/maliput)    | 1.14.0 |
-| [maliput_malidrive](https://registry.bazel.build/modules/maliput_malidrive) | 0.19.0 |
-| [maliput_geopackage](https://registry.bazel.build/modules/maliput_geopackage) | 0.1.0 |
+| [maliput](https://registry.bazel.build/modules/maliput)    | 1.15.0 |
+| [maliput_malidrive](https://registry.bazel.build/modules/maliput_malidrive) | 0.20.0 |
+| [maliput_geopackage](https://registry.bazel.build/modules/maliput_geopackage) | 0.2.0 |
 
 ## Features
 
