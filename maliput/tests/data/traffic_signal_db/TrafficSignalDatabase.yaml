@@ -277,7 +277,7 @@ traffic_signal_types:
         position_traffic_light: [0.0, 0.0, 0.1]
         orientation_traffic_light: [1.0, 0.0, 0.0, 0.0]
         color: "Red"
-        type: "Round"
+        type: "DontWalk"
         states: ["Off", "On"]
 
       # Black background with green walking figure (Walk).
@@ -285,7 +285,7 @@ traffic_signal_types:
         position_traffic_light: [0.0, 0.0, -0.1]
         orientation_traffic_light: [1.0, 0.0, 0.0, 0.0]
         color: "Green"
-        type: "Round"
+        type: "Walk"
         states: ["Off", "On", "Blinking"]
 
     rule_states:
