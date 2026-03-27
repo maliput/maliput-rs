@@ -207,6 +207,63 @@ traffic_signal_types:
             state: "On"
         value: "Go"
 
+  # Three-bulb traffic light with specific arrow support.
+  - type: "1000011"
+    subtype: "40"
+    country: "OpenDRIVE"
+    country_revision: null
+    description: "Three-bulb traffic light with dual arrows (straight/left)."
+
+    bulbs:
+      - id: "RedBulb"
+        position_traffic_light: [0.0, 0.0, 0.4]
+        orientation_traffic_light: [1.0, 0.0, 0.0, 0.0]
+        color: "Red"
+        type: "ArrowUpperLeft"
+        states: ["Off", "On", "Blinking"]
+
+      - id: "YellowBulb"
+        position_traffic_light: [0.0, 0.0, 0.0]
+        orientation_traffic_light: [1.0, 0.0, 0.0, 0.0]
+        color: "Yellow"
+        type: "ArrowUpperLeft"
+        states: ["Off", "On", "Blinking"]
+
+      - id: "GreenArrow"
+        position_traffic_light: [0.0, 0.0, -0.4]
+        orientation_traffic_light: [1.0, 0.0, 0.0, 0.0]
+        color: "Green"
+        type: "ArrowUpperLeft"
+        states: ["Off", "On"]
+
+    rule_states:
+      - condition:
+          - bulb: "RedBulb"
+            state: "On"
+          - bulb: "YellowBulb"
+            state: "Off"
+          - bulb: "GreenArrow"
+            state: "Off"
+        value: "Stop"
+
+      - condition:
+          - bulb: "RedBulb"
+            state: "Off"
+          - bulb: "YellowBulb"
+            state: "On"
+          - bulb: "GreenArrow"
+            state: "Off"
+        value: "StopIfSafe"
+
+      - condition:
+          - bulb: "RedBulb"
+            state: "Off"
+          - bulb: "YellowBulb"
+            state: "Off"
+          - bulb: "GreenArrow"
+            state: "On"
+        value: "Go"
+
   # Pedestrian signal with walk/don't walk.
   - type: "1000002"
     subtype: "-1"
@@ -220,7 +277,7 @@ traffic_signal_types:
         position_traffic_light: [0.0, 0.0, 0.1]
         orientation_traffic_light: [1.0, 0.0, 0.0, 0.0]
         color: "Red"
-        type: "Round"
+        type: "DontWalk"
         states: ["Off", "On"]
 
       # Black background with green walking figure (Walk).
@@ -228,7 +285,7 @@ traffic_signal_types:
         position_traffic_light: [0.0, 0.0, -0.1]
         orientation_traffic_light: [1.0, 0.0, 0.0, 0.0]
         color: "Green"
-        type: "Round"
+        type: "Walk"
         states: ["Off", "On", "Blinking"]
 
     rule_states:

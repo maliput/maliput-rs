@@ -197,11 +197,30 @@ pub enum BulbColor {
 /// Defines the possible bulb types.
 pub enum BulbType {
     Round,
+    /// Arrow with a custom orientation specified by [Bulb::arrow_orientation_rad].
     Arrow,
+    /// Predefined arrow pointing left.
+    ArrowLeft,
+    /// Predefined arrow pointing right.
+    ArrowRight,
+    /// Predefined arrow pointing up (forward).
+    ArrowUp,
+    /// Predefined arrow pointing upper-left.
+    ArrowUpperLeft,
+    /// Predefined arrow pointing upper-right.
+    ArrowUpperRight,
+    /// U-turn to the left.
+    UTurnLeft,
+    /// U-turn to the right.
+    UTurnRight,
+    /// Pedestrian walk signal.
+    Walk,
+    /// Pedestrian don't walk signal.
+    DontWalk,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-/// Defines the possible bulb types.
+/// Defines the possible bulb states.
 pub enum BulbState {
     Off,
     On,
@@ -255,6 +274,15 @@ impl Bulb<'_> {
         match *bulb_type {
             maliput_sys::api::rules::ffi::BulbType::kRound => BulbType::Round,
             maliput_sys::api::rules::ffi::BulbType::kArrow => BulbType::Arrow,
+            maliput_sys::api::rules::ffi::BulbType::kArrowLeft => BulbType::ArrowLeft,
+            maliput_sys::api::rules::ffi::BulbType::kArrowRight => BulbType::ArrowRight,
+            maliput_sys::api::rules::ffi::BulbType::kArrowUp => BulbType::ArrowUp,
+            maliput_sys::api::rules::ffi::BulbType::kArrowUpperLeft => BulbType::ArrowUpperLeft,
+            maliput_sys::api::rules::ffi::BulbType::kArrowUpperRight => BulbType::ArrowUpperRight,
+            maliput_sys::api::rules::ffi::BulbType::kUTurnLeft => BulbType::UTurnLeft,
+            maliput_sys::api::rules::ffi::BulbType::kUTurnRight => BulbType::UTurnRight,
+            maliput_sys::api::rules::ffi::BulbType::kWalk => BulbType::Walk,
+            maliput_sys::api::rules::ffi::BulbType::kDontWalk => BulbType::DontWalk,
             _ => panic!("Invalid bulb type"),
         }
     }
