@@ -1,6 +1,6 @@
 [package]
 name = "maliput"
-version = "0.23.0"
+version = "0.23.1"
 authors = [
   "Franco Cipollone <franco.c@ekumenlabs.com>",
   "Santiago Lopez <santiago.lopez@ekumenlabs.com>",
@@ -25,8 +25,14 @@ links = "maliput"
 [features]
 default = ["maliput_malidrive"]
 all = ["maliput_malidrive", "maliput_geopackage"]
-maliput_malidrive = ["maliput-sys/maliput_malidrive", "maliput-sdk/maliput_malidrive"]
-maliput_geopackage = ["maliput-sys/maliput_geopackage", "maliput-sdk/maliput_geopackage"]
+maliput_malidrive = [
+  "maliput-sys/maliput_malidrive",
+  "maliput-sdk/maliput_malidrive",
+]
+maliput_geopackage = [
+  "maliput-sys/maliput_geopackage",
+  "maliput-sdk/maliput_geopackage",
+]
 
 [dependencies]
 clap = { workspace = true, features = ["derive"] }
