@@ -136,6 +136,15 @@ pub mod ffi {
     enum BulbType {
         kRound = 0,
         kArrow,
+        kArrowLeft,
+        kArrowRight,
+        kArrowUp,
+        kArrowUpperLeft,
+        kArrowUpperRight,
+        kUTurnLeft,
+        kUTurnRight,
+        kWalk,
+        kDontWalk,
     }
 
     #[repr(i32)]

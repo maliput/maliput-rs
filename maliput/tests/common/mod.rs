@@ -126,6 +126,32 @@ pub fn create_t_shape_road_network_with_books() -> RoadNetwork {
 }
 
 #[allow(dead_code)]
+pub fn create_road_with_upper_left_traffic_light_network() -> RoadNetwork {
+    let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
+    let xodr_path = format!(
+        "{}/tests/data/xodr/RoadWithUpperLeftTrafficLight.xodr",
+        package_location
+    );
+    let db_path = format!(
+        "{}/tests/data/traffic_signal_db/TrafficSignalDatabase.yaml",
+        package_location
+    );
+
+    let road_network_properties = HashMap::from([
+        ("road_geometry_id", "road_with_upper_left_traffic_light"),
+        ("opendrive_file", xodr_path.as_str()),
+        ("traffic_signal_db", db_path.as_str()),
+        ("linear_tolerance", "0.01"),
+    ]);
+    let rn_res = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &road_network_properties);
+    assert!(
+        rn_res.is_ok(),
+        "Expected RoadNetwork to be created with RoadWithUpperLeftTrafficLight.xodr"
+    );
+    rn_res.unwrap()
+}
+
+#[allow(dead_code)]
 pub fn create_two_roads_with_traffic_lights_network() -> RoadNetwork {
     let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
     let xodr_path = format!("{}/tests/data/xodr/TwoRoadsWithTrafficLights.xodr", package_location);

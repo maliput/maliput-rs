@@ -268,3 +268,33 @@ fn traffic_light_book_find_by_lane_test() {
     let not_found = book.find_by_lane(&String::from("nonexistent_lane"));
     assert!(not_found.is_empty(), "Expected empty Vec for nonexistent lane");
 }
+
+#[test]
+fn upper_left_traffic_light_bulb_types_test() {
+    let road_network = common::create_road_with_upper_left_traffic_light_network();
+    let book = road_network.traffic_light_book();
+
+    // Signal S1 is the only traffic light in the map.
+    let traffic_lights = book.traffic_lights();
+    assert_eq!(traffic_lights.len(), 1, "Expected exactly one traffic light");
+
+    let tl = traffic_lights.first().expect("No traffic lights found");
+    assert_eq!(tl.id(), "S1");
+
+    let bulb_groups = tl.bulb_groups();
+    assert_eq!(bulb_groups.len(), 1, "Expected exactly one bulb group");
+
+    let bulb_group = bulb_groups.first().expect("No bulb groups found");
+    let bulbs = bulb_group.bulbs();
+    assert!(!bulbs.is_empty(), "Expected at least one bulb");
+
+    for bulb in &bulbs {
+        assert_eq!(
+            bulb.bulb_type(),
+            maliput::api::rules::BulbType::ArrowUpperLeft,
+            "Expected bulb '{}' to be of type ArrowUpperLeft, got {:?}",
+            bulb.id(),
+            bulb.bulb_type()
+        );
+    }
+}
