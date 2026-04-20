@@ -5,13 +5,13 @@ Maliput SDK!
 module(
     name = "maliput_sdk",
     compatibility_level = 1,
-    version = "0.22.2",
+    version = "0.23.0",
 )
 
 bazel_dep(name = "rules_cc", version = "0.0.9")
 bazel_dep(name = "maliput", version = "1.15.0")
 bazel_dep(name = "maliput_malidrive", version = "0.21.2")
-bazel_dep(name = "maliput_geopackage", version = "0.2.0")
+bazel_dep(name = "maliput_geopackage", version = "0.3.1")
 
 # Uncomment if you want to use a local version instead of the one from the registry.
 # local_path_override(module_name = "maliput_geopackage", path = "/workspaces/maliput/maliput_geopackage")
