@@ -560,6 +560,78 @@ std::unique_ptr<RangeValueNextState> RangeValueRuleStateProviderQuery_next(const
   return std::make_unique<RangeValueNextState>(RangeValueNextState { std::make_unique<RangeValueRuleRange>(query.next.value().state), std::move(duration_until) });
 }
 
+std::unique_ptr<std::vector<ConstTrafficSignPtr>> TrafficSignBook_TrafficSigns(const TrafficSignBook& traffic_sign_book) {
+  const auto traffic_signs_cpp = traffic_sign_book.TrafficSigns();
+  std::vector<ConstTrafficSignPtr> traffic_signs;
+  traffic_signs.reserve(traffic_signs_cpp.size());
+  for (const auto traffic_sign : traffic_signs_cpp) {
+    traffic_signs.push_back({traffic_sign});
+  }
+  return std::make_unique<std::vector<ConstTrafficSignPtr>>(std::move(traffic_signs));
+}
+
+const TrafficSign* TrafficSignBook_GetTrafficSign(const TrafficSignBook& traffic_sign_book, const rust::String& id) {
+  return traffic_sign_book.GetTrafficSign(TrafficSign::Id{std::string(id)});
+}
+
+std::unique_ptr<std::vector<ConstTrafficSignPtr>> TrafficSignBook_FindByLane(
+    const TrafficSignBook& traffic_sign_book, const rust::String& lane_id) {
+  const auto traffic_signs_cpp =
+      traffic_sign_book.FindByLane(maliput::api::LaneId{std::string(lane_id)});
+  std::vector<ConstTrafficSignPtr> traffic_signs;
+  traffic_signs.reserve(traffic_signs_cpp.size());
+  for (const auto traffic_sign : traffic_signs_cpp) {
+    traffic_signs.push_back({traffic_sign});
+  }
+  return std::make_unique<std::vector<ConstTrafficSignPtr>>(std::move(traffic_signs));
+}
+
+std::unique_ptr<std::vector<ConstTrafficSignPtr>> TrafficSignBook_FindByType(
+    const TrafficSignBook& traffic_sign_book, TrafficSignType sign_type) {
+  const auto traffic_signs_cpp = traffic_sign_book.FindByType(sign_type);
+  std::vector<ConstTrafficSignPtr> traffic_signs;
+  traffic_signs.reserve(traffic_signs_cpp.size());
+  for (const auto traffic_sign : traffic_signs_cpp) {
+    traffic_signs.push_back({traffic_sign});
+  }
+  return std::make_unique<std::vector<ConstTrafficSignPtr>>(std::move(traffic_signs));
+}
+
+rust::String TrafficSign_id(const TrafficSign& sign) {
+  return sign.id().string();
+}
+
+const TrafficSignType& TrafficSign_type(const TrafficSign& sign) {
+  return sign.type();
+}
+
+std::unique_ptr<maliput::api::InertialPosition> TrafficSign_position_road_network(const TrafficSign& sign) {
+  return std::make_unique<maliput::api::InertialPosition>(sign.position_road_network());
+}
+
+std::unique_ptr<maliput::api::Rotation> TrafficSign_orientation_road_network(const TrafficSign& sign) {
+  return std::make_unique<maliput::api::Rotation>(sign.orientation_road_network());
+}
+
+std::unique_ptr<StringWrapper> TrafficSign_message(const TrafficSign& sign) {
+  if (!sign.message().has_value()) {
+    return nullptr;
+  }
+  return std::make_unique<StringWrapper>(StringWrapper{rust::String{*sign.message()}});
+}
+
+rust::Vec<rust::String> TrafficSign_related_lanes(const TrafficSign& sign) {
+  rust::Vec<rust::String> lane_ids;
+  for (const auto& lane_id : sign.related_lanes()) {
+    lane_ids.push_back(lane_id.string());
+  }
+  return lane_ids;
+}
+
+std::unique_ptr<maliput::math::BoundingBox> TrafficSign_bounding_box(const TrafficSign& sign) {
+  return std::make_unique<maliput::math::BoundingBox>(sign.bounding_box());
+}
+
 }  // namespace rules
 }  // namespace api
 }  // namespace maliput

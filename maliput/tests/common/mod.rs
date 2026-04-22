@@ -99,6 +99,43 @@ pub fn create_town_01_road_network() -> RoadNetwork {
 }
 
 #[allow(dead_code)]
+pub fn create_malidrive_road_network(
+    xodr_file: &str,
+    yaml_file: Option<&str>,
+    traffic_signal_db_file: Option<&str>,
+) -> RoadNetwork {
+    let rm: ResourceManager = ResourceManager::new();
+    let xodr_path = rm.get_resource_path_by_name("maliput_malidrive", xodr_file).unwrap();
+    let yaml_path = yaml_file.map(|file| rm.get_resource_path_by_name("maliput_malidrive", file).unwrap());
+    // traffic_signal_db files live in a subdirectory of the main resource directory.
+    let traffic_signal_db_path =
+        traffic_signal_db_file.map(|file| xodr_path.parent().unwrap().join("traffic_signal_db").join(file));
+
+    let mut properties = HashMap::from([
+        ("road_geometry_id", "my_rg_from_rust"),
+        ("opendrive_file", xodr_path.to_str().unwrap()),
+        ("linear_tolerance", "0.01"),
+    ]);
+    if let Some(ref p) = yaml_path {
+        properties.insert("road_rule_book", p.to_str().unwrap());
+        properties.insert("traffic_light_book", p.to_str().unwrap());
+        properties.insert("phase_ring_book", p.to_str().unwrap());
+        properties.insert("intersection_book", p.to_str().unwrap());
+    }
+    if let Some(ref p) = traffic_signal_db_path {
+        properties.insert("traffic_signal_db", p.to_str().unwrap());
+    }
+
+    let rn_res = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &properties);
+    assert!(
+        rn_res.is_ok(),
+        "Expected RoadNetwork to be created successfully with {}",
+        xodr_file
+    );
+    rn_res.unwrap()
+}
+
+#[allow(dead_code)]
 pub fn create_t_shape_road_network_with_books() -> RoadNetwork {
     let rm = ResourceManager::new();
     let t_shape_xodr_path = rm
