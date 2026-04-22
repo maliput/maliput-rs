@@ -544,10 +544,25 @@ mod math_test {
     fn bounding_box_is_box_intersected() {
         let identity = RollPitchYaw_new(0.0, 0.0, 0.0);
         // Overlapping: box_a at origin with half-extents 1, box_b shifted by 1 with half-extents 1.
-        let box_a = BoundingBox_new(&Vector3_new(0.0, 0.0, 0.0), &Vector3_new(2.0, 2.0, 2.0), &identity, 1e-3);
-        let box_b = BoundingBox_new(&Vector3_new(1.0, 0.0, 0.0), &Vector3_new(2.0, 2.0, 2.0), &identity, 1e-3);
+        let box_a = BoundingBox_new(
+            &Vector3_new(0.0, 0.0, 0.0),
+            &Vector3_new(2.0, 2.0, 2.0),
+            &identity,
+            1e-3,
+        );
+        let box_b = BoundingBox_new(
+            &Vector3_new(1.0, 0.0, 0.0),
+            &Vector3_new(2.0, 2.0, 2.0),
+            &identity,
+            1e-3,
+        );
         // Non-overlapping: box_c far away.
-        let box_c = BoundingBox_new(&Vector3_new(100.0, 0.0, 0.0), &Vector3_new(2.0, 2.0, 2.0), &identity, 1e-3);
+        let box_c = BoundingBox_new(
+            &Vector3_new(100.0, 0.0, 0.0),
+            &Vector3_new(2.0, 2.0, 2.0),
+            &identity,
+            1e-3,
+        );
         assert!(box_a.IsBoxIntersected(&box_b));
         assert!(!box_a.IsBoxIntersected(&box_c));
     }
