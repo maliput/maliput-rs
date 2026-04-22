@@ -71,6 +71,9 @@ mod math_test {
     use maliput_sys::math::ffi::Quaternion_to_str;
     use maliput_sys::math::ffi::Quaternion_vec;
 
+    use maliput_sys::math::ffi::BoundingBox_get_vertices;
+    use maliput_sys::math::ffi::BoundingBox_new;
+
     #[test]
     fn vector3_new() {
         let v = Vector3_new(1.0, 2.0, 3.0);
@@ -498,5 +501,54 @@ mod math_test {
         assert_eq!(Matrix3_row(&m, 0).x(), 0.0);
         assert_eq!(Matrix3_row(&m, 1).y(), 0.0);
         assert_eq!(Matrix3_row(&m, 2).z(), 0.0);
+    }
+
+    #[test]
+    fn bounding_box_new() {
+        let position = Vector3_new(1.0, 2.0, 3.0);
+        let box_size = Vector3_new(4.0, 5.0, 6.0);
+        let orientation = RollPitchYaw_new(0.1, 0.2, 0.3);
+        let bb = BoundingBox_new(&position, &box_size, &orientation, 1e-3);
+        assert_eq!(bb.position().x(), 1.0);
+        assert_eq!(bb.position().y(), 2.0);
+        assert_eq!(bb.position().z(), 3.0);
+        assert_eq!(bb.box_size().x(), 4.0);
+        assert_eq!(bb.box_size().y(), 5.0);
+        assert_eq!(bb.box_size().z(), 6.0);
+        assert_eq!(bb.get_orientation().roll_angle(), 0.1);
+        assert_eq!(bb.get_orientation().pitch_angle(), 0.2);
+        assert_eq!(bb.get_orientation().yaw_angle(), 0.3);
+    }
+
+    #[test]
+    fn bounding_box_get_vertices() {
+        let position = Vector3_new(0.0, 0.0, 0.0);
+        let box_size = Vector3_new(2.0, 2.0, 2.0);
+        let orientation = RollPitchYaw_new(0.0, 0.0, 0.0);
+        let bb = BoundingBox_new(&position, &box_size, &orientation, 1e-3);
+        let vertices = BoundingBox_get_vertices(&bb);
+        assert_eq!(vertices.len(), 8);
+    }
+
+    #[test]
+    fn bounding_box_is_box_contained() {
+        let origin = Vector3_new(0.0, 0.0, 0.0);
+        let identity = RollPitchYaw_new(0.0, 0.0, 0.0);
+        let big_box = BoundingBox_new(&origin, &Vector3_new(10.0, 10.0, 10.0), &identity, 1e-3);
+        let small_box = BoundingBox_new(&origin, &Vector3_new(1.0, 1.0, 1.0), &identity, 1e-3);
+        assert!(big_box.IsBoxContained(&small_box));
+        assert!(!small_box.IsBoxContained(&big_box));
+    }
+
+    #[test]
+    fn bounding_box_is_box_intersected() {
+        let identity = RollPitchYaw_new(0.0, 0.0, 0.0);
+        // Overlapping: box_a at origin with half-extents 1, box_b shifted by 1 with half-extents 1.
+        let box_a = BoundingBox_new(&Vector3_new(0.0, 0.0, 0.0), &Vector3_new(2.0, 2.0, 2.0), &identity, 1e-3);
+        let box_b = BoundingBox_new(&Vector3_new(1.0, 0.0, 0.0), &Vector3_new(2.0, 2.0, 2.0), &identity, 1e-3);
+        // Non-overlapping: box_c far away.
+        let box_c = BoundingBox_new(&Vector3_new(100.0, 0.0, 0.0), &Vector3_new(2.0, 2.0, 2.0), &identity, 1e-3);
+        assert!(box_a.IsBoxIntersected(&box_b));
+        assert!(!box_a.IsBoxIntersected(&box_c));
     }
 }
