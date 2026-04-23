@@ -42,6 +42,7 @@
 #include <maliput/api/lane_boundary.h>
 #include <maliput/api/lane_data.h>
 #include <maliput/api/lane_marking.h>
+#include <maliput/api/objects/road_object_book.h>
 #include <maliput/api/road_network.h>
 #include <maliput/api/road_geometry.h>
 #include <maliput/api/regions.h>
@@ -52,6 +53,8 @@
 // Include the rules module header to get shared struct definitions (NextPhase, DiscreteValueRuleState, etc.)
 // that are re-exported by this module.
 #include "maliput-sys/src/api/rules/mod.rs.h"
+// Include the objects module header to get RoadObjectBook type definition.
+#include "maliput-sys/src/api/objects/mod.rs.h"
 
 #include "maliput-sys/src/api/mod.rs.h"
 

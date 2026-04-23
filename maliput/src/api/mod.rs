@@ -34,6 +34,7 @@ use crate::math::Quaternion;
 use crate::math::RollPitchYaw;
 use crate::math::Vector3;
 
+pub mod objects;
 pub mod rules;
 
 /// Enumerates the available maliput road network backends.
@@ -177,6 +178,18 @@ impl RoadNetwork {
                 traffic_light_book_ffi
                     .as_ref()
                     .expect("Underlying TrafficLightBook is null")
+            },
+        }
+    }
+
+    /// Get the `RoadObjectBook` of the `RoadNetwork`.
+    pub fn road_object_book(&self) -> objects::RoadObjectBook<'_> {
+        let road_object_book_ffi = self.rn.road_object_book();
+        objects::RoadObjectBook {
+            road_object_book: unsafe {
+                road_object_book_ffi
+                    .as_ref()
+                    .expect("Underlying RoadObjectBook is null")
             },
         }
     }
