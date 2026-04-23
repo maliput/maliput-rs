@@ -121,4 +121,29 @@ mod road_network_test {
             }
         }
     }
+
+    #[test]
+    fn create_malidrive_road_network_xodr_only() {
+        let rn = super::common::create_malidrive_road_network("TShapeRoad.xodr", None, None);
+        assert_eq!(rn.road_geometry().id(), "my_rg_from_rust");
+    }
+
+    #[test]
+    fn create_malidrive_road_network_with_yaml() {
+        let rn = super::common::create_malidrive_road_network("TShapeRoad.xodr", Some("TShapeRoad.yaml"), None);
+        assert_eq!(rn.road_geometry().id(), "my_rg_from_rust");
+        // The TShapeRoad.yaml has traffic lights.
+        assert!(!rn.traffic_light_book().traffic_lights().is_empty());
+    }
+
+    #[test]
+    fn create_malidrive_road_network_with_traffic_signal_db() {
+        let rn = super::common::create_malidrive_road_network(
+            "TwoRoadsWithTrafficSigns.xodr",
+            None,
+            Some("traffic_signal_db_example.yaml"),
+        );
+        assert_eq!(rn.road_geometry().id(), "my_rg_from_rust");
+        assert_eq!(rn.traffic_sign_book().traffic_signs().len(), 2);
+    }
 }

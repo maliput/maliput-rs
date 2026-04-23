@@ -48,6 +48,10 @@
 #include <maliput/api/rules/rule_registry.h>
 #include <maliput/api/rules/traffic_lights.h>
 #include <maliput/api/rules/traffic_light_book.h>
+#include <maliput/api/rules/traffic_sign.h>
+#include <maliput/api/rules/traffic_sign_book.h>
+#include <maliput/math/bounding_box.h>
+#include <maliput/math/roll_pitch_yaw.h>
 #include <maliput/math/vector.h>
 
 #include <rust/cxx.h>
@@ -65,7 +69,9 @@ namespace rules {
 struct ConstTrafficLightPtr;
 struct ConstBulbGroupPtr;
 struct ConstBulbPtr;
+struct ConstTrafficSignPtr;
 struct FloatWrapper;
+struct StringWrapper;
 struct RelatedRule;
 struct RelatedUniqueId;
 struct DiscreteValueRuleState;
@@ -180,6 +186,21 @@ std::unique_ptr<DiscreteValueNextState> DiscreteValueRuleStateProviderQuery_next
 
 std::unique_ptr<RangeValueRuleRange> RangeValueRuleStateProviderQuery_state(const RangeValueRuleStateProviderQuery& query);
 std::unique_ptr<RangeValueNextState> RangeValueRuleStateProviderQuery_next(const RangeValueRuleStateProviderQuery& query);
+
+// TrafficSignBook bindings declarations.
+std::unique_ptr<std::vector<ConstTrafficSignPtr>> TrafficSignBook_TrafficSigns(const TrafficSignBook& traffic_sign_book);
+const TrafficSign* TrafficSignBook_GetTrafficSign(const TrafficSignBook& traffic_sign_book, const rust::String& id);
+std::unique_ptr<std::vector<ConstTrafficSignPtr>> TrafficSignBook_FindByLane(const TrafficSignBook& traffic_sign_book, const rust::String& lane_id);
+std::unique_ptr<std::vector<ConstTrafficSignPtr>> TrafficSignBook_FindByType(const TrafficSignBook& traffic_sign_book, TrafficSignType sign_type);
+
+// TrafficSign bindings declarations.
+rust::String TrafficSign_id(const TrafficSign& sign);
+const TrafficSignType& TrafficSign_type(const TrafficSign& sign);
+std::unique_ptr<maliput::api::InertialPosition> TrafficSign_position_road_network(const TrafficSign& sign);
+std::unique_ptr<maliput::api::Rotation> TrafficSign_orientation_road_network(const TrafficSign& sign);
+std::unique_ptr<StringWrapper> TrafficSign_message(const TrafficSign& sign);
+rust::Vec<rust::String> TrafficSign_related_lanes(const TrafficSign& sign);
+std::unique_ptr<maliput::math::BoundingBox> TrafficSign_bounding_box(const TrafficSign& sign);
 
 }  // namespace rules
 }  // namespace api

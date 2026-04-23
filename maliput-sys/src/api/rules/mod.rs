@@ -46,6 +46,11 @@ pub mod ffi {
     struct ConstBulbPtr {
         pub bulb: *const Bulb,
     }
+    /// Shared struct for `TrafficSign` pointers.
+    /// This is needed because `*const` can't be used directly in the CxxVector collection.
+    struct ConstTrafficSignPtr {
+        pub traffic_sign: *const TrafficSign,
+    }
     /// Shared struct for `BulbState` references.
     /// This is needed because `&f` can't be used directly in the CxxVector collection.
     struct ConstBulbStateRef<'a> {
@@ -55,6 +60,12 @@ pub mod ffi {
     /// This is needed because `f64` can't be used directly in the UniquePtr type.
     struct FloatWrapper {
         pub value: f64,
+    }
+    /// Shared struct for optional string types.
+    /// This is needed because `String` can't be used directly in the UniquePtr type.
+    /// A null `UniquePtr<StringWrapper>` represents `std::nullopt`.
+    struct StringWrapper {
+        pub value: String,
     }
     /// Shared struct for pairs in a RelatedRules collection.
     ///  - key: Group name of the rules.
@@ -154,6 +165,24 @@ pub mod ffi {
         kBlinking,
     }
 
+    #[repr(i32)]
+    enum TrafficSignType {
+        kStop = 0,
+        kYield,
+        kSpeedLimit,
+        kNoEntry,
+        kOneWay,
+        kPedestrianCrossing,
+        kNoLeftTurn,
+        kNoRightTurn,
+        kNoUTurn,
+        kSchoolZone,
+        kConstruction,
+        kRailroadCrossing,
+        kNoOvertaking,
+        kUnknown,
+    }
+
     unsafe extern "C++" {
         include!("api/rules/rules.h");
         include!("api/rules/aliases.h");
@@ -172,6 +201,10 @@ pub mod ffi {
         type RoadPosition = crate::api::ffi::RoadPosition;
         #[namespace = "maliput::math"]
         type Vector3 = crate::math::ffi::Vector3;
+        #[namespace = "maliput::math"]
+        type RollPitchYaw = crate::math::ffi::RollPitchYaw;
+        #[namespace = "maliput::math"]
+        type BoundingBox = crate::math::ffi::BoundingBox;
 
         // TrafficLightBook bindings definitions.
         type TrafficLightBook;
@@ -190,6 +223,31 @@ pub mod ffi {
         fn TrafficLight_bulb_groups(traffic_light: &TrafficLight) -> UniquePtr<CxxVector<ConstBulbGroupPtr>>;
         fn TrafficLight_GetBulbGroup(traffic_light: &TrafficLight, id: &String) -> *const BulbGroup;
         fn TrafficLight_related_lanes(traffic_light: &TrafficLight) -> Vec<String>;
+
+        // TrafficSignBook bindings definitions.
+        type TrafficSignBook;
+        type TrafficSignType;
+        fn TrafficSignBook_TrafficSigns(book: &TrafficSignBook) -> UniquePtr<CxxVector<ConstTrafficSignPtr>>;
+        fn TrafficSignBook_GetTrafficSign(book: &TrafficSignBook, id: &String) -> *const TrafficSign;
+        fn TrafficSignBook_FindByLane(
+            book: &TrafficSignBook,
+            lane_id: &String,
+        ) -> UniquePtr<CxxVector<ConstTrafficSignPtr>>;
+        fn TrafficSignBook_FindByType(
+            book: &TrafficSignBook,
+            sign_type: TrafficSignType,
+        ) -> UniquePtr<CxxVector<ConstTrafficSignPtr>>;
+
+        // TrafficSign bindings definitions.
+        type TrafficSign;
+        fn TrafficSign_id(sign: &TrafficSign) -> String;
+        // This method could be bound as `fn type(self: &TrafficSign) -> TrafficSignType` but it causes a conflict with the `type` keyword in Rust.
+        fn TrafficSign_type(sign: &TrafficSign) -> &TrafficSignType;
+        fn TrafficSign_position_road_network(sign: &TrafficSign) -> UniquePtr<InertialPosition>;
+        fn TrafficSign_orientation_road_network(sign: &TrafficSign) -> UniquePtr<Rotation>;
+        fn TrafficSign_message(sign: &TrafficSign) -> UniquePtr<StringWrapper>;
+        fn TrafficSign_related_lanes(sign: &TrafficSign) -> Vec<String>;
+        fn TrafficSign_bounding_box(sign: &TrafficSign) -> UniquePtr<BoundingBox>;
 
         type BulbColor;
         type BulbState;

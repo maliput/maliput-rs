@@ -180,6 +180,19 @@ impl RoadNetwork {
             },
         }
     }
+
+    /// Get the `TrafficSignBook` of the `RoadNetwork`.
+    pub fn traffic_sign_book(&self) -> rules::TrafficSignBook<'_> {
+        let traffic_sign_book_ffi = self.rn.traffic_sign_book();
+        rules::TrafficSignBook {
+            traffic_sign_book: unsafe {
+                traffic_sign_book_ffi
+                    .as_ref()
+                    .expect("Underlying TrafficSignBook is null")
+            },
+        }
+    }
+
     /// Get the `RoadRulebook` of the `RoadNetwork`.
     pub fn rulebook(&self) -> rules::RoadRulebook<'_> {
         let rulebook_ffi = self.rn.rulebook();
