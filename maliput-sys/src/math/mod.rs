@@ -120,5 +120,19 @@ pub mod ffi {
         fn RollPitchYaw_ToQuaternion(rpy: &RollPitchYaw) -> UniquePtr<Quaternion>;
         fn RollPitchYaw_ToMatrix(rpy: &RollPitchYaw) -> UniquePtr<Matrix3>;
         fn RollPitchYaw_CalcRotationMatrixDt(rpy: &RollPitchYaw, rpyDt: &Vector3) -> UniquePtr<Matrix3>;
+
+        type BoundingBox;
+        fn BoundingBox_new(
+            position: &Vector3,
+            box_size: &Vector3,
+            orientation: &RollPitchYaw,
+            tolerance: f64,
+        ) -> UniquePtr<BoundingBox>;
+        fn position(self: &BoundingBox) -> &Vector3;
+        fn box_size(self: &BoundingBox) -> &Vector3;
+        fn get_orientation(self: &BoundingBox) -> &RollPitchYaw;
+        fn BoundingBox_get_vertices(b: &BoundingBox) -> UniquePtr<CxxVector<Vector3>>;
+        fn IsBoxContained(self: &BoundingBox, other: &BoundingBox) -> bool;
+        fn IsBoxIntersected(self: &BoundingBox, other: &BoundingBox) -> bool;
     }
 }
