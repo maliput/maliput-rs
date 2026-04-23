@@ -40,6 +40,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rerun-if-changed=src/api/rules/rules.h");
     println!("cargo:rerun-if-changed=src/api/rules/rules.cc");
     println!("cargo:rerun-if-changed=src/api/rules/mod.rs");
+    println!("cargo:rerun-if-changed=src/api/objects/objects.h");
+    println!("cargo:rerun-if-changed=src/api/objects/objects.cc");
+    println!("cargo:rerun-if-changed=src/api/objects/mod.rs");
     println!("cargo:rerun-if-changed=src/common/common.h");
     println!("cargo:rerun-if-changed=src/common/mod.rs");
     println!("cargo:rerun-if-changed=src/cxx_utils/error_handling.h");
@@ -62,11 +65,13 @@ fn main() -> Result<(), Box<dyn Error>> {
         "src/math/mod.rs",
         "src/utility/mod.rs",
         "src/api/rules/mod.rs",
+        "src/api/objects/mod.rs",
         "src/api/mod.rs",
         "src/plugin/mod.rs",
         "src/common/mod.rs",
     ])
     .file("src/api/rules/rules.cc")
+    .file("src/api/objects/objects.cc")
     .flag_if_supported("-std=c++17")
     .include("src")
     .compile("maliput-sys");
