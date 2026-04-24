@@ -30,10 +30,10 @@
 
 // This example demonstrates how to use the RoadObject API.
 //
-// The TwoRoadsWithRoadObjects.xodr map contains two roads, each with a set of
-// road objects defined as OpenDRIVE `<object>` elements. Road objects model
-// physical features adjacent to or along the road — barriers, buildings,
-// vegetation, crosswalks, etc.
+// The RoadWithRoadObjects.xodr map contains two roads with road objects defined
+// as OpenDRIVE `<object>` elements. Road objects model physical features
+// adjacent to or along the road — barriers, buildings, vegetation, crosswalks,
+// and custom objects with no standardized type.
 //
 // Road layout (viewed from above):
 //
@@ -51,6 +51,8 @@
 //                                          star outline (6 corners, closed)
 //   obj_barrier     (GuardRail)          : type=barrier,    s=20,  t=3,  zOffset=0.5
 //                                          validity fromLane=-1 toLane=-1
+//   obj_trashcan    (Trashcan)           : no type,         s=30,  t=6,  zOffset=0.0
+//                                          0.5 x 0.5 x 0.9 m roadside object
 //   obj_building    (Warehouse)          : type=building,   s=50,  t=-5, zOffset=0.0
 //                                          radius=4.0
 //   obj_crosswalk   (PedestrianCrossing) : type=crosswalk,  s=100, t=0,  zOffset=0.0
@@ -74,16 +76,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     use maliput::api::{objects::RoadObjectType, RoadNetwork, RoadNetworkBackend};
     use std::collections::HashMap;
 
-    // Use the ResourceManager to locate the XODR file supplied by the
-    // maliput_malidrive backend.  This avoids hard-coding installation paths.
-    let rm = maliput::ResourceManager::new();
-    let xodr_path = rm
-        .get_resource_path_by_name("maliput_malidrive", "TwoRoadsWithRoadObjects.xodr")
-        .unwrap();
+    // Use CARGO_MANIFEST_DIR to locate the local XODR file.
+    let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
+    let xodr_path = format!("{}/data/xodr/RoadWithRoadObjects.xodr", package_location);
 
     let road_network_properties = HashMap::from([
         ("road_geometry_id", "two_roads_with_road_objects"),
-        ("opendrive_file", xodr_path.to_str().unwrap()),
+        ("opendrive_file", xodr_path.as_str()),
         ("linear_tolerance", "0.01"),
     ]);
 
@@ -221,6 +220,28 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         None => println!("Object not found."),
     }
 
+    // --- Look up the trashcan by ID ---
+    //
+    // obj_trashcan has no XODR type specified, which maps to RoadObjectType::Unknown.
+    println!("\n--- Look up 'obj_trashcan' by ID ---");
+    match book.get_road_object(&"obj_trashcan".to_string()) {
+        Some(trashcan) => {
+            println!("Found '{}' (type={:?})", trashcan.id(), trashcan.object_type());
+            let name_str = trashcan.name().unwrap_or_else(|| "(none)".to_string());
+            println!("  name: {}", name_str);
+            let pos = trashcan.position();
+            println!(
+                "  position: ({:.3}, {:.3}, {:.3})",
+                pos.inertial_position.x(),
+                pos.inertial_position.y(),
+                pos.inertial_position.z()
+            );
+            let bb = trashcan.bounding_box();
+            println!("  bounding box vertices: {}", bb.get_vertices().len());
+        }
+        None => println!("Object not found."),
+    }
+
     // --- Filter by type ---
     //
     // find_by_type() returns all objects whose object_type() matches.
@@ -236,6 +257,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("  count: {}", crosswalks.len());
     for c in &crosswalks {
         println!("  '{}' (related_lanes: {:?})", c.id(), c.related_lanes());
+    }
+
+    // obj_trashcan has no XODR type specified, which maps to RoadObjectType::Unknown.
+    println!("\n--- Objects of type Unknown (includes obj_trashcan) ---");
+    let unknown_objects = book.find_by_type(&RoadObjectType::Unknown);
+    println!("  count: {}", unknown_objects.len());
+    for u in &unknown_objects {
+        println!("  '{}' name={:?}", u.id(), u.name());
     }
 
     // --- Filter by lane ---

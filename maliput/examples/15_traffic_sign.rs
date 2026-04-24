@@ -36,11 +36,12 @@
 // carry no dynamic state — they simply exist at a position with an orientation
 // and a semantic type.
 //
-// The TwoRoadsWithTrafficSigns.xodr map defines two roads, each carrying one
-// stop sign as an OpenDRIVE `<signal>` element.  The traffic_signal_db_example.yaml
-// file (located in the `traffic_signal_db/` subdirectory of the XODR resources)
-// describes the physical geometry (bounding box dimensions) of each signal type
-// so that TrafficSign objects can be constructed with a proper bounding box.
+// The RoadWithTrafficSigns.xodr map defines two roads, each carrying one
+// stop sign as an OpenDRIVE `<signal>` element.  Road 1 also carries a custom
+// sign (type 12345).  The TrafficSignalDatabase.yaml file (located in the
+// `data/traffic_signal_db/` subdirectory of the crate) describes the physical
+// geometry (bounding box dimensions) of each signal type so that TrafficSign
+// objects can be constructed with a proper bounding box.
 //
 // Road layout (viewed from above):
 //
@@ -66,6 +67,10 @@
 //                               (no validity → all lanes of road 1)
 //                               → related_lanes(SS2): {2_0_1, 2_0_-1, 1_0_1, 1_0_-1}
 //
+//   CS1 (name="CustomSign_CS1") : type=Unknown, s=75, t=-3, zOffset=1
+//                                 validity: none (all lanes of road 1)
+//                                 → related_lanes(CS1): {1_0_1, 1_0_-1}
+//
 // Topics covered:
 //   - Loading a road network that populates the TrafficSignBook from XODR
 //     signal elements via a traffic_signal_db YAML file.
@@ -80,28 +85,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     use maliput::api::{rules::TrafficSignType, RoadNetwork, RoadNetworkBackend};
     use std::collections::HashMap;
 
-    // Use the ResourceManager to locate the XODR file supplied by the
-    // maliput_malidrive backend.  The traffic_signal_db YAML lives in a
-    // `traffic_signal_db/` subdirectory next to the XODR files.
-    let rm = maliput::ResourceManager::new();
-    let xodr_path = rm
-        .get_resource_path_by_name("maliput_malidrive", "TwoRoadsWithTrafficSigns.xodr")
-        .unwrap();
+    // Use CARGO_MANIFEST_DIR to locate the local XODR and traffic_signal_db files.
+    let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
+    let xodr_path = format!("{}/data/xodr/RoadWithTrafficSigns.xodr", package_location);
 
     // The traffic_signal_db key points to a YAML file that defines signal type
     // templates (bounding box dimensions, rule mappings, …).  The backend uses
     // this file together with the `<signal>` descriptions in the XODR to build
     // TrafficSign objects.
-    let db_path = xodr_path
-        .parent()
-        .unwrap()
-        .join("traffic_signal_db")
-        .join("traffic_signal_db_example.yaml");
+    let db_path = format!("{}/data/traffic_signal_db/TrafficSignalDatabase.yaml", package_location);
 
     let road_network_properties = HashMap::from([
         ("road_geometry_id", "two_roads_with_traffic_signs"),
-        ("opendrive_file", xodr_path.to_str().unwrap()),
-        ("traffic_signal_db", db_path.to_str().unwrap()),
+        ("opendrive_file", xodr_path.as_str()),
+        ("traffic_signal_db", db_path.as_str()),
         ("linear_tolerance", "0.01"),
     ]);
 
@@ -222,6 +219,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // No Yield signs are defined in this map.
     let yield_signs = book.find_by_type(&TrafficSignType::Yield);
     println!("\n--- Yield signs: {} ---", yield_signs.len());
+
+    // CS1 is a custom sign (type 12345) which maps to TrafficSignType::Unknown.
+    println!("\n--- Unknown signs ---");
+    let unknown_signs = book.find_by_type(&TrafficSignType::Unknown);
+    println!("  count: {}", unknown_signs.len());
+    for s in &unknown_signs {
+        println!("  '{}' related_lanes={:?}", s.id(), s.related_lanes());
+    }
 
     Ok(())
 }
