@@ -106,9 +106,9 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y  --d
     && . "${CARGO_HOME}/env" \
     && rustup component add clippy \
     && rustup component add rustfmt \
-    && cargo install cargo-deb \
-    && cargo install cargo-expand \
-    && cargo install cargo-rdme \
+    && cargo install --locked cargo-deb \
+    && cargo install --locked cargo-expand \
+    && cargo install --locked cargo-rdme \
     && rustup target add x86_64-unknown-linux-gnu \
     && rustup completions bash cargo >> /home/${USERNAME}/.local/share/bash-completion/completions/cargo \
     && echo "export RUSTUP_HOME=${RUSTUP_HOME}" >> /etc/profile \

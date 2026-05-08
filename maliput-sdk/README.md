@@ -22,7 +22,7 @@ _Note: What is maliput? Refer to https://maliput.readthedocs.org._
 |------------|---------|
 | [maliput](https://registry.bazel.build/modules/maliput)    | 1.16.0 |
 | [maliput_malidrive](https://registry.bazel.build/modules/maliput_malidrive) | 0.22.0 |
-| [maliput_geopackage](https://registry.bazel.build/modules/maliput_geopackage) | 0.3.1 |
+| [maliput_geopackage](https://registry.bazel.build/modules/maliput_geopackage) | 0.5.0 |
 
 ## Features
 
