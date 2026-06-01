@@ -41,6 +41,18 @@ pub mod ffi {
     struct ConstOutlinePtr {
         pub outline: *const Outline,
     }
+    /// Shared struct for `RoadMarking` pointers.
+    /// This is needed because `*const` can't be used directly in the CxxVector collection.
+    struct ConstRoadMarkingPtr {
+        pub road_marking: *const RoadMarking,
+    }
+    /// Shared struct for an optional `RoadMarkingValue`.
+    /// `value` and `unit` are meaningful only when `has_value` is true.
+    struct RoadMarkingValueData {
+        pub has_value: bool,
+        pub value: f64,
+        pub unit: RoadMarkingValueUnit,
+    }
     /// Shared struct for outline corner data.
     /// This is a flat representation of `OutlineCorner` to avoid a new opaque CXX type.
     /// `height` is 0.0 when `has_height` is false.
@@ -66,17 +78,47 @@ pub mod ffi {
         kUnknown = 0,
         kBarrier,
         kBuilding,
-        kCrosswalk,
         kGantry,
         kObstacle,
-        kParkingSpace,
         kPole,
-        kRoadMark,
-        kRoadSurface,
-        kStopLine,
         kTrafficIsland,
         kTree,
         kVegetation,
+    }
+
+    /// Shared enum representing different types of road markings.
+    /// This is needed to access the enum variant from Rust API since the C++ enum has an opaque implementation.
+    /// The order of these variants must match with the order of the enum class defined in maliput C++ API.
+    #[repr(i32)]
+    enum RoadMarkingType {
+        kStop = 0,
+        kStopLine,
+        kCrosswalk,
+        kParkingSpace,
+        kEmergencyLane,
+        kSpeedLimit,
+        kDoNotStop,
+        kRailRoad,
+        kGiveWay,
+        kArrowTurnRight,
+        kArrowTurnLeft,
+        kArrowForwardTurnRight,
+        kArrowForwardTurnLeft,
+        kArrowForward,
+        kArrowForwardTurnRightTurnLeft,
+        kArrowTurnRightTurnLeft,
+        kArrowUTurnRight,
+        kArrowUTurnLeft,
+        kUnknown,
+    }
+
+    /// Shared enum representing the unit of a `RoadMarkingValue`.
+    /// The order of these variants must match with the order of the enum class defined in maliput C++ API.
+    #[repr(i32)]
+    enum RoadMarkingValueUnit {
+        kMetersPerSecond = 0,
+        kKilometersPerHour,
+        kMilesPerHour,
     }
 
     unsafe extern "C++" {
@@ -147,5 +189,42 @@ pub mod ffi {
         fn Outline_is_closed(outline: &Outline) -> bool;
         fn Outline_num_corners(outline: &Outline) -> i32;
         fn Outline_corners(outline: &Outline) -> Vec<OutlineCornerData>;
+
+        // RoadMarkingType opaque type - this is needed to prevent CXX from redefining the enum (it'll use a `using` alias instead).
+        type RoadMarkingType;
+        // RoadMarkingValueUnit opaque type - same reason as RoadMarkingType.
+        type RoadMarkingValueUnit;
+
+        // RoadMarkingBook opaque type and bindings.
+        type RoadMarkingBook;
+        fn RoadMarkingBook_RoadMarkings(book: &RoadMarkingBook) -> UniquePtr<CxxVector<ConstRoadMarkingPtr>>;
+        fn RoadMarkingBook_GetRoadMarking(book: &RoadMarkingBook, id: &String) -> *const RoadMarking;
+        fn RoadMarkingBook_FindByLane(
+            book: &RoadMarkingBook,
+            lane_id: &String,
+        ) -> UniquePtr<CxxVector<ConstRoadMarkingPtr>>;
+        fn RoadMarkingBook_FindByType(
+            book: &RoadMarkingBook,
+            marking_type: RoadMarkingType,
+        ) -> UniquePtr<CxxVector<ConstRoadMarkingPtr>>;
+
+        // RoadMarking opaque type and bindings.
+        type RoadMarking;
+        fn RoadMarking_id(marking: &RoadMarking) -> String;
+        fn RoadMarking_name(marking: &RoadMarking) -> UniquePtr<StringWrapper>;
+        // `type` is a reserved Rust keyword, so we expose it as a free function.
+        fn RoadMarking_marking_type(marking: &RoadMarking) -> RoadMarkingType;
+        fn RoadMarking_position_inertial(marking: &RoadMarking) -> UniquePtr<InertialPosition>;
+        fn RoadMarking_position_has_lane_position(marking: &RoadMarking) -> bool;
+        fn RoadMarking_position_lane_id(marking: &RoadMarking) -> String;
+        fn RoadMarking_position_lane_s(marking: &RoadMarking) -> f64;
+        fn RoadMarking_position_lane_r(marking: &RoadMarking) -> f64;
+        fn RoadMarking_position_lane_h(marking: &RoadMarking) -> f64;
+        fn RoadMarking_orientation(marking: &RoadMarking) -> UniquePtr<Rotation>;
+        fn RoadMarking_bounding_box(marking: &RoadMarking) -> UniquePtr<BoundingBox>;
+        fn RoadMarking_related_lanes(marking: &RoadMarking) -> Vec<String>;
+        fn num_outlines(self: &RoadMarking) -> i32;
+        fn RoadMarking_outlines(marking: &RoadMarking) -> UniquePtr<CxxVector<ConstOutlinePtr>>;
+        fn RoadMarking_value(marking: &RoadMarking) -> RoadMarkingValueData;
     }
 }

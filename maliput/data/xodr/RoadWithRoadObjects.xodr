@@ -36,7 +36,7 @@
    - obj_vegetation: vegetation at s=0, t=4, hdg=pi/3, with star-shaped outline (cornerLocal)
    - obj_barrier:    barrier at s=20, t=3 (right shoulder), with validity toLane=-1
    - obj_building:   building at s=50, t=-5, with radius instead of length/width
-   - obj_crosswalk:  crosswalk at s=100, t=0, spanning both lanes, with outline (cornerRoad)
+   - obj_obstacle:   obstacle at s=100, t=0, spanning both lanes, with outline (cornerRoad)
    - obj_trashcan:   none-type object at s=30, t=6 (roadside), 0.5x0.5x0.9
 -->
 <OpenDRIVE>
@@ -114,14 +114,14 @@
                     dynamic="no">
             </object>
 
-            <!-- Object 4: Crosswalk spanning both lanes, with an outline. -->
-            <object id="obj_crosswalk" name="PedestrianCrossing" type="crosswalk"
+            <!-- Object 4: Obstacle spanning both lanes, with an outline. -->
+            <object id="obj_obstacle" name="LargeObstacle" type="obstacle"
                     s="100.0" t="0.0" zOffset="0.0"
                     length="4.0" width="7.0" height="0.05"
                     orientation="none" dynamic="no">
                 <validity fromLane="-1" toLane="1"/>
                 <outlines>
-                    <outline id="crosswalk_outline" closed="true">
+                    <outline id="obstacle_outline" closed="true">
                         <cornerRoad s="96.0" t="-3.5" dz="0.0" height="0.05"/>
                         <cornerRoad s="96.0" t="3.5" dz="0.0" height="0.05"/>
                         <cornerRoad s="100.0" t="3.5" dz="0.0" height="0.05"/>

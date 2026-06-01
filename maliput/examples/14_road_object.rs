@@ -32,7 +32,7 @@
 //
 // The RoadWithRoadObjects.xodr map contains two roads with road objects defined
 // as OpenDRIVE `<object>` elements. Road objects model physical features
-// adjacent to or along the road — barriers, buildings, vegetation, crosswalks,
+// adjacent to or along the road — barriers, buildings, vegetation, obstacles,
 // and custom objects with no standardized type.
 //
 // Road layout (viewed from above):
@@ -55,7 +55,7 @@
 //                                          0.5 x 0.5 x 0.9 m roadside object
 //   obj_building    (Warehouse)          : type=building,   s=50,  t=-5, zOffset=0.0
 //                                          radius=4.0
-//   obj_crosswalk   (PedestrianCrossing) : type=crosswalk,  s=100, t=0,  zOffset=0.0
+//   obj_obstacle    (LargeObstacle)      : type=obstacle,   s=100, t=0,  zOffset=0.0
 //                                          validity fromLane=-1 toLane=1
 //                                          rect outline (4 corners, closed)
 //
@@ -155,7 +155,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         // --- Outlines ---
         //
-        // Some objects (e.g. vegetation with a star shape, crosswalks with a
+        // Some objects (e.g. vegetation with a star shape, obstacles with a
         // rectangular footprint) carry one or more polygon outlines that describe
         // their boundary in the object-local coordinate frame.
         //
@@ -252,10 +252,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("  '{}'", b.id());
     }
 
-    println!("\n--- Objects of type Crosswalk ---");
-    let crosswalks = book.find_by_type(&RoadObjectType::Crosswalk);
-    println!("  count: {}", crosswalks.len());
-    for c in &crosswalks {
+    println!("\n--- Objects of type Obstacle ---");
+    let obstacles = book.find_by_type(&RoadObjectType::Obstacle);
+    println!("  count: {}", obstacles.len());
+    for c in &obstacles {
         println!("  '{}' (related_lanes: {:?})", c.id(), c.related_lanes());
     }
 

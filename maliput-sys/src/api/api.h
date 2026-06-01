@@ -42,6 +42,7 @@
 #include <maliput/api/lane_boundary.h>
 #include <maliput/api/lane_data.h>
 #include <maliput/api/lane_marking.h>
+#include <maliput/api/objects/road_marking_book.h>
 #include <maliput/api/objects/road_object_book.h>
 #include <maliput/api/road_network.h>
 #include <maliput/api/road_geometry.h>
