@@ -38,8 +38,8 @@
 //
 // The RoadWithTrafficSigns.xodr map defines two roads, each carrying one
 // stop sign as an OpenDRIVE `<signal>` element.  Road 1 also carries a custom
-// sign (type 12345).  The TrafficSignalDatabase.yaml file (located in the
-// `data/traffic_signal_db/` subdirectory of the crate) describes the physical
+// sign (type 12345).  The TrafficControlDeviceDatabase.yaml file (located in the
+// `data/traffic_control_device_db/` subdirectory of the crate) describes the physical
 // geometry (bounding box dimensions) of each signal type so that TrafficSign
 // objects can be constructed with a proper bounding box.
 //
@@ -73,7 +73,7 @@
 //
 // Topics covered:
 //   - Loading a road network that populates the TrafficSignBook from XODR
-//     signal elements via a traffic_signal_db YAML file.
+//     signal elements via a traffic_control_device_db YAML file.
 //   - Listing all TrafficSigns with TrafficSignBook::traffic_signs().
 //   - Looking up a specific sign by ID with TrafficSignBook::get_traffic_sign().
 //   - Inspecting sign properties: id, type, position, orientation, message,
@@ -85,20 +85,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     use maliput::api::{rules::TrafficSignType, RoadNetwork, RoadNetworkBackend};
     use std::collections::HashMap;
 
-    // Use CARGO_MANIFEST_DIR to locate the local XODR and traffic_signal_db files.
+    // Use CARGO_MANIFEST_DIR to locate the local XODR and traffic_control_device_db files.
     let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
     let xodr_path = format!("{}/data/xodr/RoadWithTrafficSigns.xodr", package_location);
 
-    // The traffic_signal_db key points to a YAML file that defines signal type
+    // The traffic_control_device_db key points to a YAML file that defines signal type
     // templates (bounding box dimensions, rule mappings, …).  The backend uses
     // this file together with the `<signal>` descriptions in the XODR to build
     // TrafficSign objects.
-    let db_path = format!("{}/data/traffic_signal_db/TrafficSignalDatabase.yaml", package_location);
+    let db_path = format!(
+        "{}/data/traffic_control_device_db/TrafficControlDeviceDatabase.yaml",
+        package_location
+    );
 
     let road_network_properties = HashMap::from([
         ("road_geometry_id", "two_roads_with_traffic_signs"),
         ("opendrive_file", xodr_path.as_str()),
-        ("traffic_signal_db", db_path.as_str()),
+        ("traffic_control_device_db", db_path.as_str()),
         ("linear_tolerance", "0.01"),
     ]);
 

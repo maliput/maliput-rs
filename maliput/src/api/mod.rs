@@ -194,6 +194,18 @@ impl RoadNetwork {
         }
     }
 
+    /// Get the `RoadMarkingBook` of the `RoadNetwork`.
+    pub fn road_marking_book(&self) -> objects::RoadMarkingBook<'_> {
+        let road_marking_book_ffi = self.rn.road_marking_book();
+        objects::RoadMarkingBook {
+            road_marking_book: unsafe {
+                road_marking_book_ffi
+                    .as_ref()
+                    .expect("Underlying RoadMarkingBook is null")
+            },
+        }
+    }
+
     /// Get the `TrafficSignBook` of the `RoadNetwork`.
     pub fn traffic_sign_book(&self) -> rules::TrafficSignBook<'_> {
         let traffic_sign_book_ffi = self.rn.traffic_sign_book();

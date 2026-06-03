@@ -41,10 +41,10 @@ mod common;
 //   ============================      ============================
 //
 // Objects on Road 1:
-//   obj_vegetation  (StarBush)        : type=vegetation, s=0,   t=4,  zOffset=0.0, star outline (6 corners, closed)
-//   obj_barrier     (GuardRail)       : type=barrier,    s=20,  t=3,  zOffset=0.5, validity fromLane=-1 toLane=-1
-//   obj_building    (Warehouse)       : type=building,   s=50,  t=-5, zOffset=0.0, radius=4.0
-//   obj_crosswalk   (PedestrianCrossing): type=crosswalk, s=100, t=0, zOffset=0.0, validity fromLane=-1 toLane=1, rect outline (4 corners, closed)
+//   obj_vegetation  (StarBush)     : type=vegetation, s=0,   t=4,  zOffset=0.0, star outline (6 corners, closed)
+//   obj_barrier     (GuardRail)    : type=barrier,    s=20,  t=3,  zOffset=0.5, validity fromLane=-1 toLane=-1
+//   obj_building    (Warehouse)    : type=building,   s=50,  t=-5, zOffset=0.0, radius=4.0
+//   obj_obstacle    (RoadObstacle) : type=obstacle,   s=100, t=0,  zOffset=0.0, validity fromLane=-1 toLane=1, rect outline (4 corners, closed)
 //
 // RoadWithStopLine.xodr road layout:
 //
@@ -65,10 +65,7 @@ mod common;
 const OBJ_VEGETATION_ID: &str = "obj_vegetation";
 const OBJ_BARRIER_ID: &str = "obj_barrier";
 const OBJ_BUILDING_ID: &str = "obj_building";
-const OBJ_CROSSWALK_ID: &str = "obj_crosswalk";
-const OBJ_STOP_LINE_NAME_ID: &str = "obj_stop_line_name";
-const OBJ_STOP_LINE_SUBTYPE_ID: &str = "obj_stop_line_subtype";
-const OBJ_ROAD_MARK_ID: &str = "obj_road_mark";
+const OBJ_OBSTACLE_ID: &str = "obj_obstacle";
 
 #[test]
 fn road_object_book_api() {
@@ -85,16 +82,13 @@ fn road_object_book_api() {
     );
     assert!(ids.contains(&OBJ_BARRIER_ID.to_string()), "Missing {OBJ_BARRIER_ID}");
     assert!(ids.contains(&OBJ_BUILDING_ID.to_string()), "Missing {OBJ_BUILDING_ID}");
-    assert!(
-        ids.contains(&OBJ_CROSSWALK_ID.to_string()),
-        "Missing {OBJ_CROSSWALK_ID}"
-    );
+    assert!(ids.contains(&OBJ_OBSTACLE_ID.to_string()), "Missing {OBJ_OBSTACLE_ID}");
 
     // get_road_object returns Some for known IDs.
     assert!(book.get_road_object(&OBJ_VEGETATION_ID.to_string()).is_some());
     assert!(book.get_road_object(&OBJ_BARRIER_ID.to_string()).is_some());
     assert!(book.get_road_object(&OBJ_BUILDING_ID.to_string()).is_some());
-    assert!(book.get_road_object(&OBJ_CROSSWALK_ID.to_string()).is_some());
+    assert!(book.get_road_object(&OBJ_OBSTACLE_ID.to_string()).is_some());
 
     // get_road_object returns None for an unknown ID.
     assert!(book.get_road_object(&String::from("nonexistent_id")).is_none());
@@ -135,17 +129,14 @@ fn road_object_api() {
     assert_eq!(building.subtype(), None);
     assert!(!building.is_dynamic());
 
-    let crosswalk = book
-        .get_road_object(&OBJ_CROSSWALK_ID.to_string())
-        .expect("obj_crosswalk not found");
-    assert_eq!(crosswalk.id(), OBJ_CROSSWALK_ID);
-    assert_eq!(crosswalk.name(), Some("PedestrianCrossing".to_string()));
-    assert_eq!(
-        crosswalk.object_type(),
-        maliput::api::objects::RoadObjectType::Crosswalk
-    );
-    assert_eq!(crosswalk.subtype(), None);
-    assert!(!crosswalk.is_dynamic());
+    let obstacle = book
+        .get_road_object(&OBJ_OBSTACLE_ID.to_string())
+        .expect("obj_obstacle not found");
+    assert_eq!(obstacle.id(), OBJ_OBSTACLE_ID);
+    assert_eq!(obstacle.name(), Some("RoadObstacle".to_string()));
+    assert_eq!(obstacle.object_type(), maliput::api::objects::RoadObjectType::Obstacle);
+    assert_eq!(obstacle.subtype(), None);
+    assert!(!obstacle.is_dynamic());
 }
 
 #[test]
@@ -224,8 +215,8 @@ fn road_object_bounding_box() {
     let building = book.get_road_object(&OBJ_BUILDING_ID.to_string()).unwrap();
     assert_eq!(building.bounding_box().get_vertices().len(), 8);
 
-    let crosswalk = book.get_road_object(&OBJ_CROSSWALK_ID.to_string()).unwrap();
-    assert_eq!(crosswalk.bounding_box().get_vertices().len(), 8);
+    let obstacle = book.get_road_object(&OBJ_OBSTACLE_ID.to_string()).unwrap();
+    assert_eq!(obstacle.bounding_box().get_vertices().len(), 8);
 }
 
 #[test]
@@ -247,14 +238,14 @@ fn road_object_outlines() {
         "All vegetation corners should have height"
     );
 
-    // obj_crosswalk has 1 outline with 4 corners (closed).
-    let crosswalk = book.get_road_object(&OBJ_CROSSWALK_ID.to_string()).unwrap();
-    assert_eq!(crosswalk.num_outlines(), 1);
-    let crosswalk_outlines = crosswalk.outlines();
-    assert_eq!(crosswalk_outlines.len(), 1);
-    assert!(crosswalk_outlines[0].is_closed());
-    assert_eq!(crosswalk_outlines[0].num_corners(), 4);
-    assert_eq!(crosswalk_outlines[0].corners().len(), 4);
+    // obj_obstacle has 1 outline with 4 corners (closed, using cornerRoad).
+    let obstacle = book.get_road_object(&OBJ_OBSTACLE_ID.to_string()).unwrap();
+    assert_eq!(obstacle.num_outlines(), 1);
+    let obstacle_outlines = obstacle.outlines();
+    assert_eq!(obstacle_outlines.len(), 1);
+    assert!(obstacle_outlines[0].is_closed());
+    assert_eq!(obstacle_outlines[0].num_corners(), 4);
+    assert_eq!(obstacle_outlines[0].corners().len(), 4);
 
     // obj_barrier has no outlines.
     let barrier = book.get_road_object(&OBJ_BARRIER_ID.to_string()).unwrap();
@@ -286,18 +277,18 @@ fn road_object_related_lanes() {
         barrier_lanes
     );
 
-    // obj_crosswalk: validity fromLane=-1 toLane=1 → related to lanes "1_0_-1" and "1_0_1".
-    let crosswalk = book.get_road_object(&OBJ_CROSSWALK_ID.to_string()).unwrap();
-    let crosswalk_lanes = crosswalk.related_lanes();
+    // obj_obstacle: validity fromLane=-1 toLane=1 → related to lanes "1_0_-1" and "1_0_1".
+    let obstacle = book.get_road_object(&OBJ_OBSTACLE_ID.to_string()).unwrap();
+    let obstacle_lanes = obstacle.related_lanes();
     assert!(
-        crosswalk_lanes.contains(&"1_0_-1".to_string()),
-        "obj_crosswalk related lanes: {:?}",
-        crosswalk_lanes
+        obstacle_lanes.contains(&"1_0_-1".to_string()),
+        "obj_obstacle related lanes: {:?}",
+        obstacle_lanes
     );
     assert!(
-        crosswalk_lanes.contains(&"1_0_1".to_string()),
-        "obj_crosswalk related lanes: {:?}",
-        crosswalk_lanes
+        obstacle_lanes.contains(&"1_0_1".to_string()),
+        "obj_obstacle related lanes: {:?}",
+        obstacle_lanes
     );
 }
 
@@ -318,9 +309,9 @@ fn road_object_book_find_by_type() {
     assert_eq!(building_objects.len(), 1);
     assert_eq!(building_objects[0].id(), OBJ_BUILDING_ID);
 
-    let crosswalk_objects = book.find_by_type(&maliput::api::objects::RoadObjectType::Crosswalk);
-    assert_eq!(crosswalk_objects.len(), 1);
-    assert_eq!(crosswalk_objects[0].id(), OBJ_CROSSWALK_ID);
+    let obstacle_objects = book.find_by_type(&maliput::api::objects::RoadObjectType::Obstacle);
+    assert_eq!(obstacle_objects.len(), 1);
+    assert_eq!(obstacle_objects[0].id(), OBJ_OBSTACLE_ID);
 
     // No Pole objects in this map.
     let pole_objects = book.find_by_type(&maliput::api::objects::RoadObjectType::Pole);
@@ -336,7 +327,7 @@ fn road_object_book_find_by_lane() {
     let road_network = common::create_malidrive_road_network("TwoRoadsWithRoadObjects.xodr", None, None);
     let book = road_network.road_object_book();
 
-    // Lane "1_0_-1": obj_barrier (validity -1 to -1) and obj_crosswalk (validity -1 to 1).
+    // Lane "1_0_-1": obj_barrier (validity -1 to -1) and obj_obstacle (validity -1 to 1).
     let objects_1_0_minus1 = book.find_by_lane(&String::from("1_0_-1"));
     let ids: Vec<String> = objects_1_0_minus1.iter().map(|o| o.id()).collect();
     assert!(
@@ -345,17 +336,17 @@ fn road_object_book_find_by_lane() {
         ids
     );
     assert!(
-        ids.contains(&OBJ_CROSSWALK_ID.to_string()),
-        "Expected obj_crosswalk in lane 1_0_-1, got: {:?}",
+        ids.contains(&OBJ_OBSTACLE_ID.to_string()),
+        "Expected obj_obstacle in lane 1_0_-1, got: {:?}",
         ids
     );
 
-    // Lane "1_0_1": obj_crosswalk only (validity -1 to 1 includes +1, barrier is -1 only).
+    // Lane "1_0_1": obj_obstacle only (validity -1 to 1 includes +1, barrier is -1 only).
     let objects_1_0_1 = book.find_by_lane(&String::from("1_0_1"));
     let ids: Vec<String> = objects_1_0_1.iter().map(|o| o.id()).collect();
     assert!(
-        ids.contains(&OBJ_CROSSWALK_ID.to_string()),
-        "Expected obj_crosswalk in lane 1_0_1, got: {:?}",
+        ids.contains(&OBJ_OBSTACLE_ID.to_string()),
+        "Expected obj_obstacle in lane 1_0_1, got: {:?}",
         ids
     );
     assert!(
@@ -389,69 +380,6 @@ fn road_object_book_find_in_radius() {
         far_results.is_empty(),
         "Expected empty result far away, got: {:?}",
         far_results.len()
-    );
-}
-
-#[test]
-fn road_object_stop_line_type() {
-    let road_network = common::create_malidrive_road_network("RoadWithStopLine.xodr", None, None);
-    let book = road_network.road_object_book();
-
-    let objects = book.road_objects();
-    assert_eq!(objects.len(), 3, "Expected 3 road objects in RoadWithStopLine.xodr");
-
-    // obj_stop_line_name: roadMark with name="stopLine" → kStopLine.
-    let stop_line_name = book
-        .get_road_object(&OBJ_STOP_LINE_NAME_ID.to_string())
-        .expect("obj_stop_line_name not found");
-    assert_eq!(
-        stop_line_name.object_type(),
-        maliput::api::objects::RoadObjectType::StopLine,
-        "Expected StopLine for obj_stop_line_name"
-    );
-    assert_eq!(stop_line_name.name(), Some("stopLine".to_string()));
-    assert!(!stop_line_name.is_dynamic());
-
-    // obj_stop_line_subtype: roadMark with subtype="stopLine" → kStopLine.
-    let stop_line_subtype = book
-        .get_road_object(&OBJ_STOP_LINE_SUBTYPE_ID.to_string())
-        .expect("obj_stop_line_subtype not found");
-    assert_eq!(
-        stop_line_subtype.object_type(),
-        maliput::api::objects::RoadObjectType::StopLine,
-        "Expected StopLine for obj_stop_line_subtype"
-    );
-    assert_eq!(stop_line_subtype.subtype(), Some("stopLine".to_string()));
-
-    // obj_road_mark: regular roadMark → kRoadMark.
-    let road_mark = book
-        .get_road_object(&OBJ_ROAD_MARK_ID.to_string())
-        .expect("obj_road_mark not found");
-    assert_eq!(
-        road_mark.object_type(),
-        maliput::api::objects::RoadObjectType::RoadMark,
-        "Expected RoadMark for obj_road_mark"
-    );
-    assert_eq!(road_mark.name(), Some("TurnArrow".to_string()));
-}
-
-#[test]
-fn road_object_stop_line_related_lanes() {
-    let road_network = common::create_malidrive_road_network("RoadWithStopLine.xodr", None, None);
-    let book = road_network.road_object_book();
-
-    // obj_stop_line_name: validity fromLane=-1 toLane=1 → related to both driving lanes.
-    let stop_line = book.get_road_object(&OBJ_STOP_LINE_NAME_ID.to_string()).unwrap();
-    let lanes = stop_line.related_lanes();
-    assert!(
-        lanes.contains(&"1_0_-1".to_string()),
-        "stop_line_name related lanes: {:?}",
-        lanes
-    );
-    assert!(
-        lanes.contains(&"1_0_1".to_string()),
-        "stop_line_name related lanes: {:?}",
-        lanes
     );
 }
 

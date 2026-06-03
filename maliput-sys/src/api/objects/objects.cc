@@ -207,6 +207,128 @@ rust::Vec<OutlineCornerData> Outline_corners(const Outline& outline) {
   return corners;
 }
 
+std::unique_ptr<std::vector<ConstRoadMarkingPtr>> RoadMarkingBook_RoadMarkings(const RoadMarkingBook& book) {
+  const auto markings_cpp = book.RoadMarkings();
+  std::vector<ConstRoadMarkingPtr> markings;
+  markings.reserve(markings_cpp.size());
+  for (const auto marking : markings_cpp) {
+    markings.push_back({marking});
+  }
+  return std::make_unique<std::vector<ConstRoadMarkingPtr>>(std::move(markings));
+}
+
+const RoadMarking* RoadMarkingBook_GetRoadMarking(const RoadMarkingBook& book, const rust::String& id) {
+  return book.GetRoadMarking(RoadMarking::Id{std::string(id)});
+}
+
+std::unique_ptr<std::vector<ConstRoadMarkingPtr>> RoadMarkingBook_FindByLane(
+    const RoadMarkingBook& book, const rust::String& lane_id) {
+  const auto markings_cpp = book.FindByLane(maliput::api::LaneId{std::string(lane_id)});
+  std::vector<ConstRoadMarkingPtr> markings;
+  markings.reserve(markings_cpp.size());
+  for (const auto marking : markings_cpp) {
+    markings.push_back({marking});
+  }
+  return std::make_unique<std::vector<ConstRoadMarkingPtr>>(std::move(markings));
+}
+
+std::unique_ptr<std::vector<ConstRoadMarkingPtr>> RoadMarkingBook_FindByType(
+    const RoadMarkingBook& book, RoadMarkingType marking_type) {
+  const auto markings_cpp = book.FindByType(marking_type);
+  std::vector<ConstRoadMarkingPtr> markings;
+  markings.reserve(markings_cpp.size());
+  for (const auto marking : markings_cpp) {
+    markings.push_back({marking});
+  }
+  return std::make_unique<std::vector<ConstRoadMarkingPtr>>(std::move(markings));
+}
+
+rust::String RoadMarking_id(const RoadMarking& marking) {
+  return marking.id().string();
+}
+
+std::unique_ptr<maliput::api::rules::StringWrapper> RoadMarking_name(const RoadMarking& marking) {
+  if (!marking.name().has_value()) {
+    return nullptr;
+  }
+  return std::make_unique<maliput::api::rules::StringWrapper>(
+      maliput::api::rules::StringWrapper{rust::String{*marking.name()}});
+}
+
+RoadMarkingType RoadMarking_marking_type(const RoadMarking& marking) {
+  return marking.type();
+}
+
+std::unique_ptr<maliput::api::InertialPosition> RoadMarking_position_inertial(const RoadMarking& marking) {
+  return std::make_unique<maliput::api::InertialPosition>(marking.position().inertial_position());
+}
+
+bool RoadMarking_position_has_lane_position(const RoadMarking& marking) {
+  return marking.position().has_lane_position();
+}
+
+rust::String RoadMarking_position_lane_id(const RoadMarking& marking) {
+  if (!marking.position().has_lane_position()) {
+    return rust::String{};
+  }
+  return marking.position().lane_id()->string();
+}
+
+rust::f64 RoadMarking_position_lane_s(const RoadMarking& marking) {
+  if (!marking.position().has_lane_position()) {
+    return 0.0;
+  }
+  return marking.position().lane_position()->s();
+}
+
+rust::f64 RoadMarking_position_lane_r(const RoadMarking& marking) {
+  if (!marking.position().has_lane_position()) {
+    return 0.0;
+  }
+  return marking.position().lane_position()->r();
+}
+
+rust::f64 RoadMarking_position_lane_h(const RoadMarking& marking) {
+  if (!marking.position().has_lane_position()) {
+    return 0.0;
+  }
+  return marking.position().lane_position()->h();
+}
+
+std::unique_ptr<maliput::api::Rotation> RoadMarking_orientation(const RoadMarking& marking) {
+  return std::make_unique<maliput::api::Rotation>(marking.orientation());
+}
+
+std::unique_ptr<maliput::math::BoundingBox> RoadMarking_bounding_box(const RoadMarking& marking) {
+  return std::make_unique<maliput::math::BoundingBox>(marking.bounding_box());
+}
+
+rust::Vec<rust::String> RoadMarking_related_lanes(const RoadMarking& marking) {
+  rust::Vec<rust::String> lane_ids;
+  for (const auto& lane_id : marking.related_lanes()) {
+    lane_ids.push_back(lane_id.string());
+  }
+  return lane_ids;
+}
+
+std::unique_ptr<std::vector<ConstOutlinePtr>> RoadMarking_outlines(const RoadMarking& marking) {
+  std::vector<ConstOutlinePtr> outlines;
+  outlines.reserve(marking.num_outlines());
+  for (const auto& outline : marking.outlines()) {
+    outlines.push_back({outline.get()});
+  }
+  return std::make_unique<std::vector<ConstOutlinePtr>>(std::move(outlines));
+}
+
+RoadMarkingValueData RoadMarking_value(const RoadMarking& marking) {
+  RoadMarkingValueData data;
+  const auto& value = marking.GetValue();
+  data.has_value = value.has_value();
+  data.value = value.has_value() ? value->value : 0.0;
+  data.unit = value.has_value() ? value->unit : RoadMarkingValueUnit::kMetersPerSecond;
+  return data;
+}
+
 }  // namespace objects
 }  // namespace api
 }  // namespace maliput

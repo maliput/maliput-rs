@@ -36,14 +36,9 @@ pub enum RoadObjectType {
     Unknown,
     Barrier,
     Building,
-    Crosswalk,
     Gantry,
     Obstacle,
-    ParkingSpace,
     Pole,
-    RoadMark,
-    RoadSurface,
-    StopLine,
     TrafficIsland,
     Tree,
     Vegetation,
@@ -54,14 +49,9 @@ fn road_object_type_from_cpp(obj_type: maliput_sys::api::objects::ffi::RoadObjec
         maliput_sys::api::objects::ffi::RoadObjectType::kUnknown => RoadObjectType::Unknown,
         maliput_sys::api::objects::ffi::RoadObjectType::kBarrier => RoadObjectType::Barrier,
         maliput_sys::api::objects::ffi::RoadObjectType::kBuilding => RoadObjectType::Building,
-        maliput_sys::api::objects::ffi::RoadObjectType::kCrosswalk => RoadObjectType::Crosswalk,
         maliput_sys::api::objects::ffi::RoadObjectType::kGantry => RoadObjectType::Gantry,
         maliput_sys::api::objects::ffi::RoadObjectType::kObstacle => RoadObjectType::Obstacle,
-        maliput_sys::api::objects::ffi::RoadObjectType::kParkingSpace => RoadObjectType::ParkingSpace,
         maliput_sys::api::objects::ffi::RoadObjectType::kPole => RoadObjectType::Pole,
-        maliput_sys::api::objects::ffi::RoadObjectType::kRoadMark => RoadObjectType::RoadMark,
-        maliput_sys::api::objects::ffi::RoadObjectType::kRoadSurface => RoadObjectType::RoadSurface,
-        maliput_sys::api::objects::ffi::RoadObjectType::kStopLine => RoadObjectType::StopLine,
         maliput_sys::api::objects::ffi::RoadObjectType::kTrafficIsland => RoadObjectType::TrafficIsland,
         maliput_sys::api::objects::ffi::RoadObjectType::kTree => RoadObjectType::Tree,
         maliput_sys::api::objects::ffi::RoadObjectType::kVegetation => RoadObjectType::Vegetation,
@@ -74,14 +64,9 @@ fn road_object_type_to_cpp(obj_type: &RoadObjectType) -> maliput_sys::api::objec
         RoadObjectType::Unknown => maliput_sys::api::objects::ffi::RoadObjectType::kUnknown,
         RoadObjectType::Barrier => maliput_sys::api::objects::ffi::RoadObjectType::kBarrier,
         RoadObjectType::Building => maliput_sys::api::objects::ffi::RoadObjectType::kBuilding,
-        RoadObjectType::Crosswalk => maliput_sys::api::objects::ffi::RoadObjectType::kCrosswalk,
         RoadObjectType::Gantry => maliput_sys::api::objects::ffi::RoadObjectType::kGantry,
         RoadObjectType::Obstacle => maliput_sys::api::objects::ffi::RoadObjectType::kObstacle,
-        RoadObjectType::ParkingSpace => maliput_sys::api::objects::ffi::RoadObjectType::kParkingSpace,
         RoadObjectType::Pole => maliput_sys::api::objects::ffi::RoadObjectType::kPole,
-        RoadObjectType::RoadMark => maliput_sys::api::objects::ffi::RoadObjectType::kRoadMark,
-        RoadObjectType::RoadSurface => maliput_sys::api::objects::ffi::RoadObjectType::kRoadSurface,
-        RoadObjectType::StopLine => maliput_sys::api::objects::ffi::RoadObjectType::kStopLine,
         RoadObjectType::TrafficIsland => maliput_sys::api::objects::ffi::RoadObjectType::kTrafficIsland,
         RoadObjectType::Tree => maliput_sys::api::objects::ffi::RoadObjectType::kTree,
         RoadObjectType::Vegetation => maliput_sys::api::objects::ffi::RoadObjectType::kVegetation,
@@ -300,6 +285,257 @@ impl<'a> RoadObjectBook<'a> {
             .into_iter()
             .map(|ptr| RoadObject {
                 road_object: unsafe { ptr.road_object.as_ref().expect("RoadObject pointer is null") },
+            })
+            .collect()
+    }
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+/// Defines the possible road marking types.
+pub enum RoadMarkingType {
+    Stop,
+    StopLine,
+    Crosswalk,
+    ParkingSpace,
+    EmergencyLane,
+    SpeedLimit,
+    DoNotStop,
+    RailRoad,
+    GiveWay,
+    ArrowTurnRight,
+    ArrowTurnLeft,
+    ArrowForwardTurnRight,
+    ArrowForwardTurnLeft,
+    ArrowForward,
+    ArrowForwardTurnRightTurnLeft,
+    ArrowTurnRightTurnLeft,
+    ArrowUTurnRight,
+    ArrowUTurnLeft,
+    Unknown,
+}
+
+fn road_marking_type_from_cpp(t: maliput_sys::api::objects::ffi::RoadMarkingType) -> RoadMarkingType {
+    match t {
+        maliput_sys::api::objects::ffi::RoadMarkingType::kStop => RoadMarkingType::Stop,
+        maliput_sys::api::objects::ffi::RoadMarkingType::kStopLine => RoadMarkingType::StopLine,
+        maliput_sys::api::objects::ffi::RoadMarkingType::kCrosswalk => RoadMarkingType::Crosswalk,
+        maliput_sys::api::objects::ffi::RoadMarkingType::kParkingSpace => RoadMarkingType::ParkingSpace,
+        maliput_sys::api::objects::ffi::RoadMarkingType::kEmergencyLane => RoadMarkingType::EmergencyLane,
+        maliput_sys::api::objects::ffi::RoadMarkingType::kSpeedLimit => RoadMarkingType::SpeedLimit,
+        maliput_sys::api::objects::ffi::RoadMarkingType::kDoNotStop => RoadMarkingType::DoNotStop,
+        maliput_sys::api::objects::ffi::RoadMarkingType::kRailRoad => RoadMarkingType::RailRoad,
+        maliput_sys::api::objects::ffi::RoadMarkingType::kGiveWay => RoadMarkingType::GiveWay,
+        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowTurnRight => RoadMarkingType::ArrowTurnRight,
+        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowTurnLeft => RoadMarkingType::ArrowTurnLeft,
+        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowForwardTurnRight => {
+            RoadMarkingType::ArrowForwardTurnRight
+        }
+        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowForwardTurnLeft => RoadMarkingType::ArrowForwardTurnLeft,
+        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowForward => RoadMarkingType::ArrowForward,
+        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowForwardTurnRightTurnLeft => {
+            RoadMarkingType::ArrowForwardTurnRightTurnLeft
+        }
+        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowTurnRightTurnLeft => {
+            RoadMarkingType::ArrowTurnRightTurnLeft
+        }
+        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowUTurnRight => RoadMarkingType::ArrowUTurnRight,
+        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowUTurnLeft => RoadMarkingType::ArrowUTurnLeft,
+        maliput_sys::api::objects::ffi::RoadMarkingType::kUnknown => RoadMarkingType::Unknown,
+        _ => RoadMarkingType::Unknown,
+    }
+}
+
+fn road_marking_type_to_cpp(t: &RoadMarkingType) -> maliput_sys::api::objects::ffi::RoadMarkingType {
+    match t {
+        RoadMarkingType::Stop => maliput_sys::api::objects::ffi::RoadMarkingType::kStop,
+        RoadMarkingType::StopLine => maliput_sys::api::objects::ffi::RoadMarkingType::kStopLine,
+        RoadMarkingType::Crosswalk => maliput_sys::api::objects::ffi::RoadMarkingType::kCrosswalk,
+        RoadMarkingType::ParkingSpace => maliput_sys::api::objects::ffi::RoadMarkingType::kParkingSpace,
+        RoadMarkingType::EmergencyLane => maliput_sys::api::objects::ffi::RoadMarkingType::kEmergencyLane,
+        RoadMarkingType::SpeedLimit => maliput_sys::api::objects::ffi::RoadMarkingType::kSpeedLimit,
+        RoadMarkingType::DoNotStop => maliput_sys::api::objects::ffi::RoadMarkingType::kDoNotStop,
+        RoadMarkingType::RailRoad => maliput_sys::api::objects::ffi::RoadMarkingType::kRailRoad,
+        RoadMarkingType::GiveWay => maliput_sys::api::objects::ffi::RoadMarkingType::kGiveWay,
+        RoadMarkingType::ArrowTurnRight => maliput_sys::api::objects::ffi::RoadMarkingType::kArrowTurnRight,
+        RoadMarkingType::ArrowTurnLeft => maliput_sys::api::objects::ffi::RoadMarkingType::kArrowTurnLeft,
+        RoadMarkingType::ArrowForwardTurnRight => {
+            maliput_sys::api::objects::ffi::RoadMarkingType::kArrowForwardTurnRight
+        }
+        RoadMarkingType::ArrowForwardTurnLeft => maliput_sys::api::objects::ffi::RoadMarkingType::kArrowForwardTurnLeft,
+        RoadMarkingType::ArrowForward => maliput_sys::api::objects::ffi::RoadMarkingType::kArrowForward,
+        RoadMarkingType::ArrowForwardTurnRightTurnLeft => {
+            maliput_sys::api::objects::ffi::RoadMarkingType::kArrowForwardTurnRightTurnLeft
+        }
+        RoadMarkingType::ArrowTurnRightTurnLeft => {
+            maliput_sys::api::objects::ffi::RoadMarkingType::kArrowTurnRightTurnLeft
+        }
+        RoadMarkingType::ArrowUTurnRight => maliput_sys::api::objects::ffi::RoadMarkingType::kArrowUTurnRight,
+        RoadMarkingType::ArrowUTurnLeft => maliput_sys::api::objects::ffi::RoadMarkingType::kArrowUTurnLeft,
+        RoadMarkingType::Unknown => maliput_sys::api::objects::ffi::RoadMarkingType::kUnknown,
+    }
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+/// Unit of a [RoadMarkingValue].
+pub enum RoadMarkingValueUnit {
+    MetersPerSecond,
+    KilometersPerHour,
+    MilesPerHour,
+}
+
+fn road_marking_value_unit_from_cpp(u: maliput_sys::api::objects::ffi::RoadMarkingValueUnit) -> RoadMarkingValueUnit {
+    match u {
+        maliput_sys::api::objects::ffi::RoadMarkingValueUnit::kMetersPerSecond => RoadMarkingValueUnit::MetersPerSecond,
+        maliput_sys::api::objects::ffi::RoadMarkingValueUnit::kKilometersPerHour => {
+            RoadMarkingValueUnit::KilometersPerHour
+        }
+        maliput_sys::api::objects::ffi::RoadMarkingValueUnit::kMilesPerHour => RoadMarkingValueUnit::MilesPerHour,
+        _ => RoadMarkingValueUnit::MetersPerSecond,
+    }
+}
+
+/// Numeric value (with unit) associated with a [RoadMarking] (e.g. a speed limit).
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct RoadMarkingValue {
+    pub value: f64,
+    pub unit: RoadMarkingValueUnit,
+}
+
+/// Models a physical road marking (e.g. stop line, crosswalk, arrow) in the road network.
+pub struct RoadMarking<'a> {
+    pub(crate) road_marking: &'a maliput_sys::api::objects::ffi::RoadMarking,
+}
+
+impl<'a> RoadMarking<'a> {
+    /// Returns the unique identifier of this road marking.
+    pub fn id(&self) -> String {
+        maliput_sys::api::objects::ffi::RoadMarking_id(self.road_marking)
+    }
+
+    /// Returns the optional human-readable name of this road marking.
+    pub fn name(&self) -> Option<String> {
+        let wrapper = maliput_sys::api::objects::ffi::RoadMarking_name(self.road_marking);
+        if wrapper.is_null() {
+            return None;
+        }
+        Some(wrapper.value.clone())
+    }
+
+    /// Returns the [RoadMarkingType] of this road marking.
+    pub fn marking_type(&self) -> RoadMarkingType {
+        let t = maliput_sys::api::objects::ffi::RoadMarking_marking_type(self.road_marking);
+        road_marking_type_from_cpp(t)
+    }
+
+    /// Returns the [RoadObjectPosition] of this road marking.
+    pub fn position(&self) -> RoadObjectPosition {
+        let inertial_position = maliput_sys::api::objects::ffi::RoadMarking_position_inertial(self.road_marking);
+        let has_lane = maliput_sys::api::objects::ffi::RoadMarking_position_has_lane_position(self.road_marking);
+        let lane_position = if has_lane {
+            Some((
+                maliput_sys::api::objects::ffi::RoadMarking_position_lane_id(self.road_marking),
+                maliput_sys::api::objects::ffi::RoadMarking_position_lane_s(self.road_marking),
+                maliput_sys::api::objects::ffi::RoadMarking_position_lane_r(self.road_marking),
+                maliput_sys::api::objects::ffi::RoadMarking_position_lane_h(self.road_marking),
+            ))
+        } else {
+            None
+        };
+        RoadObjectPosition {
+            inertial_position: crate::api::InertialPosition { ip: inertial_position },
+            lane_position,
+        }
+    }
+
+    /// Returns the orientation of this road marking in the inertial frame.
+    pub fn orientation(&self) -> crate::api::Rotation {
+        let rotation = maliput_sys::api::objects::ffi::RoadMarking_orientation(self.road_marking);
+        crate::api::Rotation { r: rotation }
+    }
+
+    /// Returns the bounding box of this road marking.
+    pub fn bounding_box(&self) -> crate::math::BoundingBox {
+        let b = maliput_sys::api::objects::ffi::RoadMarking_bounding_box(self.road_marking);
+        crate::math::BoundingBox { b }
+    }
+
+    /// Returns the IDs of lanes related to this road marking.
+    pub fn related_lanes(&self) -> Vec<String> {
+        maliput_sys::api::objects::ffi::RoadMarking_related_lanes(self.road_marking)
+    }
+
+    /// Returns the number of outlines of this road marking.
+    pub fn num_outlines(&self) -> i32 {
+        maliput_sys::api::objects::ffi::RoadMarking::num_outlines(self.road_marking)
+    }
+
+    /// Returns the outlines of this road marking.
+    pub fn outlines(&self) -> Vec<Outline<'_>> {
+        maliput_sys::api::objects::ffi::RoadMarking_outlines(self.road_marking)
+            .into_iter()
+            .map(|ptr| Outline {
+                outline: unsafe { ptr.outline.as_ref().expect("Outline pointer is null") },
+            })
+            .collect()
+    }
+
+    /// Returns the numeric value (with unit) associated with this road marking, if any.
+    pub fn value(&self) -> Option<RoadMarkingValue> {
+        let data = maliput_sys::api::objects::ffi::RoadMarking_value(self.road_marking);
+        if !data.has_value {
+            return None;
+        }
+        Some(RoadMarkingValue {
+            value: data.value,
+            unit: road_marking_value_unit_from_cpp(data.unit),
+        })
+    }
+}
+
+/// Interface for accessing [RoadMarking]s in the road network.
+pub struct RoadMarkingBook<'a> {
+    pub(super) road_marking_book: &'a maliput_sys::api::objects::ffi::RoadMarkingBook,
+}
+
+impl<'a> RoadMarkingBook<'a> {
+    /// Returns all [RoadMarking]s in the book.
+    pub fn road_markings(&self) -> Vec<RoadMarking<'_>> {
+        maliput_sys::api::objects::ffi::RoadMarkingBook_RoadMarkings(self.road_marking_book)
+            .into_iter()
+            .map(|ptr| RoadMarking {
+                road_marking: unsafe { ptr.road_marking.as_ref().expect("RoadMarking pointer is null") },
+            })
+            .collect()
+    }
+
+    /// Returns the [RoadMarking] with the given `id`, or `None` if not found.
+    pub fn get_road_marking(&self, id: &String) -> Option<RoadMarking<'_>> {
+        let ptr = maliput_sys::api::objects::ffi::RoadMarkingBook_GetRoadMarking(self.road_marking_book, id);
+        if ptr.is_null() {
+            return None;
+        }
+        Some(RoadMarking {
+            road_marking: unsafe { ptr.as_ref().expect("Unable to get underlying RoadMarking pointer") },
+        })
+    }
+
+    /// Returns all [RoadMarking]s whose `related_lanes()` includes the given lane ID.
+    pub fn find_by_lane(&self, lane_id: &String) -> Vec<RoadMarking<'_>> {
+        maliput_sys::api::objects::ffi::RoadMarkingBook_FindByLane(self.road_marking_book, lane_id)
+            .into_iter()
+            .map(|ptr| RoadMarking {
+                road_marking: unsafe { ptr.road_marking.as_ref().expect("RoadMarking pointer is null") },
+            })
+            .collect()
+    }
+
+    /// Returns all [RoadMarking]s of the given [RoadMarkingType].
+    pub fn find_by_type(&self, marking_type: &RoadMarkingType) -> Vec<RoadMarking<'_>> {
+        let t_ffi = road_marking_type_to_cpp(marking_type);
+        maliput_sys::api::objects::ffi::RoadMarkingBook_FindByType(self.road_marking_book, t_ffi)
+            .into_iter()
+            .map(|ptr| RoadMarking {
+                road_marking: unsafe { ptr.road_marking.as_ref().expect("RoadMarking pointer is null") },
             })
             .collect()
     }

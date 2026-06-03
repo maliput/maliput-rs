@@ -29,11 +29,11 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // This example demonstrates how to load a road network that uses a traffic signal
-// type database (traffic_signal_db) to automatically generate TrafficLight objects
+// type database (traffic_control_device_db) to automatically generate TrafficLight objects
 // from OpenDRIVE signal elements, and how to query the TrafficLightBook by lane ID.
 //
 // The TwoRoadsWithTrafficLights.xodr map has two roads, each with a traffic light
-// signal defined inline. The TrafficSignalDatabase.yaml describes the physical
+// signal defined inline. The TrafficControlDeviceDatabase.yaml describes the physical
 // structure (bulbs, colors, states) of each signal type.
 //
 // Road layout (viewed from above):
@@ -60,17 +60,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
     let xodr_path = format!("{}/tests/data/xodr/TwoRoadsWithTrafficLights.xodr", package_location);
     let db_path = format!(
-        "{}/tests/data/traffic_signal_db/TrafficSignalDatabase.yaml",
+        "{}/tests/data/traffic_control_device_db/TrafficControlDeviceDatabase.yaml",
         package_location
     );
 
     let road_network_properties = HashMap::from([
         ("road_geometry_id", "two_roads_with_traffic_lights"),
         ("opendrive_file", xodr_path.as_str()),
-        // The traffic_signal_db key points to a YAML file that defines signal type
+        // The traffic_control_device_db key points to a YAML file that defines signal type
         // templates (bulbs, colors, states, rule mappings). The backend uses this
         // together with signal descriptions to build TrafficLight objects.
-        ("traffic_signal_db", db_path.as_str()),
+        ("traffic_control_device_db", db_path.as_str()),
         ("linear_tolerance", "0.01"),
     ]);
 

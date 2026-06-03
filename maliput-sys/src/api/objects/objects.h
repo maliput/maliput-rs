@@ -37,6 +37,8 @@
 #include <optional>
 #include <vector>
 
+#include <maliput/api/objects/road_marking.h>
+#include <maliput/api/objects/road_marking_book.h>
 #include <maliput/api/objects/road_object.h>
 #include <maliput/api/objects/road_object_book.h>
 #include <maliput/math/bounding_box.h>
@@ -57,6 +59,8 @@ struct ConstRoadObjectPtr;
 struct ConstOutlinePtr;
 struct OutlineCornerData;
 struct StringPair;
+struct ConstRoadMarkingPtr;
+struct RoadMarkingValueData;
 
 // RoadObjectBook bridge function declarations.
 std::unique_ptr<std::vector<ConstRoadObjectPtr>> RoadObjectBook_RoadObjects(const RoadObjectBook& book);
@@ -87,6 +91,28 @@ rust::String Outline_id(const Outline& outline);
 bool Outline_is_closed(const Outline& outline);
 rust::i32 Outline_num_corners(const Outline& outline);
 rust::Vec<OutlineCornerData> Outline_corners(const Outline& outline);
+
+// RoadMarkingBook bridge function declarations.
+std::unique_ptr<std::vector<ConstRoadMarkingPtr>> RoadMarkingBook_RoadMarkings(const RoadMarkingBook& book);
+const RoadMarking* RoadMarkingBook_GetRoadMarking(const RoadMarkingBook& book, const rust::String& id);
+std::unique_ptr<std::vector<ConstRoadMarkingPtr>> RoadMarkingBook_FindByLane(const RoadMarkingBook& book, const rust::String& lane_id);
+std::unique_ptr<std::vector<ConstRoadMarkingPtr>> RoadMarkingBook_FindByType(const RoadMarkingBook& book, RoadMarkingType marking_type);
+
+// RoadMarking bridge function declarations.
+rust::String RoadMarking_id(const RoadMarking& marking);
+std::unique_ptr<maliput::api::rules::StringWrapper> RoadMarking_name(const RoadMarking& marking);
+RoadMarkingType RoadMarking_marking_type(const RoadMarking& marking);
+std::unique_ptr<maliput::api::InertialPosition> RoadMarking_position_inertial(const RoadMarking& marking);
+bool RoadMarking_position_has_lane_position(const RoadMarking& marking);
+rust::String RoadMarking_position_lane_id(const RoadMarking& marking);
+rust::f64 RoadMarking_position_lane_s(const RoadMarking& marking);
+rust::f64 RoadMarking_position_lane_r(const RoadMarking& marking);
+rust::f64 RoadMarking_position_lane_h(const RoadMarking& marking);
+std::unique_ptr<maliput::api::Rotation> RoadMarking_orientation(const RoadMarking& marking);
+std::unique_ptr<maliput::math::BoundingBox> RoadMarking_bounding_box(const RoadMarking& marking);
+rust::Vec<rust::String> RoadMarking_related_lanes(const RoadMarking& marking);
+std::unique_ptr<std::vector<ConstOutlinePtr>> RoadMarking_outlines(const RoadMarking& marking);
+RoadMarkingValueData RoadMarking_value(const RoadMarking& marking);
 
 }  // namespace objects
 }  // namespace api

@@ -158,6 +158,8 @@ pub mod ffi {
         type TrafficSignBook = crate::api::rules::ffi::TrafficSignBook;
         #[namespace = "maliput::api::objects"]
         type RoadObjectBook = crate::api::objects::ffi::RoadObjectBook;
+        #[namespace = "maliput::api::objects"]
+        type RoadMarkingBook = crate::api::objects::ffi::RoadMarkingBook;
         #[namespace = "maliput::api::rules"]
         type PhaseRingBook = crate::api::rules::ffi::PhaseRingBook;
         #[namespace = "maliput::api::rules"]
@@ -191,6 +193,7 @@ pub mod ffi {
         fn traffic_light_book(self: &RoadNetwork) -> *const TrafficLightBook;
         fn traffic_sign_book(self: &RoadNetwork) -> *const TrafficSignBook;
         fn road_object_book(self: &RoadNetwork) -> *const RoadObjectBook;
+        fn road_marking_book(self: &RoadNetwork) -> *const RoadMarkingBook;
         fn rulebook(self: &RoadNetwork) -> *const RoadRulebook;
         fn phase_ring_book(self: &RoadNetwork) -> *const PhaseRingBook;
         fn rule_registry(self: &RoadNetwork) -> *const RuleRegistry;
