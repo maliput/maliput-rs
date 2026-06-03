@@ -82,10 +82,7 @@ fn road_object_book_api() {
     );
     assert!(ids.contains(&OBJ_BARRIER_ID.to_string()), "Missing {OBJ_BARRIER_ID}");
     assert!(ids.contains(&OBJ_BUILDING_ID.to_string()), "Missing {OBJ_BUILDING_ID}");
-    assert!(
-        ids.contains(&OBJ_OBSTACLE_ID.to_string()),
-        "Missing {OBJ_OBSTACLE_ID}"
-    );
+    assert!(ids.contains(&OBJ_OBSTACLE_ID.to_string()), "Missing {OBJ_OBSTACLE_ID}");
 
     // get_road_object returns Some for known IDs.
     assert!(book.get_road_object(&OBJ_VEGETATION_ID.to_string()).is_some());

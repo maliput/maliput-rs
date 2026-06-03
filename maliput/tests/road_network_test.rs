@@ -137,11 +137,11 @@ mod road_network_test {
     }
 
     #[test]
-    fn create_malidrive_road_network_with_traffic_signal_db() {
+    fn create_malidrive_road_network_with_traffic_control_device_db() {
         let rn = super::common::create_malidrive_road_network(
             "TwoRoadsWithTrafficSigns.xodr",
             None,
-            Some("traffic_signal_db_example.yaml"),
+            Some("traffic_control_device_db_example.yaml"),
         );
         assert_eq!(rn.road_geometry().id(), "my_rg_from_rust");
         assert_eq!(rn.traffic_sign_book().traffic_signs().len(), 2);

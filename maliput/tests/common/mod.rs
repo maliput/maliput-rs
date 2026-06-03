@@ -102,14 +102,14 @@ pub fn create_town_01_road_network() -> RoadNetwork {
 pub fn create_malidrive_road_network(
     xodr_file: &str,
     yaml_file: Option<&str>,
-    traffic_signal_db_file: Option<&str>,
+    traffic_control_device_db_file: Option<&str>,
 ) -> RoadNetwork {
     let rm: ResourceManager = ResourceManager::new();
     let xodr_path = rm.get_resource_path_by_name("maliput_malidrive", xodr_file).unwrap();
     let yaml_path = yaml_file.map(|file| rm.get_resource_path_by_name("maliput_malidrive", file).unwrap());
-    // traffic_signal_db files live in a subdirectory of the main resource directory.
-    let traffic_signal_db_path =
-        traffic_signal_db_file.map(|file| xodr_path.parent().unwrap().join("traffic_signal_db").join(file));
+    // traffic_control_device_db files live in a subdirectory of the main resource directory.
+    let traffic_control_device_db_path = traffic_control_device_db_file
+        .map(|file| xodr_path.parent().unwrap().join("traffic_control_device_db").join(file));
 
     let mut properties = HashMap::from([
         ("road_geometry_id", "my_rg_from_rust"),
@@ -122,8 +122,8 @@ pub fn create_malidrive_road_network(
         properties.insert("phase_ring_book", p.to_str().unwrap());
         properties.insert("intersection_book", p.to_str().unwrap());
     }
-    if let Some(ref p) = traffic_signal_db_path {
-        properties.insert("traffic_signal_db", p.to_str().unwrap());
+    if let Some(ref p) = traffic_control_device_db_path {
+        properties.insert("traffic_control_device_db", p.to_str().unwrap());
     }
 
     let rn_res = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &properties);
@@ -170,14 +170,14 @@ pub fn create_road_with_upper_left_traffic_light_network() -> RoadNetwork {
         package_location
     );
     let db_path = format!(
-        "{}/tests/data/traffic_signal_db/TrafficSignalDatabase.yaml",
+        "{}/tests/data/traffic_control_device_db/TrafficControlDeviceDatabase.yaml",
         package_location
     );
 
     let road_network_properties = HashMap::from([
         ("road_geometry_id", "road_with_upper_left_traffic_light"),
         ("opendrive_file", xodr_path.as_str()),
-        ("traffic_signal_db", db_path.as_str()),
+        ("traffic_control_device_db", db_path.as_str()),
         ("linear_tolerance", "0.01"),
     ]);
     let rn_res = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &road_network_properties);
@@ -193,14 +193,14 @@ pub fn create_two_roads_with_traffic_lights_network() -> RoadNetwork {
     let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
     let xodr_path = format!("{}/tests/data/xodr/TwoRoadsWithTrafficLights.xodr", package_location);
     let db_path = format!(
-        "{}/tests/data/traffic_signal_db/TrafficSignalDatabase.yaml",
+        "{}/tests/data/traffic_control_device_db/TrafficControlDeviceDatabase.yaml",
         package_location
     );
 
     let road_network_properties = HashMap::from([
         ("road_geometry_id", "two_roads_with_traffic_lights"),
         ("opendrive_file", xodr_path.as_str()),
-        ("traffic_signal_db", db_path.as_str()),
+        ("traffic_control_device_db", db_path.as_str()),
         ("linear_tolerance", "0.01"),
     ]);
     let rn_res = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &road_network_properties);

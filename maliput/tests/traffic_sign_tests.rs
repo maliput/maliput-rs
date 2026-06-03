@@ -59,7 +59,7 @@ fn traffic_sign_book_api() {
     let road_network = common::create_malidrive_road_network(
         "TwoRoadsWithTrafficSigns.xodr",
         None,
-        Some("traffic_signal_db_example.yaml"),
+        Some("traffic_control_device_db_example.yaml"),
     );
     let book = road_network.traffic_sign_book();
 
@@ -83,7 +83,7 @@ fn traffic_sign_test_api() {
     let road_network = common::create_malidrive_road_network(
         "TwoRoadsWithTrafficSigns.xodr",
         None,
-        Some("traffic_signal_db_example.yaml"),
+        Some("traffic_control_device_db_example.yaml"),
     );
     let book = road_network.traffic_sign_book();
     let tol = 1e-1;
@@ -115,7 +115,7 @@ fn traffic_sign_related_lanes_test() {
     let road_network = common::create_malidrive_road_network(
         "TwoRoadsWithTrafficSigns.xodr",
         None,
-        Some("traffic_signal_db_example.yaml"),
+        Some("traffic_control_device_db_example.yaml"),
     );
     let book = road_network.traffic_sign_book();
 
@@ -142,7 +142,7 @@ fn traffic_sign_book_find_by_lane_test() {
     let road_network = common::create_malidrive_road_network(
         "TwoRoadsWithTrafficSigns.xodr",
         None,
-        Some("traffic_signal_db_example.yaml"),
+        Some("traffic_control_device_db_example.yaml"),
     );
     let book = road_network.traffic_sign_book();
 
@@ -168,7 +168,7 @@ fn traffic_sign_book_find_by_type_test() {
     let road_network = common::create_malidrive_road_network(
         "TwoRoadsWithTrafficSigns.xodr",
         None,
-        Some("traffic_signal_db_example.yaml"),
+        Some("traffic_control_device_db_example.yaml"),
     );
     let book = road_network.traffic_sign_book();
 

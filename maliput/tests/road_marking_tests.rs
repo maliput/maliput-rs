@@ -29,110 +29,177 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 mod common;
 
-use maliput::api::objects::RoadMarkingType;
+// RoadWithAllDeviceTypes.xodr is used for all road marking tests. It is paired
+// with the all_device_types_test_db.yaml traffic-control-device database which
+// is required by maliput_malidrive's TrafficControlDeviceBooksBuilder to
+// populate the RoadMarkingBook (see
+// maliput_malidrive/builder/traffic_control_device_books_builder.cc).
+//
+// Road layout (viewed from above):
+//
+//             Road 1 (200m, hdg=0)
+//   ============================================
+//                    lane 1_0_1
+//   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+//   (0,0) ───────────────────────────── (200,0)
+//   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+//                    lane 1_0_-1
+//   ============================================
+//
+// Objects on Road 1 (classified by all_device_types_test_db.yaml):
+//   RM1         (Crosswalk1): type=crosswalk, s=120, t=0, zOffset=0
+//                             → device_type=road_marking, semantics=crosswalk
+//                             → kCrosswalk RoadMarking
+//   RO1         (Barrier1):   type=barrier,   s=160 → device_type=road_object  (NOT a RoadMarking)
+//   UNMATCHED1  (Tree1):      type=tree,      s=180 → unmatched               (NOT a RoadMarking)
 
-// These tests exercise the `RoadMarkingBook` / `RoadMarking` bindings end-to-end
-// via the malidrive backend. They intentionally avoid asserting exact contents
-// produced by the backend (which depends on the XODR-to-RoadMarking mapper) and
-// instead validate that:
-//   * `RoadNetwork::road_marking_book()` is reachable and returns a usable book,
-//   * each accessor on the book and on individual `RoadMarking`s can be invoked
-//     without panicking, and
-//   * lookups for unknown ids / lanes / types return empty results.
+const RM1_ID: &str = "RM1";
 
 #[test]
-fn road_marking_book_accessor_is_reachable() {
-    let road_network = common::create_malidrive_road_network("TwoRoadsWithRoadObjects.xodr", None, None);
+fn road_marking_book_api() {
+    let road_network = common::create_malidrive_road_network(
+        "RoadWithAllDeviceTypes.xodr",
+        None,
+        Some("all_device_types_test_db.yaml"),
+    );
     let book = road_network.road_marking_book();
-    // road_markings() must return a Vec (length is backend-defined; we only
-    // require the call succeed and the type be correct).
+
     let markings = book.road_markings();
-    let _len: usize = markings.len();
+    assert_eq!(
+        markings.len(),
+        1,
+        "Expected exactly 1 road marking, got {}",
+        markings.len()
+    );
+
+    let ids: Vec<String> = markings.iter().map(|m| m.id()).collect();
+    assert!(ids.contains(&RM1_ID.to_string()), "Missing road marking {RM1_ID}");
+
+    // get_road_marking returns Some for the known id.
+    assert!(book.get_road_marking(&RM1_ID.to_string()).is_some());
+
+    // get_road_marking returns None for an unknown id.
+    assert!(book.get_road_marking(&String::from("nonexistent_id")).is_none());
+    // Objects routed to the RoadObjectBook (or unmatched) must not appear here.
+    assert!(book.get_road_marking(&String::from("RO1")).is_none());
+    assert!(book.get_road_marking(&String::from("UNMATCHED1")).is_none());
 }
 
 #[test]
-fn road_marking_book_lookup_unknown_returns_none_or_empty() {
-    let road_network = common::create_malidrive_road_network("TwoRoadsWithRoadObjects.xodr", None, None);
+fn road_marking_api() {
+    let road_network = common::create_malidrive_road_network(
+        "RoadWithAllDeviceTypes.xodr",
+        None,
+        Some("all_device_types_test_db.yaml"),
+    );
     let book = road_network.road_marking_book();
+    let tol = 1e-3;
 
+    let rm1 = book.get_road_marking(&RM1_ID.to_string()).expect("RM1 not found");
+    assert_eq!(rm1.id(), RM1_ID);
+    assert_eq!(rm1.name(), Some("Crosswalk1".to_string()));
+    assert_eq!(rm1.marking_type(), maliput::api::objects::RoadMarkingType::Crosswalk);
+
+    // RM1: s=120 on road 1 (x=0..200, hdg=0) with t=0, zOffset=0 → inertial ≈ (120, 0, 0).
+    let pos1 = rm1.position();
     assert!(
-        book.get_road_marking(&String::from("nonexistent_road_marking_id"))
-            .is_none(),
-        "Expected None for an unknown RoadMarking id",
+        (pos1.inertial_position.x() - 120.0).abs() < tol,
+        "RM1 x: got {}",
+        pos1.inertial_position.x()
     );
     assert!(
-        book.find_by_lane(&String::from("nonexistent_lane_id")).is_empty(),
-        "Expected an empty list for an unknown lane id",
+        (pos1.inertial_position.y() - 0.0).abs() < tol,
+        "RM1 y: got {}",
+        pos1.inertial_position.y()
     );
+    assert!(
+        (pos1.inertial_position.z() - 0.0).abs() < tol,
+        "RM1 z: got {}",
+        pos1.inertial_position.z()
+    );
+
+    // Bounding box has 8 vertices.
+    assert_eq!(rm1.bounding_box().get_vertices().len(), 8);
+
+    // num_outlines() must agree with outlines().len(). RM1 has no <outline> XML elements,
+    // so we only require the two accessors to be consistent.
+    let outlines = rm1.outlines();
+    assert_eq!(outlines.len() as i32, rm1.num_outlines());
+
+    // RM1 carries no <speed> child → no value attached.
+    assert!(rm1.value().is_none());
 }
 
 #[test]
-fn road_marking_book_find_by_type_returns_consistent_results() {
-    let road_network = common::create_malidrive_road_network("TwoRoadsWithRoadObjects.xodr", None, None);
+fn road_marking_related_lanes_test() {
+    let road_network = common::create_malidrive_road_network(
+        "RoadWithAllDeviceTypes.xodr",
+        None,
+        Some("all_device_types_test_db.yaml"),
+    );
     let book = road_network.road_marking_book();
 
-    // Exercise every variant of RoadMarkingType so the enum conversion path is
-    // covered. We do not require any particular variant to be populated by the
-    // backend; we only require the call to succeed and return a Vec.
-    for marking_type in [
-        RoadMarkingType::Stop,
-        RoadMarkingType::StopLine,
-        RoadMarkingType::Crosswalk,
-        RoadMarkingType::ParkingSpace,
-        RoadMarkingType::EmergencyLane,
-        RoadMarkingType::SpeedLimit,
-        RoadMarkingType::DoNotStop,
-        RoadMarkingType::RailRoad,
-        RoadMarkingType::GiveWay,
-        RoadMarkingType::ArrowTurnRight,
-        RoadMarkingType::ArrowTurnLeft,
-        RoadMarkingType::ArrowForwardTurnRight,
-        RoadMarkingType::ArrowForwardTurnLeft,
-        RoadMarkingType::ArrowForward,
-        RoadMarkingType::ArrowForwardTurnRightTurnLeft,
-        RoadMarkingType::ArrowTurnRightTurnLeft,
-        RoadMarkingType::ArrowUTurnRight,
-        RoadMarkingType::ArrowUTurnLeft,
-        RoadMarkingType::Unknown,
-    ] {
-        let by_type = book.find_by_type(&marking_type);
-        // Every reported marking must agree on its type.
-        for marking in &by_type {
-            assert_eq!(
-                marking.marking_type(),
-                marking_type,
-                "find_by_type returned a marking whose marking_type() disagrees",
-            );
-        }
-    }
+    let rm1 = book.get_road_marking(&RM1_ID.to_string()).expect("RM1 not found");
+    let rm1_lanes = rm1.related_lanes();
+    // RM1 has <validity fromLane="-1" toLane="1"/> on road 1 → covers lanes 1_0_-1 and 1_0_1
+    // (lane 1_0_0 is the center reference lane and is non-drivable).
+    assert_eq!(rm1_lanes.len(), 2, "RM1 expected 2 related lanes, got {:?}", rm1_lanes);
+    assert!(rm1_lanes.contains(&"1_0_-1".to_string()));
+    assert!(rm1_lanes.contains(&"1_0_1".to_string()));
 }
 
 #[test]
-fn road_marking_accessors_dont_panic() {
-    let road_network = common::create_malidrive_road_network("TwoRoadsWithRoadObjects.xodr", None, None);
+fn road_marking_book_find_by_lane_test() {
+    let road_network = common::create_malidrive_road_network(
+        "RoadWithAllDeviceTypes.xodr",
+        None,
+        Some("all_device_types_test_db.yaml"),
+    );
     let book = road_network.road_marking_book();
 
-    for marking in book.road_markings() {
-        // Smoke-call every accessor on the wrapper. Values are not asserted
-        // because they depend on the backend's XODR-to-RoadMarking mapping.
-        let _id: String = marking.id();
-        let _name: Option<String> = marking.name();
-        let _t = marking.marking_type();
-        let _pos = marking.position();
-        let _rot = marking.orientation();
-        let _bb = marking.bounding_box();
-        let _related: Vec<String> = marking.related_lanes();
-        let n = marking.num_outlines();
-        let outlines = marking.outlines();
-        assert_eq!(outlines.len() as i32, n, "num_outlines must match outlines().len()");
-        let _v = marking.value();
+    // Lane "1_0_-1" is related to RM1 via its validity range.
+    let markings_minus1 = book.find_by_lane(&String::from("1_0_-1"));
+    assert_eq!(markings_minus1.len(), 1);
+    assert_eq!(markings_minus1[0].id(), RM1_ID);
 
-        // Lookup by id must round-trip.
-        let by_id = book.get_road_marking(&marking.id());
-        assert!(
-            by_id.is_some(),
-            "RoadMarking present in road_markings() must be findable by id"
-        );
-        assert_eq!(by_id.unwrap().id(), marking.id());
-    }
+    // Lane "1_0_1" is also related to RM1 via the same validity range.
+    let markings_plus1 = book.find_by_lane(&String::from("1_0_1"));
+    assert_eq!(markings_plus1.len(), 1);
+    assert_eq!(markings_plus1[0].id(), RM1_ID);
+
+    // A nonexistent lane returns an empty vector.
+    let markings_none = book.find_by_lane(&String::from("nonexistent_lane"));
+    assert!(markings_none.is_empty());
+}
+
+#[test]
+fn road_marking_book_find_by_type_test() {
+    let road_network = common::create_malidrive_road_network(
+        "RoadWithAllDeviceTypes.xodr",
+        None,
+        Some("all_device_types_test_db.yaml"),
+    );
+    let book = road_network.road_marking_book();
+
+    // RM1 is a crosswalk → find_by_type(Crosswalk) returns exactly RM1.
+    let crosswalks = book.find_by_type(&maliput::api::objects::RoadMarkingType::Crosswalk);
+    assert_eq!(crosswalks.len(), 1);
+    assert_eq!(crosswalks[0].id(), RM1_ID);
+
+    // No stop lines, arrows, or other markings in this map.
+    let stop_lines = book.find_by_type(&maliput::api::objects::RoadMarkingType::StopLine);
+    assert!(stop_lines.is_empty());
+    let arrows = book.find_by_type(&maliput::api::objects::RoadMarkingType::ArrowForward);
+    assert!(arrows.is_empty());
+    let unknown = book.find_by_type(&maliput::api::objects::RoadMarkingType::Unknown);
+    assert!(unknown.is_empty());
+}
+
+#[test]
+fn road_marking_book_is_empty_without_tcd_database() {
+    // Without a traffic_control_device_db, the malidrive backend cannot classify
+    // any XODR object as a RoadMarking, so the book must be empty.
+    let road_network = common::create_malidrive_road_network("RoadWithAllDeviceTypes.xodr", None, None);
+    let book = road_network.road_marking_book();
+    assert!(book.road_markings().is_empty());
 }
