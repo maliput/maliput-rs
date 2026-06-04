@@ -1,6 +1,6 @@
 [package]
 name = "maliput"
-version = "0.21.0"
+version = "0.28.0"
 authors = [
   "Franco Cipollone <franco.c@ekumenlabs.com>",
   "Santiago Lopez <santiago.lopez@ekumenlabs.com>",
@@ -56,5 +56,17 @@ name = "to_road_position"
 harness = false
 
 [[bench]]
+name = "to_lane_position"
+harness = false
+
+[[bench]]
 name = "backend_custom_command"
+harness = false
+
+[[bench]]
+name = "to_road_position_geopackage"
+harness = false
+
+[[bench]]
+name = "to_lane_position_geopackage"
 harness = false

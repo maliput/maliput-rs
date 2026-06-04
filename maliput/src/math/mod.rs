@@ -501,6 +501,64 @@ impl RollPitchYaw {
     }
 }
 
+/// An oriented bounding box in 3D space.
+/// Wrapper around C++ implementation `maliput::math::BoundingBox`.
+///
+/// The box is defined by a `position` (centroid), `box_size` (full extents along each axis),
+/// and an `orientation` expressed as roll-pitch-yaw angles.
+pub struct BoundingBox {
+    pub(crate) b: cxx::UniquePtr<maliput_sys::math::ffi::BoundingBox>,
+}
+
+impl BoundingBox {
+    /// Create a new `BoundingBox`.
+    ///
+    /// # Arguments
+    /// * `position` — Center of the box in the Inertial frame.
+    /// * `box_size` — Full extents of the box along each axis (length, width, height).
+    /// * `orientation` — Orientation of the box in the Inertial frame.
+    /// * `tolerance` — Tolerance used for containment/intersection queries.
+    pub fn new(position: &Vector3, box_size: &Vector3, orientation: &RollPitchYaw, tolerance: f64) -> BoundingBox {
+        BoundingBox {
+            b: maliput_sys::math::ffi::BoundingBox_new(&position.v, &box_size.v, &orientation.rpy, tolerance),
+        }
+    }
+
+    /// Returns the position (centroid) of the bounding box in the Inertial frame.
+    pub fn position(&self) -> Vector3 {
+        let p = maliput_sys::math::ffi::BoundingBox::position(&self.b);
+        Vector3::new(p.x(), p.y(), p.z())
+    }
+
+    /// Returns the full extents of the bounding box along each axis.
+    pub fn box_size(&self) -> Vector3 {
+        let s = maliput_sys::math::ffi::BoundingBox::box_size(&self.b);
+        Vector3::new(s.x(), s.y(), s.z())
+    }
+
+    /// Returns the orientation of the bounding box as roll-pitch-yaw angles.
+    pub fn orientation(&self) -> RollPitchYaw {
+        let r = maliput_sys::math::ffi::BoundingBox::get_orientation(&self.b);
+        RollPitchYaw::new(r.roll_angle(), r.pitch_angle(), r.yaw_angle())
+    }
+
+    /// Returns the 8 vertices of the bounding box in the Inertial frame.
+    pub fn get_vertices(&self) -> Vec<Vector3> {
+        let verts = maliput_sys::math::ffi::BoundingBox_get_vertices(&self.b);
+        verts.iter().map(|v| Vector3::new(v.x(), v.y(), v.z())).collect()
+    }
+
+    /// Returns `true` when this bounding box fully contains `other`.
+    pub fn is_box_contained(&self, other: &BoundingBox) -> bool {
+        maliput_sys::math::ffi::BoundingBox::IsBoxContained(&self.b, &other.b)
+    }
+
+    /// Returns `true` when this bounding box intersects `other`.
+    pub fn is_box_intersected(&self, other: &BoundingBox) -> bool {
+        maliput_sys::math::ffi::BoundingBox::IsBoxIntersected(&self.b, &other.b)
+    }
+}
+
 mod tests {
     #[test]
     fn vector3_new() {
@@ -625,5 +683,105 @@ mod tests {
         assert_eq!(rpy.pitch_angle(), 2.0);
         assert_eq!(rpy.yaw_angle(), 3.0);
         // TODO(francocipollone): Add tests for the rest of the API.
+    }
+
+    #[test]
+    fn bounding_box_new() {
+        let position = super::Vector3::new(1.0, 2.0, 3.0);
+        let box_size = super::Vector3::new(4.0, 5.0, 6.0);
+        let orientation = super::RollPitchYaw::new(0.1, 0.2, 0.3);
+        let tolerance = 1e-3;
+
+        let bb = super::BoundingBox::new(&position, &box_size, &orientation, tolerance);
+
+        assert_eq!(bb.position().x(), 1.0);
+        assert_eq!(bb.position().y(), 2.0);
+        assert_eq!(bb.position().z(), 3.0);
+
+        assert_eq!(bb.box_size().x(), 4.0);
+        assert_eq!(bb.box_size().y(), 5.0);
+        assert_eq!(bb.box_size().z(), 6.0);
+
+        assert_eq!(bb.orientation().roll_angle(), 0.1);
+        assert_eq!(bb.orientation().pitch_angle(), 0.2);
+        assert_eq!(bb.orientation().yaw_angle(), 0.3);
+    }
+
+    #[test]
+    fn bounding_box_position() {
+        let position = super::Vector3::new(1.0, 2.0, 3.0);
+        let box_size = super::Vector3::new(4.0, 5.0, 6.0);
+        let orientation = super::RollPitchYaw::new(0.0, 0.0, 0.0);
+        let bb = super::BoundingBox::new(&position, &box_size, &orientation, 1e-3);
+        assert_eq!(bb.position().x(), 1.0);
+        assert_eq!(bb.position().y(), 2.0);
+        assert_eq!(bb.position().z(), 3.0);
+    }
+
+    #[test]
+    fn bounding_box_box_size() {
+        let position = super::Vector3::new(0.0, 0.0, 0.0);
+        let box_size = super::Vector3::new(4.0, 5.0, 6.0);
+        let orientation = super::RollPitchYaw::new(0.0, 0.0, 0.0);
+        let bb = super::BoundingBox::new(&position, &box_size, &orientation, 1e-3);
+        assert_eq!(bb.box_size().x(), 4.0);
+        assert_eq!(bb.box_size().y(), 5.0);
+        assert_eq!(bb.box_size().z(), 6.0);
+    }
+
+    #[test]
+    fn bounding_box_orientation() {
+        let position = super::Vector3::new(0.0, 0.0, 0.0);
+        let box_size = super::Vector3::new(1.0, 1.0, 1.0);
+        let orientation = super::RollPitchYaw::new(0.1, 0.2, 0.3);
+        let bb = super::BoundingBox::new(&position, &box_size, &orientation, 1e-3);
+        assert_eq!(bb.orientation().roll_angle(), 0.1);
+        assert_eq!(bb.orientation().pitch_angle(), 0.2);
+        assert_eq!(bb.orientation().yaw_angle(), 0.3);
+    }
+
+    #[test]
+    fn bounding_box_get_vertices() {
+        let position = super::Vector3::new(0.0, 0.0, 0.0);
+        let box_size = super::Vector3::new(2.0, 2.0, 2.0);
+        let orientation = super::RollPitchYaw::new(0.0, 0.0, 0.0);
+        let bb = super::BoundingBox::new(&position, &box_size, &orientation, 1e-3);
+        let vertices = bb.get_vertices();
+        assert_eq!(vertices.len(), 8);
+    }
+
+    #[test]
+    fn bounding_box_is_box_contained() {
+        let origin = super::Vector3::new(0.0, 0.0, 0.0);
+        let identity = super::RollPitchYaw::new(0.0, 0.0, 0.0);
+        let big_box = super::BoundingBox::new(&origin, &super::Vector3::new(10.0, 10.0, 10.0), &identity, 1e-3);
+        let small_box = super::BoundingBox::new(&origin, &super::Vector3::new(1.0, 1.0, 1.0), &identity, 1e-3);
+        assert!(big_box.is_box_contained(&small_box));
+        assert!(!small_box.is_box_contained(&big_box));
+    }
+
+    #[test]
+    fn bounding_box_is_box_intersected() {
+        let identity = super::RollPitchYaw::new(0.0, 0.0, 0.0);
+        let box_a = super::BoundingBox::new(
+            &super::Vector3::new(0.0, 0.0, 0.0),
+            &super::Vector3::new(2.0, 2.0, 2.0),
+            &identity,
+            1e-3,
+        );
+        let box_b = super::BoundingBox::new(
+            &super::Vector3::new(1.0, 0.0, 0.0),
+            &super::Vector3::new(2.0, 2.0, 2.0),
+            &identity,
+            1e-3,
+        );
+        let box_c = super::BoundingBox::new(
+            &super::Vector3::new(100.0, 0.0, 0.0),
+            &super::Vector3::new(2.0, 2.0, 2.0),
+            &identity,
+            1e-3,
+        );
+        assert!(box_a.is_box_intersected(&box_b));
+        assert!(!box_a.is_box_intersected(&box_c));
     }
 }

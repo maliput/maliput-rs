@@ -28,6 +28,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+pub mod objects;
 pub mod rules;
 
 #[cxx::bridge(namespace = "maliput::api")]
@@ -154,6 +155,12 @@ pub mod ffi {
         #[namespace = "maliput::api::rules"]
         type TrafficLightBook = crate::api::rules::ffi::TrafficLightBook;
         #[namespace = "maliput::api::rules"]
+        type TrafficSignBook = crate::api::rules::ffi::TrafficSignBook;
+        #[namespace = "maliput::api::objects"]
+        type RoadObjectBook = crate::api::objects::ffi::RoadObjectBook;
+        #[namespace = "maliput::api::objects"]
+        type RoadMarkingBook = crate::api::objects::ffi::RoadMarkingBook;
+        #[namespace = "maliput::api::rules"]
         type PhaseRingBook = crate::api::rules::ffi::PhaseRingBook;
         #[namespace = "maliput::api::rules"]
         type RuleRegistry = crate::api::rules::ffi::RuleRegistry;
@@ -184,6 +191,9 @@ pub mod ffi {
         fn road_geometry(self: &RoadNetwork) -> *const RoadGeometry;
         fn RoadNetwork_intersection_book(road_network: &RoadNetwork) -> *const IntersectionBook;
         fn traffic_light_book(self: &RoadNetwork) -> *const TrafficLightBook;
+        fn traffic_sign_book(self: &RoadNetwork) -> *const TrafficSignBook;
+        fn road_object_book(self: &RoadNetwork) -> *const RoadObjectBook;
+        fn road_marking_book(self: &RoadNetwork) -> *const RoadMarkingBook;
         fn rulebook(self: &RoadNetwork) -> *const RoadRulebook;
         fn phase_ring_book(self: &RoadNetwork) -> *const PhaseRingBook;
         fn rule_registry(self: &RoadNetwork) -> *const RuleRegistry;

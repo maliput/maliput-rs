@@ -189,3 +189,112 @@ fn bulb_test_api() {
     let expected_orientation = 3.14;
     assert_eq!(arrow_orientation.unwrap(), expected_orientation);
 }
+
+// TwoRoadsWithTrafficLights.xodr has two traffic lights:
+// - "TrafficLight_S1" on road 1, valid for lane "1_0_-1", referenced on road 2 with no validity (all lanes).
+// - "TrafficLight_S2" on road 2, referenced from road 1 with no validity (all lanes).
+
+#[test]
+fn traffic_light_related_lanes_test() {
+    let road_network = common::create_two_roads_with_traffic_lights_network();
+    let book = road_network.traffic_light_book();
+
+    // Signal S1 has validity fromLane=-1 toLane=-1 on road 1 -> related lane "1_0_-1".
+    let tl_s1 = book
+        .get_traffic_light(&String::from("S1"))
+        .expect("Expected S1 to exist");
+    let related = tl_s1.related_lanes();
+    assert!(
+        related.contains(&String::from("1_0_-1")),
+        "Expected '1_0_-1' in related_lanes, got: {:?}",
+        related
+    );
+    assert!(
+        related.contains(&String::from("2_0_-1")),
+        "Expected '2_0_-1' in related_lanes, got: {:?}",
+        related
+    );
+    assert!(
+        related.contains(&String::from("2_0_1")),
+        "Expected '2_0_1' in related_lanes, got: {:?}",
+        related
+    );
+
+    // Signal S2 has no <validity> element -> check at least one lane of road 2 is included.
+    let tl_s2 = book
+        .get_traffic_light(&String::from("S2"))
+        .expect("Expected S2 to exist");
+    let related_s2 = tl_s2.related_lanes();
+    assert!(
+        related_s2.contains(&String::from("2_0_1")),
+        "Expected '2_0_1' in related_lanes, got: {:?}",
+        related_s2
+    );
+    assert!(
+        related_s2.contains(&String::from("2_0_-1")),
+        "Expected '2_0_-1' in related_lanes, got: {:?}",
+        related_s2
+    );
+    assert!(
+        related_s2.contains(&String::from("1_0_1")),
+        "Expected '1_0_1' in related_lanes, got: {:?}",
+        related_s2
+    );
+    assert!(
+        related_s2.contains(&String::from("1_0_-1")),
+        "Expected '1_0_-1' in related_lanes, got: {:?}",
+        related_s2
+    );
+}
+
+#[test]
+fn traffic_light_book_find_by_lane_test() {
+    let road_network = common::create_two_roads_with_traffic_lights_network();
+    let book = road_network.traffic_light_book();
+
+    // Lane "1_0_-1" is associated with S1 (via direct validity) and S2 (via signalReference).
+    let found = book.find_by_lane(&String::from("1_0_-1"));
+    assert!(
+        !found.is_empty(),
+        "Expected find_by_lane('1_0_-1') to return at least one traffic light"
+    );
+    assert!(
+        found.iter().any(|tl| tl.id() == "S1"),
+        "Expected S1 among results for lane '1_0_-1', got: {:?}",
+        found.iter().map(|tl| tl.id()).collect::<Vec<_>>()
+    );
+
+    // A made-up lane ID returns an empty vector.
+    let not_found = book.find_by_lane(&String::from("nonexistent_lane"));
+    assert!(not_found.is_empty(), "Expected empty Vec for nonexistent lane");
+}
+
+#[test]
+fn upper_left_traffic_light_bulb_types_test() {
+    let road_network = common::create_road_with_upper_left_traffic_light_network();
+    let book = road_network.traffic_light_book();
+
+    // Signal S1 is the only traffic light in the map.
+    let traffic_lights = book.traffic_lights();
+    assert_eq!(traffic_lights.len(), 1, "Expected exactly one traffic light");
+
+    let tl = traffic_lights.first().expect("No traffic lights found");
+    assert_eq!(tl.id(), "S1");
+
+    let bulb_groups = tl.bulb_groups();
+    assert_eq!(bulb_groups.len(), 1, "Expected exactly one bulb group");
+
+    let bulb_group = bulb_groups.first().expect("No bulb groups found");
+    let bulbs = bulb_group.bulbs();
+    assert!(!bulbs.is_empty(), "Expected at least one bulb");
+
+    for bulb in &bulbs {
+        assert_eq!(
+            bulb.bulb_type(),
+            maliput::api::rules::BulbType::ArrowUpperLeft,
+            "Expected bulb '{}' to be of type ArrowUpperLeft, got {:?}",
+            bulb.id(),
+            bulb.bulb_type()
+        );
+    }
+}

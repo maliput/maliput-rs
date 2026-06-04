@@ -37,6 +37,7 @@
 #include <maliput/math/vector.h>
 #include <maliput/math/matrix.h>
 #include <maliput/math/quaternion.h>
+#include <maliput/math/bounding_box.h>
 #include <maliput/math/roll_pitch_yaw.h>
 
 #include <rust/cxx.h>
@@ -227,6 +228,14 @@ std::unique_ptr<Matrix3> RollPitchYaw_ToMatrix(const RollPitchYaw& self) {
 
 std::unique_ptr<Matrix3> RollPitchYaw_CalcRotationMatrixDt(const RollPitchYaw& self, const Vector3& w) {
   return std::make_unique<Matrix3>(self.CalcRotationMatrixDt(w));
+}
+
+std::unique_ptr<BoundingBox> BoundingBox_new(const Vector3& position, const Vector3& box_size, const RollPitchYaw& orientation, rust::f64 tolerance) {
+  return std::make_unique<BoundingBox>(position, box_size, orientation, tolerance);
+}
+
+std::unique_ptr<std::vector<Vector3>> BoundingBox_get_vertices(const BoundingBox& self) {
+  return std::make_unique<std::vector<Vector3>>(self.get_vertices());
 }
 
 } // namespace math

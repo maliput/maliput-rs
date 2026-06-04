@@ -34,6 +34,7 @@ use crate::math::Quaternion;
 use crate::math::RollPitchYaw;
 use crate::math::Vector3;
 
+pub mod objects;
 pub mod rules;
 
 /// Enumerates the available maliput road network backends.
@@ -180,6 +181,43 @@ impl RoadNetwork {
             },
         }
     }
+
+    /// Get the `RoadObjectBook` of the `RoadNetwork`.
+    pub fn road_object_book(&self) -> objects::RoadObjectBook<'_> {
+        let road_object_book_ffi = self.rn.road_object_book();
+        objects::RoadObjectBook {
+            road_object_book: unsafe {
+                road_object_book_ffi
+                    .as_ref()
+                    .expect("Underlying RoadObjectBook is null")
+            },
+        }
+    }
+
+    /// Get the `RoadMarkingBook` of the `RoadNetwork`.
+    pub fn road_marking_book(&self) -> objects::RoadMarkingBook<'_> {
+        let road_marking_book_ffi = self.rn.road_marking_book();
+        objects::RoadMarkingBook {
+            road_marking_book: unsafe {
+                road_marking_book_ffi
+                    .as_ref()
+                    .expect("Underlying RoadMarkingBook is null")
+            },
+        }
+    }
+
+    /// Get the `TrafficSignBook` of the `RoadNetwork`.
+    pub fn traffic_sign_book(&self) -> rules::TrafficSignBook<'_> {
+        let traffic_sign_book_ffi = self.rn.traffic_sign_book();
+        rules::TrafficSignBook {
+            traffic_sign_book: unsafe {
+                traffic_sign_book_ffi
+                    .as_ref()
+                    .expect("Underlying TrafficSignBook is null")
+            },
+        }
+    }
+
     /// Get the `RoadRulebook` of the `RoadNetwork`.
     pub fn rulebook(&self) -> rules::RoadRulebook<'_> {
         let rulebook_ffi = self.rn.rulebook();
