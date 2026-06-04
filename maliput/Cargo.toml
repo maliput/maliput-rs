@@ -27,12 +27,15 @@ default = ["maliput_malidrive"]
 all = ["maliput_malidrive", "maliput_geopackage"]
 maliput_malidrive = ["maliput-sys/maliput_malidrive", "maliput-sdk/maliput_malidrive"]
 maliput_geopackage = ["maliput-sys/maliput_geopackage", "maliput-sdk/maliput_geopackage"]
+tui = ["dep:ratatui", "dep:crossterm"]
 
 [dependencies]
 clap = { workspace = true, features = ["derive"] }
+crossterm = { version = "0.28", optional = true }
 cxx = { workspace = true }
 maliput-sdk = { workspace = true }
 maliput-sys = { workspace = true }
+ratatui = { version = "0.29", optional = true }
 strum = { workspace = true }
 strum_macros = { workspace = true }
 thiserror = { workspace = true }
@@ -46,6 +49,7 @@ criterion = { version = "0.4", features = ["html_reports"] }
 [[bin]]
 name = "maliput_query"
 path = "bin/maliput_query.rs"
+required-features = ["tui"]
 
 [[bench]]
 name = "to_road_position"
