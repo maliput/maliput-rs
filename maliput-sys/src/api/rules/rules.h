@@ -81,6 +81,7 @@ struct RangeValueRuleType;
 struct DiscreteValueNextState;
 struct RangeValueNextState;
 struct ConstLaneSRangeRef;
+struct TrafficSignValueData;
 
 // Function declarations - implementations are in rules.cc
 
@@ -201,6 +202,7 @@ std::unique_ptr<maliput::api::Rotation> TrafficSign_orientation_road_network(con
 std::unique_ptr<StringWrapper> TrafficSign_message(const TrafficSign& sign);
 rust::Vec<rust::String> TrafficSign_related_lanes(const TrafficSign& sign);
 std::unique_ptr<maliput::math::BoundingBox> TrafficSign_bounding_box(const TrafficSign& sign);
+TrafficSignValueData TrafficSign_value(const TrafficSign& sign);
 
 }  // namespace rules
 }  // namespace api

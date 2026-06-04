@@ -96,6 +96,7 @@ fn traffic_sign_test_api() {
     assert!((pos1.x() - 50.0).abs() < tol, "SS1 x: got {}", pos1.x());
     assert!((pos1.y() - 2.0).abs() < tol, "SS1 y: got {}", pos1.y());
     assert!((pos1.z() - 1.0).abs() < tol, "SS1 z: got {}", pos1.z());
+    assert!(ss1.value().is_none(), "SS1 should not have a numeric value");
     // Bounding box has 8 vertices.
     assert_eq!(ss1.bounding_box().get_vertices().len(), 8);
 
@@ -107,6 +108,7 @@ fn traffic_sign_test_api() {
     assert!((pos2.x() - 150.0).abs() < tol, "SS2 x: got {}", pos2.x());
     assert!((pos2.y() - (-2.0)).abs() < tol, "SS2 y: got {}", pos2.y());
     assert!((pos2.z() - 1.0).abs() < tol, "SS2 z: got {}", pos2.z());
+    assert!(ss2.value().is_none(), "SS2 should not have a numeric value");
     assert_eq!(ss2.bounding_box().get_vertices().len(), 8);
 }
 

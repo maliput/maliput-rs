@@ -632,6 +632,15 @@ std::unique_ptr<maliput::math::BoundingBox> TrafficSign_bounding_box(const Traff
   return std::make_unique<maliput::math::BoundingBox>(sign.bounding_box());
 }
 
+TrafficSignValueData TrafficSign_value(const TrafficSign& sign) {
+  TrafficSignValueData data;
+  const auto& value = sign.GetValue();
+  data.has_value = value.has_value();
+  data.value = value.has_value() ? value->value : 0.0;
+  data.unit = value.has_value() ? value->unit : TrafficSignValueUnit::kMetersPerSecond;
+  return data;
+}
+
 }  // namespace rules
 }  // namespace api
 }  // namespace maliput

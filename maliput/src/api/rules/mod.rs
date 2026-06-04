@@ -1623,6 +1623,29 @@ pub enum TrafficSignType {
     Unknown,
 }
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+/// Defines the unit for a traffic sign's numeric value.
+pub enum TrafficSignValueUnit {
+    MetersPerSecond,
+    KilometersPerHour,
+    MilesPerHour,
+    Meters,
+    Kilometers,
+    Feet,
+    Miles,
+    Percent,
+    Kilograms,
+    MetricTons,
+    Unknown,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+/// Holds a numeric value and its associated unit for a traffic sign.
+pub struct TrafficSignValue {
+    pub value: f64,
+    pub unit: TrafficSignValueUnit,
+}
+
 fn traffic_sign_type_from_cpp(sign_type: &maliput_sys::api::rules::ffi::TrafficSignType) -> TrafficSignType {
     match *sign_type {
         maliput_sys::api::rules::ffi::TrafficSignType::kStop => TrafficSignType::Stop,
@@ -1658,6 +1681,24 @@ fn traffic_sign_type_to_cpp(sign_type: &TrafficSignType) -> maliput_sys::api::ru
         TrafficSignType::RailroadCrossing => maliput_sys::api::rules::ffi::TrafficSignType::kRailroadCrossing,
         TrafficSignType::NoOvertaking => maliput_sys::api::rules::ffi::TrafficSignType::kNoOvertaking,
         TrafficSignType::Unknown => maliput_sys::api::rules::ffi::TrafficSignType::kUnknown,
+    }
+}
+
+fn traffic_sign_value_unit_from_cpp(unit: &maliput_sys::api::rules::ffi::TrafficSignValueUnit) -> TrafficSignValueUnit {
+    match *unit {
+        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kMetersPerSecond => TrafficSignValueUnit::MetersPerSecond,
+        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kKilometersPerHour => {
+            TrafficSignValueUnit::KilometersPerHour
+        }
+        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kMilesPerHour => TrafficSignValueUnit::MilesPerHour,
+        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kMeters => TrafficSignValueUnit::Meters,
+        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kKilometers => TrafficSignValueUnit::Kilometers,
+        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kFeet => TrafficSignValueUnit::Feet,
+        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kMiles => TrafficSignValueUnit::Miles,
+        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kPercent => TrafficSignValueUnit::Percent,
+        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kKilograms => TrafficSignValueUnit::Kilograms,
+        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kMetricTons => TrafficSignValueUnit::MetricTons,
+        _ => TrafficSignValueUnit::Unknown,
     }
 }
 
@@ -1811,5 +1852,20 @@ impl<'a> TrafficSign<'a> {
     pub fn bounding_box(&self) -> crate::math::BoundingBox {
         let b = maliput_sys::api::rules::ffi::TrafficSign_bounding_box(self.traffic_sign);
         crate::math::BoundingBox { b }
+    }
+
+    /// Gets the optional numeric value associated with the [TrafficSign].
+    ///
+    /// # Returns
+    /// `Some(TrafficSignValue)` if a value is set, `None` otherwise.
+    pub fn value(&self) -> Option<TrafficSignValue> {
+        let data = maliput_sys::api::rules::ffi::TrafficSign_value(self.traffic_sign);
+        if !data.has_value {
+            return None;
+        }
+        Some(TrafficSignValue {
+            value: data.value,
+            unit: traffic_sign_value_unit_from_cpp(&data.unit),
+        })
     }
 }
