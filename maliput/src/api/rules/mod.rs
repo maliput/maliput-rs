@@ -1636,7 +1636,6 @@ pub enum TrafficSignValueUnit {
     Percent,
     Kilograms,
     MetricTons,
-    Unknown,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -1698,7 +1697,7 @@ fn traffic_sign_value_unit_from_cpp(unit: &maliput_sys::api::rules::ffi::Traffic
         maliput_sys::api::rules::ffi::TrafficSignValueUnit::kPercent => TrafficSignValueUnit::Percent,
         maliput_sys::api::rules::ffi::TrafficSignValueUnit::kKilograms => TrafficSignValueUnit::Kilograms,
         maliput_sys::api::rules::ffi::TrafficSignValueUnit::kMetricTons => TrafficSignValueUnit::MetricTons,
-        _ => TrafficSignValueUnit::Unknown,
+        _ => panic!("Invalid traffic sign value unit"),
     }
 }
 
