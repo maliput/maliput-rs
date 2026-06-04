@@ -67,6 +67,13 @@ pub mod ffi {
     struct StringWrapper {
         pub value: String,
     }
+    /// Shared struct for an optional `TrafficSignValue`.
+    /// `value` and `unit` are meaningful only when `has_value` is true.
+    struct TrafficSignValueData {
+        pub has_value: bool,
+        pub value: f64,
+        pub unit: TrafficSignValueUnit,
+    }
     /// Shared struct for pairs in a RelatedRules collection.
     ///  - key: Group name of the rules.
     ///  - value: Rule ids.
@@ -183,6 +190,20 @@ pub mod ffi {
         kUnknown,
     }
 
+    #[repr(i32)]
+    enum TrafficSignValueUnit {
+        kMetersPerSecond = 0,
+        kKilometersPerHour,
+        kMilesPerHour,
+        kMeters,
+        kKilometers,
+        kFeet,
+        kMiles,
+        kPercent,
+        kKilograms,
+        kMetricTons,
+    }
+
     unsafe extern "C++" {
         include!("api/rules/rules.h");
         include!("api/rules/aliases.h");
@@ -227,6 +248,7 @@ pub mod ffi {
         // TrafficSignBook bindings definitions.
         type TrafficSignBook;
         type TrafficSignType;
+        type TrafficSignValueUnit;
         fn TrafficSignBook_TrafficSigns(book: &TrafficSignBook) -> UniquePtr<CxxVector<ConstTrafficSignPtr>>;
         fn TrafficSignBook_GetTrafficSign(book: &TrafficSignBook, id: &String) -> *const TrafficSign;
         fn TrafficSignBook_FindByLane(
@@ -248,6 +270,7 @@ pub mod ffi {
         fn TrafficSign_message(sign: &TrafficSign) -> UniquePtr<StringWrapper>;
         fn TrafficSign_related_lanes(sign: &TrafficSign) -> Vec<String>;
         fn TrafficSign_bounding_box(sign: &TrafficSign) -> UniquePtr<BoundingBox>;
+        fn TrafficSign_value(sign: &TrafficSign) -> TrafficSignValueData;
 
         type BulbColor;
         type BulbState;
