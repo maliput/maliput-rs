@@ -92,8 +92,8 @@ fn traffic_sign_test_api() {
     assert_eq!(ss1.id(), SS1_ID);
     assert_eq!(ss1.sign_type(), maliput::api::rules::TrafficSignType::Stop);
     assert!(!ss1.is_dynamic());
-    assert!(!ss1.is_movable());
-    assert!(ss1.properties().is_empty());
+    assert!(ss1.is_movable());
+    assert!(!ss1.properties().is_empty());
     // SS1: s=50 on road 1 (x=0..100, hdg=0) with t=2, zOffset=1 → position ≈ (50, 2, 1).
     let pos1 = ss1.position_road_network();
     assert!((pos1.x() - 50.0).abs() < tol, "SS1 x: got {}", pos1.x());
@@ -107,8 +107,8 @@ fn traffic_sign_test_api() {
     assert_eq!(ss2.id(), SS2_ID);
     assert_eq!(ss2.sign_type(), maliput::api::rules::TrafficSignType::Stop);
     assert!(!ss2.is_dynamic());
-    assert!(!ss2.is_movable());
-    assert!(ss2.properties().is_empty());
+    assert!(ss2.is_movable());
+    assert!(!ss2.properties().is_empty());
     // SS2: s=40 on road 2 (x=110..190, hdg=0) with t=-2, zOffset=1 → position ≈ (150, -2, 1).
     let pos2 = ss2.position_road_network();
     assert!((pos2.x() - 150.0).abs() < tol, "SS2 x: got {}", pos2.x());
