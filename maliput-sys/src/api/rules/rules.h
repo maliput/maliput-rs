@@ -72,6 +72,7 @@ struct ConstBulbPtr;
 struct ConstTrafficSignPtr;
 struct FloatWrapper;
 struct StringWrapper;
+struct StringPair;
 struct RelatedRule;
 struct RelatedUniqueId;
 struct DiscreteValueRuleState;
@@ -84,7 +85,6 @@ struct ConstLaneSRangeRef;
 struct TrafficSignValueData;
 
 // Function declarations - implementations are in rules.cc
-
 std::unique_ptr<std::vector<ConstTrafficLightPtr>> TrafficLightBook_TrafficLights(const TrafficLightBook& traffic_light_book);
 const TrafficLight* TrafficLightBook_GetTrafficLight(const TrafficLightBook& traffic_light_book, const rust::String& id);
 std::unique_ptr<std::vector<ConstTrafficLightPtr>> TrafficLightBook_FindByLane(const TrafficLightBook& traffic_light_book, const rust::String& lane_id);
@@ -203,6 +203,7 @@ std::unique_ptr<StringWrapper> TrafficSign_message(const TrafficSign& sign);
 rust::Vec<rust::String> TrafficSign_related_lanes(const TrafficSign& sign);
 std::unique_ptr<maliput::math::BoundingBox> TrafficSign_bounding_box(const TrafficSign& sign);
 TrafficSignValueData TrafficSign_value(const TrafficSign& sign);
+rust::Vec<StringPair> TrafficSign_properties(const TrafficSign& sign);
 
 }  // namespace rules
 }  // namespace api

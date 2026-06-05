@@ -641,6 +641,14 @@ TrafficSignValueData TrafficSign_value(const TrafficSign& sign) {
   return data;
 }
 
+rust::Vec<StringPair> TrafficSign_properties(const TrafficSign& sign) {
+  rust::Vec<StringPair> pairs;
+  for (const auto& kv : sign.properties()) {
+    pairs.push_back({rust::String{kv.first}, rust::String{kv.second}});
+  }
+  return pairs;
+}
+
 }  // namespace rules
 }  // namespace api
 }  // namespace maliput

@@ -110,6 +110,7 @@ fn road_object_api() {
     );
     assert_eq!(vegetation.subtype(), None);
     assert!(!vegetation.is_dynamic());
+    assert!(!vegetation.is_movable());
 
     let barrier = book
         .get_road_object(&OBJ_BARRIER_ID.to_string())
@@ -119,6 +120,7 @@ fn road_object_api() {
     assert_eq!(barrier.object_type(), maliput::api::objects::RoadObjectType::Barrier);
     assert_eq!(barrier.subtype(), Some("guardRail".to_string()));
     assert!(!barrier.is_dynamic());
+    assert!(!barrier.is_movable());
 
     let building = book
         .get_road_object(&OBJ_BUILDING_ID.to_string())
@@ -128,6 +130,7 @@ fn road_object_api() {
     assert_eq!(building.object_type(), maliput::api::objects::RoadObjectType::Building);
     assert_eq!(building.subtype(), None);
     assert!(!building.is_dynamic());
+    assert!(!building.is_movable());
 
     let obstacle = book
         .get_road_object(&OBJ_OBSTACLE_ID.to_string())
@@ -137,6 +140,7 @@ fn road_object_api() {
     assert_eq!(obstacle.object_type(), maliput::api::objects::RoadObjectType::Obstacle);
     assert_eq!(obstacle.subtype(), None);
     assert!(!obstacle.is_dynamic());
+    assert!(!obstacle.is_movable());
 }
 
 #[test]

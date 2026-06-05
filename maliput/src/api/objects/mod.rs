@@ -202,6 +202,11 @@ impl<'a> RoadObject<'a> {
         maliput_sys::api::objects::ffi::RoadObject::is_dynamic(self.road_object)
     }
 
+    /// Returns whether this road object's position can change.
+    pub fn is_movable(&self) -> bool {
+        maliput_sys::api::objects::ffi::RoadObject::is_movable(self.road_object)
+    }
+
     /// Returns the IDs of lanes related to this road object.
     pub fn related_lanes(&self) -> Vec<String> {
         maliput_sys::api::objects::ffi::RoadObject_related_lanes(self.road_object)

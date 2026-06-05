@@ -178,6 +178,7 @@ pub mod ffi {
         fn RoadObject_orientation(obj: &RoadObject) -> UniquePtr<Rotation>;
         fn RoadObject_bounding_box(obj: &RoadObject) -> UniquePtr<BoundingBox>;
         fn is_dynamic(self: &RoadObject) -> bool;
+        fn is_movable(self: &RoadObject) -> bool;
         fn RoadObject_related_lanes(obj: &RoadObject) -> Vec<String>;
         fn num_outlines(self: &RoadObject) -> i32;
         fn RoadObject_outlines(obj: &RoadObject) -> UniquePtr<CxxVector<ConstOutlinePtr>>;

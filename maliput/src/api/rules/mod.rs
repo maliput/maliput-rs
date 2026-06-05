@@ -1789,8 +1789,8 @@ impl<'a> TrafficSignBook<'a> {
 /// along or above the road to convey regulatory, warning, or informational
 /// messages to road users.
 ///
-/// Unlike [TrafficLight], a traffic sign has no dynamic state. It simply
-/// exists at a position with an orientation and a type.
+/// Unlike [TrafficLight], traffic signs do not expose phase-based bulb states.
+/// A sign may still be marked as dynamic or movable by backend metadata.
 pub struct TrafficSign<'a> {
     pub traffic_sign: &'a maliput_sys::api::rules::ffi::TrafficSign,
 }
@@ -1843,6 +1843,16 @@ impl<'a> TrafficSign<'a> {
         Some(wrapper.value.clone())
     }
 
+    /// Returns whether this sign can change semantically over time.
+    pub fn is_dynamic(&self) -> bool {
+        maliput_sys::api::rules::ffi::TrafficSign::is_dynamic(self.traffic_sign)
+    }
+
+    /// Returns whether this sign's position can change.
+    pub fn is_movable(&self) -> bool {
+        maliput_sys::api::rules::ffi::TrafficSign::is_movable(self.traffic_sign)
+    }
+
     /// Gets the lane IDs that this sign is physically relevant to.
     ///
     /// # Returns
@@ -1875,5 +1885,13 @@ impl<'a> TrafficSign<'a> {
             value: data.value,
             unit: traffic_sign_value_unit_from_cpp(&data.unit),
         })
+    }
+
+    /// Returns backend-specific key-value properties for this [TrafficSign].
+    pub fn properties(&self) -> HashMap<String, String> {
+        maliput_sys::api::rules::ffi::TrafficSign_properties(self.traffic_sign)
+            .into_iter()
+            .map(|p| (p.key, p.value))
+            .collect()
     }
 }
