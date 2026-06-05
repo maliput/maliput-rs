@@ -1620,6 +1620,9 @@ pub enum TrafficSignType {
     Construction,
     RailroadCrossing,
     NoOvertaking,
+    AllWay,
+    NoUTurnLeft,
+    NoUTurnRight,
     Unknown,
 }
 
@@ -1660,6 +1663,9 @@ fn traffic_sign_type_from_cpp(sign_type: &maliput_sys::api::rules::ffi::TrafficS
         maliput_sys::api::rules::ffi::TrafficSignType::kConstruction => TrafficSignType::Construction,
         maliput_sys::api::rules::ffi::TrafficSignType::kRailroadCrossing => TrafficSignType::RailroadCrossing,
         maliput_sys::api::rules::ffi::TrafficSignType::kNoOvertaking => TrafficSignType::NoOvertaking,
+        maliput_sys::api::rules::ffi::TrafficSignType::kAllWay => TrafficSignType::AllWay,
+        maliput_sys::api::rules::ffi::TrafficSignType::kNoUTurnLeft => TrafficSignType::NoUTurnLeft,
+        maliput_sys::api::rules::ffi::TrafficSignType::kNoUTurnRight => TrafficSignType::NoUTurnRight,
         _ => TrafficSignType::Unknown,
     }
 }
@@ -1679,6 +1685,9 @@ fn traffic_sign_type_to_cpp(sign_type: &TrafficSignType) -> maliput_sys::api::ru
         TrafficSignType::Construction => maliput_sys::api::rules::ffi::TrafficSignType::kConstruction,
         TrafficSignType::RailroadCrossing => maliput_sys::api::rules::ffi::TrafficSignType::kRailroadCrossing,
         TrafficSignType::NoOvertaking => maliput_sys::api::rules::ffi::TrafficSignType::kNoOvertaking,
+        TrafficSignType::AllWay => maliput_sys::api::rules::ffi::TrafficSignType::kAllWay,
+        TrafficSignType::NoUTurnLeft => maliput_sys::api::rules::ffi::TrafficSignType::kNoUTurnLeft,
+        TrafficSignType::NoUTurnRight => maliput_sys::api::rules::ffi::TrafficSignType::kNoUTurnRight,
         TrafficSignType::Unknown => maliput_sys::api::rules::ffi::TrafficSignType::kUnknown,
     }
 }

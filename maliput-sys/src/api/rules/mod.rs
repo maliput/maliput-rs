@@ -187,6 +187,9 @@ pub mod ffi {
         kConstruction,
         kRailroadCrossing,
         kNoOvertaking,
+        kAllWay,
+        kNoUTurnLeft,
+        kNoUTurnRight,
         kUnknown,
     }
 
