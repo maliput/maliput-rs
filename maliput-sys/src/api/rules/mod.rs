@@ -74,6 +74,12 @@ pub mod ffi {
         pub value: f64,
         pub unit: TrafficSignValueUnit,
     }
+    /// Shared struct for pairs in a properties map.
+    /// This is needed because maps can't be bound directly.
+    struct StringPair {
+        pub key: String,
+        pub value: String,
+    }
     /// Shared struct for pairs in a RelatedRules collection.
     ///  - key: Group name of the rules.
     ///  - value: Rule ids.
@@ -187,6 +193,9 @@ pub mod ffi {
         kConstruction,
         kRailroadCrossing,
         kNoOvertaking,
+        kAllWay,
+        kNoUTurnLeft,
+        kNoUTurnRight,
         kUnknown,
     }
 
@@ -268,9 +277,12 @@ pub mod ffi {
         fn TrafficSign_position_road_network(sign: &TrafficSign) -> UniquePtr<InertialPosition>;
         fn TrafficSign_orientation_road_network(sign: &TrafficSign) -> UniquePtr<Rotation>;
         fn TrafficSign_message(sign: &TrafficSign) -> UniquePtr<StringWrapper>;
+        fn is_dynamic(self: &TrafficSign) -> bool;
+        fn is_movable(self: &TrafficSign) -> bool;
         fn TrafficSign_related_lanes(sign: &TrafficSign) -> Vec<String>;
         fn TrafficSign_bounding_box(sign: &TrafficSign) -> UniquePtr<BoundingBox>;
         fn TrafficSign_value(sign: &TrafficSign) -> TrafficSignValueData;
+        fn TrafficSign_properties(sign: &TrafficSign) -> Vec<StringPair>;
 
         type BulbColor;
         type BulbState;

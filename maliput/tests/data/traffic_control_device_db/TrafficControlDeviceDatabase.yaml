@@ -38,7 +38,7 @@ odr_signal_types:
       country_revision: null
       name: "*"
     properties:
-      device_type: traffic_light
+      device_type: TrafficLight
       description: "Standard three-bulb vertical traffic light with red, yellow, and green bulbs."
 
       # List of bulbs
@@ -135,7 +135,7 @@ odr_signal_types:
       country_revision: null
       name: "*"
     properties:
-      device_type: traffic_light
+      device_type: TrafficLight
       description: "Three-bulb traffic light with dual arrows (straight/left)."
 
       bulbs:
@@ -197,7 +197,7 @@ odr_signal_types:
       country_revision: null
       name: "*"
     properties:
-      device_type: traffic_light
+      device_type: TrafficLight
       description: "Three-bulb traffic light with optional arrow support (left/straight/right)."
 
       bulbs:
@@ -263,7 +263,7 @@ odr_signal_types:
       country_revision: null
       name: "*"
     properties:
-      device_type: traffic_light
+      device_type: TrafficLight
       description: "Pedestrian walk/don't walk signal (red standing figure on black background / green walking figure on black background)."
 
       bulbs:
@@ -313,8 +313,8 @@ odr_signal_types:
       country_revision: null
       name: "*"
     properties:
-      device_type: traffic_sign
-      device_semantics: stop
+      device_type: TrafficSign
+      device_semantics: Stop
       description: "Stop sign. Requires a complete stop before entering the intersection."
 
       # Stop signs have no bulbs.
@@ -332,7 +332,7 @@ odr_signal_types:
       country_revision: null
       name: "*"
     properties:
-      device_type: traffic_sign
+      device_type: TrafficSign
       description: "Unknown sign. No specific behavior defined."
 
       rule_states:
