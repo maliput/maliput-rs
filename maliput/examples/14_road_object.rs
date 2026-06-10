@@ -245,10 +245,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // --- Filter by type ---
     //
     // find_by_type() returns all objects whose object_type() matches.
-    println!("\n--- Objects of type Barrier ---");
-    let barriers = book.find_by_type(&RoadObjectType::Barrier);
-    println!("  count: {}", barriers.len());
-    for b in &barriers {
+    println!("\n--- Objects of type GuardRail ---");
+    let guard_rails = book.find_by_type(&RoadObjectType::GuardRail);
+    println!("  count: {}", guard_rails.len());
+    for b in &guard_rails {
         println!("  '{}'", b.id());
     }
 
