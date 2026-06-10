@@ -2894,6 +2894,210 @@ fn traffic_sign_type_to_cpp(sign_type: &TrafficSignType) -> maliput_sys::api::ru
     }
 }
 
+fn traffic_sign_value_unit_from_cpp(unit: &maliput_sys::api::rules::ffi::TrafficSignValueUnit) -> TrafficSignValueUnit {
+    match *unit {
+        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kMetersPerSecond => TrafficSignValueUnit::MetersPerSecond,
+        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kKilometersPerHour => {
+            TrafficSignValueUnit::KilometersPerHour
+        }
+        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kMilesPerHour => TrafficSignValueUnit::MilesPerHour,
+        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kMeters => TrafficSignValueUnit::Meters,
+        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kKilometers => TrafficSignValueUnit::Kilometers,
+        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kFeet => TrafficSignValueUnit::Feet,
+        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kMiles => TrafficSignValueUnit::Miles,
+        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kPercent => TrafficSignValueUnit::Percent,
+        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kKilograms => TrafficSignValueUnit::Kilograms,
+        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kMetricTons => TrafficSignValueUnit::MetricTons,
+        _ => panic!("Invalid traffic sign value unit"),
+    }
+}
+
+/// Interface for accessing the [TrafficSign]s in the [super::RoadNetwork].
+pub struct TrafficSignBook<'a> {
+    pub(super) traffic_sign_book: &'a maliput_sys::api::rules::ffi::TrafficSignBook,
+}
+
+impl<'a> TrafficSignBook<'a> {
+    /// Gets all the [TrafficSign]s in the [TrafficSignBook].
+    ///
+    /// # Returns
+    /// A vector of [TrafficSign]s.
+    pub fn traffic_signs(&self) -> Vec<TrafficSign<'_>> {
+        let traffic_signs_cpp = maliput_sys::api::rules::ffi::TrafficSignBook_TrafficSigns(self.traffic_sign_book);
+        traffic_signs_cpp
+            .into_iter()
+            .map(|ts| TrafficSign {
+                traffic_sign: unsafe { ts.traffic_sign.as_ref().expect("TrafficSign pointer is null") },
+            })
+            .collect::<Vec<TrafficSign>>()
+    }
+
+    /// Gets a [TrafficSign] by its id.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the [TrafficSign].
+    ///
+    /// # Returns
+    /// The [TrafficSign] with the given id, or `None` if not found.
+    pub fn get_traffic_sign(&self, id: &String) -> Option<TrafficSign<'_>> {
+        let ptr = maliput_sys::api::rules::ffi::TrafficSignBook_GetTrafficSign(self.traffic_sign_book, id);
+        if ptr.is_null() {
+            return None;
+        }
+        Some(TrafficSign {
+            traffic_sign: unsafe { ptr.as_ref().expect("Unable to get underlying traffic sign pointer") },
+        })
+    }
+
+    /// Gets all [TrafficSign]s whose `related_lanes()` includes the given lane ID.
+    ///
+    /// # Arguments
+    /// * `lane_id` - The lane ID to filter by.
+    ///
+    /// # Returns
+    /// A vector of [TrafficSign]s associated with the given lane.
+    pub fn find_by_lane(&self, lane_id: &String) -> Vec<TrafficSign<'_>> {
+        let traffic_signs_cpp =
+            maliput_sys::api::rules::ffi::TrafficSignBook_FindByLane(self.traffic_sign_book, lane_id);
+        traffic_signs_cpp
+            .into_iter()
+            .map(|ts| TrafficSign {
+                traffic_sign: unsafe { ts.traffic_sign.as_ref().expect("TrafficSign pointer is null") },
+            })
+            .collect::<Vec<TrafficSign>>()
+    }
+
+    /// Gets all [TrafficSign]s of the given [TrafficSignType].
+    ///
+    /// # Arguments
+    /// * `sign_type` - The [TrafficSignType] to filter by.
+    ///
+    /// # Returns
+    /// A vector of [TrafficSign]s of the given type.
+    pub fn find_by_type(&self, sign_type: &TrafficSignType) -> Vec<TrafficSign<'_>> {
+        let sign_type_ffi = traffic_sign_type_to_cpp(sign_type);
+        let traffic_signs_cpp =
+            maliput_sys::api::rules::ffi::TrafficSignBook_FindByType(self.traffic_sign_book, sign_type_ffi);
+        traffic_signs_cpp
+            .into_iter()
+            .map(|ts| TrafficSign {
+                traffic_sign: unsafe { ts.traffic_sign.as_ref().expect("TrafficSign pointer is null") },
+            })
+            .collect::<Vec<TrafficSign>>()
+    }
+}
+
+/// Models a physical traffic sign — a static, passive signaling device placed
+/// along or above the road to convey regulatory, warning, or informational
+/// messages to road users.
+///
+/// Unlike [TrafficLight], traffic signs do not expose phase-based bulb states.
+/// A sign may still be marked as dynamic or movable by backend metadata.
+pub struct TrafficSign<'a> {
+    pub traffic_sign: &'a maliput_sys::api::rules::ffi::TrafficSign,
+}
+
+impl<'a> TrafficSign<'a> {
+    /// Gets the unique identifier of the [TrafficSign].
+    ///
+    /// # Returns
+    /// The id of the [TrafficSign].
+    pub fn id(&self) -> String {
+        maliput_sys::api::rules::ffi::TrafficSign_id(self.traffic_sign)
+    }
+
+    /// Gets the [TrafficSignType] of the [TrafficSign].
+    ///
+    /// # Returns
+    /// The [TrafficSignType].
+    pub fn sign_type(&self) -> TrafficSignType {
+        let sign_type = maliput_sys::api::rules::ffi::TrafficSign_type(self.traffic_sign);
+        traffic_sign_type_from_cpp(sign_type)
+    }
+
+    /// Gets the position of the [TrafficSign] in the road network's Inertial frame.
+    ///
+    /// # Returns
+    /// An [super::InertialPosition] representing the position of the [TrafficSign].
+    pub fn position_road_network(&self) -> super::InertialPosition {
+        let inertial_position = maliput_sys::api::rules::ffi::TrafficSign_position_road_network(self.traffic_sign);
+        super::InertialPosition { ip: inertial_position }
+    }
+
+    /// Gets the orientation of the [TrafficSign] in the road network's Inertial frame.
+    ///
+    /// # Returns
+    /// An [super::Rotation] representing the orientation of the [TrafficSign].
+    pub fn orientation_road_network(&self) -> super::Rotation {
+        let rotation = maliput_sys::api::rules::ffi::TrafficSign_orientation_road_network(self.traffic_sign);
+        super::Rotation { r: rotation }
+    }
+
+    /// Gets the optional text message displayed on the [TrafficSign].
+    ///
+    /// # Returns
+    /// `Some(String)` if a message is set, `None` otherwise.
+    pub fn message(&self) -> Option<String> {
+        let wrapper = maliput_sys::api::rules::ffi::TrafficSign_message(self.traffic_sign);
+        if wrapper.is_null() {
+            return None;
+        }
+        Some(wrapper.value.clone())
+    }
+
+    /// Returns whether this sign can change semantically over time.
+    pub fn is_dynamic(&self) -> bool {
+        maliput_sys::api::rules::ffi::TrafficSign::is_dynamic(self.traffic_sign)
+    }
+
+    /// Returns whether this sign's position can change.
+    pub fn is_movable(&self) -> bool {
+        maliput_sys::api::rules::ffi::TrafficSign::is_movable(self.traffic_sign)
+    }
+
+    /// Gets the lane IDs that this sign is physically relevant to.
+    ///
+    /// # Returns
+    /// A vector of lane ID strings.
+    pub fn related_lanes(&self) -> Vec<String> {
+        maliput_sys::api::rules::ffi::TrafficSign_related_lanes(self.traffic_sign)
+    }
+
+    /// Gets the bounding box of the [TrafficSign].
+    ///
+    /// # Returns
+    /// A [crate::math::BoundingBox] describing the sign's oriented bounding volume.
+    /// The box position is the centroid, `box_size` gives full extents, and `orientation`
+    /// is expressed as roll-pitch-yaw angles.
+    pub fn bounding_box(&self) -> crate::math::BoundingBox {
+        let b = maliput_sys::api::rules::ffi::TrafficSign_bounding_box(self.traffic_sign);
+        crate::math::BoundingBox { b }
+    }
+
+    /// Gets the optional numeric value associated with the [TrafficSign].
+    ///
+    /// # Returns
+    /// `Some(TrafficSignValue)` if a value is set, `None` otherwise.
+    pub fn value(&self) -> Option<TrafficSignValue> {
+        let data = maliput_sys::api::rules::ffi::TrafficSign_value(self.traffic_sign);
+        if !data.has_value {
+            return None;
+        }
+        Some(TrafficSignValue {
+            value: data.value,
+            unit: traffic_sign_value_unit_from_cpp(&data.unit),
+        })
+    }
+
+    /// Returns backend-specific key-value properties for this [TrafficSign].
+    pub fn properties(&self) -> HashMap<String, String> {
+        maliput_sys::api::rules::ffi::TrafficSign_properties(self.traffic_sign)
+            .into_iter()
+            .map(|p| (p.key, p.value))
+            .collect()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -3211,209 +3415,5 @@ mod tests {
             let roundtrip = traffic_sign_type_from_cpp(&cpp);
             assert_eq!(roundtrip, variant);
         }
-    }
-}
-
-fn traffic_sign_value_unit_from_cpp(unit: &maliput_sys::api::rules::ffi::TrafficSignValueUnit) -> TrafficSignValueUnit {
-    match *unit {
-        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kMetersPerSecond => TrafficSignValueUnit::MetersPerSecond,
-        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kKilometersPerHour => {
-            TrafficSignValueUnit::KilometersPerHour
-        }
-        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kMilesPerHour => TrafficSignValueUnit::MilesPerHour,
-        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kMeters => TrafficSignValueUnit::Meters,
-        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kKilometers => TrafficSignValueUnit::Kilometers,
-        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kFeet => TrafficSignValueUnit::Feet,
-        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kMiles => TrafficSignValueUnit::Miles,
-        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kPercent => TrafficSignValueUnit::Percent,
-        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kKilograms => TrafficSignValueUnit::Kilograms,
-        maliput_sys::api::rules::ffi::TrafficSignValueUnit::kMetricTons => TrafficSignValueUnit::MetricTons,
-        _ => panic!("Invalid traffic sign value unit"),
-    }
-}
-
-/// Interface for accessing the [TrafficSign]s in the [super::RoadNetwork].
-pub struct TrafficSignBook<'a> {
-    pub(super) traffic_sign_book: &'a maliput_sys::api::rules::ffi::TrafficSignBook,
-}
-
-impl<'a> TrafficSignBook<'a> {
-    /// Gets all the [TrafficSign]s in the [TrafficSignBook].
-    ///
-    /// # Returns
-    /// A vector of [TrafficSign]s.
-    pub fn traffic_signs(&self) -> Vec<TrafficSign<'_>> {
-        let traffic_signs_cpp = maliput_sys::api::rules::ffi::TrafficSignBook_TrafficSigns(self.traffic_sign_book);
-        traffic_signs_cpp
-            .into_iter()
-            .map(|ts| TrafficSign {
-                traffic_sign: unsafe { ts.traffic_sign.as_ref().expect("TrafficSign pointer is null") },
-            })
-            .collect::<Vec<TrafficSign>>()
-    }
-
-    /// Gets a [TrafficSign] by its id.
-    ///
-    /// # Arguments
-    /// * `id` - The id of the [TrafficSign].
-    ///
-    /// # Returns
-    /// The [TrafficSign] with the given id, or `None` if not found.
-    pub fn get_traffic_sign(&self, id: &String) -> Option<TrafficSign<'_>> {
-        let ptr = maliput_sys::api::rules::ffi::TrafficSignBook_GetTrafficSign(self.traffic_sign_book, id);
-        if ptr.is_null() {
-            return None;
-        }
-        Some(TrafficSign {
-            traffic_sign: unsafe { ptr.as_ref().expect("Unable to get underlying traffic sign pointer") },
-        })
-    }
-
-    /// Gets all [TrafficSign]s whose `related_lanes()` includes the given lane ID.
-    ///
-    /// # Arguments
-    /// * `lane_id` - The lane ID to filter by.
-    ///
-    /// # Returns
-    /// A vector of [TrafficSign]s associated with the given lane.
-    pub fn find_by_lane(&self, lane_id: &String) -> Vec<TrafficSign<'_>> {
-        let traffic_signs_cpp =
-            maliput_sys::api::rules::ffi::TrafficSignBook_FindByLane(self.traffic_sign_book, lane_id);
-        traffic_signs_cpp
-            .into_iter()
-            .map(|ts| TrafficSign {
-                traffic_sign: unsafe { ts.traffic_sign.as_ref().expect("TrafficSign pointer is null") },
-            })
-            .collect::<Vec<TrafficSign>>()
-    }
-
-    /// Gets all [TrafficSign]s of the given [TrafficSignType].
-    ///
-    /// # Arguments
-    /// * `sign_type` - The [TrafficSignType] to filter by.
-    ///
-    /// # Returns
-    /// A vector of [TrafficSign]s of the given type.
-    pub fn find_by_type(&self, sign_type: &TrafficSignType) -> Vec<TrafficSign<'_>> {
-        let sign_type_ffi = traffic_sign_type_to_cpp(sign_type);
-        let traffic_signs_cpp =
-            maliput_sys::api::rules::ffi::TrafficSignBook_FindByType(self.traffic_sign_book, sign_type_ffi);
-        traffic_signs_cpp
-            .into_iter()
-            .map(|ts| TrafficSign {
-                traffic_sign: unsafe { ts.traffic_sign.as_ref().expect("TrafficSign pointer is null") },
-            })
-            .collect::<Vec<TrafficSign>>()
-    }
-}
-
-/// Models a physical traffic sign — a static, passive signaling device placed
-/// along or above the road to convey regulatory, warning, or informational
-/// messages to road users.
-///
-/// Unlike [TrafficLight], traffic signs do not expose phase-based bulb states.
-/// A sign may still be marked as dynamic or movable by backend metadata.
-pub struct TrafficSign<'a> {
-    pub traffic_sign: &'a maliput_sys::api::rules::ffi::TrafficSign,
-}
-
-impl<'a> TrafficSign<'a> {
-    /// Gets the unique identifier of the [TrafficSign].
-    ///
-    /// # Returns
-    /// The id of the [TrafficSign].
-    pub fn id(&self) -> String {
-        maliput_sys::api::rules::ffi::TrafficSign_id(self.traffic_sign)
-    }
-
-    /// Gets the [TrafficSignType] of the [TrafficSign].
-    ///
-    /// # Returns
-    /// The [TrafficSignType].
-    pub fn sign_type(&self) -> TrafficSignType {
-        let sign_type = maliput_sys::api::rules::ffi::TrafficSign_type(self.traffic_sign);
-        traffic_sign_type_from_cpp(sign_type)
-    }
-
-    /// Gets the position of the [TrafficSign] in the road network's Inertial frame.
-    ///
-    /// # Returns
-    /// An [super::InertialPosition] representing the position of the [TrafficSign].
-    pub fn position_road_network(&self) -> super::InertialPosition {
-        let inertial_position = maliput_sys::api::rules::ffi::TrafficSign_position_road_network(self.traffic_sign);
-        super::InertialPosition { ip: inertial_position }
-    }
-
-    /// Gets the orientation of the [TrafficSign] in the road network's Inertial frame.
-    ///
-    /// # Returns
-    /// An [super::Rotation] representing the orientation of the [TrafficSign].
-    pub fn orientation_road_network(&self) -> super::Rotation {
-        let rotation = maliput_sys::api::rules::ffi::TrafficSign_orientation_road_network(self.traffic_sign);
-        super::Rotation { r: rotation }
-    }
-
-    /// Gets the optional text message displayed on the [TrafficSign].
-    ///
-    /// # Returns
-    /// `Some(String)` if a message is set, `None` otherwise.
-    pub fn message(&self) -> Option<String> {
-        let wrapper = maliput_sys::api::rules::ffi::TrafficSign_message(self.traffic_sign);
-        if wrapper.is_null() {
-            return None;
-        }
-        Some(wrapper.value.clone())
-    }
-
-    /// Returns whether this sign can change semantically over time.
-    pub fn is_dynamic(&self) -> bool {
-        maliput_sys::api::rules::ffi::TrafficSign::is_dynamic(self.traffic_sign)
-    }
-
-    /// Returns whether this sign's position can change.
-    pub fn is_movable(&self) -> bool {
-        maliput_sys::api::rules::ffi::TrafficSign::is_movable(self.traffic_sign)
-    }
-
-    /// Gets the lane IDs that this sign is physically relevant to.
-    ///
-    /// # Returns
-    /// A vector of lane ID strings.
-    pub fn related_lanes(&self) -> Vec<String> {
-        maliput_sys::api::rules::ffi::TrafficSign_related_lanes(self.traffic_sign)
-    }
-
-    /// Gets the bounding box of the [TrafficSign].
-    ///
-    /// # Returns
-    /// A [crate::math::BoundingBox] describing the sign's oriented bounding volume.
-    /// The box position is the centroid, `box_size` gives full extents, and `orientation`
-    /// is expressed as roll-pitch-yaw angles.
-    pub fn bounding_box(&self) -> crate::math::BoundingBox {
-        let b = maliput_sys::api::rules::ffi::TrafficSign_bounding_box(self.traffic_sign);
-        crate::math::BoundingBox { b }
-    }
-
-    /// Gets the optional numeric value associated with the [TrafficSign].
-    ///
-    /// # Returns
-    /// `Some(TrafficSignValue)` if a value is set, `None` otherwise.
-    pub fn value(&self) -> Option<TrafficSignValue> {
-        let data = maliput_sys::api::rules::ffi::TrafficSign_value(self.traffic_sign);
-        if !data.has_value {
-            return None;
-        }
-        Some(TrafficSignValue {
-            value: data.value,
-            unit: traffic_sign_value_unit_from_cpp(&data.unit),
-        })
-    }
-
-    /// Returns backend-specific key-value properties for this [TrafficSign].
-    pub fn properties(&self) -> HashMap<String, String> {
-        maliput_sys::api::rules::ffi::TrafficSign_properties(self.traffic_sign)
-            .into_iter()
-            .map(|p| (p.key, p.value))
-            .collect()
     }
 }
