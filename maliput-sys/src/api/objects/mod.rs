@@ -77,6 +77,8 @@ pub mod ffi {
     enum RoadObjectType {
         kUnknown = 0,
         kBarrier,
+        kGuardWall,
+        kGuardRail,
         kBuilding,
         kGantry,
         kObstacle,

@@ -117,7 +117,7 @@ fn road_object_api() {
         .expect("obj_barrier not found");
     assert_eq!(barrier.id(), OBJ_BARRIER_ID);
     assert_eq!(barrier.name(), Some("GuardRail".to_string()));
-    assert_eq!(barrier.object_type(), maliput::api::objects::RoadObjectType::Barrier);
+    assert_eq!(barrier.object_type(), maliput::api::objects::RoadObjectType::GuardRail);
     assert_eq!(barrier.subtype(), Some("guardRail".to_string()));
     assert!(!barrier.is_dynamic());
     assert!(!barrier.is_movable());
@@ -305,9 +305,9 @@ fn road_object_book_find_by_type() {
     assert_eq!(vegetation_objects.len(), 1);
     assert_eq!(vegetation_objects[0].id(), OBJ_VEGETATION_ID);
 
-    let barrier_objects = book.find_by_type(&maliput::api::objects::RoadObjectType::Barrier);
-    assert_eq!(barrier_objects.len(), 1);
-    assert_eq!(barrier_objects[0].id(), OBJ_BARRIER_ID);
+    let guard_rail_objects = book.find_by_type(&maliput::api::objects::RoadObjectType::GuardRail);
+    assert_eq!(guard_rail_objects.len(), 1);
+    assert_eq!(guard_rail_objects[0].id(), OBJ_BARRIER_ID);
 
     let building_objects = book.find_by_type(&maliput::api::objects::RoadObjectType::Building);
     assert_eq!(building_objects.len(), 1);

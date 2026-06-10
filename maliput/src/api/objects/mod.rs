@@ -35,6 +35,8 @@ use std::collections::HashMap;
 pub enum RoadObjectType {
     Unknown,
     Barrier,
+    GuardWall,
+    GuardRail,
     Building,
     Gantry,
     Obstacle,
@@ -48,6 +50,8 @@ fn road_object_type_from_cpp(obj_type: maliput_sys::api::objects::ffi::RoadObjec
     match obj_type {
         maliput_sys::api::objects::ffi::RoadObjectType::kUnknown => RoadObjectType::Unknown,
         maliput_sys::api::objects::ffi::RoadObjectType::kBarrier => RoadObjectType::Barrier,
+        maliput_sys::api::objects::ffi::RoadObjectType::kGuardWall => RoadObjectType::GuardWall,
+        maliput_sys::api::objects::ffi::RoadObjectType::kGuardRail => RoadObjectType::GuardRail,
         maliput_sys::api::objects::ffi::RoadObjectType::kBuilding => RoadObjectType::Building,
         maliput_sys::api::objects::ffi::RoadObjectType::kGantry => RoadObjectType::Gantry,
         maliput_sys::api::objects::ffi::RoadObjectType::kObstacle => RoadObjectType::Obstacle,
@@ -63,6 +67,8 @@ fn road_object_type_to_cpp(obj_type: &RoadObjectType) -> maliput_sys::api::objec
     match obj_type {
         RoadObjectType::Unknown => maliput_sys::api::objects::ffi::RoadObjectType::kUnknown,
         RoadObjectType::Barrier => maliput_sys::api::objects::ffi::RoadObjectType::kBarrier,
+        RoadObjectType::GuardWall => maliput_sys::api::objects::ffi::RoadObjectType::kGuardWall,
+        RoadObjectType::GuardRail => maliput_sys::api::objects::ffi::RoadObjectType::kGuardRail,
         RoadObjectType::Building => maliput_sys::api::objects::ffi::RoadObjectType::kBuilding,
         RoadObjectType::Gantry => maliput_sys::api::objects::ffi::RoadObjectType::kGantry,
         RoadObjectType::Obstacle => maliput_sys::api::objects::ffi::RoadObjectType::kObstacle,
