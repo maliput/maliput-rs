@@ -1607,6 +1607,8 @@ fn range_value_from_range_value_cxx(range: &maliput_sys::api::rules::ffi::RangeV
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 /// Defines the possible traffic sign types.
 pub enum TrafficSignType {
+    None,
+    Other,
     Stop,
     Yield,
     SpeedLimit,
@@ -1623,6 +1625,290 @@ pub enum TrafficSignType {
     AllWay,
     NoUTurnLeft,
     NoUTurnRight,
+    StopLine,
+    Crosswalk,
+    DangerSpot,
+    ZebraCrossing,
+    Flight,
+    Cattle,
+    HorseRiders,
+    Amphibians,
+    FallingRocks,
+    SnowOrIce,
+    LooseGravel,
+    Waterside,
+    Clearance,
+    MovableBridge,
+    RightBeforeLeftNextIntersection,
+    TurnLeft,
+    TurnRight,
+    DoubleTurnLeft,
+    DoubleTurnRight,
+    HillDownwards,
+    HillUpwards,
+    UnevenRoad,
+    RoadSlipperyWetOrDirty,
+    SideWinds,
+    RoadNarrowing,
+    RoadNarrowingRight,
+    RoadNarrowingLeft,
+    RoadWorks,
+    TrafficQueues,
+    TwoWayTraffic,
+    AttentionTrafficLight,
+    Pedestrians,
+    ChildrenCrossing,
+    CycleRoute,
+    DeerCrossing,
+    UngatedLevelCrossing,
+    LevelCrossingMarker,
+    RailwayTrafficPriority,
+    GiveWay,
+    PriorityToOppositeDirection,
+    PriorityToOppositeDirectionUpsideDown,
+    PrescribedLeftTurn,
+    PrescribedRightTurn,
+    PrescribedStraight,
+    PrescribedRightWay,
+    PrescribedLeftWay,
+    PrescribedRightTurnAndStraight,
+    PrescribedLeftTurnAndStraight,
+    PrescribedLeftTurnAndRightTurn,
+    PrescribedLeftTurnRightTurnAndStraight,
+    Roundabout,
+    OnewayLeft,
+    OnewayRight,
+    PassLeft,
+    PassRight,
+    SideLaneOpenForTraffic,
+    SideLaneClosedForTraffic,
+    SideLaneClosingForTraffic,
+    BusStop,
+    TaxiStand,
+    BicyclesOnly,
+    HorseRidersOnly,
+    PedestriansOnly,
+    BicyclesPedestriansSharedOnly,
+    BicyclesPedestriansSeparatedLeftOnly,
+    BicyclesPedestriansSeparatedRightOnly,
+    PedestrianZoneBegin,
+    PedestrianZoneEnd,
+    BicycleRoadBegin,
+    BicycleRoadEnd,
+    BusLane,
+    BusLaneBegin,
+    BusLaneEnd,
+    AllProhibited,
+    MotorizedMultitrackProhibited,
+    TrucksProhibited,
+    BicyclesProhibited,
+    MotorcyclesProhibited,
+    MopedsProhibited,
+    HorseRidersProhibited,
+    HorseCarriagesProhibited,
+    CattleProhibited,
+    BusesProhibited,
+    CarsProhibited,
+    CarsTrailersProhibited,
+    TrucksTrailersProhibited,
+    TractorsProhibited,
+    PedestriansProhibited,
+    MotorVehiclesProhibited,
+    HazardousGoodsVehiclesProhibited,
+    OverWeightVehiclesProhibited,
+    VehiclesAxleOverWeightProhibited,
+    VehiclesExcessWidthProhibited,
+    VehiclesExcessHeightProhibited,
+    VehiclesExcessLengthProhibited,
+    DoNotEnter,
+    SnowChainsRequired,
+    WaterPollutantVehiclesProhibited,
+    EnvironmentalZoneBegin,
+    EnvironmentalZoneEnd,
+    PrescribedUTurnLeft,
+    PrescribedUTurnRight,
+    MinimumDistanceForTrucks,
+    SpeedLimitBegin,
+    SpeedLimitZoneBegin,
+    SpeedLimitZoneEnd,
+    MinimumSpeedBegin,
+    OvertakingBanBegin,
+    OvertakingBanForTrucksBegin,
+    SpeedLimitEnd,
+    MinimumSpeedEnd,
+    OvertakingBanEnd,
+    OvertakingBanForTrucksEnd,
+    AllRestrictionsEnd,
+    NoStopping,
+    NoParking,
+    NoParkingZoneBegin,
+    NoParkingZoneEnd,
+    RightOfWayNextIntersection,
+    RightOfWayBegin,
+    RightOfWayEnd,
+    PriorityOverOppositeDirection,
+    PriorityOverOppositeDirectionUpsideDown,
+    TownBegin,
+    TownEnd,
+    CarParking,
+    CarParkingZoneBegin,
+    CarParkingZoneEnd,
+    SidewalkHalfParkingLeft,
+    SidewalkHalfParkingRight,
+    SidewalkParkingLeft,
+    SidewalkParkingRight,
+    SidewalkPerpendicularHalfParkingLeft,
+    SidewalkPerpendicularHalfParkingRight,
+    SidewalkPerpendicularParkingLeft,
+    SidewalkPerpendicularParkingRight,
+    LivingStreetBegin,
+    LivingStreetEnd,
+    Tunnel,
+    EmergencyStoppingLeft,
+    EmergencyStoppingRight,
+    HighwayBegin,
+    HighwayEnd,
+    ExpresswayBegin,
+    ExpresswayEnd,
+    NamedHighwayExit,
+    NamedExpresswayExit,
+    NamedRoadExit,
+    HighwayExit,
+    ExpresswayExit,
+    OnewayStreet,
+    CrossingGuards,
+    Deadend,
+    DeadendExcludingDesignatedActors,
+    FirstAidStation,
+    PoliceStation,
+    Telephone,
+    FillingStation,
+    Hotel,
+    Inn,
+    Kiosk,
+    Toilet,
+    Chapel,
+    TouristInfo,
+    RepairService,
+    PedestrianUnderpass,
+    PedestrianBridge,
+    CamperPlace,
+    AdvisorySpeedLimitBegin,
+    AdvisorySpeedLimitEnd,
+    PlaceName,
+    TouristAttraction,
+    TouristRoute,
+    TouristArea,
+    ShoulderNotPassableMotorVehicles,
+    ShoulderUnsafeTrucksTractors,
+    TollBegin,
+    TollEnd,
+    TollRoad,
+    Customs,
+    InternationalBorderInfo,
+    StreetlightRedBand,
+    FederalHighwayRouteNumber,
+    HighwayRouteNumber,
+    HighwayInterchangeNumber,
+    EuropeanRouteNumber,
+    FederalHighwayDirectionLeft,
+    FederalHighwayDirectionRight,
+    PrimaryRoadDirectionLeft,
+    PrimaryRoadDirectionRight,
+    SecondaryRoadDirectionLeft,
+    SecondaryRoadDirectionRight,
+    DirectionDesignatedActorsLeft,
+    DirectionDesignatedActorsRight,
+    RoutingDesignatedActors,
+    DirectionToHighwayLeft,
+    DirectionToHighwayRight,
+    DirectionToLocalDestinationLeft,
+    DirectionToLocalDestinationRight,
+    ConsolidatedDirections,
+    StreetName,
+    DirectionPreannouncement,
+    DirectionPreannouncementLaneConfig,
+    DirectionPreannouncementHighwayEntries,
+    HighwayAnnouncement,
+    OtherRoadAnnouncement,
+    HighwayAnnouncementTruckStop,
+    HighwayPreannouncementDirections,
+    PoleExit,
+    HighwayDistanceBoard,
+    DetourLeft,
+    DetourRight,
+    NumberedDetour,
+    DetourBegin,
+    DetourEnd,
+    DetourRoutingBoard,
+    OptionalDetour,
+    OptionalDetourRouting,
+    RouteRecommendation,
+    RouteRecommendationEnd,
+    AnnounceLaneTransitionLeft,
+    AnnounceLaneTransitionRight,
+    AnnounceRightLaneEnd,
+    AnnounceLeftLaneEnd,
+    AnnounceRightLaneBegin,
+    AnnounceLeftLaneBegin,
+    AnnounceLaneConsolidation,
+    DetourCityBlock,
+    Gate,
+    PoleWarning,
+    TrafficCone,
+    MobileLaneClosure,
+    ReflectorPost,
+    DirectionalBoardWarning,
+    GuidingPlate,
+    GuidingPlateWedges,
+    ParkingHazard,
+    TrafficLightGreenArrow,
+    Text,
+    Space,
+    Time,
+    Arrow,
+    ConstrainedTo,
+    Except,
+    ValidForDistance,
+    PriorityRoadBottomLeftFourWay,
+    PriorityRoadTopLeftFourWay,
+    PriorityRoadBottomLeftThreeWayStraight,
+    PriorityRoadBottomLeftThreeWaySideways,
+    PriorityRoadTopLeftThreeWayStraight,
+    PriorityRoadBottomRightFourWay,
+    PriorityRoadTopRightFourWay,
+    PriorityRoadBottomRightThreeWayStraight,
+    PriorityRoadBottomRightThreeWaySideway,
+    PriorityRoadTopRightThreeWayStraight,
+    ValidInDistance,
+    StopIn,
+    LeftArrow,
+    LeftBendArrow,
+    RightArrow,
+    RightBendArrow,
+    Accident,
+    Snow,
+    Fog,
+    RollingHighwayInformation,
+    Services,
+    TimeRange,
+    ParkingDiscTimeRestriction,
+    Weight,
+    Wet,
+    ParkingConstraint,
+    NoWaitingSideStripes,
+    Rain,
+    SnowRain,
+    Night,
+    Stop4Way,
+    Truck,
+    TractorsMayBePassed,
+    Hazardous,
+    Trailer,
+    Zone,
+    Motorcycle,
+    MotorcycleAllowed,
+    Car,
     Unknown,
 }
 
@@ -1650,6 +1936,8 @@ pub struct TrafficSignValue {
 
 fn traffic_sign_type_from_cpp(sign_type: &maliput_sys::api::rules::ffi::TrafficSignType) -> TrafficSignType {
     match *sign_type {
+        maliput_sys::api::rules::ffi::TrafficSignType::kNone => TrafficSignType::None,
+        maliput_sys::api::rules::ffi::TrafficSignType::kOther => TrafficSignType::Other,
         maliput_sys::api::rules::ffi::TrafficSignType::kStop => TrafficSignType::Stop,
         maliput_sys::api::rules::ffi::TrafficSignType::kYield => TrafficSignType::Yield,
         maliput_sys::api::rules::ffi::TrafficSignType::kSpeedLimit => TrafficSignType::SpeedLimit,
@@ -1666,12 +1954,470 @@ fn traffic_sign_type_from_cpp(sign_type: &maliput_sys::api::rules::ffi::TrafficS
         maliput_sys::api::rules::ffi::TrafficSignType::kAllWay => TrafficSignType::AllWay,
         maliput_sys::api::rules::ffi::TrafficSignType::kNoUTurnLeft => TrafficSignType::NoUTurnLeft,
         maliput_sys::api::rules::ffi::TrafficSignType::kNoUTurnRight => TrafficSignType::NoUTurnRight,
+        maliput_sys::api::rules::ffi::TrafficSignType::kStopLine => TrafficSignType::StopLine,
+        maliput_sys::api::rules::ffi::TrafficSignType::kCrosswalk => TrafficSignType::Crosswalk,
+        maliput_sys::api::rules::ffi::TrafficSignType::kDangerSpot => TrafficSignType::DangerSpot,
+        maliput_sys::api::rules::ffi::TrafficSignType::kZebraCrossing => TrafficSignType::ZebraCrossing,
+        maliput_sys::api::rules::ffi::TrafficSignType::kFlight => TrafficSignType::Flight,
+        maliput_sys::api::rules::ffi::TrafficSignType::kCattle => TrafficSignType::Cattle,
+        maliput_sys::api::rules::ffi::TrafficSignType::kHorseRiders => TrafficSignType::HorseRiders,
+        maliput_sys::api::rules::ffi::TrafficSignType::kAmphibians => TrafficSignType::Amphibians,
+        maliput_sys::api::rules::ffi::TrafficSignType::kFallingRocks => TrafficSignType::FallingRocks,
+        maliput_sys::api::rules::ffi::TrafficSignType::kSnowOrIce => TrafficSignType::SnowOrIce,
+        maliput_sys::api::rules::ffi::TrafficSignType::kLooseGravel => TrafficSignType::LooseGravel,
+        maliput_sys::api::rules::ffi::TrafficSignType::kWaterside => TrafficSignType::Waterside,
+        maliput_sys::api::rules::ffi::TrafficSignType::kClearance => TrafficSignType::Clearance,
+        maliput_sys::api::rules::ffi::TrafficSignType::kMovableBridge => TrafficSignType::MovableBridge,
+        maliput_sys::api::rules::ffi::TrafficSignType::kRightBeforeLeftNextIntersection => {
+            TrafficSignType::RightBeforeLeftNextIntersection
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kTurnLeft => TrafficSignType::TurnLeft,
+        maliput_sys::api::rules::ffi::TrafficSignType::kTurnRight => TrafficSignType::TurnRight,
+        maliput_sys::api::rules::ffi::TrafficSignType::kDoubleTurnLeft => TrafficSignType::DoubleTurnLeft,
+        maliput_sys::api::rules::ffi::TrafficSignType::kDoubleTurnRight => TrafficSignType::DoubleTurnRight,
+        maliput_sys::api::rules::ffi::TrafficSignType::kHillDownwards => TrafficSignType::HillDownwards,
+        maliput_sys::api::rules::ffi::TrafficSignType::kHillUpwards => TrafficSignType::HillUpwards,
+        maliput_sys::api::rules::ffi::TrafficSignType::kUnevenRoad => TrafficSignType::UnevenRoad,
+        maliput_sys::api::rules::ffi::TrafficSignType::kRoadSlipperyWetOrDirty => {
+            TrafficSignType::RoadSlipperyWetOrDirty
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kSideWinds => TrafficSignType::SideWinds,
+        maliput_sys::api::rules::ffi::TrafficSignType::kRoadNarrowing => TrafficSignType::RoadNarrowing,
+        maliput_sys::api::rules::ffi::TrafficSignType::kRoadNarrowingRight => TrafficSignType::RoadNarrowingRight,
+        maliput_sys::api::rules::ffi::TrafficSignType::kRoadNarrowingLeft => TrafficSignType::RoadNarrowingLeft,
+        maliput_sys::api::rules::ffi::TrafficSignType::kRoadWorks => TrafficSignType::RoadWorks,
+        maliput_sys::api::rules::ffi::TrafficSignType::kTrafficQueues => TrafficSignType::TrafficQueues,
+        maliput_sys::api::rules::ffi::TrafficSignType::kTwoWayTraffic => TrafficSignType::TwoWayTraffic,
+        maliput_sys::api::rules::ffi::TrafficSignType::kAttentionTrafficLight => TrafficSignType::AttentionTrafficLight,
+        maliput_sys::api::rules::ffi::TrafficSignType::kPedestrians => TrafficSignType::Pedestrians,
+        maliput_sys::api::rules::ffi::TrafficSignType::kChildrenCrossing => TrafficSignType::ChildrenCrossing,
+        maliput_sys::api::rules::ffi::TrafficSignType::kCycleRoute => TrafficSignType::CycleRoute,
+        maliput_sys::api::rules::ffi::TrafficSignType::kDeerCrossing => TrafficSignType::DeerCrossing,
+        maliput_sys::api::rules::ffi::TrafficSignType::kUngatedLevelCrossing => TrafficSignType::UngatedLevelCrossing,
+        maliput_sys::api::rules::ffi::TrafficSignType::kLevelCrossingMarker => TrafficSignType::LevelCrossingMarker,
+        maliput_sys::api::rules::ffi::TrafficSignType::kRailwayTrafficPriority => {
+            TrafficSignType::RailwayTrafficPriority
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kGiveWay => TrafficSignType::GiveWay,
+        maliput_sys::api::rules::ffi::TrafficSignType::kPriorityToOppositeDirection => {
+            TrafficSignType::PriorityToOppositeDirection
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kPriorityToOppositeDirectionUpsideDown => {
+            TrafficSignType::PriorityToOppositeDirectionUpsideDown
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kPrescribedLeftTurn => TrafficSignType::PrescribedLeftTurn,
+        maliput_sys::api::rules::ffi::TrafficSignType::kPrescribedRightTurn => TrafficSignType::PrescribedRightTurn,
+        maliput_sys::api::rules::ffi::TrafficSignType::kPrescribedStraight => TrafficSignType::PrescribedStraight,
+        maliput_sys::api::rules::ffi::TrafficSignType::kPrescribedRightWay => TrafficSignType::PrescribedRightWay,
+        maliput_sys::api::rules::ffi::TrafficSignType::kPrescribedLeftWay => TrafficSignType::PrescribedLeftWay,
+        maliput_sys::api::rules::ffi::TrafficSignType::kPrescribedRightTurnAndStraight => {
+            TrafficSignType::PrescribedRightTurnAndStraight
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kPrescribedLeftTurnAndStraight => {
+            TrafficSignType::PrescribedLeftTurnAndStraight
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kPrescribedLeftTurnAndRightTurn => {
+            TrafficSignType::PrescribedLeftTurnAndRightTurn
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kPrescribedLeftTurnRightTurnAndStraight => {
+            TrafficSignType::PrescribedLeftTurnRightTurnAndStraight
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kRoundabout => TrafficSignType::Roundabout,
+        maliput_sys::api::rules::ffi::TrafficSignType::kOnewayLeft => TrafficSignType::OnewayLeft,
+        maliput_sys::api::rules::ffi::TrafficSignType::kOnewayRight => TrafficSignType::OnewayRight,
+        maliput_sys::api::rules::ffi::TrafficSignType::kPassLeft => TrafficSignType::PassLeft,
+        maliput_sys::api::rules::ffi::TrafficSignType::kPassRight => TrafficSignType::PassRight,
+        maliput_sys::api::rules::ffi::TrafficSignType::kSideLaneOpenForTraffic => {
+            TrafficSignType::SideLaneOpenForTraffic
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kSideLaneClosedForTraffic => {
+            TrafficSignType::SideLaneClosedForTraffic
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kSideLaneClosingForTraffic => {
+            TrafficSignType::SideLaneClosingForTraffic
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kBusStop => TrafficSignType::BusStop,
+        maliput_sys::api::rules::ffi::TrafficSignType::kTaxiStand => TrafficSignType::TaxiStand,
+        maliput_sys::api::rules::ffi::TrafficSignType::kBicyclesOnly => TrafficSignType::BicyclesOnly,
+        maliput_sys::api::rules::ffi::TrafficSignType::kHorseRidersOnly => TrafficSignType::HorseRidersOnly,
+        maliput_sys::api::rules::ffi::TrafficSignType::kPedestriansOnly => TrafficSignType::PedestriansOnly,
+        maliput_sys::api::rules::ffi::TrafficSignType::kBicyclesPedestriansSharedOnly => {
+            TrafficSignType::BicyclesPedestriansSharedOnly
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kBicyclesPedestriansSeparatedLeftOnly => {
+            TrafficSignType::BicyclesPedestriansSeparatedLeftOnly
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kBicyclesPedestriansSeparatedRightOnly => {
+            TrafficSignType::BicyclesPedestriansSeparatedRightOnly
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kPedestrianZoneBegin => TrafficSignType::PedestrianZoneBegin,
+        maliput_sys::api::rules::ffi::TrafficSignType::kPedestrianZoneEnd => TrafficSignType::PedestrianZoneEnd,
+        maliput_sys::api::rules::ffi::TrafficSignType::kBicycleRoadBegin => TrafficSignType::BicycleRoadBegin,
+        maliput_sys::api::rules::ffi::TrafficSignType::kBicycleRoadEnd => TrafficSignType::BicycleRoadEnd,
+        maliput_sys::api::rules::ffi::TrafficSignType::kBusLane => TrafficSignType::BusLane,
+        maliput_sys::api::rules::ffi::TrafficSignType::kBusLaneBegin => TrafficSignType::BusLaneBegin,
+        maliput_sys::api::rules::ffi::TrafficSignType::kBusLaneEnd => TrafficSignType::BusLaneEnd,
+        maliput_sys::api::rules::ffi::TrafficSignType::kAllProhibited => TrafficSignType::AllProhibited,
+        maliput_sys::api::rules::ffi::TrafficSignType::kMotorizedMultitrackProhibited => {
+            TrafficSignType::MotorizedMultitrackProhibited
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kTrucksProhibited => TrafficSignType::TrucksProhibited,
+        maliput_sys::api::rules::ffi::TrafficSignType::kBicyclesProhibited => TrafficSignType::BicyclesProhibited,
+        maliput_sys::api::rules::ffi::TrafficSignType::kMotorcyclesProhibited => TrafficSignType::MotorcyclesProhibited,
+        maliput_sys::api::rules::ffi::TrafficSignType::kMopedsProhibited => TrafficSignType::MopedsProhibited,
+        maliput_sys::api::rules::ffi::TrafficSignType::kHorseRidersProhibited => TrafficSignType::HorseRidersProhibited,
+        maliput_sys::api::rules::ffi::TrafficSignType::kHorseCarriagesProhibited => {
+            TrafficSignType::HorseCarriagesProhibited
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kCattleProhibited => TrafficSignType::CattleProhibited,
+        maliput_sys::api::rules::ffi::TrafficSignType::kBusesProhibited => TrafficSignType::BusesProhibited,
+        maliput_sys::api::rules::ffi::TrafficSignType::kCarsProhibited => TrafficSignType::CarsProhibited,
+        maliput_sys::api::rules::ffi::TrafficSignType::kCarsTrailersProhibited => {
+            TrafficSignType::CarsTrailersProhibited
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kTrucksTrailersProhibited => {
+            TrafficSignType::TrucksTrailersProhibited
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kTractorsProhibited => TrafficSignType::TractorsProhibited,
+        maliput_sys::api::rules::ffi::TrafficSignType::kPedestriansProhibited => TrafficSignType::PedestriansProhibited,
+        maliput_sys::api::rules::ffi::TrafficSignType::kMotorVehiclesProhibited => {
+            TrafficSignType::MotorVehiclesProhibited
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kHazardousGoodsVehiclesProhibited => {
+            TrafficSignType::HazardousGoodsVehiclesProhibited
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kOverWeightVehiclesProhibited => {
+            TrafficSignType::OverWeightVehiclesProhibited
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kVehiclesAxleOverWeightProhibited => {
+            TrafficSignType::VehiclesAxleOverWeightProhibited
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kVehiclesExcessWidthProhibited => {
+            TrafficSignType::VehiclesExcessWidthProhibited
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kVehiclesExcessHeightProhibited => {
+            TrafficSignType::VehiclesExcessHeightProhibited
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kVehiclesExcessLengthProhibited => {
+            TrafficSignType::VehiclesExcessLengthProhibited
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kDoNotEnter => TrafficSignType::DoNotEnter,
+        maliput_sys::api::rules::ffi::TrafficSignType::kSnowChainsRequired => TrafficSignType::SnowChainsRequired,
+        maliput_sys::api::rules::ffi::TrafficSignType::kWaterPollutantVehiclesProhibited => {
+            TrafficSignType::WaterPollutantVehiclesProhibited
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kEnvironmentalZoneBegin => {
+            TrafficSignType::EnvironmentalZoneBegin
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kEnvironmentalZoneEnd => TrafficSignType::EnvironmentalZoneEnd,
+        maliput_sys::api::rules::ffi::TrafficSignType::kPrescribedUTurnLeft => TrafficSignType::PrescribedUTurnLeft,
+        maliput_sys::api::rules::ffi::TrafficSignType::kPrescribedUTurnRight => TrafficSignType::PrescribedUTurnRight,
+        maliput_sys::api::rules::ffi::TrafficSignType::kMinimumDistanceForTrucks => {
+            TrafficSignType::MinimumDistanceForTrucks
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kSpeedLimitBegin => TrafficSignType::SpeedLimitBegin,
+        maliput_sys::api::rules::ffi::TrafficSignType::kSpeedLimitZoneBegin => TrafficSignType::SpeedLimitZoneBegin,
+        maliput_sys::api::rules::ffi::TrafficSignType::kSpeedLimitZoneEnd => TrafficSignType::SpeedLimitZoneEnd,
+        maliput_sys::api::rules::ffi::TrafficSignType::kMinimumSpeedBegin => TrafficSignType::MinimumSpeedBegin,
+        maliput_sys::api::rules::ffi::TrafficSignType::kOvertakingBanBegin => TrafficSignType::OvertakingBanBegin,
+        maliput_sys::api::rules::ffi::TrafficSignType::kOvertakingBanForTrucksBegin => {
+            TrafficSignType::OvertakingBanForTrucksBegin
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kSpeedLimitEnd => TrafficSignType::SpeedLimitEnd,
+        maliput_sys::api::rules::ffi::TrafficSignType::kMinimumSpeedEnd => TrafficSignType::MinimumSpeedEnd,
+        maliput_sys::api::rules::ffi::TrafficSignType::kOvertakingBanEnd => TrafficSignType::OvertakingBanEnd,
+        maliput_sys::api::rules::ffi::TrafficSignType::kOvertakingBanForTrucksEnd => {
+            TrafficSignType::OvertakingBanForTrucksEnd
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kAllRestrictionsEnd => TrafficSignType::AllRestrictionsEnd,
+        maliput_sys::api::rules::ffi::TrafficSignType::kNoStopping => TrafficSignType::NoStopping,
+        maliput_sys::api::rules::ffi::TrafficSignType::kNoParking => TrafficSignType::NoParking,
+        maliput_sys::api::rules::ffi::TrafficSignType::kNoParkingZoneBegin => TrafficSignType::NoParkingZoneBegin,
+        maliput_sys::api::rules::ffi::TrafficSignType::kNoParkingZoneEnd => TrafficSignType::NoParkingZoneEnd,
+        maliput_sys::api::rules::ffi::TrafficSignType::kRightOfWayNextIntersection => {
+            TrafficSignType::RightOfWayNextIntersection
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kRightOfWayBegin => TrafficSignType::RightOfWayBegin,
+        maliput_sys::api::rules::ffi::TrafficSignType::kRightOfWayEnd => TrafficSignType::RightOfWayEnd,
+        maliput_sys::api::rules::ffi::TrafficSignType::kPriorityOverOppositeDirection => {
+            TrafficSignType::PriorityOverOppositeDirection
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kPriorityOverOppositeDirectionUpsideDown => {
+            TrafficSignType::PriorityOverOppositeDirectionUpsideDown
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kTownBegin => TrafficSignType::TownBegin,
+        maliput_sys::api::rules::ffi::TrafficSignType::kTownEnd => TrafficSignType::TownEnd,
+        maliput_sys::api::rules::ffi::TrafficSignType::kCarParking => TrafficSignType::CarParking,
+        maliput_sys::api::rules::ffi::TrafficSignType::kCarParkingZoneBegin => TrafficSignType::CarParkingZoneBegin,
+        maliput_sys::api::rules::ffi::TrafficSignType::kCarParkingZoneEnd => TrafficSignType::CarParkingZoneEnd,
+        maliput_sys::api::rules::ffi::TrafficSignType::kSidewalkHalfParkingLeft => {
+            TrafficSignType::SidewalkHalfParkingLeft
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kSidewalkHalfParkingRight => {
+            TrafficSignType::SidewalkHalfParkingRight
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kSidewalkParkingLeft => TrafficSignType::SidewalkParkingLeft,
+        maliput_sys::api::rules::ffi::TrafficSignType::kSidewalkParkingRight => TrafficSignType::SidewalkParkingRight,
+        maliput_sys::api::rules::ffi::TrafficSignType::kSidewalkPerpendicularHalfParkingLeft => {
+            TrafficSignType::SidewalkPerpendicularHalfParkingLeft
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kSidewalkPerpendicularHalfParkingRight => {
+            TrafficSignType::SidewalkPerpendicularHalfParkingRight
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kSidewalkPerpendicularParkingLeft => {
+            TrafficSignType::SidewalkPerpendicularParkingLeft
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kSidewalkPerpendicularParkingRight => {
+            TrafficSignType::SidewalkPerpendicularParkingRight
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kLivingStreetBegin => TrafficSignType::LivingStreetBegin,
+        maliput_sys::api::rules::ffi::TrafficSignType::kLivingStreetEnd => TrafficSignType::LivingStreetEnd,
+        maliput_sys::api::rules::ffi::TrafficSignType::kTunnel => TrafficSignType::Tunnel,
+        maliput_sys::api::rules::ffi::TrafficSignType::kEmergencyStoppingLeft => TrafficSignType::EmergencyStoppingLeft,
+        maliput_sys::api::rules::ffi::TrafficSignType::kEmergencyStoppingRight => {
+            TrafficSignType::EmergencyStoppingRight
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kHighwayBegin => TrafficSignType::HighwayBegin,
+        maliput_sys::api::rules::ffi::TrafficSignType::kHighwayEnd => TrafficSignType::HighwayEnd,
+        maliput_sys::api::rules::ffi::TrafficSignType::kExpresswayBegin => TrafficSignType::ExpresswayBegin,
+        maliput_sys::api::rules::ffi::TrafficSignType::kExpresswayEnd => TrafficSignType::ExpresswayEnd,
+        maliput_sys::api::rules::ffi::TrafficSignType::kNamedHighwayExit => TrafficSignType::NamedHighwayExit,
+        maliput_sys::api::rules::ffi::TrafficSignType::kNamedExpresswayExit => TrafficSignType::NamedExpresswayExit,
+        maliput_sys::api::rules::ffi::TrafficSignType::kNamedRoadExit => TrafficSignType::NamedRoadExit,
+        maliput_sys::api::rules::ffi::TrafficSignType::kHighwayExit => TrafficSignType::HighwayExit,
+        maliput_sys::api::rules::ffi::TrafficSignType::kExpresswayExit => TrafficSignType::ExpresswayExit,
+        maliput_sys::api::rules::ffi::TrafficSignType::kOnewayStreet => TrafficSignType::OnewayStreet,
+        maliput_sys::api::rules::ffi::TrafficSignType::kCrossingGuards => TrafficSignType::CrossingGuards,
+        maliput_sys::api::rules::ffi::TrafficSignType::kDeadend => TrafficSignType::Deadend,
+        maliput_sys::api::rules::ffi::TrafficSignType::kDeadendExcludingDesignatedActors => {
+            TrafficSignType::DeadendExcludingDesignatedActors
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kFirstAidStation => TrafficSignType::FirstAidStation,
+        maliput_sys::api::rules::ffi::TrafficSignType::kPoliceStation => TrafficSignType::PoliceStation,
+        maliput_sys::api::rules::ffi::TrafficSignType::kTelephone => TrafficSignType::Telephone,
+        maliput_sys::api::rules::ffi::TrafficSignType::kFillingStation => TrafficSignType::FillingStation,
+        maliput_sys::api::rules::ffi::TrafficSignType::kHotel => TrafficSignType::Hotel,
+        maliput_sys::api::rules::ffi::TrafficSignType::kInn => TrafficSignType::Inn,
+        maliput_sys::api::rules::ffi::TrafficSignType::kKiosk => TrafficSignType::Kiosk,
+        maliput_sys::api::rules::ffi::TrafficSignType::kToilet => TrafficSignType::Toilet,
+        maliput_sys::api::rules::ffi::TrafficSignType::kChapel => TrafficSignType::Chapel,
+        maliput_sys::api::rules::ffi::TrafficSignType::kTouristInfo => TrafficSignType::TouristInfo,
+        maliput_sys::api::rules::ffi::TrafficSignType::kRepairService => TrafficSignType::RepairService,
+        maliput_sys::api::rules::ffi::TrafficSignType::kPedestrianUnderpass => TrafficSignType::PedestrianUnderpass,
+        maliput_sys::api::rules::ffi::TrafficSignType::kPedestrianBridge => TrafficSignType::PedestrianBridge,
+        maliput_sys::api::rules::ffi::TrafficSignType::kCamperPlace => TrafficSignType::CamperPlace,
+        maliput_sys::api::rules::ffi::TrafficSignType::kAdvisorySpeedLimitBegin => {
+            TrafficSignType::AdvisorySpeedLimitBegin
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kAdvisorySpeedLimitEnd => TrafficSignType::AdvisorySpeedLimitEnd,
+        maliput_sys::api::rules::ffi::TrafficSignType::kPlaceName => TrafficSignType::PlaceName,
+        maliput_sys::api::rules::ffi::TrafficSignType::kTouristAttraction => TrafficSignType::TouristAttraction,
+        maliput_sys::api::rules::ffi::TrafficSignType::kTouristRoute => TrafficSignType::TouristRoute,
+        maliput_sys::api::rules::ffi::TrafficSignType::kTouristArea => TrafficSignType::TouristArea,
+        maliput_sys::api::rules::ffi::TrafficSignType::kShoulderNotPassableMotorVehicles => {
+            TrafficSignType::ShoulderNotPassableMotorVehicles
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kShoulderUnsafeTrucksTractors => {
+            TrafficSignType::ShoulderUnsafeTrucksTractors
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kTollBegin => TrafficSignType::TollBegin,
+        maliput_sys::api::rules::ffi::TrafficSignType::kTollEnd => TrafficSignType::TollEnd,
+        maliput_sys::api::rules::ffi::TrafficSignType::kTollRoad => TrafficSignType::TollRoad,
+        maliput_sys::api::rules::ffi::TrafficSignType::kCustoms => TrafficSignType::Customs,
+        maliput_sys::api::rules::ffi::TrafficSignType::kInternationalBorderInfo => {
+            TrafficSignType::InternationalBorderInfo
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kStreetlightRedBand => TrafficSignType::StreetlightRedBand,
+        maliput_sys::api::rules::ffi::TrafficSignType::kFederalHighwayRouteNumber => {
+            TrafficSignType::FederalHighwayRouteNumber
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kHighwayRouteNumber => TrafficSignType::HighwayRouteNumber,
+        maliput_sys::api::rules::ffi::TrafficSignType::kHighwayInterchangeNumber => {
+            TrafficSignType::HighwayInterchangeNumber
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kEuropeanRouteNumber => TrafficSignType::EuropeanRouteNumber,
+        maliput_sys::api::rules::ffi::TrafficSignType::kFederalHighwayDirectionLeft => {
+            TrafficSignType::FederalHighwayDirectionLeft
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kFederalHighwayDirectionRight => {
+            TrafficSignType::FederalHighwayDirectionRight
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kPrimaryRoadDirectionLeft => {
+            TrafficSignType::PrimaryRoadDirectionLeft
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kPrimaryRoadDirectionRight => {
+            TrafficSignType::PrimaryRoadDirectionRight
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kSecondaryRoadDirectionLeft => {
+            TrafficSignType::SecondaryRoadDirectionLeft
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kSecondaryRoadDirectionRight => {
+            TrafficSignType::SecondaryRoadDirectionRight
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kDirectionDesignatedActorsLeft => {
+            TrafficSignType::DirectionDesignatedActorsLeft
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kDirectionDesignatedActorsRight => {
+            TrafficSignType::DirectionDesignatedActorsRight
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kRoutingDesignatedActors => {
+            TrafficSignType::RoutingDesignatedActors
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kDirectionToHighwayLeft => {
+            TrafficSignType::DirectionToHighwayLeft
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kDirectionToHighwayRight => {
+            TrafficSignType::DirectionToHighwayRight
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kDirectionToLocalDestinationLeft => {
+            TrafficSignType::DirectionToLocalDestinationLeft
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kDirectionToLocalDestinationRight => {
+            TrafficSignType::DirectionToLocalDestinationRight
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kConsolidatedDirections => {
+            TrafficSignType::ConsolidatedDirections
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kStreetName => TrafficSignType::StreetName,
+        maliput_sys::api::rules::ffi::TrafficSignType::kDirectionPreannouncement => {
+            TrafficSignType::DirectionPreannouncement
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kDirectionPreannouncementLaneConfig => {
+            TrafficSignType::DirectionPreannouncementLaneConfig
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kDirectionPreannouncementHighwayEntries => {
+            TrafficSignType::DirectionPreannouncementHighwayEntries
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kHighwayAnnouncement => TrafficSignType::HighwayAnnouncement,
+        maliput_sys::api::rules::ffi::TrafficSignType::kOtherRoadAnnouncement => TrafficSignType::OtherRoadAnnouncement,
+        maliput_sys::api::rules::ffi::TrafficSignType::kHighwayAnnouncementTruckStop => {
+            TrafficSignType::HighwayAnnouncementTruckStop
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kHighwayPreannouncementDirections => {
+            TrafficSignType::HighwayPreannouncementDirections
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kPoleExit => TrafficSignType::PoleExit,
+        maliput_sys::api::rules::ffi::TrafficSignType::kHighwayDistanceBoard => TrafficSignType::HighwayDistanceBoard,
+        maliput_sys::api::rules::ffi::TrafficSignType::kDetourLeft => TrafficSignType::DetourLeft,
+        maliput_sys::api::rules::ffi::TrafficSignType::kDetourRight => TrafficSignType::DetourRight,
+        maliput_sys::api::rules::ffi::TrafficSignType::kNumberedDetour => TrafficSignType::NumberedDetour,
+        maliput_sys::api::rules::ffi::TrafficSignType::kDetourBegin => TrafficSignType::DetourBegin,
+        maliput_sys::api::rules::ffi::TrafficSignType::kDetourEnd => TrafficSignType::DetourEnd,
+        maliput_sys::api::rules::ffi::TrafficSignType::kDetourRoutingBoard => TrafficSignType::DetourRoutingBoard,
+        maliput_sys::api::rules::ffi::TrafficSignType::kOptionalDetour => TrafficSignType::OptionalDetour,
+        maliput_sys::api::rules::ffi::TrafficSignType::kOptionalDetourRouting => TrafficSignType::OptionalDetourRouting,
+        maliput_sys::api::rules::ffi::TrafficSignType::kRouteRecommendation => TrafficSignType::RouteRecommendation,
+        maliput_sys::api::rules::ffi::TrafficSignType::kRouteRecommendationEnd => {
+            TrafficSignType::RouteRecommendationEnd
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kAnnounceLaneTransitionLeft => {
+            TrafficSignType::AnnounceLaneTransitionLeft
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kAnnounceLaneTransitionRight => {
+            TrafficSignType::AnnounceLaneTransitionRight
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kAnnounceRightLaneEnd => TrafficSignType::AnnounceRightLaneEnd,
+        maliput_sys::api::rules::ffi::TrafficSignType::kAnnounceLeftLaneEnd => TrafficSignType::AnnounceLeftLaneEnd,
+        maliput_sys::api::rules::ffi::TrafficSignType::kAnnounceRightLaneBegin => {
+            TrafficSignType::AnnounceRightLaneBegin
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kAnnounceLeftLaneBegin => TrafficSignType::AnnounceLeftLaneBegin,
+        maliput_sys::api::rules::ffi::TrafficSignType::kAnnounceLaneConsolidation => {
+            TrafficSignType::AnnounceLaneConsolidation
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kDetourCityBlock => TrafficSignType::DetourCityBlock,
+        maliput_sys::api::rules::ffi::TrafficSignType::kGate => TrafficSignType::Gate,
+        maliput_sys::api::rules::ffi::TrafficSignType::kPoleWarning => TrafficSignType::PoleWarning,
+        maliput_sys::api::rules::ffi::TrafficSignType::kTrafficCone => TrafficSignType::TrafficCone,
+        maliput_sys::api::rules::ffi::TrafficSignType::kMobileLaneClosure => TrafficSignType::MobileLaneClosure,
+        maliput_sys::api::rules::ffi::TrafficSignType::kReflectorPost => TrafficSignType::ReflectorPost,
+        maliput_sys::api::rules::ffi::TrafficSignType::kDirectionalBoardWarning => {
+            TrafficSignType::DirectionalBoardWarning
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kGuidingPlate => TrafficSignType::GuidingPlate,
+        maliput_sys::api::rules::ffi::TrafficSignType::kGuidingPlateWedges => TrafficSignType::GuidingPlateWedges,
+        maliput_sys::api::rules::ffi::TrafficSignType::kParkingHazard => TrafficSignType::ParkingHazard,
+        maliput_sys::api::rules::ffi::TrafficSignType::kTrafficLightGreenArrow => {
+            TrafficSignType::TrafficLightGreenArrow
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kText => TrafficSignType::Text,
+        maliput_sys::api::rules::ffi::TrafficSignType::kSpace => TrafficSignType::Space,
+        maliput_sys::api::rules::ffi::TrafficSignType::kTime => TrafficSignType::Time,
+        maliput_sys::api::rules::ffi::TrafficSignType::kArrow => TrafficSignType::Arrow,
+        maliput_sys::api::rules::ffi::TrafficSignType::kConstrainedTo => TrafficSignType::ConstrainedTo,
+        maliput_sys::api::rules::ffi::TrafficSignType::kExcept => TrafficSignType::Except,
+        maliput_sys::api::rules::ffi::TrafficSignType::kValidForDistance => TrafficSignType::ValidForDistance,
+        maliput_sys::api::rules::ffi::TrafficSignType::kPriorityRoadBottomLeftFourWay => {
+            TrafficSignType::PriorityRoadBottomLeftFourWay
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kPriorityRoadTopLeftFourWay => {
+            TrafficSignType::PriorityRoadTopLeftFourWay
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kPriorityRoadBottomLeftThreeWayStraight => {
+            TrafficSignType::PriorityRoadBottomLeftThreeWayStraight
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kPriorityRoadBottomLeftThreeWaySideways => {
+            TrafficSignType::PriorityRoadBottomLeftThreeWaySideways
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kPriorityRoadTopLeftThreeWayStraight => {
+            TrafficSignType::PriorityRoadTopLeftThreeWayStraight
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kPriorityRoadBottomRightFourWay => {
+            TrafficSignType::PriorityRoadBottomRightFourWay
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kPriorityRoadTopRightFourWay => {
+            TrafficSignType::PriorityRoadTopRightFourWay
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kPriorityRoadBottomRightThreeWayStraight => {
+            TrafficSignType::PriorityRoadBottomRightThreeWayStraight
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kPriorityRoadBottomRightThreeWaySideway => {
+            TrafficSignType::PriorityRoadBottomRightThreeWaySideway
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kPriorityRoadTopRightThreeWayStraight => {
+            TrafficSignType::PriorityRoadTopRightThreeWayStraight
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kValidInDistance => TrafficSignType::ValidInDistance,
+        maliput_sys::api::rules::ffi::TrafficSignType::kStopIn => TrafficSignType::StopIn,
+        maliput_sys::api::rules::ffi::TrafficSignType::kLeftArrow => TrafficSignType::LeftArrow,
+        maliput_sys::api::rules::ffi::TrafficSignType::kLeftBendArrow => TrafficSignType::LeftBendArrow,
+        maliput_sys::api::rules::ffi::TrafficSignType::kRightArrow => TrafficSignType::RightArrow,
+        maliput_sys::api::rules::ffi::TrafficSignType::kRightBendArrow => TrafficSignType::RightBendArrow,
+        maliput_sys::api::rules::ffi::TrafficSignType::kAccident => TrafficSignType::Accident,
+        maliput_sys::api::rules::ffi::TrafficSignType::kSnow => TrafficSignType::Snow,
+        maliput_sys::api::rules::ffi::TrafficSignType::kFog => TrafficSignType::Fog,
+        maliput_sys::api::rules::ffi::TrafficSignType::kRollingHighwayInformation => {
+            TrafficSignType::RollingHighwayInformation
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kServices => TrafficSignType::Services,
+        maliput_sys::api::rules::ffi::TrafficSignType::kTimeRange => TrafficSignType::TimeRange,
+        maliput_sys::api::rules::ffi::TrafficSignType::kParkingDiscTimeRestriction => {
+            TrafficSignType::ParkingDiscTimeRestriction
+        }
+        maliput_sys::api::rules::ffi::TrafficSignType::kWeight => TrafficSignType::Weight,
+        maliput_sys::api::rules::ffi::TrafficSignType::kWet => TrafficSignType::Wet,
+        maliput_sys::api::rules::ffi::TrafficSignType::kParkingConstraint => TrafficSignType::ParkingConstraint,
+        maliput_sys::api::rules::ffi::TrafficSignType::kNoWaitingSideStripes => TrafficSignType::NoWaitingSideStripes,
+        maliput_sys::api::rules::ffi::TrafficSignType::kRain => TrafficSignType::Rain,
+        maliput_sys::api::rules::ffi::TrafficSignType::kSnowRain => TrafficSignType::SnowRain,
+        maliput_sys::api::rules::ffi::TrafficSignType::kNight => TrafficSignType::Night,
+        maliput_sys::api::rules::ffi::TrafficSignType::kStop4Way => TrafficSignType::Stop4Way,
+        maliput_sys::api::rules::ffi::TrafficSignType::kTruck => TrafficSignType::Truck,
+        maliput_sys::api::rules::ffi::TrafficSignType::kTractorsMayBePassed => TrafficSignType::TractorsMayBePassed,
+        maliput_sys::api::rules::ffi::TrafficSignType::kHazardous => TrafficSignType::Hazardous,
+        maliput_sys::api::rules::ffi::TrafficSignType::kTrailer => TrafficSignType::Trailer,
+        maliput_sys::api::rules::ffi::TrafficSignType::kZone => TrafficSignType::Zone,
+        maliput_sys::api::rules::ffi::TrafficSignType::kMotorcycle => TrafficSignType::Motorcycle,
+        maliput_sys::api::rules::ffi::TrafficSignType::kMotorcycleAllowed => TrafficSignType::MotorcycleAllowed,
+        maliput_sys::api::rules::ffi::TrafficSignType::kCar => TrafficSignType::Car,
         _ => TrafficSignType::Unknown,
     }
 }
 
 fn traffic_sign_type_to_cpp(sign_type: &TrafficSignType) -> maliput_sys::api::rules::ffi::TrafficSignType {
     match sign_type {
+        TrafficSignType::None => maliput_sys::api::rules::ffi::TrafficSignType::kNone,
+        TrafficSignType::Other => maliput_sys::api::rules::ffi::TrafficSignType::kOther,
         TrafficSignType::Stop => maliput_sys::api::rules::ffi::TrafficSignType::kStop,
         TrafficSignType::Yield => maliput_sys::api::rules::ffi::TrafficSignType::kYield,
         TrafficSignType::SpeedLimit => maliput_sys::api::rules::ffi::TrafficSignType::kSpeedLimit,
@@ -1688,7 +2434,783 @@ fn traffic_sign_type_to_cpp(sign_type: &TrafficSignType) -> maliput_sys::api::ru
         TrafficSignType::AllWay => maliput_sys::api::rules::ffi::TrafficSignType::kAllWay,
         TrafficSignType::NoUTurnLeft => maliput_sys::api::rules::ffi::TrafficSignType::kNoUTurnLeft,
         TrafficSignType::NoUTurnRight => maliput_sys::api::rules::ffi::TrafficSignType::kNoUTurnRight,
+        TrafficSignType::StopLine => maliput_sys::api::rules::ffi::TrafficSignType::kStopLine,
+        TrafficSignType::Crosswalk => maliput_sys::api::rules::ffi::TrafficSignType::kCrosswalk,
+        TrafficSignType::DangerSpot => maliput_sys::api::rules::ffi::TrafficSignType::kDangerSpot,
+        TrafficSignType::ZebraCrossing => maliput_sys::api::rules::ffi::TrafficSignType::kZebraCrossing,
+        TrafficSignType::Flight => maliput_sys::api::rules::ffi::TrafficSignType::kFlight,
+        TrafficSignType::Cattle => maliput_sys::api::rules::ffi::TrafficSignType::kCattle,
+        TrafficSignType::HorseRiders => maliput_sys::api::rules::ffi::TrafficSignType::kHorseRiders,
+        TrafficSignType::Amphibians => maliput_sys::api::rules::ffi::TrafficSignType::kAmphibians,
+        TrafficSignType::FallingRocks => maliput_sys::api::rules::ffi::TrafficSignType::kFallingRocks,
+        TrafficSignType::SnowOrIce => maliput_sys::api::rules::ffi::TrafficSignType::kSnowOrIce,
+        TrafficSignType::LooseGravel => maliput_sys::api::rules::ffi::TrafficSignType::kLooseGravel,
+        TrafficSignType::Waterside => maliput_sys::api::rules::ffi::TrafficSignType::kWaterside,
+        TrafficSignType::Clearance => maliput_sys::api::rules::ffi::TrafficSignType::kClearance,
+        TrafficSignType::MovableBridge => maliput_sys::api::rules::ffi::TrafficSignType::kMovableBridge,
+        TrafficSignType::RightBeforeLeftNextIntersection => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kRightBeforeLeftNextIntersection
+        }
+        TrafficSignType::TurnLeft => maliput_sys::api::rules::ffi::TrafficSignType::kTurnLeft,
+        TrafficSignType::TurnRight => maliput_sys::api::rules::ffi::TrafficSignType::kTurnRight,
+        TrafficSignType::DoubleTurnLeft => maliput_sys::api::rules::ffi::TrafficSignType::kDoubleTurnLeft,
+        TrafficSignType::DoubleTurnRight => maliput_sys::api::rules::ffi::TrafficSignType::kDoubleTurnRight,
+        TrafficSignType::HillDownwards => maliput_sys::api::rules::ffi::TrafficSignType::kHillDownwards,
+        TrafficSignType::HillUpwards => maliput_sys::api::rules::ffi::TrafficSignType::kHillUpwards,
+        TrafficSignType::UnevenRoad => maliput_sys::api::rules::ffi::TrafficSignType::kUnevenRoad,
+        TrafficSignType::RoadSlipperyWetOrDirty => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kRoadSlipperyWetOrDirty
+        }
+        TrafficSignType::SideWinds => maliput_sys::api::rules::ffi::TrafficSignType::kSideWinds,
+        TrafficSignType::RoadNarrowing => maliput_sys::api::rules::ffi::TrafficSignType::kRoadNarrowing,
+        TrafficSignType::RoadNarrowingRight => maliput_sys::api::rules::ffi::TrafficSignType::kRoadNarrowingRight,
+        TrafficSignType::RoadNarrowingLeft => maliput_sys::api::rules::ffi::TrafficSignType::kRoadNarrowingLeft,
+        TrafficSignType::RoadWorks => maliput_sys::api::rules::ffi::TrafficSignType::kRoadWorks,
+        TrafficSignType::TrafficQueues => maliput_sys::api::rules::ffi::TrafficSignType::kTrafficQueues,
+        TrafficSignType::TwoWayTraffic => maliput_sys::api::rules::ffi::TrafficSignType::kTwoWayTraffic,
+        TrafficSignType::AttentionTrafficLight => maliput_sys::api::rules::ffi::TrafficSignType::kAttentionTrafficLight,
+        TrafficSignType::Pedestrians => maliput_sys::api::rules::ffi::TrafficSignType::kPedestrians,
+        TrafficSignType::ChildrenCrossing => maliput_sys::api::rules::ffi::TrafficSignType::kChildrenCrossing,
+        TrafficSignType::CycleRoute => maliput_sys::api::rules::ffi::TrafficSignType::kCycleRoute,
+        TrafficSignType::DeerCrossing => maliput_sys::api::rules::ffi::TrafficSignType::kDeerCrossing,
+        TrafficSignType::UngatedLevelCrossing => maliput_sys::api::rules::ffi::TrafficSignType::kUngatedLevelCrossing,
+        TrafficSignType::LevelCrossingMarker => maliput_sys::api::rules::ffi::TrafficSignType::kLevelCrossingMarker,
+        TrafficSignType::RailwayTrafficPriority => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kRailwayTrafficPriority
+        }
+        TrafficSignType::GiveWay => maliput_sys::api::rules::ffi::TrafficSignType::kGiveWay,
+        TrafficSignType::PriorityToOppositeDirection => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kPriorityToOppositeDirection
+        }
+        TrafficSignType::PriorityToOppositeDirectionUpsideDown => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kPriorityToOppositeDirectionUpsideDown
+        }
+        TrafficSignType::PrescribedLeftTurn => maliput_sys::api::rules::ffi::TrafficSignType::kPrescribedLeftTurn,
+        TrafficSignType::PrescribedRightTurn => maliput_sys::api::rules::ffi::TrafficSignType::kPrescribedRightTurn,
+        TrafficSignType::PrescribedStraight => maliput_sys::api::rules::ffi::TrafficSignType::kPrescribedStraight,
+        TrafficSignType::PrescribedRightWay => maliput_sys::api::rules::ffi::TrafficSignType::kPrescribedRightWay,
+        TrafficSignType::PrescribedLeftWay => maliput_sys::api::rules::ffi::TrafficSignType::kPrescribedLeftWay,
+        TrafficSignType::PrescribedRightTurnAndStraight => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kPrescribedRightTurnAndStraight
+        }
+        TrafficSignType::PrescribedLeftTurnAndStraight => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kPrescribedLeftTurnAndStraight
+        }
+        TrafficSignType::PrescribedLeftTurnAndRightTurn => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kPrescribedLeftTurnAndRightTurn
+        }
+        TrafficSignType::PrescribedLeftTurnRightTurnAndStraight => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kPrescribedLeftTurnRightTurnAndStraight
+        }
+        TrafficSignType::Roundabout => maliput_sys::api::rules::ffi::TrafficSignType::kRoundabout,
+        TrafficSignType::OnewayLeft => maliput_sys::api::rules::ffi::TrafficSignType::kOnewayLeft,
+        TrafficSignType::OnewayRight => maliput_sys::api::rules::ffi::TrafficSignType::kOnewayRight,
+        TrafficSignType::PassLeft => maliput_sys::api::rules::ffi::TrafficSignType::kPassLeft,
+        TrafficSignType::PassRight => maliput_sys::api::rules::ffi::TrafficSignType::kPassRight,
+        TrafficSignType::SideLaneOpenForTraffic => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kSideLaneOpenForTraffic
+        }
+        TrafficSignType::SideLaneClosedForTraffic => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kSideLaneClosedForTraffic
+        }
+        TrafficSignType::SideLaneClosingForTraffic => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kSideLaneClosingForTraffic
+        }
+        TrafficSignType::BusStop => maliput_sys::api::rules::ffi::TrafficSignType::kBusStop,
+        TrafficSignType::TaxiStand => maliput_sys::api::rules::ffi::TrafficSignType::kTaxiStand,
+        TrafficSignType::BicyclesOnly => maliput_sys::api::rules::ffi::TrafficSignType::kBicyclesOnly,
+        TrafficSignType::HorseRidersOnly => maliput_sys::api::rules::ffi::TrafficSignType::kHorseRidersOnly,
+        TrafficSignType::PedestriansOnly => maliput_sys::api::rules::ffi::TrafficSignType::kPedestriansOnly,
+        TrafficSignType::BicyclesPedestriansSharedOnly => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kBicyclesPedestriansSharedOnly
+        }
+        TrafficSignType::BicyclesPedestriansSeparatedLeftOnly => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kBicyclesPedestriansSeparatedLeftOnly
+        }
+        TrafficSignType::BicyclesPedestriansSeparatedRightOnly => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kBicyclesPedestriansSeparatedRightOnly
+        }
+        TrafficSignType::PedestrianZoneBegin => maliput_sys::api::rules::ffi::TrafficSignType::kPedestrianZoneBegin,
+        TrafficSignType::PedestrianZoneEnd => maliput_sys::api::rules::ffi::TrafficSignType::kPedestrianZoneEnd,
+        TrafficSignType::BicycleRoadBegin => maliput_sys::api::rules::ffi::TrafficSignType::kBicycleRoadBegin,
+        TrafficSignType::BicycleRoadEnd => maliput_sys::api::rules::ffi::TrafficSignType::kBicycleRoadEnd,
+        TrafficSignType::BusLane => maliput_sys::api::rules::ffi::TrafficSignType::kBusLane,
+        TrafficSignType::BusLaneBegin => maliput_sys::api::rules::ffi::TrafficSignType::kBusLaneBegin,
+        TrafficSignType::BusLaneEnd => maliput_sys::api::rules::ffi::TrafficSignType::kBusLaneEnd,
+        TrafficSignType::AllProhibited => maliput_sys::api::rules::ffi::TrafficSignType::kAllProhibited,
+        TrafficSignType::MotorizedMultitrackProhibited => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kMotorizedMultitrackProhibited
+        }
+        TrafficSignType::TrucksProhibited => maliput_sys::api::rules::ffi::TrafficSignType::kTrucksProhibited,
+        TrafficSignType::BicyclesProhibited => maliput_sys::api::rules::ffi::TrafficSignType::kBicyclesProhibited,
+        TrafficSignType::MotorcyclesProhibited => maliput_sys::api::rules::ffi::TrafficSignType::kMotorcyclesProhibited,
+        TrafficSignType::MopedsProhibited => maliput_sys::api::rules::ffi::TrafficSignType::kMopedsProhibited,
+        TrafficSignType::HorseRidersProhibited => maliput_sys::api::rules::ffi::TrafficSignType::kHorseRidersProhibited,
+        TrafficSignType::HorseCarriagesProhibited => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kHorseCarriagesProhibited
+        }
+        TrafficSignType::CattleProhibited => maliput_sys::api::rules::ffi::TrafficSignType::kCattleProhibited,
+        TrafficSignType::BusesProhibited => maliput_sys::api::rules::ffi::TrafficSignType::kBusesProhibited,
+        TrafficSignType::CarsProhibited => maliput_sys::api::rules::ffi::TrafficSignType::kCarsProhibited,
+        TrafficSignType::CarsTrailersProhibited => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kCarsTrailersProhibited
+        }
+        TrafficSignType::TrucksTrailersProhibited => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kTrucksTrailersProhibited
+        }
+        TrafficSignType::TractorsProhibited => maliput_sys::api::rules::ffi::TrafficSignType::kTractorsProhibited,
+        TrafficSignType::PedestriansProhibited => maliput_sys::api::rules::ffi::TrafficSignType::kPedestriansProhibited,
+        TrafficSignType::MotorVehiclesProhibited => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kMotorVehiclesProhibited
+        }
+        TrafficSignType::HazardousGoodsVehiclesProhibited => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kHazardousGoodsVehiclesProhibited
+        }
+        TrafficSignType::OverWeightVehiclesProhibited => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kOverWeightVehiclesProhibited
+        }
+        TrafficSignType::VehiclesAxleOverWeightProhibited => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kVehiclesAxleOverWeightProhibited
+        }
+        TrafficSignType::VehiclesExcessWidthProhibited => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kVehiclesExcessWidthProhibited
+        }
+        TrafficSignType::VehiclesExcessHeightProhibited => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kVehiclesExcessHeightProhibited
+        }
+        TrafficSignType::VehiclesExcessLengthProhibited => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kVehiclesExcessLengthProhibited
+        }
+        TrafficSignType::DoNotEnter => maliput_sys::api::rules::ffi::TrafficSignType::kDoNotEnter,
+        TrafficSignType::SnowChainsRequired => maliput_sys::api::rules::ffi::TrafficSignType::kSnowChainsRequired,
+        TrafficSignType::WaterPollutantVehiclesProhibited => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kWaterPollutantVehiclesProhibited
+        }
+        TrafficSignType::EnvironmentalZoneBegin => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kEnvironmentalZoneBegin
+        }
+        TrafficSignType::EnvironmentalZoneEnd => maliput_sys::api::rules::ffi::TrafficSignType::kEnvironmentalZoneEnd,
+        TrafficSignType::PrescribedUTurnLeft => maliput_sys::api::rules::ffi::TrafficSignType::kPrescribedUTurnLeft,
+        TrafficSignType::PrescribedUTurnRight => maliput_sys::api::rules::ffi::TrafficSignType::kPrescribedUTurnRight,
+        TrafficSignType::MinimumDistanceForTrucks => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kMinimumDistanceForTrucks
+        }
+        TrafficSignType::SpeedLimitBegin => maliput_sys::api::rules::ffi::TrafficSignType::kSpeedLimitBegin,
+        TrafficSignType::SpeedLimitZoneBegin => maliput_sys::api::rules::ffi::TrafficSignType::kSpeedLimitZoneBegin,
+        TrafficSignType::SpeedLimitZoneEnd => maliput_sys::api::rules::ffi::TrafficSignType::kSpeedLimitZoneEnd,
+        TrafficSignType::MinimumSpeedBegin => maliput_sys::api::rules::ffi::TrafficSignType::kMinimumSpeedBegin,
+        TrafficSignType::OvertakingBanBegin => maliput_sys::api::rules::ffi::TrafficSignType::kOvertakingBanBegin,
+        TrafficSignType::OvertakingBanForTrucksBegin => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kOvertakingBanForTrucksBegin
+        }
+        TrafficSignType::SpeedLimitEnd => maliput_sys::api::rules::ffi::TrafficSignType::kSpeedLimitEnd,
+        TrafficSignType::MinimumSpeedEnd => maliput_sys::api::rules::ffi::TrafficSignType::kMinimumSpeedEnd,
+        TrafficSignType::OvertakingBanEnd => maliput_sys::api::rules::ffi::TrafficSignType::kOvertakingBanEnd,
+        TrafficSignType::OvertakingBanForTrucksEnd => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kOvertakingBanForTrucksEnd
+        }
+        TrafficSignType::AllRestrictionsEnd => maliput_sys::api::rules::ffi::TrafficSignType::kAllRestrictionsEnd,
+        TrafficSignType::NoStopping => maliput_sys::api::rules::ffi::TrafficSignType::kNoStopping,
+        TrafficSignType::NoParking => maliput_sys::api::rules::ffi::TrafficSignType::kNoParking,
+        TrafficSignType::NoParkingZoneBegin => maliput_sys::api::rules::ffi::TrafficSignType::kNoParkingZoneBegin,
+        TrafficSignType::NoParkingZoneEnd => maliput_sys::api::rules::ffi::TrafficSignType::kNoParkingZoneEnd,
+        TrafficSignType::RightOfWayNextIntersection => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kRightOfWayNextIntersection
+        }
+        TrafficSignType::RightOfWayBegin => maliput_sys::api::rules::ffi::TrafficSignType::kRightOfWayBegin,
+        TrafficSignType::RightOfWayEnd => maliput_sys::api::rules::ffi::TrafficSignType::kRightOfWayEnd,
+        TrafficSignType::PriorityOverOppositeDirection => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kPriorityOverOppositeDirection
+        }
+        TrafficSignType::PriorityOverOppositeDirectionUpsideDown => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kPriorityOverOppositeDirectionUpsideDown
+        }
+        TrafficSignType::TownBegin => maliput_sys::api::rules::ffi::TrafficSignType::kTownBegin,
+        TrafficSignType::TownEnd => maliput_sys::api::rules::ffi::TrafficSignType::kTownEnd,
+        TrafficSignType::CarParking => maliput_sys::api::rules::ffi::TrafficSignType::kCarParking,
+        TrafficSignType::CarParkingZoneBegin => maliput_sys::api::rules::ffi::TrafficSignType::kCarParkingZoneBegin,
+        TrafficSignType::CarParkingZoneEnd => maliput_sys::api::rules::ffi::TrafficSignType::kCarParkingZoneEnd,
+        TrafficSignType::SidewalkHalfParkingLeft => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kSidewalkHalfParkingLeft
+        }
+        TrafficSignType::SidewalkHalfParkingRight => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kSidewalkHalfParkingRight
+        }
+        TrafficSignType::SidewalkParkingLeft => maliput_sys::api::rules::ffi::TrafficSignType::kSidewalkParkingLeft,
+        TrafficSignType::SidewalkParkingRight => maliput_sys::api::rules::ffi::TrafficSignType::kSidewalkParkingRight,
+        TrafficSignType::SidewalkPerpendicularHalfParkingLeft => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kSidewalkPerpendicularHalfParkingLeft
+        }
+        TrafficSignType::SidewalkPerpendicularHalfParkingRight => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kSidewalkPerpendicularHalfParkingRight
+        }
+        TrafficSignType::SidewalkPerpendicularParkingLeft => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kSidewalkPerpendicularParkingLeft
+        }
+        TrafficSignType::SidewalkPerpendicularParkingRight => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kSidewalkPerpendicularParkingRight
+        }
+        TrafficSignType::LivingStreetBegin => maliput_sys::api::rules::ffi::TrafficSignType::kLivingStreetBegin,
+        TrafficSignType::LivingStreetEnd => maliput_sys::api::rules::ffi::TrafficSignType::kLivingStreetEnd,
+        TrafficSignType::Tunnel => maliput_sys::api::rules::ffi::TrafficSignType::kTunnel,
+        TrafficSignType::EmergencyStoppingLeft => maliput_sys::api::rules::ffi::TrafficSignType::kEmergencyStoppingLeft,
+        TrafficSignType::EmergencyStoppingRight => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kEmergencyStoppingRight
+        }
+        TrafficSignType::HighwayBegin => maliput_sys::api::rules::ffi::TrafficSignType::kHighwayBegin,
+        TrafficSignType::HighwayEnd => maliput_sys::api::rules::ffi::TrafficSignType::kHighwayEnd,
+        TrafficSignType::ExpresswayBegin => maliput_sys::api::rules::ffi::TrafficSignType::kExpresswayBegin,
+        TrafficSignType::ExpresswayEnd => maliput_sys::api::rules::ffi::TrafficSignType::kExpresswayEnd,
+        TrafficSignType::NamedHighwayExit => maliput_sys::api::rules::ffi::TrafficSignType::kNamedHighwayExit,
+        TrafficSignType::NamedExpresswayExit => maliput_sys::api::rules::ffi::TrafficSignType::kNamedExpresswayExit,
+        TrafficSignType::NamedRoadExit => maliput_sys::api::rules::ffi::TrafficSignType::kNamedRoadExit,
+        TrafficSignType::HighwayExit => maliput_sys::api::rules::ffi::TrafficSignType::kHighwayExit,
+        TrafficSignType::ExpresswayExit => maliput_sys::api::rules::ffi::TrafficSignType::kExpresswayExit,
+        TrafficSignType::OnewayStreet => maliput_sys::api::rules::ffi::TrafficSignType::kOnewayStreet,
+        TrafficSignType::CrossingGuards => maliput_sys::api::rules::ffi::TrafficSignType::kCrossingGuards,
+        TrafficSignType::Deadend => maliput_sys::api::rules::ffi::TrafficSignType::kDeadend,
+        TrafficSignType::DeadendExcludingDesignatedActors => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kDeadendExcludingDesignatedActors
+        }
+        TrafficSignType::FirstAidStation => maliput_sys::api::rules::ffi::TrafficSignType::kFirstAidStation,
+        TrafficSignType::PoliceStation => maliput_sys::api::rules::ffi::TrafficSignType::kPoliceStation,
+        TrafficSignType::Telephone => maliput_sys::api::rules::ffi::TrafficSignType::kTelephone,
+        TrafficSignType::FillingStation => maliput_sys::api::rules::ffi::TrafficSignType::kFillingStation,
+        TrafficSignType::Hotel => maliput_sys::api::rules::ffi::TrafficSignType::kHotel,
+        TrafficSignType::Inn => maliput_sys::api::rules::ffi::TrafficSignType::kInn,
+        TrafficSignType::Kiosk => maliput_sys::api::rules::ffi::TrafficSignType::kKiosk,
+        TrafficSignType::Toilet => maliput_sys::api::rules::ffi::TrafficSignType::kToilet,
+        TrafficSignType::Chapel => maliput_sys::api::rules::ffi::TrafficSignType::kChapel,
+        TrafficSignType::TouristInfo => maliput_sys::api::rules::ffi::TrafficSignType::kTouristInfo,
+        TrafficSignType::RepairService => maliput_sys::api::rules::ffi::TrafficSignType::kRepairService,
+        TrafficSignType::PedestrianUnderpass => maliput_sys::api::rules::ffi::TrafficSignType::kPedestrianUnderpass,
+        TrafficSignType::PedestrianBridge => maliput_sys::api::rules::ffi::TrafficSignType::kPedestrianBridge,
+        TrafficSignType::CamperPlace => maliput_sys::api::rules::ffi::TrafficSignType::kCamperPlace,
+        TrafficSignType::AdvisorySpeedLimitBegin => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kAdvisorySpeedLimitBegin
+        }
+        TrafficSignType::AdvisorySpeedLimitEnd => maliput_sys::api::rules::ffi::TrafficSignType::kAdvisorySpeedLimitEnd,
+        TrafficSignType::PlaceName => maliput_sys::api::rules::ffi::TrafficSignType::kPlaceName,
+        TrafficSignType::TouristAttraction => maliput_sys::api::rules::ffi::TrafficSignType::kTouristAttraction,
+        TrafficSignType::TouristRoute => maliput_sys::api::rules::ffi::TrafficSignType::kTouristRoute,
+        TrafficSignType::TouristArea => maliput_sys::api::rules::ffi::TrafficSignType::kTouristArea,
+        TrafficSignType::ShoulderNotPassableMotorVehicles => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kShoulderNotPassableMotorVehicles
+        }
+        TrafficSignType::ShoulderUnsafeTrucksTractors => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kShoulderUnsafeTrucksTractors
+        }
+        TrafficSignType::TollBegin => maliput_sys::api::rules::ffi::TrafficSignType::kTollBegin,
+        TrafficSignType::TollEnd => maliput_sys::api::rules::ffi::TrafficSignType::kTollEnd,
+        TrafficSignType::TollRoad => maliput_sys::api::rules::ffi::TrafficSignType::kTollRoad,
+        TrafficSignType::Customs => maliput_sys::api::rules::ffi::TrafficSignType::kCustoms,
+        TrafficSignType::InternationalBorderInfo => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kInternationalBorderInfo
+        }
+        TrafficSignType::StreetlightRedBand => maliput_sys::api::rules::ffi::TrafficSignType::kStreetlightRedBand,
+        TrafficSignType::FederalHighwayRouteNumber => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kFederalHighwayRouteNumber
+        }
+        TrafficSignType::HighwayRouteNumber => maliput_sys::api::rules::ffi::TrafficSignType::kHighwayRouteNumber,
+        TrafficSignType::HighwayInterchangeNumber => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kHighwayInterchangeNumber
+        }
+        TrafficSignType::EuropeanRouteNumber => maliput_sys::api::rules::ffi::TrafficSignType::kEuropeanRouteNumber,
+        TrafficSignType::FederalHighwayDirectionLeft => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kFederalHighwayDirectionLeft
+        }
+        TrafficSignType::FederalHighwayDirectionRight => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kFederalHighwayDirectionRight
+        }
+        TrafficSignType::PrimaryRoadDirectionLeft => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kPrimaryRoadDirectionLeft
+        }
+        TrafficSignType::PrimaryRoadDirectionRight => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kPrimaryRoadDirectionRight
+        }
+        TrafficSignType::SecondaryRoadDirectionLeft => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kSecondaryRoadDirectionLeft
+        }
+        TrafficSignType::SecondaryRoadDirectionRight => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kSecondaryRoadDirectionRight
+        }
+        TrafficSignType::DirectionDesignatedActorsLeft => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kDirectionDesignatedActorsLeft
+        }
+        TrafficSignType::DirectionDesignatedActorsRight => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kDirectionDesignatedActorsRight
+        }
+        TrafficSignType::RoutingDesignatedActors => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kRoutingDesignatedActors
+        }
+        TrafficSignType::DirectionToHighwayLeft => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kDirectionToHighwayLeft
+        }
+        TrafficSignType::DirectionToHighwayRight => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kDirectionToHighwayRight
+        }
+        TrafficSignType::DirectionToLocalDestinationLeft => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kDirectionToLocalDestinationLeft
+        }
+        TrafficSignType::DirectionToLocalDestinationRight => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kDirectionToLocalDestinationRight
+        }
+        TrafficSignType::ConsolidatedDirections => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kConsolidatedDirections
+        }
+        TrafficSignType::StreetName => maliput_sys::api::rules::ffi::TrafficSignType::kStreetName,
+        TrafficSignType::DirectionPreannouncement => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kDirectionPreannouncement
+        }
+        TrafficSignType::DirectionPreannouncementLaneConfig => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kDirectionPreannouncementLaneConfig
+        }
+        TrafficSignType::DirectionPreannouncementHighwayEntries => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kDirectionPreannouncementHighwayEntries
+        }
+        TrafficSignType::HighwayAnnouncement => maliput_sys::api::rules::ffi::TrafficSignType::kHighwayAnnouncement,
+        TrafficSignType::OtherRoadAnnouncement => maliput_sys::api::rules::ffi::TrafficSignType::kOtherRoadAnnouncement,
+        TrafficSignType::HighwayAnnouncementTruckStop => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kHighwayAnnouncementTruckStop
+        }
+        TrafficSignType::HighwayPreannouncementDirections => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kHighwayPreannouncementDirections
+        }
+        TrafficSignType::PoleExit => maliput_sys::api::rules::ffi::TrafficSignType::kPoleExit,
+        TrafficSignType::HighwayDistanceBoard => maliput_sys::api::rules::ffi::TrafficSignType::kHighwayDistanceBoard,
+        TrafficSignType::DetourLeft => maliput_sys::api::rules::ffi::TrafficSignType::kDetourLeft,
+        TrafficSignType::DetourRight => maliput_sys::api::rules::ffi::TrafficSignType::kDetourRight,
+        TrafficSignType::NumberedDetour => maliput_sys::api::rules::ffi::TrafficSignType::kNumberedDetour,
+        TrafficSignType::DetourBegin => maliput_sys::api::rules::ffi::TrafficSignType::kDetourBegin,
+        TrafficSignType::DetourEnd => maliput_sys::api::rules::ffi::TrafficSignType::kDetourEnd,
+        TrafficSignType::DetourRoutingBoard => maliput_sys::api::rules::ffi::TrafficSignType::kDetourRoutingBoard,
+        TrafficSignType::OptionalDetour => maliput_sys::api::rules::ffi::TrafficSignType::kOptionalDetour,
+        TrafficSignType::OptionalDetourRouting => maliput_sys::api::rules::ffi::TrafficSignType::kOptionalDetourRouting,
+        TrafficSignType::RouteRecommendation => maliput_sys::api::rules::ffi::TrafficSignType::kRouteRecommendation,
+        TrafficSignType::RouteRecommendationEnd => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kRouteRecommendationEnd
+        }
+        TrafficSignType::AnnounceLaneTransitionLeft => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kAnnounceLaneTransitionLeft
+        }
+        TrafficSignType::AnnounceLaneTransitionRight => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kAnnounceLaneTransitionRight
+        }
+        TrafficSignType::AnnounceRightLaneEnd => maliput_sys::api::rules::ffi::TrafficSignType::kAnnounceRightLaneEnd,
+        TrafficSignType::AnnounceLeftLaneEnd => maliput_sys::api::rules::ffi::TrafficSignType::kAnnounceLeftLaneEnd,
+        TrafficSignType::AnnounceRightLaneBegin => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kAnnounceRightLaneBegin
+        }
+        TrafficSignType::AnnounceLeftLaneBegin => maliput_sys::api::rules::ffi::TrafficSignType::kAnnounceLeftLaneBegin,
+        TrafficSignType::AnnounceLaneConsolidation => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kAnnounceLaneConsolidation
+        }
+        TrafficSignType::DetourCityBlock => maliput_sys::api::rules::ffi::TrafficSignType::kDetourCityBlock,
+        TrafficSignType::Gate => maliput_sys::api::rules::ffi::TrafficSignType::kGate,
+        TrafficSignType::PoleWarning => maliput_sys::api::rules::ffi::TrafficSignType::kPoleWarning,
+        TrafficSignType::TrafficCone => maliput_sys::api::rules::ffi::TrafficSignType::kTrafficCone,
+        TrafficSignType::MobileLaneClosure => maliput_sys::api::rules::ffi::TrafficSignType::kMobileLaneClosure,
+        TrafficSignType::ReflectorPost => maliput_sys::api::rules::ffi::TrafficSignType::kReflectorPost,
+        TrafficSignType::DirectionalBoardWarning => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kDirectionalBoardWarning
+        }
+        TrafficSignType::GuidingPlate => maliput_sys::api::rules::ffi::TrafficSignType::kGuidingPlate,
+        TrafficSignType::GuidingPlateWedges => maliput_sys::api::rules::ffi::TrafficSignType::kGuidingPlateWedges,
+        TrafficSignType::ParkingHazard => maliput_sys::api::rules::ffi::TrafficSignType::kParkingHazard,
+        TrafficSignType::TrafficLightGreenArrow => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kTrafficLightGreenArrow
+        }
+        TrafficSignType::Text => maliput_sys::api::rules::ffi::TrafficSignType::kText,
+        TrafficSignType::Space => maliput_sys::api::rules::ffi::TrafficSignType::kSpace,
+        TrafficSignType::Time => maliput_sys::api::rules::ffi::TrafficSignType::kTime,
+        TrafficSignType::Arrow => maliput_sys::api::rules::ffi::TrafficSignType::kArrow,
+        TrafficSignType::ConstrainedTo => maliput_sys::api::rules::ffi::TrafficSignType::kConstrainedTo,
+        TrafficSignType::Except => maliput_sys::api::rules::ffi::TrafficSignType::kExcept,
+        TrafficSignType::ValidForDistance => maliput_sys::api::rules::ffi::TrafficSignType::kValidForDistance,
+        TrafficSignType::PriorityRoadBottomLeftFourWay => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kPriorityRoadBottomLeftFourWay
+        }
+        TrafficSignType::PriorityRoadTopLeftFourWay => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kPriorityRoadTopLeftFourWay
+        }
+        TrafficSignType::PriorityRoadBottomLeftThreeWayStraight => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kPriorityRoadBottomLeftThreeWayStraight
+        }
+        TrafficSignType::PriorityRoadBottomLeftThreeWaySideways => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kPriorityRoadBottomLeftThreeWaySideways
+        }
+        TrafficSignType::PriorityRoadTopLeftThreeWayStraight => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kPriorityRoadTopLeftThreeWayStraight
+        }
+        TrafficSignType::PriorityRoadBottomRightFourWay => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kPriorityRoadBottomRightFourWay
+        }
+        TrafficSignType::PriorityRoadTopRightFourWay => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kPriorityRoadTopRightFourWay
+        }
+        TrafficSignType::PriorityRoadBottomRightThreeWayStraight => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kPriorityRoadBottomRightThreeWayStraight
+        }
+        TrafficSignType::PriorityRoadBottomRightThreeWaySideway => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kPriorityRoadBottomRightThreeWaySideway
+        }
+        TrafficSignType::PriorityRoadTopRightThreeWayStraight => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kPriorityRoadTopRightThreeWayStraight
+        }
+        TrafficSignType::ValidInDistance => maliput_sys::api::rules::ffi::TrafficSignType::kValidInDistance,
+        TrafficSignType::StopIn => maliput_sys::api::rules::ffi::TrafficSignType::kStopIn,
+        TrafficSignType::LeftArrow => maliput_sys::api::rules::ffi::TrafficSignType::kLeftArrow,
+        TrafficSignType::LeftBendArrow => maliput_sys::api::rules::ffi::TrafficSignType::kLeftBendArrow,
+        TrafficSignType::RightArrow => maliput_sys::api::rules::ffi::TrafficSignType::kRightArrow,
+        TrafficSignType::RightBendArrow => maliput_sys::api::rules::ffi::TrafficSignType::kRightBendArrow,
+        TrafficSignType::Accident => maliput_sys::api::rules::ffi::TrafficSignType::kAccident,
+        TrafficSignType::Snow => maliput_sys::api::rules::ffi::TrafficSignType::kSnow,
+        TrafficSignType::Fog => maliput_sys::api::rules::ffi::TrafficSignType::kFog,
+        TrafficSignType::RollingHighwayInformation => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kRollingHighwayInformation
+        }
+        TrafficSignType::Services => maliput_sys::api::rules::ffi::TrafficSignType::kServices,
+        TrafficSignType::TimeRange => maliput_sys::api::rules::ffi::TrafficSignType::kTimeRange,
+        TrafficSignType::ParkingDiscTimeRestriction => {
+            maliput_sys::api::rules::ffi::TrafficSignType::kParkingDiscTimeRestriction
+        }
+        TrafficSignType::Weight => maliput_sys::api::rules::ffi::TrafficSignType::kWeight,
+        TrafficSignType::Wet => maliput_sys::api::rules::ffi::TrafficSignType::kWet,
+        TrafficSignType::ParkingConstraint => maliput_sys::api::rules::ffi::TrafficSignType::kParkingConstraint,
+        TrafficSignType::NoWaitingSideStripes => maliput_sys::api::rules::ffi::TrafficSignType::kNoWaitingSideStripes,
+        TrafficSignType::Rain => maliput_sys::api::rules::ffi::TrafficSignType::kRain,
+        TrafficSignType::SnowRain => maliput_sys::api::rules::ffi::TrafficSignType::kSnowRain,
+        TrafficSignType::Night => maliput_sys::api::rules::ffi::TrafficSignType::kNight,
+        TrafficSignType::Stop4Way => maliput_sys::api::rules::ffi::TrafficSignType::kStop4Way,
+        TrafficSignType::Truck => maliput_sys::api::rules::ffi::TrafficSignType::kTruck,
+        TrafficSignType::TractorsMayBePassed => maliput_sys::api::rules::ffi::TrafficSignType::kTractorsMayBePassed,
+        TrafficSignType::Hazardous => maliput_sys::api::rules::ffi::TrafficSignType::kHazardous,
+        TrafficSignType::Trailer => maliput_sys::api::rules::ffi::TrafficSignType::kTrailer,
+        TrafficSignType::Zone => maliput_sys::api::rules::ffi::TrafficSignType::kZone,
+        TrafficSignType::Motorcycle => maliput_sys::api::rules::ffi::TrafficSignType::kMotorcycle,
+        TrafficSignType::MotorcycleAllowed => maliput_sys::api::rules::ffi::TrafficSignType::kMotorcycleAllowed,
+        TrafficSignType::Car => maliput_sys::api::rules::ffi::TrafficSignType::kCar,
         TrafficSignType::Unknown => maliput_sys::api::rules::ffi::TrafficSignType::kUnknown,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn traffic_sign_type_roundtrips_all_known_variants() {
+        let variants = [
+            TrafficSignType::None,
+            TrafficSignType::Other,
+            TrafficSignType::Stop,
+            TrafficSignType::Yield,
+            TrafficSignType::SpeedLimit,
+            TrafficSignType::NoEntry,
+            TrafficSignType::OneWay,
+            TrafficSignType::PedestrianCrossing,
+            TrafficSignType::NoLeftTurn,
+            TrafficSignType::NoRightTurn,
+            TrafficSignType::NoUTurn,
+            TrafficSignType::SchoolZone,
+            TrafficSignType::Construction,
+            TrafficSignType::RailroadCrossing,
+            TrafficSignType::NoOvertaking,
+            TrafficSignType::AllWay,
+            TrafficSignType::NoUTurnLeft,
+            TrafficSignType::NoUTurnRight,
+            TrafficSignType::StopLine,
+            TrafficSignType::Crosswalk,
+            TrafficSignType::DangerSpot,
+            TrafficSignType::ZebraCrossing,
+            TrafficSignType::Flight,
+            TrafficSignType::Cattle,
+            TrafficSignType::HorseRiders,
+            TrafficSignType::Amphibians,
+            TrafficSignType::FallingRocks,
+            TrafficSignType::SnowOrIce,
+            TrafficSignType::LooseGravel,
+            TrafficSignType::Waterside,
+            TrafficSignType::Clearance,
+            TrafficSignType::MovableBridge,
+            TrafficSignType::RightBeforeLeftNextIntersection,
+            TrafficSignType::TurnLeft,
+            TrafficSignType::TurnRight,
+            TrafficSignType::DoubleTurnLeft,
+            TrafficSignType::DoubleTurnRight,
+            TrafficSignType::HillDownwards,
+            TrafficSignType::HillUpwards,
+            TrafficSignType::UnevenRoad,
+            TrafficSignType::RoadSlipperyWetOrDirty,
+            TrafficSignType::SideWinds,
+            TrafficSignType::RoadNarrowing,
+            TrafficSignType::RoadNarrowingRight,
+            TrafficSignType::RoadNarrowingLeft,
+            TrafficSignType::RoadWorks,
+            TrafficSignType::TrafficQueues,
+            TrafficSignType::TwoWayTraffic,
+            TrafficSignType::AttentionTrafficLight,
+            TrafficSignType::Pedestrians,
+            TrafficSignType::ChildrenCrossing,
+            TrafficSignType::CycleRoute,
+            TrafficSignType::DeerCrossing,
+            TrafficSignType::UngatedLevelCrossing,
+            TrafficSignType::LevelCrossingMarker,
+            TrafficSignType::RailwayTrafficPriority,
+            TrafficSignType::GiveWay,
+            TrafficSignType::PriorityToOppositeDirection,
+            TrafficSignType::PriorityToOppositeDirectionUpsideDown,
+            TrafficSignType::PrescribedLeftTurn,
+            TrafficSignType::PrescribedRightTurn,
+            TrafficSignType::PrescribedStraight,
+            TrafficSignType::PrescribedRightWay,
+            TrafficSignType::PrescribedLeftWay,
+            TrafficSignType::PrescribedRightTurnAndStraight,
+            TrafficSignType::PrescribedLeftTurnAndStraight,
+            TrafficSignType::PrescribedLeftTurnAndRightTurn,
+            TrafficSignType::PrescribedLeftTurnRightTurnAndStraight,
+            TrafficSignType::Roundabout,
+            TrafficSignType::OnewayLeft,
+            TrafficSignType::OnewayRight,
+            TrafficSignType::PassLeft,
+            TrafficSignType::PassRight,
+            TrafficSignType::SideLaneOpenForTraffic,
+            TrafficSignType::SideLaneClosedForTraffic,
+            TrafficSignType::SideLaneClosingForTraffic,
+            TrafficSignType::BusStop,
+            TrafficSignType::TaxiStand,
+            TrafficSignType::BicyclesOnly,
+            TrafficSignType::HorseRidersOnly,
+            TrafficSignType::PedestriansOnly,
+            TrafficSignType::BicyclesPedestriansSharedOnly,
+            TrafficSignType::BicyclesPedestriansSeparatedLeftOnly,
+            TrafficSignType::BicyclesPedestriansSeparatedRightOnly,
+            TrafficSignType::PedestrianZoneBegin,
+            TrafficSignType::PedestrianZoneEnd,
+            TrafficSignType::BicycleRoadBegin,
+            TrafficSignType::BicycleRoadEnd,
+            TrafficSignType::BusLane,
+            TrafficSignType::BusLaneBegin,
+            TrafficSignType::BusLaneEnd,
+            TrafficSignType::AllProhibited,
+            TrafficSignType::MotorizedMultitrackProhibited,
+            TrafficSignType::TrucksProhibited,
+            TrafficSignType::BicyclesProhibited,
+            TrafficSignType::MotorcyclesProhibited,
+            TrafficSignType::MopedsProhibited,
+            TrafficSignType::HorseRidersProhibited,
+            TrafficSignType::HorseCarriagesProhibited,
+            TrafficSignType::CattleProhibited,
+            TrafficSignType::BusesProhibited,
+            TrafficSignType::CarsProhibited,
+            TrafficSignType::CarsTrailersProhibited,
+            TrafficSignType::TrucksTrailersProhibited,
+            TrafficSignType::TractorsProhibited,
+            TrafficSignType::PedestriansProhibited,
+            TrafficSignType::MotorVehiclesProhibited,
+            TrafficSignType::HazardousGoodsVehiclesProhibited,
+            TrafficSignType::OverWeightVehiclesProhibited,
+            TrafficSignType::VehiclesAxleOverWeightProhibited,
+            TrafficSignType::VehiclesExcessWidthProhibited,
+            TrafficSignType::VehiclesExcessHeightProhibited,
+            TrafficSignType::VehiclesExcessLengthProhibited,
+            TrafficSignType::DoNotEnter,
+            TrafficSignType::SnowChainsRequired,
+            TrafficSignType::WaterPollutantVehiclesProhibited,
+            TrafficSignType::EnvironmentalZoneBegin,
+            TrafficSignType::EnvironmentalZoneEnd,
+            TrafficSignType::PrescribedUTurnLeft,
+            TrafficSignType::PrescribedUTurnRight,
+            TrafficSignType::MinimumDistanceForTrucks,
+            TrafficSignType::SpeedLimitBegin,
+            TrafficSignType::SpeedLimitZoneBegin,
+            TrafficSignType::SpeedLimitZoneEnd,
+            TrafficSignType::MinimumSpeedBegin,
+            TrafficSignType::OvertakingBanBegin,
+            TrafficSignType::OvertakingBanForTrucksBegin,
+            TrafficSignType::SpeedLimitEnd,
+            TrafficSignType::MinimumSpeedEnd,
+            TrafficSignType::OvertakingBanEnd,
+            TrafficSignType::OvertakingBanForTrucksEnd,
+            TrafficSignType::AllRestrictionsEnd,
+            TrafficSignType::NoStopping,
+            TrafficSignType::NoParking,
+            TrafficSignType::NoParkingZoneBegin,
+            TrafficSignType::NoParkingZoneEnd,
+            TrafficSignType::RightOfWayNextIntersection,
+            TrafficSignType::RightOfWayBegin,
+            TrafficSignType::RightOfWayEnd,
+            TrafficSignType::PriorityOverOppositeDirection,
+            TrafficSignType::PriorityOverOppositeDirectionUpsideDown,
+            TrafficSignType::TownBegin,
+            TrafficSignType::TownEnd,
+            TrafficSignType::CarParking,
+            TrafficSignType::CarParkingZoneBegin,
+            TrafficSignType::CarParkingZoneEnd,
+            TrafficSignType::SidewalkHalfParkingLeft,
+            TrafficSignType::SidewalkHalfParkingRight,
+            TrafficSignType::SidewalkParkingLeft,
+            TrafficSignType::SidewalkParkingRight,
+            TrafficSignType::SidewalkPerpendicularHalfParkingLeft,
+            TrafficSignType::SidewalkPerpendicularHalfParkingRight,
+            TrafficSignType::SidewalkPerpendicularParkingLeft,
+            TrafficSignType::SidewalkPerpendicularParkingRight,
+            TrafficSignType::LivingStreetBegin,
+            TrafficSignType::LivingStreetEnd,
+            TrafficSignType::Tunnel,
+            TrafficSignType::EmergencyStoppingLeft,
+            TrafficSignType::EmergencyStoppingRight,
+            TrafficSignType::HighwayBegin,
+            TrafficSignType::HighwayEnd,
+            TrafficSignType::ExpresswayBegin,
+            TrafficSignType::ExpresswayEnd,
+            TrafficSignType::NamedHighwayExit,
+            TrafficSignType::NamedExpresswayExit,
+            TrafficSignType::NamedRoadExit,
+            TrafficSignType::HighwayExit,
+            TrafficSignType::ExpresswayExit,
+            TrafficSignType::OnewayStreet,
+            TrafficSignType::CrossingGuards,
+            TrafficSignType::Deadend,
+            TrafficSignType::DeadendExcludingDesignatedActors,
+            TrafficSignType::FirstAidStation,
+            TrafficSignType::PoliceStation,
+            TrafficSignType::Telephone,
+            TrafficSignType::FillingStation,
+            TrafficSignType::Hotel,
+            TrafficSignType::Inn,
+            TrafficSignType::Kiosk,
+            TrafficSignType::Toilet,
+            TrafficSignType::Chapel,
+            TrafficSignType::TouristInfo,
+            TrafficSignType::RepairService,
+            TrafficSignType::PedestrianUnderpass,
+            TrafficSignType::PedestrianBridge,
+            TrafficSignType::CamperPlace,
+            TrafficSignType::AdvisorySpeedLimitBegin,
+            TrafficSignType::AdvisorySpeedLimitEnd,
+            TrafficSignType::PlaceName,
+            TrafficSignType::TouristAttraction,
+            TrafficSignType::TouristRoute,
+            TrafficSignType::TouristArea,
+            TrafficSignType::ShoulderNotPassableMotorVehicles,
+            TrafficSignType::ShoulderUnsafeTrucksTractors,
+            TrafficSignType::TollBegin,
+            TrafficSignType::TollEnd,
+            TrafficSignType::TollRoad,
+            TrafficSignType::Customs,
+            TrafficSignType::InternationalBorderInfo,
+            TrafficSignType::StreetlightRedBand,
+            TrafficSignType::FederalHighwayRouteNumber,
+            TrafficSignType::HighwayRouteNumber,
+            TrafficSignType::HighwayInterchangeNumber,
+            TrafficSignType::EuropeanRouteNumber,
+            TrafficSignType::FederalHighwayDirectionLeft,
+            TrafficSignType::FederalHighwayDirectionRight,
+            TrafficSignType::PrimaryRoadDirectionLeft,
+            TrafficSignType::PrimaryRoadDirectionRight,
+            TrafficSignType::SecondaryRoadDirectionLeft,
+            TrafficSignType::SecondaryRoadDirectionRight,
+            TrafficSignType::DirectionDesignatedActorsLeft,
+            TrafficSignType::DirectionDesignatedActorsRight,
+            TrafficSignType::RoutingDesignatedActors,
+            TrafficSignType::DirectionToHighwayLeft,
+            TrafficSignType::DirectionToHighwayRight,
+            TrafficSignType::DirectionToLocalDestinationLeft,
+            TrafficSignType::DirectionToLocalDestinationRight,
+            TrafficSignType::ConsolidatedDirections,
+            TrafficSignType::StreetName,
+            TrafficSignType::DirectionPreannouncement,
+            TrafficSignType::DirectionPreannouncementLaneConfig,
+            TrafficSignType::DirectionPreannouncementHighwayEntries,
+            TrafficSignType::HighwayAnnouncement,
+            TrafficSignType::OtherRoadAnnouncement,
+            TrafficSignType::HighwayAnnouncementTruckStop,
+            TrafficSignType::HighwayPreannouncementDirections,
+            TrafficSignType::PoleExit,
+            TrafficSignType::HighwayDistanceBoard,
+            TrafficSignType::DetourLeft,
+            TrafficSignType::DetourRight,
+            TrafficSignType::NumberedDetour,
+            TrafficSignType::DetourBegin,
+            TrafficSignType::DetourEnd,
+            TrafficSignType::DetourRoutingBoard,
+            TrafficSignType::OptionalDetour,
+            TrafficSignType::OptionalDetourRouting,
+            TrafficSignType::RouteRecommendation,
+            TrafficSignType::RouteRecommendationEnd,
+            TrafficSignType::AnnounceLaneTransitionLeft,
+            TrafficSignType::AnnounceLaneTransitionRight,
+            TrafficSignType::AnnounceRightLaneEnd,
+            TrafficSignType::AnnounceLeftLaneEnd,
+            TrafficSignType::AnnounceRightLaneBegin,
+            TrafficSignType::AnnounceLeftLaneBegin,
+            TrafficSignType::AnnounceLaneConsolidation,
+            TrafficSignType::DetourCityBlock,
+            TrafficSignType::Gate,
+            TrafficSignType::PoleWarning,
+            TrafficSignType::TrafficCone,
+            TrafficSignType::MobileLaneClosure,
+            TrafficSignType::ReflectorPost,
+            TrafficSignType::DirectionalBoardWarning,
+            TrafficSignType::GuidingPlate,
+            TrafficSignType::GuidingPlateWedges,
+            TrafficSignType::ParkingHazard,
+            TrafficSignType::TrafficLightGreenArrow,
+            TrafficSignType::Text,
+            TrafficSignType::Space,
+            TrafficSignType::Time,
+            TrafficSignType::Arrow,
+            TrafficSignType::ConstrainedTo,
+            TrafficSignType::Except,
+            TrafficSignType::ValidForDistance,
+            TrafficSignType::PriorityRoadBottomLeftFourWay,
+            TrafficSignType::PriorityRoadTopLeftFourWay,
+            TrafficSignType::PriorityRoadBottomLeftThreeWayStraight,
+            TrafficSignType::PriorityRoadBottomLeftThreeWaySideways,
+            TrafficSignType::PriorityRoadTopLeftThreeWayStraight,
+            TrafficSignType::PriorityRoadBottomRightFourWay,
+            TrafficSignType::PriorityRoadTopRightFourWay,
+            TrafficSignType::PriorityRoadBottomRightThreeWayStraight,
+            TrafficSignType::PriorityRoadBottomRightThreeWaySideway,
+            TrafficSignType::PriorityRoadTopRightThreeWayStraight,
+            TrafficSignType::ValidInDistance,
+            TrafficSignType::StopIn,
+            TrafficSignType::LeftArrow,
+            TrafficSignType::LeftBendArrow,
+            TrafficSignType::RightArrow,
+            TrafficSignType::RightBendArrow,
+            TrafficSignType::Accident,
+            TrafficSignType::Snow,
+            TrafficSignType::Fog,
+            TrafficSignType::RollingHighwayInformation,
+            TrafficSignType::Services,
+            TrafficSignType::TimeRange,
+            TrafficSignType::ParkingDiscTimeRestriction,
+            TrafficSignType::Weight,
+            TrafficSignType::Wet,
+            TrafficSignType::ParkingConstraint,
+            TrafficSignType::NoWaitingSideStripes,
+            TrafficSignType::Rain,
+            TrafficSignType::SnowRain,
+            TrafficSignType::Night,
+            TrafficSignType::Stop4Way,
+            TrafficSignType::Truck,
+            TrafficSignType::TractorsMayBePassed,
+            TrafficSignType::Hazardous,
+            TrafficSignType::Trailer,
+            TrafficSignType::Zone,
+            TrafficSignType::Motorcycle,
+            TrafficSignType::MotorcycleAllowed,
+            TrafficSignType::Car,
+            TrafficSignType::Unknown,
+        ];
+
+        for variant in variants {
+            let cpp = traffic_sign_type_to_cpp(&variant);
+            let roundtrip = traffic_sign_type_from_cpp(&cpp);
+            assert_eq!(roundtrip, variant);
+        }
     }
 }
 
