@@ -149,6 +149,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // other roads that point to the same sign ID.
         println!("    related_lanes: {:?}", sign.related_lanes());
 
+        // dependent_signs lists IDs of signs that depend on this sign (if any).
+        println!("    dependent_signs: {:?}", sign.dependent_signs());
+
         // The bounding box describes the sign's oriented bounding volume in the
         // inertial frame.  get_vertices() always returns 8 corner points.
         let bb = sign.bounding_box();

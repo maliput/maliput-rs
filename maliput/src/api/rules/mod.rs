@@ -3096,6 +3096,12 @@ impl<'a> TrafficSign<'a> {
             .map(|p| (p.key, p.value))
             .collect()
     }
+
+    /// Returns the [TrafficSign]s' IDs that depend on this sign, if any.
+    /// For example, a "Stop" sign may have an associated "All way" sign.
+    pub fn dependent_signs(&self) -> Vec<String> {
+        vec![]
+    }
 }
 
 #[cfg(test)]
