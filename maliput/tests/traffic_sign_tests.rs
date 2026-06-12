@@ -191,3 +191,23 @@ fn traffic_sign_book_find_by_type_test() {
     let yield_signs = book.find_by_type(&maliput::api::rules::TrafficSignType::Yield);
     assert!(yield_signs.is_empty());
 }
+
+#[test]
+fn traffic_sign_dependent_signs_test() {
+    let road_network = common::create_malidrive_road_network(
+        "TwoRoadsWithTrafficSigns.xodr",
+        None,
+        Some("traffic_control_device_db_example.yaml"),
+    );
+    let book = road_network.traffic_sign_book();
+
+    let ss1 = book.get_traffic_sign(&SS1_ID.to_string()).expect("SS1 not found");
+    let ss1_deps = ss1.dependent_signs();
+    // In this example, there are no dependent signs defined.
+    assert!(ss1_deps.is_empty(), "Expected no dependent signs for SS1, got {:?}", ss1_deps);
+
+    let ss2 = book.get_traffic_sign(&SS2_ID.to_string()).expect("SS2 not found");
+    let ss2_deps = ss2.dependent_signs();
+    // In this example, there are no dependent signs defined.
+    assert!(ss2_deps.is_empty(), "Expected no dependent signs for SS2, got {:?}", ss2_deps);
+}
