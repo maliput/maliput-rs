@@ -204,10 +204,18 @@ fn traffic_sign_dependent_signs_test() {
     let ss1 = book.get_traffic_sign(&SS1_ID.to_string()).expect("SS1 not found");
     let ss1_deps = ss1.dependent_signs();
     // In this example, there are no dependent signs defined.
-    assert!(ss1_deps.is_empty(), "Expected no dependent signs for SS1, got {:?}", ss1_deps);
+    assert!(
+        ss1_deps.is_empty(),
+        "Expected no dependent signs for SS1, got {:?}",
+        ss1_deps
+    );
 
     let ss2 = book.get_traffic_sign(&SS2_ID.to_string()).expect("SS2 not found");
     let ss2_deps = ss2.dependent_signs();
     // In this example, there are no dependent signs defined.
-    assert!(ss2_deps.is_empty(), "Expected no dependent signs for SS2, got {:?}", ss2_deps);
+    assert!(
+        ss2_deps.is_empty(),
+        "Expected no dependent signs for SS2, got {:?}",
+        ss2_deps
+    );
 }
