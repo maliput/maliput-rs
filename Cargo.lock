@@ -738,7 +738,7 @@ dependencies = [
 
 [[package]]
 name = "maliput"
-version = "0.30.0"
+version = "0.31.0"
 dependencies = [
  "assert_cmd",
  "clap 4.3.24",
