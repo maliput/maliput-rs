@@ -307,21 +307,21 @@ pub enum RoadMarkingType {
     Stop,
     StopLine,
     Crosswalk,
-    ParkingSpace,
-    EmergencyLane,
+    RailroadCrossing,
     SpeedLimit,
-    DoNotStop,
-    RailRoad,
+    NoStopping,
+    CarParking,
     GiveWay,
-    ArrowTurnRight,
-    ArrowTurnLeft,
-    ArrowForwardTurnRight,
-    ArrowForwardTurnLeft,
-    ArrowForward,
-    ArrowForwardTurnRightTurnLeft,
-    ArrowTurnRightTurnLeft,
-    ArrowUTurnRight,
-    ArrowUTurnLeft,
+    PrescribedLeftTurn,
+    PrescribedRightTurn,
+    PrescribedStraight,
+    PrescribedRightTurnAndStraight,
+    PrescribedLeftTurnAndStraight,
+    PrescribedLeftTurnAndRightTurn,
+    PrescribedLeftTurnRightTurnAndStraight,
+    PrescribedUTurnLeft,
+    PrescribedUTurnRight,
+    EmergencyLane,
     Unknown,
 }
 
@@ -330,27 +330,29 @@ fn road_marking_type_from_cpp(t: maliput_sys::api::objects::ffi::RoadMarkingType
         maliput_sys::api::objects::ffi::RoadMarkingType::kStop => RoadMarkingType::Stop,
         maliput_sys::api::objects::ffi::RoadMarkingType::kStopLine => RoadMarkingType::StopLine,
         maliput_sys::api::objects::ffi::RoadMarkingType::kCrosswalk => RoadMarkingType::Crosswalk,
-        maliput_sys::api::objects::ffi::RoadMarkingType::kParkingSpace => RoadMarkingType::ParkingSpace,
-        maliput_sys::api::objects::ffi::RoadMarkingType::kEmergencyLane => RoadMarkingType::EmergencyLane,
+        maliput_sys::api::objects::ffi::RoadMarkingType::kRailroadCrossing => RoadMarkingType::RailroadCrossing,
         maliput_sys::api::objects::ffi::RoadMarkingType::kSpeedLimit => RoadMarkingType::SpeedLimit,
-        maliput_sys::api::objects::ffi::RoadMarkingType::kDoNotStop => RoadMarkingType::DoNotStop,
-        maliput_sys::api::objects::ffi::RoadMarkingType::kRailRoad => RoadMarkingType::RailRoad,
+        maliput_sys::api::objects::ffi::RoadMarkingType::kNoStopping => RoadMarkingType::NoStopping,
+        maliput_sys::api::objects::ffi::RoadMarkingType::kCarParking => RoadMarkingType::CarParking,
         maliput_sys::api::objects::ffi::RoadMarkingType::kGiveWay => RoadMarkingType::GiveWay,
-        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowTurnRight => RoadMarkingType::ArrowTurnRight,
-        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowTurnLeft => RoadMarkingType::ArrowTurnLeft,
-        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowForwardTurnRight => {
-            RoadMarkingType::ArrowForwardTurnRight
+        maliput_sys::api::objects::ffi::RoadMarkingType::kPrescribedLeftTurn => RoadMarkingType::PrescribedLeftTurn,
+        maliput_sys::api::objects::ffi::RoadMarkingType::kPrescribedRightTurn => RoadMarkingType::PrescribedRightTurn,
+        maliput_sys::api::objects::ffi::RoadMarkingType::kPrescribedStraight => RoadMarkingType::PrescribedStraight,
+        maliput_sys::api::objects::ffi::RoadMarkingType::kPrescribedRightTurnAndStraight => {
+            RoadMarkingType::PrescribedRightTurnAndStraight
         }
-        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowForwardTurnLeft => RoadMarkingType::ArrowForwardTurnLeft,
-        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowForward => RoadMarkingType::ArrowForward,
-        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowForwardTurnRightTurnLeft => {
-            RoadMarkingType::ArrowForwardTurnRightTurnLeft
+        maliput_sys::api::objects::ffi::RoadMarkingType::kPrescribedLeftTurnAndStraight => {
+            RoadMarkingType::PrescribedLeftTurnAndStraight
         }
-        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowTurnRightTurnLeft => {
-            RoadMarkingType::ArrowTurnRightTurnLeft
+        maliput_sys::api::objects::ffi::RoadMarkingType::kPrescribedLeftTurnAndRightTurn => {
+            RoadMarkingType::PrescribedLeftTurnAndRightTurn
         }
-        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowUTurnRight => RoadMarkingType::ArrowUTurnRight,
-        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowUTurnLeft => RoadMarkingType::ArrowUTurnLeft,
+        maliput_sys::api::objects::ffi::RoadMarkingType::kPrescribedLeftTurnRightTurnAndStraight => {
+            RoadMarkingType::PrescribedLeftTurnRightTurnAndStraight
+        }
+        maliput_sys::api::objects::ffi::RoadMarkingType::kPrescribedUTurnLeft => RoadMarkingType::PrescribedUTurnLeft,
+        maliput_sys::api::objects::ffi::RoadMarkingType::kPrescribedUTurnRight => RoadMarkingType::PrescribedUTurnRight,
+        maliput_sys::api::objects::ffi::RoadMarkingType::kEmergencyLane => RoadMarkingType::EmergencyLane,
         maliput_sys::api::objects::ffi::RoadMarkingType::kUnknown => RoadMarkingType::Unknown,
         _ => RoadMarkingType::Unknown,
     }
@@ -361,27 +363,29 @@ fn road_marking_type_to_cpp(t: &RoadMarkingType) -> maliput_sys::api::objects::f
         RoadMarkingType::Stop => maliput_sys::api::objects::ffi::RoadMarkingType::kStop,
         RoadMarkingType::StopLine => maliput_sys::api::objects::ffi::RoadMarkingType::kStopLine,
         RoadMarkingType::Crosswalk => maliput_sys::api::objects::ffi::RoadMarkingType::kCrosswalk,
-        RoadMarkingType::ParkingSpace => maliput_sys::api::objects::ffi::RoadMarkingType::kParkingSpace,
-        RoadMarkingType::EmergencyLane => maliput_sys::api::objects::ffi::RoadMarkingType::kEmergencyLane,
+        RoadMarkingType::RailroadCrossing => maliput_sys::api::objects::ffi::RoadMarkingType::kRailroadCrossing,
         RoadMarkingType::SpeedLimit => maliput_sys::api::objects::ffi::RoadMarkingType::kSpeedLimit,
-        RoadMarkingType::DoNotStop => maliput_sys::api::objects::ffi::RoadMarkingType::kDoNotStop,
-        RoadMarkingType::RailRoad => maliput_sys::api::objects::ffi::RoadMarkingType::kRailRoad,
+        RoadMarkingType::NoStopping => maliput_sys::api::objects::ffi::RoadMarkingType::kNoStopping,
+        RoadMarkingType::CarParking => maliput_sys::api::objects::ffi::RoadMarkingType::kCarParking,
         RoadMarkingType::GiveWay => maliput_sys::api::objects::ffi::RoadMarkingType::kGiveWay,
-        RoadMarkingType::ArrowTurnRight => maliput_sys::api::objects::ffi::RoadMarkingType::kArrowTurnRight,
-        RoadMarkingType::ArrowTurnLeft => maliput_sys::api::objects::ffi::RoadMarkingType::kArrowTurnLeft,
-        RoadMarkingType::ArrowForwardTurnRight => {
-            maliput_sys::api::objects::ffi::RoadMarkingType::kArrowForwardTurnRight
+        RoadMarkingType::PrescribedLeftTurn => maliput_sys::api::objects::ffi::RoadMarkingType::kPrescribedLeftTurn,
+        RoadMarkingType::PrescribedRightTurn => maliput_sys::api::objects::ffi::RoadMarkingType::kPrescribedRightTurn,
+        RoadMarkingType::PrescribedStraight => maliput_sys::api::objects::ffi::RoadMarkingType::kPrescribedStraight,
+        RoadMarkingType::PrescribedRightTurnAndStraight => {
+            maliput_sys::api::objects::ffi::RoadMarkingType::kPrescribedRightTurnAndStraight
         }
-        RoadMarkingType::ArrowForwardTurnLeft => maliput_sys::api::objects::ffi::RoadMarkingType::kArrowForwardTurnLeft,
-        RoadMarkingType::ArrowForward => maliput_sys::api::objects::ffi::RoadMarkingType::kArrowForward,
-        RoadMarkingType::ArrowForwardTurnRightTurnLeft => {
-            maliput_sys::api::objects::ffi::RoadMarkingType::kArrowForwardTurnRightTurnLeft
+        RoadMarkingType::PrescribedLeftTurnAndStraight => {
+            maliput_sys::api::objects::ffi::RoadMarkingType::kPrescribedLeftTurnAndStraight
         }
-        RoadMarkingType::ArrowTurnRightTurnLeft => {
-            maliput_sys::api::objects::ffi::RoadMarkingType::kArrowTurnRightTurnLeft
+        RoadMarkingType::PrescribedLeftTurnAndRightTurn => {
+            maliput_sys::api::objects::ffi::RoadMarkingType::kPrescribedLeftTurnAndRightTurn
         }
-        RoadMarkingType::ArrowUTurnRight => maliput_sys::api::objects::ffi::RoadMarkingType::kArrowUTurnRight,
-        RoadMarkingType::ArrowUTurnLeft => maliput_sys::api::objects::ffi::RoadMarkingType::kArrowUTurnLeft,
+        RoadMarkingType::PrescribedLeftTurnRightTurnAndStraight => {
+            maliput_sys::api::objects::ffi::RoadMarkingType::kPrescribedLeftTurnRightTurnAndStraight
+        }
+        RoadMarkingType::PrescribedUTurnLeft => maliput_sys::api::objects::ffi::RoadMarkingType::kPrescribedUTurnLeft,
+        RoadMarkingType::PrescribedUTurnRight => maliput_sys::api::objects::ffi::RoadMarkingType::kPrescribedUTurnRight,
+        RoadMarkingType::EmergencyLane => maliput_sys::api::objects::ffi::RoadMarkingType::kEmergencyLane,
         RoadMarkingType::Unknown => maliput_sys::api::objects::ffi::RoadMarkingType::kUnknown,
     }
 }

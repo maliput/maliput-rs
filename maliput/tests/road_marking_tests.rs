@@ -189,7 +189,7 @@ fn road_marking_book_find_by_type_test() {
     // No stop lines, arrows, or other markings in this map.
     let stop_lines = book.find_by_type(&maliput::api::objects::RoadMarkingType::StopLine);
     assert!(stop_lines.is_empty());
-    let arrows = book.find_by_type(&maliput::api::objects::RoadMarkingType::ArrowForward);
+    let arrows = book.find_by_type(&maliput::api::objects::RoadMarkingType::PrescribedStraight);
     assert!(arrows.is_empty());
     let unknown = book.find_by_type(&maliput::api::objects::RoadMarkingType::Unknown);
     assert!(unknown.is_empty());
