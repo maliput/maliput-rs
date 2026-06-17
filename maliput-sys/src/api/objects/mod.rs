@@ -90,28 +90,29 @@ pub mod ffi {
 
     /// Shared enum representing different types of road markings.
     /// This is needed to access the enum variant from Rust API since the C++ enum has an opaque implementation.
-    /// The order of these variants must match with the order of the enum class defined in maliput C++ API.
+    /// Explicit discriminants are required because RoadMarkingType is now an alias for the merged
+    /// TrafficControlDeviceType enum, so values are no longer sequential starting from 0.
     #[repr(i32)]
     enum RoadMarkingType {
-        kStop = 0,
-        kStopLine,
-        kCrosswalk,
-        kParkingSpace,
-        kEmergencyLane,
-        kSpeedLimit,
-        kDoNotStop,
-        kRailRoad,
-        kGiveWay,
-        kArrowTurnRight,
-        kArrowTurnLeft,
-        kArrowForwardTurnRight,
-        kArrowForwardTurnLeft,
-        kArrowForward,
-        kArrowForwardTurnRightTurnLeft,
-        kArrowTurnRightTurnLeft,
-        kArrowUTurnRight,
-        kArrowUTurnLeft,
-        kUnknown,
+        kStop = 2,
+        kStopLine = 18,
+        kCrosswalk = 19,
+        kParkingSpace = 302,
+        kEmergencyLane = 303,
+        kSpeedLimit = 4,
+        kDoNotStop = 304,
+        kRailRoad = 305,
+        kGiveWay = 56,
+        kArrowTurnRight = 306,
+        kArrowTurnLeft = 307,
+        kArrowForwardTurnRight = 308,
+        kArrowForwardTurnLeft = 309,
+        kArrowForward = 310,
+        kArrowForwardTurnRightTurnLeft = 311,
+        kArrowTurnRightTurnLeft = 312,
+        kArrowUTurnRight = 313,
+        kArrowUTurnLeft = 314,
+        kUnknown = 315,
     }
 
     /// Shared enum representing the unit of a `RoadMarkingValue`.
