@@ -99,6 +99,10 @@ fn road_marking_api() {
     assert_eq!(rm1.id(), RM1_ID);
     assert_eq!(rm1.name(), Some("Crosswalk1".to_string()));
     assert_eq!(rm1.marking_type(), maliput::api::objects::RoadMarkingType::Crosswalk);
+    assert_eq!(
+        rm1.marking_type(),
+        maliput::api::rules::TrafficControlDeviceType::Crosswalk
+    );
 
     // RM1: s=120 on road 1 (x=0..200, hdg=0) with t=0, zOffset=0 → inertial ≈ (120, 0, 0).
     let pos1 = rm1.position();

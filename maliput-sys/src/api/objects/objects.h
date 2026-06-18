@@ -41,6 +41,7 @@
 #include <maliput/api/objects/road_marking_book.h>
 #include <maliput/api/objects/road_object.h>
 #include <maliput/api/objects/road_object_book.h>
+#include <maliput/api/traffic_control_device_type.h>
 #include <maliput/math/bounding_box.h>
 #include <maliput/math/vector.h>
 
@@ -96,12 +97,12 @@ rust::Vec<OutlineCornerData> Outline_corners(const Outline& outline);
 std::unique_ptr<std::vector<ConstRoadMarkingPtr>> RoadMarkingBook_RoadMarkings(const RoadMarkingBook& book);
 const RoadMarking* RoadMarkingBook_GetRoadMarking(const RoadMarkingBook& book, const rust::String& id);
 std::unique_ptr<std::vector<ConstRoadMarkingPtr>> RoadMarkingBook_FindByLane(const RoadMarkingBook& book, const rust::String& lane_id);
-std::unique_ptr<std::vector<ConstRoadMarkingPtr>> RoadMarkingBook_FindByType(const RoadMarkingBook& book, RoadMarkingType marking_type);
+std::unique_ptr<std::vector<ConstRoadMarkingPtr>> RoadMarkingBook_FindByType(const RoadMarkingBook& book, maliput::api::rules::TrafficControlDeviceType marking_type);
 
 // RoadMarking bridge function declarations.
 rust::String RoadMarking_id(const RoadMarking& marking);
 std::unique_ptr<maliput::api::rules::StringWrapper> RoadMarking_name(const RoadMarking& marking);
-RoadMarkingType RoadMarking_marking_type(const RoadMarking& marking);
+maliput::api::rules::TrafficControlDeviceType RoadMarking_marking_type(const RoadMarking& marking);
 std::unique_ptr<maliput::api::InertialPosition> RoadMarking_position_inertial(const RoadMarking& marking);
 bool RoadMarking_position_has_lane_position(const RoadMarking& marking);
 rust::String RoadMarking_position_lane_id(const RoadMarking& marking);
