@@ -301,90 +301,8 @@ impl<'a> RoadObjectBook<'a> {
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-/// Defines the possible road marking types.
-pub enum RoadMarkingType {
-    Stop,
-    StopLine,
-    Crosswalk,
-    ParkingSpace,
-    EmergencyLane,
-    SpeedLimit,
-    DoNotStop,
-    RailRoad,
-    GiveWay,
-    ArrowTurnRight,
-    ArrowTurnLeft,
-    ArrowForwardTurnRight,
-    ArrowForwardTurnLeft,
-    ArrowForward,
-    ArrowForwardTurnRightTurnLeft,
-    ArrowTurnRightTurnLeft,
-    ArrowUTurnRight,
-    ArrowUTurnLeft,
-    Unknown,
-}
-
-fn road_marking_type_from_cpp(t: maliput_sys::api::objects::ffi::RoadMarkingType) -> RoadMarkingType {
-    match t {
-        maliput_sys::api::objects::ffi::RoadMarkingType::kStop => RoadMarkingType::Stop,
-        maliput_sys::api::objects::ffi::RoadMarkingType::kStopLine => RoadMarkingType::StopLine,
-        maliput_sys::api::objects::ffi::RoadMarkingType::kCrosswalk => RoadMarkingType::Crosswalk,
-        maliput_sys::api::objects::ffi::RoadMarkingType::kParkingSpace => RoadMarkingType::ParkingSpace,
-        maliput_sys::api::objects::ffi::RoadMarkingType::kEmergencyLane => RoadMarkingType::EmergencyLane,
-        maliput_sys::api::objects::ffi::RoadMarkingType::kSpeedLimit => RoadMarkingType::SpeedLimit,
-        maliput_sys::api::objects::ffi::RoadMarkingType::kDoNotStop => RoadMarkingType::DoNotStop,
-        maliput_sys::api::objects::ffi::RoadMarkingType::kRailRoad => RoadMarkingType::RailRoad,
-        maliput_sys::api::objects::ffi::RoadMarkingType::kGiveWay => RoadMarkingType::GiveWay,
-        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowTurnRight => RoadMarkingType::ArrowTurnRight,
-        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowTurnLeft => RoadMarkingType::ArrowTurnLeft,
-        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowForwardTurnRight => {
-            RoadMarkingType::ArrowForwardTurnRight
-        }
-        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowForwardTurnLeft => RoadMarkingType::ArrowForwardTurnLeft,
-        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowForward => RoadMarkingType::ArrowForward,
-        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowForwardTurnRightTurnLeft => {
-            RoadMarkingType::ArrowForwardTurnRightTurnLeft
-        }
-        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowTurnRightTurnLeft => {
-            RoadMarkingType::ArrowTurnRightTurnLeft
-        }
-        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowUTurnRight => RoadMarkingType::ArrowUTurnRight,
-        maliput_sys::api::objects::ffi::RoadMarkingType::kArrowUTurnLeft => RoadMarkingType::ArrowUTurnLeft,
-        maliput_sys::api::objects::ffi::RoadMarkingType::kUnknown => RoadMarkingType::Unknown,
-        _ => RoadMarkingType::Unknown,
-    }
-}
-
-fn road_marking_type_to_cpp(t: &RoadMarkingType) -> maliput_sys::api::objects::ffi::RoadMarkingType {
-    match t {
-        RoadMarkingType::Stop => maliput_sys::api::objects::ffi::RoadMarkingType::kStop,
-        RoadMarkingType::StopLine => maliput_sys::api::objects::ffi::RoadMarkingType::kStopLine,
-        RoadMarkingType::Crosswalk => maliput_sys::api::objects::ffi::RoadMarkingType::kCrosswalk,
-        RoadMarkingType::ParkingSpace => maliput_sys::api::objects::ffi::RoadMarkingType::kParkingSpace,
-        RoadMarkingType::EmergencyLane => maliput_sys::api::objects::ffi::RoadMarkingType::kEmergencyLane,
-        RoadMarkingType::SpeedLimit => maliput_sys::api::objects::ffi::RoadMarkingType::kSpeedLimit,
-        RoadMarkingType::DoNotStop => maliput_sys::api::objects::ffi::RoadMarkingType::kDoNotStop,
-        RoadMarkingType::RailRoad => maliput_sys::api::objects::ffi::RoadMarkingType::kRailRoad,
-        RoadMarkingType::GiveWay => maliput_sys::api::objects::ffi::RoadMarkingType::kGiveWay,
-        RoadMarkingType::ArrowTurnRight => maliput_sys::api::objects::ffi::RoadMarkingType::kArrowTurnRight,
-        RoadMarkingType::ArrowTurnLeft => maliput_sys::api::objects::ffi::RoadMarkingType::kArrowTurnLeft,
-        RoadMarkingType::ArrowForwardTurnRight => {
-            maliput_sys::api::objects::ffi::RoadMarkingType::kArrowForwardTurnRight
-        }
-        RoadMarkingType::ArrowForwardTurnLeft => maliput_sys::api::objects::ffi::RoadMarkingType::kArrowForwardTurnLeft,
-        RoadMarkingType::ArrowForward => maliput_sys::api::objects::ffi::RoadMarkingType::kArrowForward,
-        RoadMarkingType::ArrowForwardTurnRightTurnLeft => {
-            maliput_sys::api::objects::ffi::RoadMarkingType::kArrowForwardTurnRightTurnLeft
-        }
-        RoadMarkingType::ArrowTurnRightTurnLeft => {
-            maliput_sys::api::objects::ffi::RoadMarkingType::kArrowTurnRightTurnLeft
-        }
-        RoadMarkingType::ArrowUTurnRight => maliput_sys::api::objects::ffi::RoadMarkingType::kArrowUTurnRight,
-        RoadMarkingType::ArrowUTurnLeft => maliput_sys::api::objects::ffi::RoadMarkingType::kArrowUTurnLeft,
-        RoadMarkingType::Unknown => maliput_sys::api::objects::ffi::RoadMarkingType::kUnknown,
-    }
-}
+/// Domain alias for road marking semantic types.
+pub type RoadMarkingType = crate::api::rules::TrafficControlDeviceType;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 /// Unit of a [RoadMarkingValue].
@@ -435,7 +353,7 @@ impl<'a> RoadMarking<'a> {
     /// Returns the [RoadMarkingType] of this road marking.
     pub fn marking_type(&self) -> RoadMarkingType {
         let t = maliput_sys::api::objects::ffi::RoadMarking_marking_type(self.road_marking);
-        road_marking_type_from_cpp(t)
+        crate::api::rules::traffic_control_device_type_from_cpp(&t)
     }
 
     /// Returns the [RoadObjectPosition] of this road marking.
@@ -542,7 +460,7 @@ impl<'a> RoadMarkingBook<'a> {
 
     /// Returns all [RoadMarking]s of the given [RoadMarkingType].
     pub fn find_by_type(&self, marking_type: &RoadMarkingType) -> Vec<RoadMarking<'_>> {
-        let t_ffi = road_marking_type_to_cpp(marking_type);
+        let t_ffi = crate::api::rules::traffic_control_device_type_to_cpp(marking_type);
         maliput_sys::api::objects::ffi::RoadMarkingBook_FindByType(self.road_marking_book, t_ffi)
             .into_iter()
             .map(|ptr| RoadMarking {

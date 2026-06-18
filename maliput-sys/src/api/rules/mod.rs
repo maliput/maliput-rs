@@ -179,7 +179,7 @@ pub mod ffi {
     }
 
     #[repr(i32)]
-    enum TrafficSignType {
+    enum TrafficControlDeviceType {
         kNone = 0,
         kOther,
         kStop,
@@ -482,6 +482,7 @@ pub mod ffi {
         kMotorcycle,
         kMotorcycleAllowed,
         kCar,
+        kEmergencyLane,
         kUnknown,
     }
 
@@ -542,7 +543,6 @@ pub mod ffi {
 
         // TrafficSignBook bindings definitions.
         type TrafficSignBook;
-        type TrafficSignType;
         type TrafficSignValueUnit;
         fn TrafficSignBook_TrafficSigns(book: &TrafficSignBook) -> UniquePtr<CxxVector<ConstTrafficSignPtr>>;
         fn TrafficSignBook_GetTrafficSign(book: &TrafficSignBook, id: &String) -> *const TrafficSign;
@@ -552,14 +552,14 @@ pub mod ffi {
         ) -> UniquePtr<CxxVector<ConstTrafficSignPtr>>;
         fn TrafficSignBook_FindByType(
             book: &TrafficSignBook,
-            sign_type: TrafficSignType,
+            sign_type: TrafficControlDeviceType,
         ) -> UniquePtr<CxxVector<ConstTrafficSignPtr>>;
 
         // TrafficSign bindings definitions.
         type TrafficSign;
         fn TrafficSign_id(sign: &TrafficSign) -> String;
         // This method could be bound as `fn type(self: &TrafficSign) -> TrafficSignType` but it causes a conflict with the `type` keyword in Rust.
-        fn TrafficSign_type(sign: &TrafficSign) -> &TrafficSignType;
+        fn TrafficSign_type(sign: &TrafficSign) -> TrafficControlDeviceType;
         fn TrafficSign_position_road_network(sign: &TrafficSign) -> UniquePtr<InertialPosition>;
         fn TrafficSign_orientation_road_network(sign: &TrafficSign) -> UniquePtr<Rotation>;
         fn TrafficSign_message(sign: &TrafficSign) -> UniquePtr<StringWrapper>;

@@ -233,8 +233,8 @@ std::unique_ptr<std::vector<ConstRoadMarkingPtr>> RoadMarkingBook_FindByLane(
 }
 
 std::unique_ptr<std::vector<ConstRoadMarkingPtr>> RoadMarkingBook_FindByType(
-    const RoadMarkingBook& book, RoadMarkingType marking_type) {
-  const auto markings_cpp = book.FindByType(marking_type);
+    const RoadMarkingBook& book, maliput::api::rules::TrafficControlDeviceType marking_type) {
+  const auto markings_cpp = book.FindByType(static_cast<::maliput::api::TrafficControlDeviceType>(marking_type));
   std::vector<ConstRoadMarkingPtr> markings;
   markings.reserve(markings_cpp.size());
   for (const auto marking : markings_cpp) {
@@ -255,8 +255,8 @@ std::unique_ptr<maliput::api::rules::StringWrapper> RoadMarking_name(const RoadM
       maliput::api::rules::StringWrapper{rust::String{*marking.name()}});
 }
 
-RoadMarkingType RoadMarking_marking_type(const RoadMarking& marking) {
-  return marking.type();
+maliput::api::rules::TrafficControlDeviceType RoadMarking_marking_type(const RoadMarking& marking) {
+  return static_cast<maliput::api::rules::TrafficControlDeviceType>(marking.type());
 }
 
 std::unique_ptr<maliput::api::InertialPosition> RoadMarking_position_inertial(const RoadMarking& marking) {

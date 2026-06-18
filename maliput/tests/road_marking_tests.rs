@@ -99,6 +99,10 @@ fn road_marking_api() {
     assert_eq!(rm1.id(), RM1_ID);
     assert_eq!(rm1.name(), Some("Crosswalk1".to_string()));
     assert_eq!(rm1.marking_type(), maliput::api::objects::RoadMarkingType::Crosswalk);
+    assert_eq!(
+        rm1.marking_type(),
+        maliput::api::rules::TrafficControlDeviceType::Crosswalk
+    );
 
     // RM1: s=120 on road 1 (x=0..200, hdg=0) with t=0, zOffset=0 → inertial ≈ (120, 0, 0).
     let pos1 = rm1.position();
@@ -189,7 +193,7 @@ fn road_marking_book_find_by_type_test() {
     // No stop lines, arrows, or other markings in this map.
     let stop_lines = book.find_by_type(&maliput::api::objects::RoadMarkingType::StopLine);
     assert!(stop_lines.is_empty());
-    let arrows = book.find_by_type(&maliput::api::objects::RoadMarkingType::ArrowForward);
+    let arrows = book.find_by_type(&maliput::api::objects::RoadMarkingType::PrescribedStraight);
     assert!(arrows.is_empty());
     let unknown = book.find_by_type(&maliput::api::objects::RoadMarkingType::Unknown);
     assert!(unknown.is_empty());

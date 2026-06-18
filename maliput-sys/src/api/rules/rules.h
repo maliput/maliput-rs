@@ -33,6 +33,7 @@
 
 #pragma once
 
+#include <cstdint>
 #include <memory>
 #include <optional>
 #include <vector>
@@ -50,6 +51,7 @@
 #include <maliput/api/rules/traffic_light_book.h>
 #include <maliput/api/rules/traffic_sign.h>
 #include <maliput/api/rules/traffic_sign_book.h>
+#include <maliput/api/traffic_control_device_type.h>
 #include <maliput/math/bounding_box.h>
 #include <maliput/math/roll_pitch_yaw.h>
 #include <maliput/math/vector.h>
@@ -83,6 +85,7 @@ struct DiscreteValueNextState;
 struct RangeValueNextState;
 struct ConstLaneSRangeRef;
 struct TrafficSignValueData;
+enum class TrafficControlDeviceType : std::int32_t;
 
 // Function declarations - implementations are in rules.cc
 std::unique_ptr<std::vector<ConstTrafficLightPtr>> TrafficLightBook_TrafficLights(const TrafficLightBook& traffic_light_book);
@@ -192,11 +195,11 @@ std::unique_ptr<RangeValueNextState> RangeValueRuleStateProviderQuery_next(const
 std::unique_ptr<std::vector<ConstTrafficSignPtr>> TrafficSignBook_TrafficSigns(const TrafficSignBook& traffic_sign_book);
 const TrafficSign* TrafficSignBook_GetTrafficSign(const TrafficSignBook& traffic_sign_book, const rust::String& id);
 std::unique_ptr<std::vector<ConstTrafficSignPtr>> TrafficSignBook_FindByLane(const TrafficSignBook& traffic_sign_book, const rust::String& lane_id);
-std::unique_ptr<std::vector<ConstTrafficSignPtr>> TrafficSignBook_FindByType(const TrafficSignBook& traffic_sign_book, TrafficSignType sign_type);
+std::unique_ptr<std::vector<ConstTrafficSignPtr>> TrafficSignBook_FindByType(const TrafficSignBook& traffic_sign_book, TrafficControlDeviceType sign_type);
 
 // TrafficSign bindings declarations.
 rust::String TrafficSign_id(const TrafficSign& sign);
-const TrafficSignType& TrafficSign_type(const TrafficSign& sign);
+TrafficControlDeviceType TrafficSign_type(const TrafficSign& sign);
 std::unique_ptr<maliput::api::InertialPosition> TrafficSign_position_road_network(const TrafficSign& sign);
 std::unique_ptr<maliput::api::Rotation> TrafficSign_orientation_road_network(const TrafficSign& sign);
 std::unique_ptr<StringWrapper> TrafficSign_message(const TrafficSign& sign);

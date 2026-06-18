@@ -88,32 +88,6 @@ pub mod ffi {
         kVegetation,
     }
 
-    /// Shared enum representing different types of road markings.
-    /// This is needed to access the enum variant from Rust API since the C++ enum has an opaque implementation.
-    /// The order of these variants must match with the order of the enum class defined in maliput C++ API.
-    #[repr(i32)]
-    enum RoadMarkingType {
-        kStop = 0,
-        kStopLine,
-        kCrosswalk,
-        kParkingSpace,
-        kEmergencyLane,
-        kSpeedLimit,
-        kDoNotStop,
-        kRailRoad,
-        kGiveWay,
-        kArrowTurnRight,
-        kArrowTurnLeft,
-        kArrowForwardTurnRight,
-        kArrowForwardTurnLeft,
-        kArrowForward,
-        kArrowForwardTurnRightTurnLeft,
-        kArrowTurnRightTurnLeft,
-        kArrowUTurnRight,
-        kArrowUTurnLeft,
-        kUnknown,
-    }
-
     /// Shared enum representing the unit of a `RoadMarkingValue`.
     /// The order of these variants must match with the order of the enum class defined in maliput C++ API.
     #[repr(i32)]
@@ -132,6 +106,8 @@ pub mod ffi {
         type InertialPosition = crate::api::ffi::InertialPosition;
         #[namespace = "maliput::api"]
         type Rotation = crate::api::ffi::Rotation;
+        #[namespace = "maliput::api::rules"]
+        type TrafficControlDeviceType = crate::api::rules::ffi::TrafficControlDeviceType;
         #[namespace = "maliput::math"]
         type Vector3 = crate::math::ffi::Vector3;
         #[namespace = "maliput::math"]
@@ -193,8 +169,6 @@ pub mod ffi {
         fn Outline_num_corners(outline: &Outline) -> i32;
         fn Outline_corners(outline: &Outline) -> Vec<OutlineCornerData>;
 
-        // RoadMarkingType opaque type - this is needed to prevent CXX from redefining the enum (it'll use a `using` alias instead).
-        type RoadMarkingType;
         // RoadMarkingValueUnit opaque type - same reason as RoadMarkingType.
         type RoadMarkingValueUnit;
 
@@ -208,7 +182,7 @@ pub mod ffi {
         ) -> UniquePtr<CxxVector<ConstRoadMarkingPtr>>;
         fn RoadMarkingBook_FindByType(
             book: &RoadMarkingBook,
-            marking_type: RoadMarkingType,
+            marking_type: TrafficControlDeviceType,
         ) -> UniquePtr<CxxVector<ConstRoadMarkingPtr>>;
 
         // RoadMarking opaque type and bindings.
@@ -216,7 +190,7 @@ pub mod ffi {
         fn RoadMarking_id(marking: &RoadMarking) -> String;
         fn RoadMarking_name(marking: &RoadMarking) -> UniquePtr<StringWrapper>;
         // `type` is a reserved Rust keyword, so we expose it as a free function.
-        fn RoadMarking_marking_type(marking: &RoadMarking) -> RoadMarkingType;
+        fn RoadMarking_marking_type(marking: &RoadMarking) -> TrafficControlDeviceType;
         fn RoadMarking_position_inertial(marking: &RoadMarking) -> UniquePtr<InertialPosition>;
         fn RoadMarking_position_has_lane_position(marking: &RoadMarking) -> bool;
         fn RoadMarking_position_lane_id(marking: &RoadMarking) -> String;

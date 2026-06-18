@@ -587,8 +587,9 @@ std::unique_ptr<std::vector<ConstTrafficSignPtr>> TrafficSignBook_FindByLane(
 }
 
 std::unique_ptr<std::vector<ConstTrafficSignPtr>> TrafficSignBook_FindByType(
-    const TrafficSignBook& traffic_sign_book, TrafficSignType sign_type) {
-  const auto traffic_signs_cpp = traffic_sign_book.FindByType(sign_type);
+  const TrafficSignBook& traffic_sign_book, TrafficControlDeviceType sign_type) {
+  const auto traffic_signs_cpp = traffic_sign_book.FindByType(
+      static_cast<::maliput::api::TrafficControlDeviceType>(sign_type));
   std::vector<ConstTrafficSignPtr> traffic_signs;
   traffic_signs.reserve(traffic_signs_cpp.size());
   for (const auto traffic_sign : traffic_signs_cpp) {
@@ -601,8 +602,8 @@ rust::String TrafficSign_id(const TrafficSign& sign) {
   return sign.id().string();
 }
 
-const TrafficSignType& TrafficSign_type(const TrafficSign& sign) {
-  return sign.type();
+TrafficControlDeviceType TrafficSign_type(const TrafficSign& sign) {
+  return static_cast<TrafficControlDeviceType>(sign.type());
 }
 
 std::unique_ptr<maliput::api::InertialPosition> TrafficSign_position_road_network(const TrafficSign& sign) {
