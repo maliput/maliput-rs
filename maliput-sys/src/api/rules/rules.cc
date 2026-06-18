@@ -629,6 +629,14 @@ rust::Vec<rust::String> TrafficSign_related_lanes(const TrafficSign& sign) {
   return lane_ids;
 }
 
+rust::Vec<rust::String> TrafficSign_dependent_signs(const TrafficSign& sign) {
+  rust::Vec<rust::String> dependent_sign_ids;
+  for (const auto& sign_id : sign.dependent_signs()) {
+    dependent_sign_ids.push_back(sign_id.string());
+  }
+  return dependent_sign_ids;
+}
+
 std::unique_ptr<maliput::math::BoundingBox> TrafficSign_bounding_box(const TrafficSign& sign) {
   return std::make_unique<maliput::math::BoundingBox>(sign.bounding_box());
 }
