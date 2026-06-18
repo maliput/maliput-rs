@@ -566,6 +566,7 @@ pub mod ffi {
         fn is_dynamic(self: &TrafficSign) -> bool;
         fn is_movable(self: &TrafficSign) -> bool;
         fn TrafficSign_related_lanes(sign: &TrafficSign) -> Vec<String>;
+        fn TrafficSign_dependent_signs(sign: &TrafficSign) -> Vec<String>;
         fn TrafficSign_bounding_box(sign: &TrafficSign) -> UniquePtr<BoundingBox>;
         fn TrafficSign_value(sign: &TrafficSign) -> TrafficSignValueData;
         fn TrafficSign_properties(sign: &TrafficSign) -> Vec<StringPair>;
