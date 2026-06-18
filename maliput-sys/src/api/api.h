@@ -48,7 +48,6 @@
 #include <maliput/api/road_geometry.h>
 #include <maliput/api/regions.h>
 #include <maliput/api/segment.h>
-#include <maliput/api/traffic_control_device_type.h>
 
 #include <rust/cxx.h>
 
