@@ -53,6 +53,14 @@ mod common;
 
 const SS1_ID: &str = "SS1";
 const SS2_ID: &str = "SS2";
+const ST1_ID: &str = "ST1";
+const AW1_ID: &str = "AW1";
+const ST2_ID: &str = "ST2";
+const AW2_ID: &str = "AW2";
+const ST3_ID: &str = "ST3";
+const AW3_ID: &str = "AW3";
+const ST4_ID: &str = "ST4";
+const AW4_ID: &str = "AW4";
 
 #[test]
 fn traffic_sign_book_api() {
@@ -194,28 +202,31 @@ fn traffic_sign_book_find_by_type_test() {
 
 #[test]
 fn traffic_sign_dependent_signs_test() {
-    let road_network = common::create_malidrive_road_network(
-        "TwoRoadsWithTrafficSigns.xodr",
-        None,
-        Some("traffic_control_device_db_example.yaml"),
-    );
+    let road_network =
+        common::create_malidrive_road_network("XCrossStopAllWay.xodr", None, Some("testing_database.yaml"));
     let book = road_network.traffic_sign_book();
 
-    let ss1 = book.get_traffic_sign(&SS1_ID.to_string()).expect("SS1 not found");
-    let ss1_deps = ss1.dependent_signs();
-    // In this example, there are no dependent signs defined.
-    assert!(
-        ss1_deps.is_empty(),
-        "Expected no dependent signs for SS1, got {:?}",
-        ss1_deps
-    );
+    let expected_dependencies = [(ST1_ID, AW1_ID), (ST2_ID, AW2_ID), (ST3_ID, AW3_ID), (ST4_ID, AW4_ID)];
 
-    let ss2 = book.get_traffic_sign(&SS2_ID.to_string()).expect("SS2 not found");
-    let ss2_deps = ss2.dependent_signs();
-    // In this example, there are no dependent signs defined.
-    assert!(
-        ss2_deps.is_empty(),
-        "Expected no dependent signs for SS2, got {:?}",
-        ss2_deps
-    );
+    for (stop_id, all_way_id) in expected_dependencies {
+        let stop_sign = book
+            .get_traffic_sign(&stop_id.to_string())
+            .unwrap_or_else(|| panic!("{} not found", stop_id));
+        let dependent_signs = stop_sign.dependent_signs();
+        assert_eq!(
+            dependent_signs,
+            vec![all_way_id.to_string()],
+            "Unexpected dependent_signs for {}",
+            stop_id
+        );
+
+        let all_way_sign = book
+            .get_traffic_sign(&all_way_id.to_string())
+            .unwrap_or_else(|| panic!("{} not found", all_way_id));
+        assert!(
+            all_way_sign.dependent_signs().is_empty(),
+            "Expected no dependent signs for {}",
+            all_way_id
+        );
+    }
 }

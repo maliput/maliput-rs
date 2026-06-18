@@ -3334,7 +3334,7 @@ impl<'a> TrafficSign<'a> {
     /// Returns the [TrafficSign]s' IDs that depend on this sign, if any.
     /// For example, a "Stop" sign may have an associated "All way" sign.
     pub fn dependent_signs(&self) -> Vec<String> {
-        vec![]
+        maliput_sys::api::rules::ffi::TrafficSign_dependent_signs(self.traffic_sign)
     }
 }
 
