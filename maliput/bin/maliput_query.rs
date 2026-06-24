@@ -251,9 +251,9 @@ fn command_definitions() -> Vec<CommandDef> {
         },
         // ── Traffic Sign Book ──
         CommandDef {
-            name: "FindTrafficSignsByLane",
-            description: "List traffic signs associated with a lane",
-            params: &["lane_id"],
+            name: "GetAllTrafficSigns",
+            description: "List all traffic signs in the road network",
+            params: &[],
             category: CommandCategory::TrafficSign,
         },
         CommandDef {
@@ -263,9 +263,9 @@ fn command_definitions() -> Vec<CommandDef> {
             category: CommandCategory::TrafficSign,
         },
         CommandDef {
-            name: "GetAllTrafficSigns",
-            description: "List all traffic signs in the road network",
-            params: &[],
+            name: "FindTrafficSignsByLane",
+            description: "List traffic signs associated with a lane",
+            params: &["lane_id"],
             category: CommandCategory::TrafficSign,
         },
         CommandDef {
@@ -276,9 +276,9 @@ fn command_definitions() -> Vec<CommandDef> {
         },
         // ── Road Object Book ──
         CommandDef {
-            name: "FindRoadObjectsByLane",
-            description: "List road objects associated with a lane",
-            params: &["lane_id"],
+            name: "GetAllRoadObjects",
+            description: "List all road objects in the road network",
+            params: &[],
             category: CommandCategory::RoadObject,
         },
         CommandDef {
@@ -288,9 +288,9 @@ fn command_definitions() -> Vec<CommandDef> {
             category: CommandCategory::RoadObject,
         },
         CommandDef {
-            name: "GetAllRoadObjects",
-            description: "List all road objects in the road network",
-            params: &[],
+            name: "FindRoadObjectsByLane",
+            description: "List road objects associated with a lane",
+            params: &["lane_id"],
             category: CommandCategory::RoadObject,
         },
         CommandDef {
@@ -307,9 +307,9 @@ fn command_definitions() -> Vec<CommandDef> {
         },
         // ── Road Marking Book ──
         CommandDef {
-            name: "FindRoadMarkingsByLane",
-            description: "List road markings associated with a lane",
-            params: &["lane_id"],
+            name: "GetAllRoadMarkings",
+            description: "List all road markings in the road network",
+            params: &[],
             category: CommandCategory::RoadMarking,
         },
         CommandDef {
@@ -319,9 +319,9 @@ fn command_definitions() -> Vec<CommandDef> {
             category: CommandCategory::RoadMarking,
         },
         CommandDef {
-            name: "GetAllRoadMarkings",
-            description: "List all road markings in the road network",
-            params: &[],
+            name: "FindRoadMarkingsByLane",
+            description: "List road markings associated with a lane",
+            params: &["lane_id"],
             category: CommandCategory::RoadMarking,
         },
         CommandDef {
