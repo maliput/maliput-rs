@@ -860,7 +860,10 @@ fn execute_command(
                         out.push(format!("          color: {:?}", bulb.color()));
                         out.push(format!("          default_state: {:?}", bulb.get_default_state()));
                         out.push(format!("          states: {:?}", bulb.states()));
-                        out.push(format!("          arrow_orientation_rad: {:?}", bulb.arrow_orientation_rad()));
+                        out.push(format!(
+                            "          arrow_orientation_rad: {:?}",
+                            bulb.arrow_orientation_rad()
+                        ));
                         out.push(format!("          position_bulb_group: {}", bulb_pos));
                         out.push(format!(
                             "          orientation_bulb_group (rpy): roll={:.6} pitch={:.6} yaw={:.6}",
@@ -1261,19 +1264,20 @@ fn draw_command_list(frame: &mut Frame, app: &mut App, area: Rect) {
         " Commands "
     };
 
-    let list = List::new(items).block(
-        Block::default()
-            .borders(Borders::ALL)
-            .border_style(border_style)
-            .title(title)
-            .title_style(Style::default().fg(Color::White).add_modifier(Modifier::BOLD)),
-    )
-    .highlight_style(
-        Style::default()
-            .fg(Color::Black)
-            .bg(Color::Cyan)
-            .add_modifier(Modifier::BOLD),
-    );
+    let list = List::new(items)
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .border_style(border_style)
+                .title(title)
+                .title_style(Style::default().fg(Color::White).add_modifier(Modifier::BOLD)),
+        )
+        .highlight_style(
+            Style::default()
+                .fg(Color::Black)
+                .bg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
+        );
 
     let mut list_state = ListState::default()
         .with_selected(selected_list_index)
