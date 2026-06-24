@@ -373,6 +373,8 @@ struct App {
     commands: Vec<CommandDef>,
     /// ListState for the command list widget.
     command_list_state: ListState,
+    /// Scroll offset for the command list viewport.
+    command_list_scroll_offset: usize,
     /// Current focus panel.
     focus: Focus,
     /// Current parameter input values, indexed by parameter position.
@@ -427,6 +429,7 @@ impl App {
         App {
             commands,
             command_list_state,
+            command_list_scroll_offset: 0,
             focus: Focus::Commands,
             param_values: initial_params,
             active_param: 0,
@@ -1126,7 +1129,7 @@ fn draw_command_list(frame: &mut Frame, app: &mut App, area: Rect) {
     // Build list items with category headers.
     let mut items: Vec<ListItem> = Vec::new();
     let mut last_category: Option<CommandCategory> = None;
-    let mut list_index_to_cmd_index: Vec<Option<usize>> = Vec::new();
+    let mut selected_list_index: Option<usize> = None;
 
     for (i, cmd) in commands.iter().enumerate() {
         if last_category != Some(cmd.category) {
@@ -1138,19 +1141,12 @@ fn draw_command_list(frame: &mut Frame, app: &mut App, area: Rect) {
                 )]))
                 .style(Style::default()),
             );
-            list_index_to_cmd_index.push(None);
             last_category = Some(cmd.category);
         }
-        let style = if app.command_list_state.selected() == Some(i) {
-            Style::default()
-                .fg(Color::Black)
-                .bg(Color::Cyan)
-                .add_modifier(Modifier::BOLD)
-        } else {
-            Style::default().fg(Color::White)
-        };
-        items.push(ListItem::new(format!("  {}", cmd.name)).style(style));
-        list_index_to_cmd_index.push(Some(i));
+        if app.command_list_state.selected() == Some(i) {
+            selected_list_index = Some(items.len());
+        }
+        items.push(ListItem::new(format!("  {}", cmd.name)).style(Style::default().fg(Color::White)));
     }
 
     let border_style = if is_focused {
@@ -1171,11 +1167,19 @@ fn draw_command_list(frame: &mut Frame, app: &mut App, area: Rect) {
             .border_style(border_style)
             .title(title)
             .title_style(Style::default().fg(Color::White).add_modifier(Modifier::BOLD)),
+    )
+    .highlight_style(
+        Style::default()
+            .fg(Color::Black)
+            .bg(Color::Cyan)
+            .add_modifier(Modifier::BOLD),
     );
 
-    // We render the list as a plain widget (not stateful) since we handle
-    // highlighting manually above.
-    frame.render_widget(list, area);
+    let mut list_state = ListState::default()
+        .with_selected(selected_list_index)
+        .with_offset(app.command_list_scroll_offset);
+    frame.render_stateful_widget(list, area, &mut list_state);
+    app.command_list_scroll_offset = list_state.offset();
 }
 
 fn draw_right_panel(frame: &mut Frame, app: &mut App, area: Rect) {
