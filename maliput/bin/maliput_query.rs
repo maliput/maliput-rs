@@ -88,6 +88,7 @@ struct CommandDef {
 enum CommandCategory {
     General,
     OpenDrive,
+    TrafficLight,
     TrafficSign,
     RoadObject,
     RoadMarking,
@@ -98,6 +99,7 @@ impl CommandCategory {
         match self {
             CommandCategory::General => "General",
             CommandCategory::OpenDrive => "OpenDRIVE / OpenSCENARIO",
+            CommandCategory::TrafficLight => "Traffic Light Book",
             CommandCategory::TrafficSign => "Traffic Sign Book",
             CommandCategory::RoadObject => "Road Object Book",
             CommandCategory::RoadMarking => "Road Marking Book",
@@ -248,6 +250,25 @@ fn command_definitions() -> Vec<CommandDef> {
             description: "Orientation at OpenSCENARIO road pos",
             params: &["xodr_road_id", "xodr_s", "xodr_t"],
             category: CommandCategory::OpenDrive,
+        },
+        // ── Traffic Light Book ──
+        CommandDef {
+            name: "GetAllTrafficLights",
+            description: "List all traffic lights in the road network",
+            params: &[],
+            category: CommandCategory::TrafficLight,
+        },
+        CommandDef {
+            name: "GetTrafficLight",
+            description: "Get traffic light details by ID",
+            params: &["traffic_light_id"],
+            category: CommandCategory::TrafficLight,
+        },
+        CommandDef {
+            name: "FindTrafficLightsByLane",
+            description: "List traffic lights associated with a lane",
+            params: &["lane_id"],
+            category: CommandCategory::TrafficLight,
         },
         // ── Traffic Sign Book ──
         CommandDef {
@@ -503,6 +524,7 @@ fn execute_command(
     params: &[String],
 ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
     let rg = rn.road_geometry();
+    let light_book = rn.traffic_light_book();
     let sign_book = rn.traffic_sign_book();
     let object_book = rn.road_object_book();
     let marking_book = rn.road_marking_book();
@@ -786,6 +808,84 @@ fn execute_command(
                 out.push(format!("  roll: {}  pitch: {}  yaw: {}", parts[0], parts[1], parts[2]));
             } else {
                 out.push(format!("  Unexpected response: {}", res));
+            }
+        }
+        "GetAllTrafficLights" => {
+            let lights = light_book.traffic_lights();
+            out.push(format!("Traffic lights: {} total", lights.len()));
+            for light in lights {
+                out.push(format!("  {} (bulb_groups={})", light.id(), light.bulb_groups().len()));
+            }
+        }
+        "GetTrafficLight" => {
+            let light_id = &params[0];
+            if let Some(light) = light_book.get_traffic_light(light_id) {
+                let pos = light.position_road_network();
+                let orient = light.orientation_road_network();
+                out.push(format!("Traffic Light '{}':", light.id()));
+                out.push(format!("  position: {}", pos));
+                out.push(format!(
+                    "  orientation (rpy): roll={:.6} pitch={:.6} yaw={:.6}",
+                    orient.roll(),
+                    orient.pitch(),
+                    orient.yaw()
+                ));
+                out.push(format!("  related_lanes: {:?}", light.related_lanes()));
+
+                let bulb_groups = light.bulb_groups();
+                out.push(format!("  bulb_groups ({}):", bulb_groups.len()));
+                for bg in bulb_groups {
+                    let bg_pos = bg.position_traffic_light();
+                    let bg_orient = bg.orientation_traffic_light();
+                    out.push(format!("    bulb_group '{}':", bg.id()));
+                    out.push(format!("      unique_id: {}", bg.unique_id().string()));
+                    out.push(format!("      position_traffic_light: {}", bg_pos));
+                    out.push(format!(
+                        "      orientation_traffic_light (rpy): roll={:.6} pitch={:.6} yaw={:.6}",
+                        bg_orient.roll(),
+                        bg_orient.pitch(),
+                        bg_orient.yaw()
+                    ));
+
+                    let bulbs = bg.bulbs();
+                    out.push(format!("      bulbs ({}):", bulbs.len()));
+                    for bulb in bulbs {
+                        let unique_id = bulb.unique_id();
+                        let bulb_pos = bulb.position_bulb_group();
+                        let bulb_orient = bulb.orientation_bulb_group();
+                        let (bbox_min, bbox_max) = bulb.bounding_box();
+                        out.push(format!("        bulb '{}':", bulb.id()));
+                        out.push(format!("          unique_id: {}", unique_id.string()));
+                        out.push(format!("          type: {:?}", bulb.bulb_type()));
+                        out.push(format!("          color: {:?}", bulb.color()));
+                        out.push(format!("          default_state: {:?}", bulb.get_default_state()));
+                        out.push(format!("          states: {:?}", bulb.states()));
+                        out.push(format!("          arrow_orientation_rad: {:?}", bulb.arrow_orientation_rad()));
+                        out.push(format!("          position_bulb_group: {}", bulb_pos));
+                        out.push(format!(
+                            "          orientation_bulb_group (rpy): roll={:.6} pitch={:.6} yaw={:.6}",
+                            bulb_orient.roll(),
+                            bulb_orient.pitch(),
+                            bulb_orient.yaw()
+                        ));
+                        out.push(format!("          bounding_box.min: {:?}", bbox_min));
+                        out.push(format!("          bounding_box.max: {:?}", bbox_max));
+                    }
+                }
+            } else {
+                out.push(format!("Traffic light '{}' not found.", light_id));
+            }
+        }
+        "FindTrafficLightsByLane" => {
+            let lane_id = &params[0];
+            let lights = light_book.find_by_lane(lane_id);
+            if lights.is_empty() {
+                out.push(format!("No traffic lights found for lane '{}'.", lane_id));
+            } else {
+                out.push(format!("Traffic lights for lane '{}':", lane_id));
+                for light in lights {
+                    out.push(format!("  {}", light.id()));
+                }
             }
         }
         "GetAllTrafficSigns" => {
