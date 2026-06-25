@@ -49,6 +49,7 @@
 use std::collections::HashMap;
 use std::io;
 use std::path::PathBuf;
+use std::str::FromStr;
 use std::time::{Duration, Instant};
 
 use clap::Parser;
@@ -63,7 +64,10 @@ use ratatui::widgets::{
 };
 use ratatui::{DefaultTerminal, Frame};
 
-use maliput::api::{LanePosition, RoadNetwork, RoadNetworkBackend};
+use maliput::api::{
+    objects::RoadMarkingType, objects::RoadObjectType, rules::TrafficSignType, LanePosition, RoadNetwork,
+    RoadNetworkBackend,
+};
 
 // ─── Command Definitions ───────────────────────────────────────────────────────
 
@@ -84,6 +88,10 @@ struct CommandDef {
 enum CommandCategory {
     General,
     OpenDrive,
+    TrafficLight,
+    TrafficSign,
+    RoadObject,
+    RoadMarking,
 }
 
 impl CommandCategory {
@@ -91,6 +99,10 @@ impl CommandCategory {
         match self {
             CommandCategory::General => "General",
             CommandCategory::OpenDrive => "OpenDRIVE / OpenSCENARIO",
+            CommandCategory::TrafficLight => "Traffic Light Book",
+            CommandCategory::TrafficSign => "Traffic Sign Book",
+            CommandCategory::RoadObject => "Road Object Book",
+            CommandCategory::RoadMarking => "Road Marking Book",
         }
     }
 }
@@ -239,6 +251,106 @@ fn command_definitions() -> Vec<CommandDef> {
             params: &["xodr_road_id", "xodr_s", "xodr_t"],
             category: CommandCategory::OpenDrive,
         },
+        // ── Traffic Light Book ──
+        CommandDef {
+            name: "GetAllTrafficLights",
+            description: "List all traffic lights in the road network",
+            params: &[],
+            category: CommandCategory::TrafficLight,
+        },
+        CommandDef {
+            name: "GetTrafficLight",
+            description: "Get traffic light details by ID",
+            params: &["traffic_light_id"],
+            category: CommandCategory::TrafficLight,
+        },
+        CommandDef {
+            name: "FindTrafficLightsByLane",
+            description: "List traffic lights associated with a lane",
+            params: &["lane_id"],
+            category: CommandCategory::TrafficLight,
+        },
+        // ── Traffic Sign Book ──
+        CommandDef {
+            name: "GetAllTrafficSigns",
+            description: "List all traffic signs in the road network",
+            params: &[],
+            category: CommandCategory::TrafficSign,
+        },
+        CommandDef {
+            name: "GetTrafficSign",
+            description: "Get traffic sign details by ID",
+            params: &["traffic_sign_id"],
+            category: CommandCategory::TrafficSign,
+        },
+        CommandDef {
+            name: "FindTrafficSignsByLane",
+            description: "List traffic signs associated with a lane",
+            params: &["lane_id"],
+            category: CommandCategory::TrafficSign,
+        },
+        CommandDef {
+            name: "FindTrafficSignsByType",
+            description: "List traffic signs of a specific type",
+            params: &["traffic_sign_type"],
+            category: CommandCategory::TrafficSign,
+        },
+        // ── Road Object Book ──
+        CommandDef {
+            name: "GetAllRoadObjects",
+            description: "List all road objects in the road network",
+            params: &[],
+            category: CommandCategory::RoadObject,
+        },
+        CommandDef {
+            name: "GetRoadObject",
+            description: "Get road object details by ID",
+            params: &["road_object_id"],
+            category: CommandCategory::RoadObject,
+        },
+        CommandDef {
+            name: "FindRoadObjectsByLane",
+            description: "List road objects associated with a lane",
+            params: &["lane_id"],
+            category: CommandCategory::RoadObject,
+        },
+        CommandDef {
+            name: "FindRoadObjectsByType",
+            description: "List road objects of a specific type",
+            params: &["road_object_type"],
+            category: CommandCategory::RoadObject,
+        },
+        CommandDef {
+            name: "FindRoadObjectsInRadius",
+            description: "List road objects near an inertial position",
+            params: &["x", "y", "z", "radius"],
+            category: CommandCategory::RoadObject,
+        },
+        // ── Road Marking Book ──
+        CommandDef {
+            name: "GetAllRoadMarkings",
+            description: "List all road markings in the road network",
+            params: &[],
+            category: CommandCategory::RoadMarking,
+        },
+        CommandDef {
+            name: "GetRoadMarking",
+            description: "Get road marking details by ID",
+            params: &["road_marking_id"],
+            category: CommandCategory::RoadMarking,
+        },
+        CommandDef {
+            name: "FindRoadMarkingsByLane",
+            description: "List road markings associated with a lane",
+            params: &["lane_id"],
+            category: CommandCategory::RoadMarking,
+        },
+        CommandDef {
+            name: "FindRoadMarkingsByType",
+            description: "List road markings with same type as a given marking ID",
+            params: &["road_marking_id"],
+            category: CommandCategory::RoadMarking,
+        },
     ]
 }
 
@@ -282,6 +394,8 @@ struct App {
     commands: Vec<CommandDef>,
     /// ListState for the command list widget.
     command_list_state: ListState,
+    /// Scroll offset for the command list viewport.
+    command_list_scroll_offset: usize,
     /// Current focus panel.
     focus: Focus,
     /// Current parameter input values, indexed by parameter position.
@@ -336,6 +450,7 @@ impl App {
         App {
             commands,
             command_list_state,
+            command_list_scroll_offset: 0,
             focus: Focus::Commands,
             param_values: initial_params,
             active_param: 0,
@@ -409,6 +524,10 @@ fn execute_command(
     params: &[String],
 ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
     let rg = rn.road_geometry();
+    let light_book = rn.traffic_light_book();
+    let sign_book = rn.traffic_sign_book();
+    let object_book = rn.road_object_book();
+    let marking_book = rn.road_marking_book();
     let mut out: Vec<String> = Vec::new();
 
     match cmd.name {
@@ -691,6 +810,344 @@ fn execute_command(
                 out.push(format!("  Unexpected response: {}", res));
             }
         }
+        "GetAllTrafficLights" => {
+            let lights = light_book.traffic_lights();
+            out.push(format!("Traffic lights: {} total", lights.len()));
+            for light in lights {
+                out.push(format!("  {} (bulb_groups={})", light.id(), light.bulb_groups().len()));
+            }
+        }
+        "GetTrafficLight" => {
+            let light_id = &params[0];
+            if let Some(light) = light_book.get_traffic_light(light_id) {
+                let pos = light.position_road_network();
+                let orient = light.orientation_road_network();
+                out.push(format!("Traffic Light '{}':", light.id()));
+                out.push(format!("  position: {}", pos));
+                out.push(format!(
+                    "  orientation (rpy): roll={:.6} pitch={:.6} yaw={:.6}",
+                    orient.roll(),
+                    orient.pitch(),
+                    orient.yaw()
+                ));
+                out.push(format!("  related_lanes: {:?}", light.related_lanes()));
+
+                let bulb_groups = light.bulb_groups();
+                out.push(format!("  bulb_groups ({}):", bulb_groups.len()));
+                for bg in bulb_groups {
+                    let bg_pos = bg.position_traffic_light();
+                    let bg_orient = bg.orientation_traffic_light();
+                    out.push(format!("    bulb_group '{}':", bg.id()));
+                    out.push(format!("      unique_id: {}", bg.unique_id().string()));
+                    out.push(format!("      position_traffic_light: {}", bg_pos));
+                    out.push(format!(
+                        "      orientation_traffic_light (rpy): roll={:.6} pitch={:.6} yaw={:.6}",
+                        bg_orient.roll(),
+                        bg_orient.pitch(),
+                        bg_orient.yaw()
+                    ));
+
+                    let bulbs = bg.bulbs();
+                    out.push(format!("      bulbs ({}):", bulbs.len()));
+                    for bulb in bulbs {
+                        let unique_id = bulb.unique_id();
+                        let bulb_pos = bulb.position_bulb_group();
+                        let bulb_orient = bulb.orientation_bulb_group();
+                        let (bbox_min, bbox_max) = bulb.bounding_box();
+                        out.push(format!("        bulb '{}':", bulb.id()));
+                        out.push(format!("          unique_id: {}", unique_id.string()));
+                        out.push(format!("          type: {:?}", bulb.bulb_type()));
+                        out.push(format!("          color: {:?}", bulb.color()));
+                        out.push(format!("          default_state: {:?}", bulb.get_default_state()));
+                        out.push(format!("          states: {:?}", bulb.states()));
+                        out.push(format!(
+                            "          arrow_orientation_rad: {:?}",
+                            bulb.arrow_orientation_rad()
+                        ));
+                        out.push(format!("          position_bulb_group: {}", bulb_pos));
+                        out.push(format!(
+                            "          orientation_bulb_group (rpy): roll={:.6} pitch={:.6} yaw={:.6}",
+                            bulb_orient.roll(),
+                            bulb_orient.pitch(),
+                            bulb_orient.yaw()
+                        ));
+                        out.push(format!("          bounding_box.min: {:?}", bbox_min));
+                        out.push(format!("          bounding_box.max: {:?}", bbox_max));
+                    }
+                }
+            } else {
+                out.push(format!("Traffic light '{}' not found.", light_id));
+            }
+        }
+        "FindTrafficLightsByLane" => {
+            let lane_id = &params[0];
+            let lights = light_book.find_by_lane(lane_id);
+            if lights.is_empty() {
+                out.push(format!("No traffic lights found for lane '{}'.", lane_id));
+            } else {
+                out.push(format!("Traffic lights for lane '{}':", lane_id));
+                for light in lights {
+                    out.push(format!("  {}", light.id()));
+                }
+            }
+        }
+        "GetAllTrafficSigns" => {
+            let signs = sign_book.traffic_signs();
+            out.push(format!("Traffic signs: {} total", signs.len()));
+            for sign in signs {
+                out.push(format!("  {} ({:?})", sign.id(), sign.sign_type()));
+            }
+        }
+        "GetTrafficSign" => {
+            let sign_id = &params[0];
+            if let Some(sign) = sign_book.get_traffic_sign(sign_id) {
+                let pos = sign.position_road_network();
+                let orient = sign.orientation_road_network();
+                out.push(format!("Traffic Sign '{}':", sign.id()));
+                out.push(format!("  type: {:?}", sign.sign_type()));
+                out.push(format!("  position: {}", pos));
+                out.push(format!(
+                    "  orientation (rpy): roll={:.6} pitch={:.6} yaw={:.6}",
+                    orient.roll(),
+                    orient.pitch(),
+                    orient.yaw()
+                ));
+                out.push(format!("  message: {:?}", sign.message()));
+                out.push(format!("  is_dynamic: {}", sign.is_dynamic()));
+                out.push(format!("  is_movable: {}", sign.is_movable()));
+                out.push(format!("  related_lanes: {:?}", sign.related_lanes()));
+                let bbox = sign.bounding_box();
+                let bbox_pos = bbox.position();
+                let bbox_size = bbox.box_size();
+                let bbox_orient = bbox.orientation();
+                out.push(format!("  bounding_box.position: {}", bbox_pos));
+                out.push(format!("  bounding_box.size: {}", bbox_size));
+                out.push(format!(
+                    "  bounding_box.orientation (rpy): roll={:.6} pitch={:.6} yaw={:.6}",
+                    bbox_orient.roll_angle(),
+                    bbox_orient.pitch_angle(),
+                    bbox_orient.yaw_angle()
+                ));
+                out.push(format!("  value: {:?}", sign.value()));
+                out.push(format!("  dependent_signs: {:?}", sign.dependent_signs()));
+                let properties = sign.properties();
+                out.push(format!("  properties ({}):", properties.len()));
+                for (k, v) in properties {
+                    out.push(format!("    {} = {}", k, v));
+                }
+            } else {
+                out.push(format!("Traffic sign '{}' not found.", sign_id));
+            }
+        }
+        "FindTrafficSignsByLane" => {
+            let lane_id = &params[0];
+            let res = sign_book.find_by_lane(lane_id);
+            if res.is_empty() {
+                out.push(format!("No traffic signs found for lane '{}'.", lane_id));
+            } else {
+                out.push(format!("Traffic Signs for Lane '{}':", lane_id));
+                for sign in res {
+                    out.push(format!("  {}", sign.id()));
+                }
+            }
+        }
+        "FindTrafficSignsByType" => {
+            let sign_type = TrafficSignType::from_str(params[0].as_str())?;
+            let signs = sign_book.find_by_type(&sign_type);
+            out.push(format!(
+                "Traffic signs with type {:?}: {} total",
+                sign_type,
+                signs.len()
+            ));
+            for s in signs {
+                out.push(format!("  {}", s.id()));
+            }
+        }
+        "GetAllRoadObjects" => {
+            let objects = object_book.road_objects();
+            out.push(format!("Road objects: {} total", objects.len()));
+            for obj in objects {
+                out.push(format!("  {} ({:?})", obj.id(), obj.object_type()));
+            }
+        }
+        "GetRoadObject" => {
+            let object_id = &params[0];
+            if let Some(obj) = object_book.get_road_object(object_id) {
+                out.push(format!("Road object '{}':", obj.id()));
+                out.push(format!("  name: {:?}", obj.name()));
+                out.push(format!("  type: {:?}", obj.object_type()));
+                out.push(format!("  subtype: {:?}", obj.subtype()));
+                let pos = obj.position();
+                out.push(format!("  position.inertial: {}", pos.inertial_position));
+                out.push(format!("  position.lane: {:?}", pos.lane_position));
+                let orient = obj.orientation();
+                out.push(format!(
+                    "  orientation (rpy): roll={:.6} pitch={:.6} yaw={:.6}",
+                    orient.roll(),
+                    orient.pitch(),
+                    orient.yaw()
+                ));
+                let bbox = obj.bounding_box();
+                let bbox_pos = bbox.position();
+                let bbox_size = bbox.box_size();
+                let bbox_orient = bbox.orientation();
+                out.push(format!("  bounding_box.position: {}", bbox_pos));
+                out.push(format!("  bounding_box.size: {}", bbox_size));
+                out.push(format!(
+                    "  bounding_box.orientation (rpy): roll={:.6} pitch={:.6} yaw={:.6}",
+                    bbox_orient.roll_angle(),
+                    bbox_orient.pitch_angle(),
+                    bbox_orient.yaw_angle()
+                ));
+                out.push(format!("  is_dynamic: {}", obj.is_dynamic()));
+                out.push(format!("  is_movable: {}", obj.is_movable()));
+                out.push(format!("  related_lanes: {:?}", obj.related_lanes()));
+                out.push(format!("  num_outlines: {}", obj.num_outlines()));
+                for outline in obj.outlines() {
+                    out.push(format!(
+                        "    outline {}: closed={} corners={}",
+                        outline.id(),
+                        outline.is_closed(),
+                        outline.num_corners()
+                    ));
+                    for (i, corner) in outline.corners().iter().enumerate() {
+                        out.push(format!(
+                            "      corner[{}]: ({:.3}, {:.3}, {:.3}) height={:?}",
+                            i, corner.x, corner.y, corner.z, corner.height
+                        ));
+                    }
+                }
+                let properties = obj.properties();
+                out.push(format!("  properties ({}):", properties.len()));
+                for (k, v) in properties {
+                    out.push(format!("    {} = {}", k, v));
+                }
+            } else {
+                out.push(format!("Road object '{}' not found.", object_id));
+            }
+        }
+        "FindRoadObjectsByLane" => {
+            let lane_id = &params[0];
+            let objects = object_book.find_by_lane(lane_id);
+            if objects.is_empty() {
+                out.push(format!("No road objects found for lane '{}'.", lane_id));
+            } else {
+                out.push(format!("Road objects for lane '{}':", lane_id));
+                for obj in objects {
+                    out.push(format!("  {} ({:?})", obj.id(), obj.object_type()));
+                }
+            }
+        }
+        "FindRoadObjectsByType" => {
+            let object_type = RoadObjectType::from_str(params[0].as_str())?;
+            let objects = object_book.find_by_type(&object_type);
+            out.push(format!(
+                "Road objects with type {:?}: {} total",
+                object_type,
+                objects.len()
+            ));
+            for obj in objects {
+                out.push(format!("  {}", obj.id()));
+            }
+        }
+        "FindRoadObjectsInRadius" => {
+            let x: f64 = params[0].parse()?;
+            let y: f64 = params[1].parse()?;
+            let z: f64 = params[2].parse()?;
+            let radius: f64 = params[3].parse()?;
+            let objects = object_book.find_in_radius(x, y, z, radius);
+            out.push(format!(
+                "Road objects within radius {:.3} around ({:.3}, {:.3}, {:.3}): {} total",
+                radius,
+                x,
+                y,
+                z,
+                objects.len()
+            ));
+            for obj in objects {
+                out.push(format!("  {} ({:?})", obj.id(), obj.object_type()));
+            }
+        }
+        "GetAllRoadMarkings" => {
+            let markings = marking_book.road_markings();
+            out.push(format!("Road markings: {} total", markings.len()));
+            for marking in markings {
+                out.push(format!("  {} ({:?})", marking.id(), marking.marking_type()));
+            }
+        }
+        "GetRoadMarking" => {
+            let marking_id = &params[0];
+            if let Some(marking) = marking_book.get_road_marking(marking_id) {
+                out.push(format!("Road marking '{}':", marking.id()));
+                out.push(format!("  name: {:?}", marking.name()));
+                out.push(format!("  type: {:?}", marking.marking_type()));
+                let pos = marking.position();
+                out.push(format!("  position.inertial: {}", pos.inertial_position));
+                out.push(format!("  position.lane: {:?}", pos.lane_position));
+                let orient = marking.orientation();
+                out.push(format!(
+                    "  orientation (rpy): roll={:.6} pitch={:.6} yaw={:.6}",
+                    orient.roll(),
+                    orient.pitch(),
+                    orient.yaw()
+                ));
+                let bbox = marking.bounding_box();
+                let bbox_pos = bbox.position();
+                let bbox_size = bbox.box_size();
+                let bbox_orient = bbox.orientation();
+                out.push(format!("  bounding_box.position: {}", bbox_pos));
+                out.push(format!("  bounding_box.size: {}", bbox_size));
+                out.push(format!(
+                    "  bounding_box.orientation (rpy): roll={:.6} pitch={:.6} yaw={:.6}",
+                    bbox_orient.roll_angle(),
+                    bbox_orient.pitch_angle(),
+                    bbox_orient.yaw_angle()
+                ));
+                out.push(format!("  related_lanes: {:?}", marking.related_lanes()));
+                out.push(format!("  num_outlines: {}", marking.num_outlines()));
+                for outline in marking.outlines() {
+                    out.push(format!(
+                        "    outline {}: closed={} corners={}",
+                        outline.id(),
+                        outline.is_closed(),
+                        outline.num_corners()
+                    ));
+                    for (i, corner) in outline.corners().iter().enumerate() {
+                        out.push(format!(
+                            "      corner[{}]: ({:.3}, {:.3}, {:.3}) height={:?}",
+                            i, corner.x, corner.y, corner.z, corner.height
+                        ));
+                    }
+                }
+                out.push(format!("  value: {:?}", marking.value()));
+            } else {
+                out.push(format!("Road marking '{}' not found.", marking_id));
+            }
+        }
+        "FindRoadMarkingsByLane" => {
+            let lane_id = &params[0];
+            let markings = marking_book.find_by_lane(lane_id);
+            if markings.is_empty() {
+                out.push(format!("No road markings found for lane '{}'.", lane_id));
+            } else {
+                out.push(format!("Road markings for lane '{}':", lane_id));
+                for marking in markings {
+                    out.push(format!("  {} ({:?})", marking.id(), marking.marking_type()));
+                }
+            }
+        }
+        "FindRoadMarkingsByType" => {
+            let marking_type = RoadMarkingType::from_str(params[0].as_str())?;
+            let markings = marking_book.find_by_type(&marking_type);
+            out.push(format!(
+                "Road markings with type {:?}: {} total",
+                marking_type,
+                markings.len()
+            ));
+            for m in markings {
+                out.push(format!("  {}", m.id()));
+            }
+        }
         _ => {
             out.push(format!("Unknown command: {}", cmd.name));
         }
@@ -775,7 +1232,7 @@ fn draw_command_list(frame: &mut Frame, app: &mut App, area: Rect) {
     // Build list items with category headers.
     let mut items: Vec<ListItem> = Vec::new();
     let mut last_category: Option<CommandCategory> = None;
-    let mut list_index_to_cmd_index: Vec<Option<usize>> = Vec::new();
+    let mut selected_list_index: Option<usize> = None;
 
     for (i, cmd) in commands.iter().enumerate() {
         if last_category != Some(cmd.category) {
@@ -787,19 +1244,12 @@ fn draw_command_list(frame: &mut Frame, app: &mut App, area: Rect) {
                 )]))
                 .style(Style::default()),
             );
-            list_index_to_cmd_index.push(None);
             last_category = Some(cmd.category);
         }
-        let style = if app.command_list_state.selected() == Some(i) {
-            Style::default()
-                .fg(Color::Black)
-                .bg(Color::Cyan)
-                .add_modifier(Modifier::BOLD)
-        } else {
-            Style::default().fg(Color::White)
-        };
-        items.push(ListItem::new(format!("  {}", cmd.name)).style(style));
-        list_index_to_cmd_index.push(Some(i));
+        if app.command_list_state.selected() == Some(i) {
+            selected_list_index = Some(items.len());
+        }
+        items.push(ListItem::new(format!("  {}", cmd.name)).style(Style::default().fg(Color::White)));
     }
 
     let border_style = if is_focused {
@@ -814,17 +1264,26 @@ fn draw_command_list(frame: &mut Frame, app: &mut App, area: Rect) {
         " Commands "
     };
 
-    let list = List::new(items).block(
-        Block::default()
-            .borders(Borders::ALL)
-            .border_style(border_style)
-            .title(title)
-            .title_style(Style::default().fg(Color::White).add_modifier(Modifier::BOLD)),
-    );
+    let list = List::new(items)
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .border_style(border_style)
+                .title(title)
+                .title_style(Style::default().fg(Color::White).add_modifier(Modifier::BOLD)),
+        )
+        .highlight_style(
+            Style::default()
+                .fg(Color::Black)
+                .bg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
+        );
 
-    // We render the list as a plain widget (not stateful) since we handle
-    // highlighting manually above.
-    frame.render_widget(list, area);
+    let mut list_state = ListState::default()
+        .with_selected(selected_list_index)
+        .with_offset(app.command_list_scroll_offset);
+    frame.render_stateful_widget(list, area, &mut list_state);
+    app.command_list_scroll_offset = list_state.offset();
 }
 
 fn draw_right_panel(frame: &mut Frame, app: &mut App, area: Rect) {
@@ -1166,6 +1625,10 @@ struct Args {
     /// Path to the road network file (e.g., .xodr for maliput_malidrive, .gpkg for maliput_geopackage).
     road_network_file_path: String,
 
+    /// Path to the traffic control device database YAML file.
+    #[arg(long = "tcd_db_path")]
+    tcd_db_path: String,
+
     /// The maliput backend to use.
     #[cfg(feature = "maliput_malidrive")]
     #[arg(short, long, default_value_t = RoadNetworkBackend::MaliputMalidrive)]
@@ -1216,6 +1679,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
     let file_path = parse_file_path(args.road_network_file_path.as_str());
+    let tcd_db_path = parse_file_path(args.tcd_db_path.as_str());
     let linear_tolerance = args.linear_tolerance.to_string();
     let max_linear_tolerance = args.max_linear_tolerance;
     let angular_tolerance = args.angular_tolerance.to_string();
@@ -1241,6 +1705,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     "sequential"
                 },
             );
+            road_network_properties.insert("traffic_control_device_db", tcd_db_path.to_str().unwrap());
         }
         #[cfg(feature = "maliput_geopackage")]
         RoadNetworkBackend::MaliputGeopackage => {

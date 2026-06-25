@@ -31,7 +31,7 @@
 use std::collections::HashMap;
 
 use crate::{api::RoadPosition, common::MaliputError};
-use strum_macros::{Display, IntoStaticStr};
+use strum_macros::{Display, EnumString, IntoStaticStr};
 
 /// Interface for accessing the [TrafficLight] in the [super::RoadNetwork]
 pub struct TrafficLightBook<'a> {
@@ -1604,7 +1604,7 @@ fn range_value_from_range_value_cxx(range: &maliput_sys::api::rules::ffi::RangeV
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Display, EnumString)]
 /// Defines the possible traffic sign types.
 pub enum TrafficControlDeviceType {
     None,
