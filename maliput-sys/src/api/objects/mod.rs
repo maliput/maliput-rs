@@ -86,6 +86,8 @@ pub mod ffi {
         kTrafficIsland,
         kTree,
         kVegetation,
+        kPylon,
+        kDelineator,
     }
 
     /// Shared enum representing the unit of a `RoadMarkingValue`.

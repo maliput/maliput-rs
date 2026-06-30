@@ -1441,11 +1441,26 @@ fn draw_results_panel(frame: &mut Frame, app: &mut App, area: Rect) {
         }
     }
 
-    app.results_total_lines = all_lines.len();
+    // Count visual rows rather than logical lines: Paragraph::scroll() operates
+    // on rendered (wrapped) rows, so using all_lines.len() underestimates the
+    // scrollable range whenever a line wraps across multiple visual rows.
+    let box_width = inner.width.max(1) as usize;
+    let visual_rows: usize = all_lines
+        .iter()
+        .map(|line| {
+            let w = line.width();
+            if w == 0 {
+                1
+            } else {
+                w.div_ceil(box_width)
+            }
+        })
+        .sum();
+    app.results_total_lines = visual_rows;
 
     // Apply scroll offset.
     let visible_height = inner.height as usize;
-    let max_scroll = all_lines.len().saturating_sub(visible_height);
+    let max_scroll = visual_rows.saturating_sub(visible_height);
     if app.results_scroll > max_scroll {
         app.results_scroll = max_scroll;
     }

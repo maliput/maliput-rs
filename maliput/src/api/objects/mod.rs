@@ -45,6 +45,8 @@ pub enum RoadObjectType {
     TrafficIsland,
     Tree,
     Vegetation,
+    Pylon,
+    Delineator,
 }
 
 fn road_object_type_from_cpp(obj_type: maliput_sys::api::objects::ffi::RoadObjectType) -> RoadObjectType {
@@ -60,6 +62,8 @@ fn road_object_type_from_cpp(obj_type: maliput_sys::api::objects::ffi::RoadObjec
         maliput_sys::api::objects::ffi::RoadObjectType::kTrafficIsland => RoadObjectType::TrafficIsland,
         maliput_sys::api::objects::ffi::RoadObjectType::kTree => RoadObjectType::Tree,
         maliput_sys::api::objects::ffi::RoadObjectType::kVegetation => RoadObjectType::Vegetation,
+        maliput_sys::api::objects::ffi::RoadObjectType::kPylon => RoadObjectType::Pylon,
+        maliput_sys::api::objects::ffi::RoadObjectType::kDelineator => RoadObjectType::Delineator,
         _ => RoadObjectType::Unknown,
     }
 }
@@ -77,6 +81,8 @@ fn road_object_type_to_cpp(obj_type: &RoadObjectType) -> maliput_sys::api::objec
         RoadObjectType::TrafficIsland => maliput_sys::api::objects::ffi::RoadObjectType::kTrafficIsland,
         RoadObjectType::Tree => maliput_sys::api::objects::ffi::RoadObjectType::kTree,
         RoadObjectType::Vegetation => maliput_sys::api::objects::ffi::RoadObjectType::kVegetation,
+        RoadObjectType::Pylon => maliput_sys::api::objects::ffi::RoadObjectType::kPylon,
+        RoadObjectType::Delineator => maliput_sys::api::objects::ffi::RoadObjectType::kDelineator,
     }
 }
 
