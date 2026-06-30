@@ -1449,7 +1449,11 @@ fn draw_results_panel(frame: &mut Frame, app: &mut App, area: Rect) {
         .iter()
         .map(|line| {
             let w = line.width();
-            if w == 0 { 1 } else { (w + box_width - 1) / box_width }
+            if w == 0 {
+                1
+            } else {
+                (w + box_width - 1) / box_width
+            }
         })
         .sum();
     app.results_total_lines = visual_rows;
