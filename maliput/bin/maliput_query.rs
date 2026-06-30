@@ -1452,7 +1452,7 @@ fn draw_results_panel(frame: &mut Frame, app: &mut App, area: Rect) {
             if w == 0 {
                 1
             } else {
-                (w + box_width - 1) / box_width
+                w.div_ceil(box_width)
             }
         })
         .sum();
