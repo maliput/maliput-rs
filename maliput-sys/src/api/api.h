@@ -31,6 +31,7 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 #include <sstream>
 #include <vector>
 
@@ -64,6 +65,7 @@ namespace api {
 
 struct ConstLanePtr;
 struct MutIntersectionPtr;
+struct OptionalBool;
 
 /// Gets the `RoadNetowrk`s read-only `IntersectionBook`.
 const maliput::api::IntersectionBook* RoadNetwork_intersection_book(const RoadNetwork& road_network) {
@@ -137,12 +139,27 @@ rust::String Segment_id(const Segment& segment) {
   return segment.id().string();
 }
 
+OptionalBool Segment_is_intersection(const Segment& segment) {
+  const std::optional<bool> is_intersection = segment.is_intersection();
+  return {is_intersection.has_value(), is_intersection.value_or(false)};
+}
+
 rust::String Junction_id(const Junction& junction) {
   return junction.id().string();
 }
 
+OptionalBool Junction_is_intersection(const Junction& junction) {
+  const std::optional<bool> is_intersection = junction.is_intersection();
+  return {is_intersection.has_value(), is_intersection.value_or(false)};
+}
+
 rust::String Lane_id(const Lane& lane) {
   return lane.id().string();
+}
+
+OptionalBool Lane_is_intersection(const Lane& lane) {
+  const std::optional<bool> is_intersection = lane.is_intersection();
+  return {is_intersection.has_value(), is_intersection.value_or(false)};
 }
 
 std::unique_ptr<Rotation> Lane_GetOrientation(const Lane& lane, const LanePosition& lane_position) {

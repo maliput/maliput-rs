@@ -61,6 +61,30 @@ pub fn create_t_shape_road_network(omit_non_drivable_lanes: bool) -> RoadNetwork
 }
 
 #[allow(dead_code)]
+pub fn create_junction_userdata_intersection_road_network() -> RoadNetwork {
+    let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
+    let xodr_path = format!(
+        "{}/data/xodr/TShapeRoadJunctionUserDataIntersection.xodr",
+        package_location
+    );
+
+    let road_network_properties = HashMap::from([
+        ("road_geometry_id", "my_rg_from_rust"),
+        ("opendrive_file", xodr_path.as_str()),
+        ("angular_tolerance", "0.001"),
+        ("linear_tolerance", "0.001"),
+        ("omit_nondrivable_lanes", "true"),
+        ("use_userdata_intersections", "true"),
+    ]);
+    let rn_res = RoadNetwork::new(RoadNetworkBackend::MaliputMalidrive, &road_network_properties);
+    assert!(
+        rn_res.is_ok(),
+        "Expected RoadNetwork to be created successfully with TShapeRoadJunctionUserDataIntersection.xodr"
+    );
+    rn_res.unwrap()
+}
+
+#[allow(dead_code)]
 pub fn create_arc_lane_road_network() -> RoadNetwork {
     // Get location of odr resources
     let package_location = std::env::var("CARGO_MANIFEST_DIR").unwrap();
