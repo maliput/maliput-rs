@@ -1482,6 +1482,19 @@ impl<'a> Lane<'a> {
     pub fn contains(&self, lane_position: &LanePosition) -> bool {
         self.lane.Contains(lane_position.lp.as_ref().expect(""))
     }
+
+    /// Returns whether this lane is part of an intersection.
+    ///
+    /// Returns `None` when the backend does not provide this classification.
+    pub fn is_intersection(&self) -> Option<bool> {
+        let result = maliput_sys::api::ffi::Lane_is_intersection(self.lane);
+        if result.has_value {
+            Some(result.value)
+        } else {
+            None
+        }
+    }
+
     /// Returns the [LaneType] of the [Lane].
     ///
     /// # Returns
@@ -1599,6 +1612,19 @@ impl<'a> Segment<'a> {
     pub fn num_lanes(&self) -> i32 {
         self.segment.num_lanes()
     }
+
+    /// Returns whether this segment is part of an intersection.
+    ///
+    /// Returns `None` when the backend does not provide this classification.
+    pub fn is_intersection(&self) -> Option<bool> {
+        let result = maliput_sys::api::ffi::Segment_is_intersection(self.segment);
+        if result.has_value {
+            Some(result.value)
+        } else {
+            None
+        }
+    }
+
     /// Returns the lane at the given `index`.
     ///
     /// # Arguments
@@ -1698,6 +1724,19 @@ impl<'a> Junction<'a> {
     pub fn num_segments(&self) -> i32 {
         self.junction.num_segments()
     }
+
+    /// Returns whether this junction is classified as an intersection.
+    ///
+    /// Returns `None` when the backend does not provide this classification.
+    pub fn is_intersection(&self) -> Option<bool> {
+        let result = maliput_sys::api::ffi::Junction_is_intersection(self.junction);
+        if result.has_value {
+            Some(result.value)
+        } else {
+            None
+        }
+    }
+
     /// Returns the segment at the given `index`.
     ///
     /// # Arguments

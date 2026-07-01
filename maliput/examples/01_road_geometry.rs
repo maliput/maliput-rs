@@ -53,12 +53,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     for i in 0..road_geometry.num_junctions() {
         let junction = road_geometry.junction(i).unwrap();
         println!(" junction id: {}", junction.id());
+        println!(" junction is_intersection: {:?}", junction.is_intersection());
         for j in 0..junction.num_segments() {
             let segment = junction.segment(j).unwrap();
             println!("\tsegment id: {}", segment.id());
+            println!("\tsegment is_intersection: {:?}", segment.is_intersection());
             for k in 0..segment.num_lanes() {
                 let lane = segment.lane(k).unwrap();
                 println!("\t\tlane id: {}", lane.id());
+                println!("\t\tlane is_intersection: {:?}", lane.is_intersection());
             }
         }
     }

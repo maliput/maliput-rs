@@ -49,6 +49,11 @@ pub mod ffi {
     struct ConstLaneSRangeRef<'a> {
         pub lane_s_range: &'a LaneSRange,
     }
+    /// Shared struct to represent `std::optional<bool>` values.
+    struct OptionalBool {
+        pub has_value: bool,
+        pub value: bool,
+    }
 
     /// Shared enum representing different types of lanes.
     /// This is needed to access the enum variant from Rust API since the C++ enum has an opaque implementation.
@@ -304,6 +309,7 @@ pub mod ffi {
             rho_v: f64,
             eta_v: f64,
         ) -> UniquePtr<LanePosition>;
+        fn Lane_is_intersection(lane: &Lane) -> OptionalBool;
         type LaneType;
         fn Lane_type(lane: &Lane) -> LaneType;
         fn left_boundary(self: &Lane) -> Result<*const LaneBoundary>;
@@ -317,6 +323,7 @@ pub mod ffi {
         fn Segment_id(segment: &Segment) -> String;
         fn num_boundaries(self: &Segment) -> i32;
         fn boundary(self: &Segment, index: i32) -> Result<*const LaneBoundary>;
+        fn Segment_is_intersection(segment: &Segment) -> OptionalBool;
 
         // Junction bindings definitions
         type Junction;
@@ -324,6 +331,7 @@ pub mod ffi {
         fn num_segments(self: &Junction) -> i32;
         fn segment(self: &Junction, index: i32) -> Result<*const Segment>;
         fn Junction_id(junction: &Junction) -> String;
+        fn Junction_is_intersection(junction: &Junction) -> OptionalBool;
 
         // RoadPosition bindings definitions
         type RoadPosition;
