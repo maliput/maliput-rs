@@ -738,7 +738,7 @@ dependencies = [
 
 [[package]]
 name = "maliput"
-version = "0.33.0"
+version = "0.34.0"
 dependencies = [
  "assert_cmd",
  "clap 4.3.24",
@@ -757,11 +757,11 @@ dependencies = [
 
 [[package]]
 name = "maliput-sdk"
-version = "0.30.0"
+version = "0.31.0"
 
 [[package]]
 name = "maliput-sys"
-version = "0.32.0"
+version = "0.33.0"
 dependencies = [
  "cxx",
  "cxx-build",
