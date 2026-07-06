@@ -176,6 +176,7 @@ pub mod ffi {
         kOff = 0,
         kOn,
         kBlinking,
+        kCounting,
     }
 
     #[repr(i32)]
@@ -586,6 +587,7 @@ pub mod ffi {
         fn Bulb_arrow_orientation_rad(bulb: &Bulb) -> UniquePtr<FloatWrapper>;
         fn Bulb_states(bulb: &Bulb) -> UniquePtr<CxxVector<BulbState>>;
         fn GetDefaultState(self: &Bulb) -> BulbState;
+        fn GetInitialState(self: &Bulb) -> BulbState;
         fn IsValidState(self: &Bulb, state: &BulbState) -> bool;
         fn Bulb_bounding_box_min(bulb: &Bulb) -> UniquePtr<Vector3>;
         fn Bulb_bounding_box_max(bulb: &Bulb) -> UniquePtr<Vector3>;

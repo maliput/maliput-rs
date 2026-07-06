@@ -225,6 +225,7 @@ pub enum BulbState {
     Off,
     On,
     Blinking,
+    Counting,
 }
 
 /// Models a bulb within a bulb group.
@@ -338,6 +339,15 @@ impl Bulb<'_> {
         Bulb::_from_cpp_state_to_rust_state(&default_state)
     }
 
+    /// Gets the initial state of the [Bulb].
+    ///
+    /// # Returns
+    /// A [BulbState] representing the initial state of the [Bulb].
+    pub fn get_initial_state(&self) -> BulbState {
+        let initial_state = self.bulb.GetInitialState();
+        Bulb::_from_cpp_state_to_rust_state(&initial_state)
+    }
+
     /// Check if the given state is possible valid for the [Bulb].
     ///
     /// # Arguments
@@ -390,6 +400,7 @@ impl Bulb<'_> {
             maliput_sys::api::rules::ffi::BulbState::kOff => BulbState::Off,
             maliput_sys::api::rules::ffi::BulbState::kOn => BulbState::On,
             maliput_sys::api::rules::ffi::BulbState::kBlinking => BulbState::Blinking,
+            maliput_sys::api::rules::ffi::BulbState::kCounting => BulbState::Counting,
             _ => panic!("Invalid bulb state"),
         }
     }
@@ -407,6 +418,7 @@ impl Bulb<'_> {
             BulbState::Off => maliput_sys::api::rules::ffi::BulbState::kOff,
             BulbState::On => maliput_sys::api::rules::ffi::BulbState::kOn,
             BulbState::Blinking => maliput_sys::api::rules::ffi::BulbState::kBlinking,
+            BulbState::Counting => maliput_sys::api::rules::ffi::BulbState::kCounting,
         }
     }
 }
@@ -1186,6 +1198,7 @@ impl Phase {
             maliput_sys::api::rules::ffi::BulbState::kOff => BulbState::Off,
             maliput_sys::api::rules::ffi::BulbState::kOn => BulbState::On,
             maliput_sys::api::rules::ffi::BulbState::kBlinking => BulbState::Blinking,
+            maliput_sys::api::rules::ffi::BulbState::kCounting => BulbState::Counting,
             _ => return None,
         })
     }

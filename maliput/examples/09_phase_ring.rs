@@ -82,6 +82,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                     BulbState::Blinking => "Blinking",
                                     BulbState::On => "On",
                                     BulbState::Off => "Off",
+                                    BulbState::Counting => "Counting",
                                 }
                             );
                         }

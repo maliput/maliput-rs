@@ -167,6 +167,8 @@ fn bulb_test_api() {
     assert_eq!(states.len(), 2);
     let default_state = bulb.get_default_state();
     assert_eq!(default_state, maliput::api::rules::BulbState::Off);
+    let initial_state = bulb.get_initial_state();
+    assert_eq!(initial_state, maliput::api::rules::BulbState::Off);
     let is_valid_state = bulb.is_valid_state(&maliput::api::rules::BulbState::On);
     assert!(is_valid_state);
     let bounding_box = bulb.bounding_box();
