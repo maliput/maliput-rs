@@ -95,6 +95,7 @@ pub mod ffi {
         kPatch,
         kPedestrianStatic,
         kRailing,
+        kRoadSurface,
         kSoundBarrier,
         kStreetLamp,
         kTrailerStatic,
