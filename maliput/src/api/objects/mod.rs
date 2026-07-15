@@ -34,6 +34,7 @@ use strum_macros::{Display, EnumString};
 #[derive(Debug, Copy, Clone, PartialEq, Eq, EnumString, Display)]
 /// Defines the possible road object types.
 pub enum RoadObjectType {
+    None,
     Unknown,
     Barrier,
     GuardWall,
@@ -94,12 +95,13 @@ fn road_object_type_from_cpp(obj_type: maliput_sys::api::objects::ffi::RoadObjec
         maliput_sys::api::objects::ffi::RoadObjectType::kTramStatic => RoadObjectType::TramStatic,
         maliput_sys::api::objects::ffi::RoadObjectType::kVanStatic => RoadObjectType::VanStatic,
         maliput_sys::api::objects::ffi::RoadObjectType::kWind => RoadObjectType::Wind,
-        _ => RoadObjectType::Unknown,
+        _ => RoadObjectType::None,
     }
 }
 
 fn road_object_type_to_cpp(obj_type: &RoadObjectType) -> maliput_sys::api::objects::ffi::RoadObjectType {
     match obj_type {
+        RoadObjectType::None => maliput_sys::api::objects::ffi::RoadObjectType::kUnknown,
         RoadObjectType::Unknown => maliput_sys::api::objects::ffi::RoadObjectType::kUnknown,
         RoadObjectType::Barrier => maliput_sys::api::objects::ffi::RoadObjectType::kBarrier,
         RoadObjectType::GuardWall => maliput_sys::api::objects::ffi::RoadObjectType::kGuardWall,
@@ -128,6 +130,25 @@ fn road_object_type_to_cpp(obj_type: &RoadObjectType) -> maliput_sys::api::objec
         RoadObjectType::TramStatic => maliput_sys::api::objects::ffi::RoadObjectType::kTramStatic,
         RoadObjectType::VanStatic => maliput_sys::api::objects::ffi::RoadObjectType::kVanStatic,
         RoadObjectType::Wind => maliput_sys::api::objects::ffi::RoadObjectType::kWind,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{road_object_type_from_cpp, road_object_type_to_cpp, RoadObjectType};
+
+    #[test]
+    fn unknown_from_cpp_stays_unknown() {
+        let cpp = maliput_sys::api::objects::ffi::RoadObjectType::kUnknown;
+        assert_eq!(road_object_type_from_cpp(cpp), RoadObjectType::Unknown);
+    }
+
+    #[test]
+    fn none_to_cpp_maps_to_unknown() {
+        assert_eq!(
+            road_object_type_to_cpp(&RoadObjectType::None),
+            maliput_sys::api::objects::ffi::RoadObjectType::kUnknown
+        );
     }
 }
 
