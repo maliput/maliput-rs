@@ -34,6 +34,7 @@ use strum_macros::{Display, EnumString};
 #[derive(Debug, Copy, Clone, PartialEq, Eq, EnumString, Display)]
 /// Defines the possible road object types.
 pub enum RoadObjectType {
+    None,
     Unknown,
     Barrier,
     GuardWall,
@@ -47,6 +48,21 @@ pub enum RoadObjectType {
     Vegetation,
     Pylon,
     Delineator,
+    BikeStatic,
+    BusStatic,
+    CarStatic,
+    MotorbikeStatic,
+    Patch,
+    PedestrianStatic,
+    Railing,
+    RoadSurface,
+    SoundBarrier,
+    StreetLamp,
+    TrailerStatic,
+    TrainStatic,
+    TramStatic,
+    VanStatic,
+    Wind,
 }
 
 fn road_object_type_from_cpp(obj_type: maliput_sys::api::objects::ffi::RoadObjectType) -> RoadObjectType {
@@ -64,12 +80,28 @@ fn road_object_type_from_cpp(obj_type: maliput_sys::api::objects::ffi::RoadObjec
         maliput_sys::api::objects::ffi::RoadObjectType::kVegetation => RoadObjectType::Vegetation,
         maliput_sys::api::objects::ffi::RoadObjectType::kPylon => RoadObjectType::Pylon,
         maliput_sys::api::objects::ffi::RoadObjectType::kDelineator => RoadObjectType::Delineator,
-        _ => RoadObjectType::Unknown,
+        maliput_sys::api::objects::ffi::RoadObjectType::kBikeStatic => RoadObjectType::BikeStatic,
+        maliput_sys::api::objects::ffi::RoadObjectType::kBusStatic => RoadObjectType::BusStatic,
+        maliput_sys::api::objects::ffi::RoadObjectType::kCarStatic => RoadObjectType::CarStatic,
+        maliput_sys::api::objects::ffi::RoadObjectType::kMotorbikeStatic => RoadObjectType::MotorbikeStatic,
+        maliput_sys::api::objects::ffi::RoadObjectType::kPatch => RoadObjectType::Patch,
+        maliput_sys::api::objects::ffi::RoadObjectType::kPedestrianStatic => RoadObjectType::PedestrianStatic,
+        maliput_sys::api::objects::ffi::RoadObjectType::kRailing => RoadObjectType::Railing,
+        maliput_sys::api::objects::ffi::RoadObjectType::kRoadSurface => RoadObjectType::RoadSurface,
+        maliput_sys::api::objects::ffi::RoadObjectType::kSoundBarrier => RoadObjectType::SoundBarrier,
+        maliput_sys::api::objects::ffi::RoadObjectType::kStreetLamp => RoadObjectType::StreetLamp,
+        maliput_sys::api::objects::ffi::RoadObjectType::kTrailerStatic => RoadObjectType::TrailerStatic,
+        maliput_sys::api::objects::ffi::RoadObjectType::kTrainStatic => RoadObjectType::TrainStatic,
+        maliput_sys::api::objects::ffi::RoadObjectType::kTramStatic => RoadObjectType::TramStatic,
+        maliput_sys::api::objects::ffi::RoadObjectType::kVanStatic => RoadObjectType::VanStatic,
+        maliput_sys::api::objects::ffi::RoadObjectType::kWind => RoadObjectType::Wind,
+        _ => RoadObjectType::None,
     }
 }
 
 fn road_object_type_to_cpp(obj_type: &RoadObjectType) -> maliput_sys::api::objects::ffi::RoadObjectType {
     match obj_type {
+        RoadObjectType::None => maliput_sys::api::objects::ffi::RoadObjectType::kUnknown,
         RoadObjectType::Unknown => maliput_sys::api::objects::ffi::RoadObjectType::kUnknown,
         RoadObjectType::Barrier => maliput_sys::api::objects::ffi::RoadObjectType::kBarrier,
         RoadObjectType::GuardWall => maliput_sys::api::objects::ffi::RoadObjectType::kGuardWall,
@@ -83,6 +115,39 @@ fn road_object_type_to_cpp(obj_type: &RoadObjectType) -> maliput_sys::api::objec
         RoadObjectType::Vegetation => maliput_sys::api::objects::ffi::RoadObjectType::kVegetation,
         RoadObjectType::Pylon => maliput_sys::api::objects::ffi::RoadObjectType::kPylon,
         RoadObjectType::Delineator => maliput_sys::api::objects::ffi::RoadObjectType::kDelineator,
+        RoadObjectType::BikeStatic => maliput_sys::api::objects::ffi::RoadObjectType::kBikeStatic,
+        RoadObjectType::BusStatic => maliput_sys::api::objects::ffi::RoadObjectType::kBusStatic,
+        RoadObjectType::CarStatic => maliput_sys::api::objects::ffi::RoadObjectType::kCarStatic,
+        RoadObjectType::MotorbikeStatic => maliput_sys::api::objects::ffi::RoadObjectType::kMotorbikeStatic,
+        RoadObjectType::Patch => maliput_sys::api::objects::ffi::RoadObjectType::kPatch,
+        RoadObjectType::PedestrianStatic => maliput_sys::api::objects::ffi::RoadObjectType::kPedestrianStatic,
+        RoadObjectType::Railing => maliput_sys::api::objects::ffi::RoadObjectType::kRailing,
+        RoadObjectType::RoadSurface => maliput_sys::api::objects::ffi::RoadObjectType::kRoadSurface,
+        RoadObjectType::SoundBarrier => maliput_sys::api::objects::ffi::RoadObjectType::kSoundBarrier,
+        RoadObjectType::StreetLamp => maliput_sys::api::objects::ffi::RoadObjectType::kStreetLamp,
+        RoadObjectType::TrailerStatic => maliput_sys::api::objects::ffi::RoadObjectType::kTrailerStatic,
+        RoadObjectType::TrainStatic => maliput_sys::api::objects::ffi::RoadObjectType::kTrainStatic,
+        RoadObjectType::TramStatic => maliput_sys::api::objects::ffi::RoadObjectType::kTramStatic,
+        RoadObjectType::VanStatic => maliput_sys::api::objects::ffi::RoadObjectType::kVanStatic,
+        RoadObjectType::Wind => maliput_sys::api::objects::ffi::RoadObjectType::kWind,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{road_object_type_from_cpp, road_object_type_to_cpp, RoadObjectType};
+
+    #[test]
+    fn unknown_from_cpp_stays_unknown() {
+        let cpp = maliput_sys::api::objects::ffi::RoadObjectType::kUnknown;
+        assert_eq!(road_object_type_from_cpp(cpp), RoadObjectType::Unknown);
+    }
+
+    #[test]
+    fn none_to_cpp_maps_to_unknown() {
+        assert!(
+            road_object_type_to_cpp(&RoadObjectType::None) == maliput_sys::api::objects::ffi::RoadObjectType::kUnknown
+        );
     }
 }
 

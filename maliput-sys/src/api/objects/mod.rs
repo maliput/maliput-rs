@@ -88,6 +88,21 @@ pub mod ffi {
         kVegetation,
         kPylon,
         kDelineator,
+        kBikeStatic,
+        kBusStatic,
+        kCarStatic,
+        kMotorbikeStatic,
+        kPatch,
+        kPedestrianStatic,
+        kRailing,
+        kRoadSurface,
+        kSoundBarrier,
+        kStreetLamp,
+        kTrailerStatic,
+        kTrainStatic,
+        kTramStatic,
+        kVanStatic,
+        kWind,
     }
 
     /// Shared enum representing the unit of a `RoadMarkingValue`.
