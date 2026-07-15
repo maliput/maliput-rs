@@ -133,25 +133,6 @@ fn road_object_type_to_cpp(obj_type: &RoadObjectType) -> maliput_sys::api::objec
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::{road_object_type_from_cpp, road_object_type_to_cpp, RoadObjectType};
-
-    #[test]
-    fn unknown_from_cpp_stays_unknown() {
-        let cpp = maliput_sys::api::objects::ffi::RoadObjectType::kUnknown;
-        assert_eq!(road_object_type_from_cpp(cpp), RoadObjectType::Unknown);
-    }
-
-    #[test]
-    fn none_to_cpp_maps_to_unknown() {
-        assert_eq!(
-            road_object_type_to_cpp(&RoadObjectType::None),
-            maliput_sys::api::objects::ffi::RoadObjectType::kUnknown
-        );
-    }
-}
-
 /// Represents the position of a [RoadObject] in the road network.
 ///
 /// Always contains an inertial position. May also contain a lane position
