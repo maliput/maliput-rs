@@ -144,6 +144,7 @@ odr_signal_types:
           orientation_traffic_light: [1.0, 0.0, 0.0, 0.0]
           color: "Red"
           type: "ArrowUpperLeft"
+          initial_state: "On"
           states: ["Off", "On", "Blinking"]
 
         - id: "YellowBulb"
