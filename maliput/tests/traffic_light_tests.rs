@@ -201,6 +201,8 @@ fn traffic_light_related_lanes_test() {
     let road_network = common::create_two_roads_with_traffic_lights_network();
     let book = road_network.traffic_light_book();
 
+    // Signal S1 has orientation "+" on road 1 → so only WithS oriented lanes will be included in related_lanes().
+    // SignalReference S1 has orientation "-" on road 2 → so only AgainstS oriented lanes will be included in related_lanes().
     // Signal S1 has validity fromLane=-1 toLane=-1 on road 1 -> related lane "1_0_-1".
     let tl_s1 = book
         .get_traffic_light(&String::from("S1"))
@@ -212,8 +214,8 @@ fn traffic_light_related_lanes_test() {
         related
     );
     assert!(
-        related.contains(&String::from("2_0_-1")),
-        "Expected '2_0_-1' in related_lanes, got: {:?}",
+        !related.contains(&String::from("2_0_-1")),
+        "Not expected '2_0_-1' in related_lanes, got: {:?}",
         related
     );
     assert!(
@@ -222,6 +224,8 @@ fn traffic_light_related_lanes_test() {
         related
     );
 
+    // Signal S2 has orientation "-" on road 2 → so only AgainstS oriented lanes will be included in related_lanes().
+    // SignalReference S2 has orientation "+" on road 1 → so only WithS oriented lanes will be included in related_lanes().
     // Signal S2 has no <validity> element -> check at least one lane of road 2 is included.
     let tl_s2 = book
         .get_traffic_light(&String::from("S2"))
@@ -233,13 +237,13 @@ fn traffic_light_related_lanes_test() {
         related_s2
     );
     assert!(
-        related_s2.contains(&String::from("2_0_-1")),
-        "Expected '2_0_-1' in related_lanes, got: {:?}",
+        !related_s2.contains(&String::from("2_0_-1")),
+        "Not expected '2_0_-1' in related_lanes, got: {:?}",
         related_s2
     );
     assert!(
-        related_s2.contains(&String::from("1_0_1")),
-        "Expected '1_0_1' in related_lanes, got: {:?}",
+        !related_s2.contains(&String::from("1_0_1")),
+        "Not expected '1_0_1' in related_lanes, got: {:?}",
         related_s2
     );
     assert!(
@@ -299,4 +303,32 @@ fn upper_left_traffic_light_bulb_types_test() {
             bulb.bulb_type()
         );
     }
+}
+
+#[test]
+fn upper_left_traffic_light_initial_state_test() {
+    let road_network = common::create_road_with_upper_left_traffic_light_network();
+    let book = road_network.traffic_light_book();
+    let tl = book
+        .get_traffic_light(&String::from("S1"))
+        .expect("Expected traffic light S1 to exist");
+
+    let bulb_groups = tl.bulb_groups();
+    let bulb_group = bulb_groups.first().expect("Expected at least one bulb group");
+    let red_bulb = bulb_group
+        .get_bulb(&String::from("RedBulb"))
+        .expect("Expected RedBulb to exist");
+
+    let initial_state = red_bulb.get_initial_state();
+    assert_eq!(
+        initial_state,
+        maliput::api::rules::BulbState::On,
+        "Expected RedBulb initial state to match fixture configuration"
+    );
+
+    let states = red_bulb.states();
+    assert!(
+        states.contains(&initial_state),
+        "Expected initial state to be one of the bulb declared states"
+    );
 }

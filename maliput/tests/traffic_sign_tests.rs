@@ -137,19 +137,23 @@ fn traffic_sign_related_lanes_test() {
 
     let ss1 = book.get_traffic_sign(&SS1_ID.to_string()).expect("SS1 not found");
     let ss1_lanes = ss1.related_lanes();
+    // SS1 orientation is "+" on road 1 → so only WithS oriented lanes will be included in related_lanes().
+    // Referenced SS1 orientation is "-" on road 2 → so only AgainstS oriented lanes will be included in related_lanes().
     // SS1 validity covers lane 1_0_-1; signalRef on road 2 covers 2_0_1 and 2_0_-1.
-    assert_eq!(ss1_lanes.len(), 3, "SS1 expected 3 related lanes, got {:?}", ss1_lanes);
+    assert_eq!(ss1_lanes.len(), 2, "SS1 expected 2 related lanes, got {:?}", ss1_lanes);
+    assert!(!ss1_lanes.contains(&"1_0_1".to_string()));
     assert!(ss1_lanes.contains(&"1_0_-1".to_string()));
     assert!(ss1_lanes.contains(&"2_0_1".to_string()));
-    assert!(ss1_lanes.contains(&"2_0_-1".to_string()));
+    assert!(!ss1_lanes.contains(&"2_0_-1".to_string()));
 
     let ss2 = book.get_traffic_sign(&SS2_ID.to_string()).expect("SS2 not found");
     let ss2_lanes = ss2.related_lanes();
-    // SS2 validity covers all lanes of road 2 (2_0_1, 2_0_-1); signalRef on road 1 covers 1_0_1 and 1_0_-1.
-    assert_eq!(ss2_lanes.len(), 4, "SS2 expected 4 related lanes, got {:?}", ss2_lanes);
+    // SS2 orientation is "-" on road 2 → so only AgainstS oriented lanes will be included in related_lanes().
+    // Referenced SS2 orientation is "+" on road 1 → so only WithS oriented lanes will be included in related_lanes().
+    assert_eq!(ss2_lanes.len(), 2, "SS2 expected 2 related lanes, got {:?}", ss2_lanes);
     assert!(ss2_lanes.contains(&"2_0_1".to_string()));
-    assert!(ss2_lanes.contains(&"2_0_-1".to_string()));
-    assert!(ss2_lanes.contains(&"1_0_1".to_string()));
+    assert!(!ss2_lanes.contains(&"2_0_-1".to_string()));
+    assert!(!ss2_lanes.contains(&"1_0_1".to_string()));
     assert!(ss2_lanes.contains(&"1_0_-1".to_string()));
 }
 
@@ -162,17 +166,12 @@ fn traffic_sign_book_find_by_lane_test() {
     );
     let book = road_network.traffic_sign_book();
 
-    // Lane "1_0_-1" is related to both SS1 (own validity) and SS2 (via signalRef).
+    // Lane "1_0_-1" is related to both SS1 and SS2 (via signalRef).
     let signs_1_0_minus1 = book.find_by_lane(&String::from("1_0_-1"));
     assert_eq!(signs_1_0_minus1.len(), 2);
     let ids: Vec<String> = signs_1_0_minus1.iter().map(|s| s.id()).collect();
     assert!(ids.contains(&SS1_ID.to_string()));
     assert!(ids.contains(&SS2_ID.to_string()));
-
-    // Lane "1_0_1" is related only to SS2 (via signalRef on road 1, no validity → all lanes).
-    let signs_1_0_1 = book.find_by_lane(&String::from("1_0_1"));
-    assert_eq!(signs_1_0_1.len(), 1);
-    assert_eq!(signs_1_0_1[0].id(), SS2_ID);
 
     // A nonexistent lane returns an empty vector.
     let signs_none = book.find_by_lane(&String::from("nonexistent_lane"));

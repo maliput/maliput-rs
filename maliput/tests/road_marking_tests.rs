@@ -145,11 +145,11 @@ fn road_marking_related_lanes_test() {
 
     let rm1 = book.get_road_marking(&RM1_ID.to_string()).expect("RM1 not found");
     let rm1_lanes = rm1.related_lanes();
-    // RM1 has <validity fromLane="-1" toLane="1"/> on road 1 → covers lanes 1_0_-1 and 1_0_1
+    // RM1 has orientation="+" on road 1 → so only RHT directed lanes will be included in related_lanes().
+    // RM1 has <validity fromLane="-1" toLane="1"/> on road 1 → covers lanes 1_0_-1 and 1_0_1, but orientation gives us only 1_0_-1.
     // (lane 1_0_0 is the center reference lane and is non-drivable).
-    assert_eq!(rm1_lanes.len(), 2, "RM1 expected 2 related lanes, got {:?}", rm1_lanes);
+    assert_eq!(rm1_lanes.len(), 1, "RM1 expected 1 related lanes, got {:?}", rm1_lanes);
     assert!(rm1_lanes.contains(&"1_0_-1".to_string()));
-    assert!(rm1_lanes.contains(&"1_0_1".to_string()));
 }
 
 #[test]
@@ -161,15 +161,14 @@ fn road_marking_book_find_by_lane_test() {
     );
     let book = road_network.road_marking_book();
 
-    // Lane "1_0_-1" is related to RM1 via its validity range.
+    // Lane "1_0_-1" is related to RM1 via its validity range and orientation.
     let markings_minus1 = book.find_by_lane(&String::from("1_0_-1"));
     assert_eq!(markings_minus1.len(), 1);
     assert_eq!(markings_minus1[0].id(), RM1_ID);
 
-    // Lane "1_0_1" is also related to RM1 via the same validity range.
+    // Lane "1_0_1" is not related since RM1 only includes WithS oriented lanes.
     let markings_plus1 = book.find_by_lane(&String::from("1_0_1"));
-    assert_eq!(markings_plus1.len(), 1);
-    assert_eq!(markings_plus1[0].id(), RM1_ID);
+    assert!(markings_plus1.is_empty());
 
     // A nonexistent lane returns an empty vector.
     let markings_none = book.find_by_lane(&String::from("nonexistent_lane"));
