@@ -62,6 +62,7 @@ struct OutlineCornerData;
 struct StringPair;
 struct ConstRoadMarkingPtr;
 struct RoadMarkingValueData;
+struct ContinuousObjectData;
 
 // RoadObjectBook bridge function declarations.
 std::unique_ptr<std::vector<ConstRoadObjectPtr>> RoadObjectBook_RoadObjects(const RoadObjectBook& book);
@@ -86,6 +87,7 @@ std::unique_ptr<maliput::math::BoundingBox> RoadObject_bounding_box(const RoadOb
 rust::Vec<rust::String> RoadObject_related_lanes(const RoadObject& obj);
 std::unique_ptr<std::vector<ConstOutlinePtr>> RoadObject_outlines(const RoadObject& obj);
 rust::Vec<StringPair> RoadObject_properties(const RoadObject& obj);
+rust::Vec<ContinuousObjectData> RoadObject_continuous_properties(const RoadObject& obj);
 
 // Outline bridge function declarations.
 rust::String Outline_id(const Outline& outline);

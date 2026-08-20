@@ -181,6 +181,20 @@ rust::Vec<StringPair> RoadObject_properties(const RoadObject& obj) {
   return pairs;
 }
 
+rust::Vec<ContinuousObjectData> RoadObject_continuous_properties(const RoadObject& obj) {
+  rust::Vec<ContinuousObjectData> samples;
+  for (const auto& sample : obj.continuous_properties()) {
+    ContinuousObjectData data;
+    data.width = sample.width();
+    data.height = sample.height();
+    data.x = sample.point_sample().x();
+    data.y = sample.point_sample().y();
+    data.z = sample.point_sample().z();
+    samples.push_back(data);
+  }
+  return samples;
+}
+
 rust::String Outline_id(const Outline& outline) {
   return outline.id().string();
 }
