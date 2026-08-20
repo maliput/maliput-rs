@@ -199,6 +199,29 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 println!("      '{}' = '{}'", key, val);
             }
         }
+
+        // --- Continuous properties ---
+        //
+        // Continuous objects (e.g. a guard rail modeled with an XODR `<repeat>`
+        // element) carry a series of lane-agnostic samples along their length,
+        // each holding a width, a height, and an inertial-frame point.  An empty
+        // vector means the object has no continuous properties.
+        let continuous_props = obj.continuous_properties();
+        if !continuous_props.is_empty() {
+            println!("    continuous_properties: {} samples", continuous_props.len());
+            for (i, sample) in continuous_props.iter().enumerate() {
+                let p = &sample.point_sample;
+                println!(
+                    "      sample {}: width={:.3} height={:.3} point=({:.3}, {:.3}, {:.3})",
+                    i,
+                    sample.width,
+                    sample.height,
+                    p.x(),
+                    p.y(),
+                    p.z()
+                );
+            }
+        }
     }
 
     // --- Look up a specific object by ID ---
