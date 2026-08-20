@@ -397,3 +397,230 @@ fn road_object_properties() {
         let _props = obj.properties();
     }
 }
+
+// ArcLaneOffsetWithGuardRail.xodr road layout:
+//
+// Road "1" is a single 100m arc (curvature=0.025 -> R=40m), starting at (0,0) with hdg=0,
+// curving left about C=(0,40). No elevation profile, so z=0 everywhere.
+//
+// Continuous (repeat-based) objects on Road 1:
+//   guardrail_right_boundary  : s=[0,50],   t=-0.5 constant,     width=0.3 constant,        height=1.0
+//   guardrail_left_boundary   : s=[50,100], t=4.5 -> 5.0,        width=0.3 -> 1.3,          height=1.0
+//   guardrail_detached_boundary: same repeat as guardrail_right_boundary but
+//                                 detachFromReferenceLine=true (samples a chord, not the arc)
+//
+// Expected values below were cross-checked against maliput_malidrive's own
+// `ContinuousObjectRepeatSamplingTest` regression tests, using
+// `continuous_object_sampling_distance=5.0` so that each 50m repeat yields exactly 11 samples.
+const GUARDRAIL_RIGHT_ID: &str = "guardrail_right_boundary";
+const GUARDRAIL_LEFT_ID: &str = "guardrail_left_boundary";
+const GUARDRAIL_DETACHED_ID: &str = "guardrail_detached_boundary";
+
+fn create_arc_guard_rail_road_network(continuous_object_sampling_distance: &str) -> maliput::api::RoadNetwork {
+    let rm = maliput::ResourceManager::new();
+    let xodr_path = rm
+        .get_resource_path_by_name("maliput_malidrive", "ArcLaneOffsetWithGuardRail.xodr")
+        .unwrap();
+
+    let properties = std::collections::HashMap::from([
+        ("road_geometry_id", "my_rg_from_rust"),
+        ("opendrive_file", xodr_path.to_str().unwrap()),
+        ("omit_nondrivable_lanes", "false"),
+        (
+            "continuous_object_sampling_distance",
+            continuous_object_sampling_distance,
+        ),
+    ]);
+    let rn_res = maliput::api::RoadNetwork::new(maliput::api::RoadNetworkBackend::MaliputMalidrive, &properties);
+    assert!(
+        rn_res.is_ok(),
+        "Expected RoadNetwork to be created successfully with ArcLaneOffsetWithGuardRail.xodr"
+    );
+    rn_res.unwrap()
+}
+
+#[test]
+fn road_object_continuous_properties_attached_guard_rail() {
+    let tol = 1e-2;
+    let road_network = create_arc_guard_rail_road_network("5.0");
+    let book = road_network.road_object_book();
+
+    let right = book.get_road_object(&GUARDRAIL_RIGHT_ID.to_string()).unwrap();
+    let samples = right.continuous_properties();
+    assert_eq!(samples.len(), 11, "Expected 11 samples for a 50m repeat at 5m spacing");
+
+    // width/height are constant across this repeat (widthStart == widthEnd == 0.3, heightStart == heightEnd == 1.0).
+    for (i, sample) in samples.iter().enumerate() {
+        assert!(
+            (sample.width - 0.3).abs() < tol,
+            "sample {i} width: got {}",
+            sample.width
+        );
+        assert!(
+            (sample.height - 1.0).abs() < tol,
+            "sample {i} height: got {}",
+            sample.height
+        );
+    }
+
+    // First sample: s=0, t=-0.5 -> matches the object's own declared position exactly.
+    let first = &samples[0];
+    assert!(
+        (first.point_sample.x() - 0.0).abs() < tol,
+        "first sample x: got {}",
+        first.point_sample.x()
+    );
+    assert!(
+        (first.point_sample.y() - (-0.5)).abs() < tol,
+        "first sample y: got {}",
+        first.point_sample.y()
+    );
+    assert!(
+        (first.point_sample.z() - 0.0).abs() < tol,
+        "first sample z: got {}",
+        first.point_sample.z()
+    );
+
+    // Last sample: s=50, t=-0.5 (end of the repeat, on the arc, not the road's s=100 end).
+    let last = samples.last().unwrap();
+    assert!(
+        (last.point_sample.x() - 38.43388).abs() < tol,
+        "last sample x: got {}",
+        last.point_sample.x()
+    );
+    assert!(
+        (last.point_sample.y() - 27.22944).abs() < tol,
+        "last sample y: got {}",
+        last.point_sample.y()
+    );
+    assert!(
+        (last.point_sample.z() - 0.0).abs() < tol,
+        "last sample z: got {}",
+        last.point_sample.z()
+    );
+}
+
+#[test]
+fn road_object_continuous_properties_left_guard_rail_interpolates() {
+    let tol = 1e-2;
+    let road_network = create_arc_guard_rail_road_network("5.0");
+    let book = road_network.road_object_book();
+
+    let left = book.get_road_object(&GUARDRAIL_LEFT_ID.to_string()).unwrap();
+    let samples = left.continuous_properties();
+    assert_eq!(samples.len(), 11, "Expected 11 samples for a 50m repeat at 5m spacing");
+
+    // First sample: s=50, t=4.5, widthStart=0.3.
+    let first = &samples[0];
+    assert!(
+        (first.width - 0.3).abs() < tol,
+        "first sample width: got {}",
+        first.width
+    );
+    assert!(
+        (first.point_sample.x() - 33.68895).abs() < tol,
+        "first sample x: got {}",
+        first.point_sample.x()
+    );
+    assert!(
+        (first.point_sample.y() - 28.80606).abs() < tol,
+        "first sample y: got {}",
+        first.point_sample.y()
+    );
+
+    // Last sample: s=100, t=5.0, widthEnd=1.3.
+    let last = samples.last().unwrap();
+    assert!((last.width - 1.3).abs() < tol, "last sample width: got {}", last.width);
+    assert!(
+        (last.point_sample.x() - 20.94653).abs() < tol,
+        "last sample x: got {}",
+        last.point_sample.x()
+    );
+    assert!(
+        (last.point_sample.y() - 68.04003).abs() < tol,
+        "last sample y: got {}",
+        last.point_sample.y()
+    );
+
+    // height is untouched by the width ramp (heightStart == heightEnd == 1.0).
+    assert!(
+        (first.height - 1.0).abs() < tol && (last.height - 1.0).abs() < tol,
+        "expected constant height, got first={}, last={}",
+        first.height,
+        last.height
+    );
+}
+
+#[test]
+fn road_object_continuous_properties_detached_matches_attached_endpoints() {
+    let tol = 1e-2;
+    let road_network = create_arc_guard_rail_road_network("5.0");
+    let book = road_network.road_object_book();
+
+    // guardrail_detached_boundary shares the same repeat span/lateral offset as
+    // guardrail_right_boundary, but detachFromReferenceLine=true makes it sample a
+    // chord instead of the arc. Endpoints must still coincide since ratio=0/1 collapse
+    // the chord interpolation onto the same start/end points used by the attached repeat.
+    let detached = book.get_road_object(&GUARDRAIL_DETACHED_ID.to_string()).unwrap();
+    let detached_samples = detached.continuous_properties();
+    assert_eq!(detached_samples.len(), 11);
+
+    let detached_first = &detached_samples[0];
+    let detached_last = detached_samples.last().unwrap();
+    assert!((detached_first.point_sample.x() - 0.0).abs() < tol);
+    assert!((detached_first.point_sample.y() - (-0.5)).abs() < tol);
+    assert!((detached_last.point_sample.x() - 38.43388).abs() < tol);
+    assert!((detached_last.point_sample.y() - 27.22944).abs() < tol);
+
+    // Interior points diverge from the attached (on-arc) samples: the midpoint of the
+    // chord must sit roughly halfway between the endpoints, unlike the attached repeat's
+    // arc-following midpoint.
+    let expected_mid_x = (detached_first.point_sample.x() + detached_last.point_sample.x()) / 2.0;
+    let expected_mid_y = (detached_first.point_sample.y() + detached_last.point_sample.y()) / 2.0;
+    let mid = &detached_samples[detached_samples.len() / 2];
+    assert!(
+        (mid.point_sample.x() - expected_mid_x).abs() < tol,
+        "chord midpoint x: got {}, expected {}",
+        mid.point_sample.x(),
+        expected_mid_x
+    );
+    assert!(
+        (mid.point_sample.y() - expected_mid_y).abs() < tol,
+        "chord midpoint y: got {}, expected {}",
+        mid.point_sample.y(),
+        expected_mid_y
+    );
+}
+
+#[test]
+fn road_object_book_find_in_radius_matches_continuous_object_sample() {
+    let tol = 1.0;
+    let road_network = create_arc_guard_rail_road_network("5.0");
+    let book = road_network.road_object_book();
+
+    // The last sample of guardrail_right_boundary is at (38.43388, 27.22944, 0), far away
+    // from the object's own declared position (s=0, t=-0.5 -> inertial (0, -0.5, 0)).
+    // find_in_radius must match it via the continuous sample, not just the base position.
+    let near_last_sample = book.find_in_radius(38.43388, 27.22944, 0.0, tol);
+    let ids: Vec<String> = near_last_sample.iter().map(|o| o.id()).collect();
+    assert!(
+        ids.contains(&GUARDRAIL_RIGHT_ID.to_string()),
+        "Expected {GUARDRAIL_RIGHT_ID} to be found near its last continuous sample, got: {ids:?}"
+    );
+
+    // The first sample coincides with the object's own declared position, (0, -0.5, 0).
+    let near_first_sample = book.find_in_radius(0.0, -0.5, 0.0, tol);
+    let ids: Vec<String> = near_first_sample.iter().map(|o| o.id()).collect();
+    assert!(
+        ids.contains(&GUARDRAIL_RIGHT_ID.to_string()),
+        "Expected {GUARDRAIL_RIGHT_ID} to be found near its first continuous sample, got: {ids:?}"
+    );
+
+    // Far away from every sample and every base position, nothing should match.
+    let far_results = book.find_in_radius(500.0, 500.0, 500.0, 0.1);
+    assert!(
+        far_results.is_empty(),
+        "Expected empty result far away, got: {:?}",
+        far_results.len()
+    );
+}
