@@ -170,6 +170,16 @@ pub struct OutlineCorner {
     pub height: Option<f64>,
 }
 
+/// Represents a single dimension sample of a continuous [RoadObject].
+///
+/// Continuous-object samples are lane-agnostic: each sample stores width and height at an
+/// explicit inertial point.
+pub struct ContinuousObject {
+    pub width: f64,
+    pub height: f64,
+    pub point_sample: crate::api::InertialPosition,
+}
+
 /// Represents an outline (a polygon) of a [RoadObject].
 pub struct Outline<'a> {
     pub(crate) outline: &'a maliput_sys::api::objects::ffi::Outline,
@@ -312,6 +322,20 @@ impl<'a> RoadObject<'a> {
             .map(|p| (p.key, p.value))
             .collect()
     }
+
+    /// Returns the continuous properties of this road object.
+    ///
+    /// An empty vector indicates that the object does not have continuous properties.
+    pub fn continuous_properties(&self) -> Vec<ContinuousObject> {
+        maliput_sys::api::objects::ffi::RoadObject_continuous_properties(self.road_object)
+            .into_iter()
+            .map(|c| ContinuousObject {
+                width: c.width,
+                height: c.height,
+                point_sample: crate::api::InertialPosition::new(c.x, c.y, c.z),
+            })
+            .collect()
+    }
 }
 
 /// Interface for accessing [RoadObject]s in the road network.
@@ -363,6 +387,7 @@ impl<'a> RoadObjectBook<'a> {
     }
 
     /// Returns all [RoadObject]s within `radius` meters of position `(x, y, z)`.
+    /// If the road object has continuous properties, it will check for all sampled points of the continuous object.
     pub fn find_in_radius(&self, x: f64, y: f64, z: f64, radius: f64) -> Vec<RoadObject<'_>> {
         maliput_sys::api::objects::ffi::RoadObjectBook_FindInRadius(self.road_object_book, x, y, z, radius)
             .into_iter()

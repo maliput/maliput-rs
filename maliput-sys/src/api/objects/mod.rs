@@ -69,6 +69,15 @@ pub mod ffi {
         pub key: String,
         pub value: String,
     }
+    /// Shared struct for a `ContinuousObject` sample.
+    /// This is a flat representation to avoid a new opaque CXX type.
+    struct ContinuousObjectData {
+        pub width: f64,
+        pub height: f64,
+        pub x: f64,
+        pub y: f64,
+        pub z: f64,
+    }
 
     /// Shared enum representing different types of road objects.
     /// This is needed to access the enum variant from Rust API since the C++ enum has an opaque implementation.
@@ -178,6 +187,7 @@ pub mod ffi {
         fn num_outlines(self: &RoadObject) -> i32;
         fn RoadObject_outlines(obj: &RoadObject) -> UniquePtr<CxxVector<ConstOutlinePtr>>;
         fn RoadObject_properties(obj: &RoadObject) -> Vec<StringPair>;
+        fn RoadObject_continuous_properties(obj: &RoadObject) -> Vec<ContinuousObjectData>;
 
         // Outline opaque type and bindings.
         type Outline;

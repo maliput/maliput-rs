@@ -35,7 +35,7 @@
 //! ## Usage
 //!
 //! ```bash
-//! cargo run --bin maliput_query --features tui -- maliput/data/xodr/TShapeRoad.xodr
+//! cargo run --bin maliput_query --features tui -- --tcd_db_path maliput/data/traffic_control_device_db/TrafficControlDeviceDatabase.yaml maliput/data/xodr/TShapeRoad.xodr
 //! cargo run --bin maliput_query --features tui -- --backend maliput_geopackage path/to/file.gpkg
 //! ```
 //!
@@ -1021,6 +1021,14 @@ fn execute_command(
                 out.push(format!("  properties ({}):", properties.len()));
                 for (k, v) in properties {
                     out.push(format!("    {} = {}", k, v));
+                }
+                let continuous_properties = obj.continuous_properties();
+                out.push(format!("  continuous_properties ({}):", continuous_properties.len()));
+                for (i, sample) in continuous_properties.iter().enumerate() {
+                    out.push(format!(
+                        "    sample[{}]: width={:.3} height={:.3} point_sample={}",
+                        i, sample.width, sample.height, sample.point_sample
+                    ));
                 }
             } else {
                 out.push(format!("Road object '{}' not found.", object_id));

@@ -70,6 +70,7 @@ odr_signal_types:
           orientation_traffic_light: [1.0, 0.0, 0.0, 0.0]
           color: "Green"
           type: "Round"
+          initial_state: "On"
           states: ["Off", "On"]
 
       # Rule conditions: map bulb state combinations to Right-Of-Way rule values.
